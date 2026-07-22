@@ -129,7 +129,6 @@ const handleSubmit = () => {
   position: relative;
   overflow: hidden;
 }
-.highlight { color: #3b82f6; }
 .glow {
   position: absolute;
   top: -160px;
