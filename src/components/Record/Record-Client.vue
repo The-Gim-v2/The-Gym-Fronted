@@ -1,8 +1,8 @@
 <template>
-  <HeadingAdmin>
+  <Heading>
     <NotificationSystem ref="toastRef" />
-    <main class="main-content">
-      <div class="profile-card">
+    <main class="main-content  " >
+      <div class="profile-card" >
         <!-- Sección Perfil -->
         <div class="profile-section">
           <h1 class="main-title">Registra tus <br> <span class="highlight">Clientes</span></h1>
@@ -108,12 +108,12 @@
         <Help v-if="activeModal === 'help'" @close="activeModal = null" />
       </div>
     </transition>
-  </HeadingAdmin>
+  </Heading>
 </template>
 
 <script setup>
 import { ref, reactive } from 'vue';
-import HeadingAdmin from '../../components/Admin/HeadingAdmin.vue';
+import Heading from '../Record/Heading.vue';
 import AddCorteComponent from '../../components/Admin/Componets/Cut.vue';
 
 import Help from '../../components/Admin/Componets/Help.vue';
@@ -159,6 +159,7 @@ const saveRegistration = () => {
 .main-content { display: flex; justify-content: center; width: 100%; padding: 40px clamp(16px, 3vw, 40px); box-sizing: border-box; }
 .highlight { color: #3b82f6; }
 .profile-card { 
+  
   display: grid; 
   grid-template-columns: 320px auto; 
   gap: 30px; 
