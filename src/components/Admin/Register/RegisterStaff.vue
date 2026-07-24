@@ -3,27 +3,55 @@
     <NotificationSystem ref="toastRef" />
     <main class="main-content">
       <div class="profile-card">
-        <!-- Sección Izquierda: Título y Avatar -->
+        <!-- Sección Izquierda: Título y Avatar con vista previa -->
         <div class="profile-section">
           <h1 class="main-title">Registra a tu <br> <span class="highlight">Personal</span></h1>
           
           <div class="avatar-wrapper">
-            <div class="avatar-circle" @click="$refs.fileInput.click()">
-              <svg viewBox="0 0 24 24" fill="white"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            <div class="avatar-circle" @click="$refs.fileInput.click()" title="Hacer clic para subir foto">
+              <img v-if="avatarPreview" :src="avatarPreview" alt="Vista previa del empleado" class="avatar-img" />
+              <svg v-else viewBox="0 0 24 24" fill="white"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
             </div>
-            <button class="avatar-action btn-camera" @click="$refs.fileInput.click()">
+            <button type="button" class="avatar-action btn-camera" @click="$refs.fileInput.click()" title="Subir fotografía">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
             </button>
             <input type="file" ref="fileInput" accept="image/*" style="display: none" @change="handleFileChange" />
           </div>
+          <p class="profile-hint">Sube una fotografía oficial o reciente para el expediente del empleado.</p>
         </div>
 
         <!-- Columna Derecha: Formularios -->
         <div class="forms-wrapper">
+          
+          <!-- Tarjeta 1: Credenciales y Rol (Primero para controlar la visibilidad) -->
+          <div class="login-card">
+            <h3 class="section-title">Credenciales y Rol</h3>
+            <div class="form-grid">
+              <div class="input-group">
+                <label>Rol en el sistema</label>
+                <select v-model="form.rol" class="custom-select">
+                  <option value="" disabled>Seleccionar rol</option>
+                  <option value="admin">Administrador</option>
+                  <option value="entrenador">Entrenador</option>
+                  <option value="recepcion">Recepción</option>
+                </select>
+              </div>
+              <div class="input-group">
+                <label>Correo electrónico</label>
+                <input type="email" v-model="form.email" placeholder="correo@ejemplo.com">
+              </div>
+              <div class="input-group span-full" v-if="form.rol === 'entrenador'">
+                <label>Especialidad</label>
+                <input type="text" v-model="form.especialidad" placeholder="Ej. Musculación, Funcional, Yoga">
+              </div>
+            </div>
+          </div>
+
+          <!-- Tarjeta 2: Datos del empleado -->
           <div class="login-card">
             <h3 class="section-title">Datos del empleado</h3>
             <div class="form-grid">
-              <div class="input-group">
+              <div class="input-group span-full">
                 <label>CURP</label>
                 <input type="text" v-model="form.curp" placeholder="Ej. ABCD010101HDF000">
               </div>
@@ -47,48 +75,30 @@
                 <label>Celular</label>
                 <input type="text" v-model="form.celular" placeholder="+52 000 000 0000">
               </div>
-              <div class="input-group">
-                <label>Facebook</label>
-                <input type="text" v-model="form.facebook" placeholder="usuario_fb">
-              </div>
-              <div class="input-group">
-                <label>Instagram</label>
-                <input type="text" v-model="form.instagram" placeholder="@usuario_ig">
-              </div>
-              <div class="input-group">
-                <label>TikTok</label>
-                <input type="text" v-model="form.tiktok" placeholder="@usuario_tt">
-              </div>
-              <div class="input-group">
-                <label>Otras app</label>
-                <input type="text" v-model="form.otrasApps" placeholder="Ej. X, LinkedIn">
-              </div>
+
+              <!-- Campos de Redes Sociales (Ocultos si el rol es 'recepcion' o 'admin') -->
+              <template v-if="form.rol !== 'recepcion' && form.rol !== 'admin'">
+                <div class="input-group">
+                  <label>Facebook</label>
+                  <input type="text" v-model="form.facebook" placeholder="usuario_fb">
+                </div>
+                <div class="input-group">
+                  <label>Instagram</label>
+                  <input type="text" v-model="form.instagram" placeholder="@usuario_ig">
+                </div>
+                <div class="input-group">
+                  <label>TikTok</label>
+                  <input type="text" v-model="form.tiktok" placeholder="@usuario_tt">
+                </div>
+                <div class="input-group">
+                  <label>Otras app</label>
+                  <input type="text" v-model="form.otrasApps" placeholder="Ej. X, LinkedIn">
+                </div>
+              </template>
             </div>
           </div>
 
-          <div class="login-card">
-            <h3 class="section-title">Credenciales y Rol</h3>
-            <div class="form-grid">
-              <div class="input-group">
-                <label>Rol en el sistema</label>
-                <select v-model="form.rol" class="custom-select">
-                  <option value="" disabled>Seleccionar</option>
-                  <option value="admin">Administrador</option>
-                  <option value="entrenador">Entrenador</option>
-                  <option value="recepcion">Recepción</option>
-                </select>
-              </div>
-              <div class="input-group">
-                <label>Correo electrónico</label>
-                <input type="email" v-model="form.email" placeholder="correo@ejemplo.com">
-              </div>
-              <div class="input-group">
-                <label>Especialidad</label>
-                <input type="text" v-model="form.especialidad" placeholder="Ej. Musculación">
-              </div>
-            </div>
-          </div>
-
+          <!-- Tarjeta 3: Horario de trabajo -->
           <div class="login-card">
             <h3 class="section-title">Horario de trabajo</h3>
             <div class="form-grid">
@@ -103,7 +113,7 @@
             </div>
           </div>
 
-          <button class="btn-primary" @click="saveRegistration">Finalizar Registro</button>
+          <button type="button" class="btn-primary" @click="saveRegistration">Finalizar Registro</button>
         </div>
       </div>
     </main>
@@ -115,11 +125,11 @@ import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import HeadingAdmin from '../HeadingAdmin.vue';
 import NotificationSystem from '../../Modals/NotificationSystem.vue'; 
+
 const router = useRouter();
-const activeModal = ref(null);
 const toastRef = ref(null);
 const fileInput = ref(null);
-const handleFileChange = (e) => { console.log(e.target.files[0]); };
+const avatarPreview = ref(null);
 
 const form = reactive({
   curp: '',
@@ -139,110 +149,280 @@ const form = reactive({
   horaSalida: ''
 });
 
+const handleFileChange = (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    avatarPreview.value = URL.createObjectURL(file);
+  }
+};
+
 const saveRegistration = () => {
-  // Validación: Puedes validar uno o varios campos obligatorios
   if (!form.nombres || !form.apellidoP) {
-    toastRef.value.notify('Por favor, completa los campos obligatorios ', 'warning');
+    toastRef.value?.notify('Por favor, completa los campos obligatorios (Nombres y Apellido Paterno)', 'warning');
     return;
   }
   
   try {
-    console.log("Datos a guardar:", form); // Verifica que los datos lleguen bien
-    toastRef.value.notify('Registro guardado con éxito', 'success');
+    console.log("Datos del personal a guardar:", form);
+    toastRef.value?.notify('Registro guardado con éxito', 'success');
   } catch (error) {
-    toastRef.value.notify('Error al guardar el registro', 'error');
+    toastRef.value?.notify('Error al guardar el registro', 'error');
   }
 };
 </script>
 
 <style scoped>
-/* Importación de fuentes y estilos base idénticos al de Clientes */
-@import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;700;800&family=Oswald:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;600;700&display=swap');
 
-.main-content { display: flex; justify-content: center; width: 100%; padding: 40px clamp(16px, 3vw, 40px); box-sizing: border-box; }
-.highlight { color: #3b82f6; }
+.main-content { 
+  display: flex; 
+  justify-content: center; 
+  width: 100%; 
+  padding: 40px clamp(16px, 3vw, 40px); 
+  box-sizing: border-box; 
+}
+
+.highlight { 
+  color: #3b82f6; 
+}
+
 .profile-card { 
   display: grid; 
-  grid-template-columns: 320px auto; 
+  grid-template-columns: 340px minmax(0, 1fr); 
   gap: 30px; 
   width: 100%; 
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 0 auto;   
   align-items: start; 
-  justify-content: center; 
 }
 
 .profile-section { 
-  background: rgba(18, 18, 18, 0.7); 
-  padding: 40px 20px; 
+  background: rgba(18, 18, 18, 0.75); 
+  backdrop-filter: blur(12px);
+  padding: 40px 24px; 
   border-radius: 24px; 
   border: 1px solid rgba(255, 255, 255, 0.09);
-  display: flex; flex-direction: column; align-items: center; text-align: center;
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  text-align: center;
+  position: sticky;
+  top: 30px;
 }
-.forms-wrapper { display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 700px; }
-.login-card { background: rgba(18, 18, 18, 0.7); padding: 40px; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.12); margin-bottom: 0; }
-.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-.input-group { display: flex; flex-direction: column; gap: 8px; }
 
-.main-title { font-family: 'Anton', sans-serif; font-size: 2rem; color: #fff; margin: 0 0 20px 0; line-height: 1.1; text-transform: uppercase; }
-.section-title { font-family: 'Oswald', sans-serif; color: #5b8bf0; font-size: 14px; margin-bottom: 15px; text-transform: uppercase; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 8px; }
-label { font-family: 'Oswald', sans-serif; color: #fff; font-size: 14px; font-weight: 500; }
+.main-title { 
+  font-family: 'Anton', sans-serif; 
+  font-size: 2.2rem; 
+  color: #fff; 
+  margin: 0 0 24px 0; 
+  line-height: 1.1; 
+  text-transform: uppercase; 
+  letter-spacing: 0.5px;
+}
+
+.profile-hint {
+  font-family: 'Inter', sans-serif;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  margin-top: 10px;
+}
+
+.forms-wrapper { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 20px; 
+  width: 100%; 
+}
+
+.login-card { 
+  background: rgba(18, 18, 18, 0.75); 
+  backdrop-filter: blur(12px);
+  padding: 30px; 
+  border-radius: 24px; 
+  border: 1px solid rgba(255, 255, 255, 0.12); 
+  box-sizing: border-box;
+}
+
+.form-grid { 
+  display: grid; 
+  grid-template-columns: repeat(2, 1fr); 
+  gap: 20px; 
+}
+
+.form-grid .span-full {
+  grid-column: span 2;
+}
+
+.input-group { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 8px; 
+}
+
+label { 
+  font-family: 'Oswald', sans-serif; 
+  color: #f5f5f4; 
+  font-size: 0.85rem; 
+  font-weight: 600; 
+  letter-spacing: 0.5px;
+}
 
 input, .custom-select { 
-  background: #141414; border: 1.5px solid rgba(255, 255, 255, 0.12); border-radius: 12px; color: #fff; padding: 10px 14px; width: 100%; box-sizing: border-box; 
+  background: #141414; 
+  border: 1.5px solid rgba(255, 255, 255, 0.12); 
+  border-radius: 12px; 
+  color: #fff; 
+  padding: 12px 14px; 
+  width: 100%; 
+  box-sizing: border-box; 
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.avatar-circle { width: 140px; height: 140px; background: #141414; border-radius: 50%; border: 4px solid #3b82f6; display: flex; align-items: center; justify-content: center; }
-.avatar-wrapper { position: relative; margin-bottom: 20px; }
-.avatar-action { position: absolute; width: 45px; height: 45px; border-radius: 50%; background: #2bacf1cb; border: 2px solid #000; cursor: pointer; bottom: 0; right: 0; display: flex; align-items: center; justify-content: center; }
+input:focus, .custom-select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
 
-.btn-primary { width: 100%; padding: 16px; background: #1c4fd6; color: white; border: none; border-radius: 12px; font-family: 'Oswald', sans-serif; font-weight: 700; cursor: pointer; text-transform: uppercase; }
-.icon-svg { width: 24px; cursor: pointer; }
+.custom-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px;
+  padding-right: 40px;
+  cursor: pointer;
+}
 
+.section-title { 
+  font-family: 'Oswald', sans-serif; 
+  color: #5b8bf0; 
+  font-size: 0.95rem; 
+  margin: 0 0 20px 0; 
+  text-transform: uppercase; 
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08); 
+  padding-bottom: 10px; 
+}
+
+/* Avatar Components */
+.avatar-circle { 
+  width: 150px; 
+  height: 150px; 
+  background: #141414; 
+  border-radius: 50%; 
+  border: 4px solid #3b82f6; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2);
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-wrapper { 
+  position: relative; 
+  margin-bottom: 10px; 
+}
+
+.avatar-action { 
+  position: absolute; 
+  width: 42px; 
+  height: 42px; 
+  border-radius: 50%; 
+  background: #3b82f6; 
+  border: 2px solid #121212; 
+  cursor: pointer; 
+  bottom: 0; 
+  right: 0; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  color: white;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.2s;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  touch-action: manipulation;
+}
 
 .avatar-action svg {
-  width: 24px;  
-  height: 24px;
-  
+  width: 20px;  
+  height: 20px;
 }
 
+/* Botón principal */
 .btn-primary {
   width: 100%;
   padding: 16px;
   background: #1c4fd6;
   color: white;
   border: none;
-  border-radius: 12px;
+  border-radius: 14px;
   font-family: 'Oswald', sans-serif;
   font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
   cursor: pointer;
   text-transform: uppercase;
-  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-
-.avatar-action:active {
-  transform: scale(0.9);
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 4px 14px rgba(28, 79, 214, 0.35);
 }
 
 @media (hover: hover) {
   .btn-primary:hover {
-    transform: scale(1.02); 
+    transform: translateY(-2px); 
+    background: #1742be;
+    box-shadow: 0 6px 18px rgba(28, 79, 214, 0.5);
+  }
+  .avatar-action:hover {
+    transform: scale(1.08);
   }
 }
 
-.btn-primary:active {
-  transform: scale(0.95);
-}
-.avatar-action {
-  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.2s;
-  touch-action: manipulation;
+.btn-primary:active, .avatar-action:active {
+  transform: scale(0.96);
 }
 
+/* Responsive Media Queries */
+@media (max-width: 1024px) { 
+  .profile-card { 
+    grid-template-columns: 1fr; 
+  } 
+  .profile-section {
+    position: static;
+  }
+}
 
-@media (max-width: 1024px) { .profile-card { grid-template-columns: 1fr; } }
-@media (max-width: 768px) { 
-  .profile-card { grid-template-columns: 1fr; }
-  .form-grid { grid-template-columns: 1fr; } 
+@media (max-width: 768px) {
+  .main-content {
+    padding: 12px;
+  }
+  
+  .form-grid { 
+    grid-template-columns: 1fr; 
+    gap: 14px;
+  } 
+
+  .form-grid .span-full {
+    grid-column: span 1;
+  }
+
+  .login-card { 
+    padding: 20px;
+    border-radius: 20px;
+  }
+
+  .avatar-circle {
+    width: 130px;
+    height: 130px;
+  }
 }
 </style>

@@ -1,10 +1,10 @@
 <template>
-  <div class="dashboard-wrapper">
+  <div class="dashboard-wrapper" :class="{ 'sidebar-open': isSidebarOpen }">
     <transition name="fade">
       <div v-if="isSidebarOpen" class="sidebar-overlay" @click="toggleSidebar"></div>
     </transition>
 
-    <nav :class="['sidebar', { 'sidebar-open': isSidebarOpen }]">
+    <aside :class="['sidebar', { 'sidebar-open': isSidebarOpen }]">
       <div class="sidebar-header">
         <div class="header-main">
           <svg class="icon-small" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5H7z" fill="currentColor"/></svg>
@@ -84,11 +84,11 @@
           </div>
           <div class="submenu">
             <router-link to="/admin/pricing" class="sub-item">
-              <svg class="sub-icon color-blue" viewBox="0 0 24 24"><path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z" fill="currentColor"/></svg>
+              <svg class="sub-icon color-blue" viewBox="0 0 24 24"><path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7 z" fill="currentColor"/></svg>
               <span>Precios y Promos</span>
             </router-link>
             <router-link to="/admin/fees" class="sub-item">
-              <svg class="sub-icon color-purple" viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 1.9 1.55 3.28 3.5 3.71V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z" fill="currentColor"/></svg>
+              <svg class="sub-icon color-purple" viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 1.9 1.55 3.28 3.5 3.71V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4 z" fill="currentColor"/></svg>
               <span>Multas y Recargos</span>
             </router-link>
           </div>
@@ -124,27 +124,45 @@
 
         <router-link to="/admin/settings" class="nav-item">
           <div class="nav-content">
-            <svg class="nav-icon" viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z" fill="currentColor"/></svg>
+            <svg class="nav-icon" viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5 z" fill="currentColor"/></svg>
             <span class="nav-text">Configuración</span>
           </div>
         </router-link>
       </div>
 
       <div class="sidebar-footer">
-        <button class="btn-logout">
-          <svg class="logout-icon" viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z" fill="currentColor"/></svg>
+        <button class="btn-logout" @click="handleLogout">
+          <svg class="logout-icon" viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5 z" fill="currentColor"/></svg>
           <span>Cerrar Sesión</span>
         </button>
       </div>
-    </nav>
+    </aside>
 
+    <div class="main-content">
+      <header class="top-bar">
+        <button class="mobile-toggle glass-effect" @click="toggleSidebar" aria-label="Abrir menú">
+          <svg viewBox="0 0 24 24" class="svg-icon">
+            <path d="M4 4h4v4H4V4zm6 0h4v4h-4V4zm6 0h4v4h-4V4zM4 10h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4zM4 16h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4z" fill="currentColor"/>
+          </svg>
+        </button>
+      </header>
+
+      <main class="dashboard-body">
+        <slot>
+          <div class="brand-card">
+            <h1>Panel de Control</h1>
+          </div>
+        </slot>
+      </main>
+    </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useRouter } from 'vue-router'; 
 
-const isSidebarOpen = ref(true);
+const router = useRouter(); 
+const isSidebarOpen = ref(false);
 const openSection = ref<string | null>(null);
 
 const toggleSidebar = () => {
@@ -154,19 +172,17 @@ const toggleSidebar = () => {
 const toggleGroup = (section: string) => {
   openSection.value = openSection.value === section ? null : section;
 };
+
+const handleLogout = () => {
+  localStorage.removeItem('token'); 
+  localStorage.removeItem('user');
+  
+  router.push('/login'); 
+};
 </script>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
-:origin {
-  --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-  --sidebar-bg: rgba(15, 23, 42, 0.45);
-  --sidebar-border: rgba(255, 255, 255, 0.08);
-  --nav-hover: rgba(255, 255, 255, 0.06);
-  --active-blue: #3b82f6;
-  --text-muted: #94a3b8;
-}
 
 .dashboard-wrapper {
   display: flex;
@@ -175,11 +191,12 @@ const toggleGroup = (section: string) => {
   font-family: 'Inter', sans-serif;
   overflow-x: hidden;
   color: #f8fafc;
+  position: relative;
 }
 
 .sidebar {
   width: 280px;
-  background: #0a0a0a;;
+  background: #0a0a0a;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   height: 100vh;
@@ -189,6 +206,9 @@ const toggleGroup = (section: string) => {
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 1000;
   flex-shrink: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
 }
 
 .sidebar-header {
@@ -244,7 +264,7 @@ const toggleGroup = (section: string) => {
   color: #ffffff; 
 }
 
-/* Elemento Activo (Rutas activas de Vue Router automáticamente) */
+/* Elemento Activo */
 .router-link-active.nav-item {
   background: rgba(59, 130, 246, 0.12);
   border: 1px solid rgba(59, 130, 246, 0.25);
@@ -336,7 +356,6 @@ const toggleGroup = (section: string) => {
   opacity: 1;
 }
 
-/* Variaciones de colores de tus SVGs originales */
 .color-blue { fill: #3b82f6; }
 .color-purple { fill: #a855f7; }
 .color-gray { fill: #94a3b8; }
@@ -381,28 +400,37 @@ const toggleGroup = (section: string) => {
   display: flex; 
   flex-direction: column; 
   width: 100%; 
+  margin-left: 0;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (min-width: 901px) {
+  .main-content {
+    margin-left: 280px;
+  }
 }
 
 .top-bar {
   padding: 0 24px;
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
   align-items: center;
   height: 70px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(10, 10, 10, 0.5);
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 900;
 }
 
 .dashboard-body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 32px;
   padding: 24px;
 }
 
-/* Tarjeta Principal de marca (Simulando las fotos de referencia) */
 .brand-card {
   background: rgba(30, 41, 59, 0.4);
   backdrop-filter: blur(16px);
@@ -419,73 +447,58 @@ const toggleGroup = (section: string) => {
   letter-spacing: 1px;
 }
 
-.actions-container { display: flex; gap: 24px; }
-
-.action-btn {
-  width: 160px; 
-  height: 110px;
-  background: rgba(255, 255, 255, 0.03); 
-  border: 1px solid rgba(255, 255, 255, 0.08); 
-  border-radius: 16px;
-  display: flex; 
-  flex-direction: column; 
-  align-items: center; 
-  justify-content: center;
-  gap: 12px; 
-  color: white; 
-  cursor: pointer; 
-  transition: all 0.25s ease;
-}
-
-.action-btn:hover { 
-  transform: translateY(-4px); 
-  background: rgba(59, 130, 246, 0.1);
-  border-color: #3b82f6;
-  box-shadow: 0 10px 20px rgba(59, 130, 246, 0.15);
-}
-
 /* --- RESPONSIVO MÓVIL --- */
-.mobile-toggle { display: none; }
+.mobile-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.03); 
+  border: 1px solid rgba(255,255,255,0.12);
+  color: white; 
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
 
-@media (max-width: 900px) {
+.mobile-toggle:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: #3b82f6;
+}
+
+.svg-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.sidebar {
+  transform: translateX(-100%);
+}
+
+.sidebar-open .sidebar {
+  transform: translateX(0);
+  box-shadow: 20px 0 40px rgba(0,0,0,0.5);
+}
+
+@media (min-width: 901px) {
   .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    transform: translateX(-100%);
+    transform: translateX(0);
   }
-  .sidebar-open { 
-    transform: translateX(0); 
-    box-shadow: 20px 0 40px rgba(0,0,0,0.5);
-  }
-  
-  .sidebar-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(4px);
-    z-index: 999;
-  }
-
   .mobile-toggle {
-    display: block;
-    background: rgba(255,255,255,0.05); 
-    border: 1px solid rgba(255,255,255,0.1);
-    color: white; 
-    cursor: pointer;
-    padding: 8px;
-    border-radius: 8px;
+    display: none;
   }
+}
 
-  .top-bar { justify-content: space-between; }
-  .brand-card { padding: 32px; width: 100%; }
-  .brand-card h1 { font-size: 1.5rem; }
-  .actions-container { flex-direction: column; width: 100%; }
-  .action-btn { width: 100%; height: 80px; }
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  z-index: 999;
 }
 
 /* Animación de entrada de overlay */
-.fade-enter-active, .fade-leave-active { transition: opacity 0.2s; }
+.fade-enter-active, .fade-leave-active { transition: opacity 0.25s ease; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
 
 /* Custom Scrollbar */

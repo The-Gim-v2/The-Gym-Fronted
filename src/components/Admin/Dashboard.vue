@@ -1,11 +1,11 @@
 <template>
   <HeadingAdmin>
-
     <div class="main-layout">
-
       <main class="dashboard-content">
         <div class="gym-brand-card">
-          <h1 class="gym-name-display">ULTRA FITNESS CENTER</h1>
+          <h1 class="gym-name-display">
+            ULTRA <span class="highlight-blue">FITNESS</span> CENTER
+          </h1>
           <p class="gym-subtitle">Sistema de Gestión de Alto Rendimiento</p>
         </div>
 
@@ -105,7 +105,6 @@
   </HeadingAdmin>
 </template>
 
-
 <script setup>
 import { ref, onBeforeUnmount } from 'vue';
 import Sidebar from '../../components/Admin/Sidebar.vue';
@@ -113,7 +112,6 @@ import NotificationsPanel from './Notifications/NotificationsPanel.vue';
 import AddScheduleModal from '../Modals/AddScheduleModal.vue';
 import ViewScheduleModal from '../Modals/ViewScheduleModal.vue';
 import HeadingAdmin from './HeadingAdmin.vue';
-
 
 const isSidebarOpen = ref(false);
 const isNotificationsOpen = ref(false);
@@ -158,5 +156,295 @@ onBeforeUnmount(() => closeModal());
 </script>
 
 <style scoped>
-@import '../../assets/Admin/Dashoard.css';
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;700&display=swap');
+
+.dashboard-wrapper {
+  display: flex;
+  min-height: 100vh;
+  background: #0a0a0a;
+  position: relative;
+  overflow-x: hidden;
+  font-family: 'Inter', sans-serif;
+  color: #f5f5f4;
+}
+
+.sidebar-container {
+  width: 280px;
+  background: #121212;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  transform: translateX(-100%); 
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 3000;
+  box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+}
+
+.sidebar-open .sidebar-container { transform: translateX(0); }
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 2500;
+  backdrop-filter: blur(6px);
+}
+
+.main-layout {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  transition: margin-left 0.4s ease;
+}
+
+@media (min-width: 1024px) {
+  .sidebar-open .main-layout { margin-left: 280px; }
+}
+
+.top-nav {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 24px;
+  background: rgba(18, 18, 18, 0.7);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.nav-left, .nav-right { display: flex; gap: 16px; align-items: center; }
+
+.toggle-btn, .nav-action-btn {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.toggle-btn:hover, .nav-action-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: #1c4fd6;
+  transform: translateY(-2px);
+}
+
+.notification { position: relative; }
+
+.dot {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 8px;
+  height: 8px;
+  background: #1c4fd6;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #1c4fd6;
+}
+
+.svg-icon { width: 22px; height: 22px; fill: none; stroke: #f5f5f4; stroke-width: 2; }
+
+.dashboard-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  gap: 32px;
+}
+
+.gym-brand-card {
+  text-align: center;
+  padding: 40px;
+  background: #121212;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 24px;
+  width: 100%;
+  max-width: 550px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+}
+
+.gym-name-display {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 2.4rem;
+  color: #f5f5f4;
+  margin: 0;
+  letter-spacing: -1px;
+}
+
+.highlight-blue {
+  color: #1c4fd6;
+}
+
+.gym-subtitle { color: rgba(245, 245, 244, 0.55); margin-top: 12px; font-size: 1rem; font-weight: 500; }
+
+.attendance-methods { display: flex; gap: 20px; width: 100%; max-width: 550px; }
+
+.attendance-btn {
+  flex: 1;
+  padding: 24px 16px;
+  border-radius: 16px;
+  background: #121212;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  color: #f5f5f4;
+  transition: all 0.2s ease;
+}
+
+.attendance-btn:hover { 
+  background: #1c4fd6; 
+  border-color: #1c4fd6;
+  box-shadow: 0 8px 24px rgba(28, 79, 214, 0.3);
+  transform: translateY(-2px);
+}
+
+.action-buttons-container { display: flex; gap: 20px; width: 100%; max-width: 550px; }
+
+.action-card {
+  flex: 1;
+  height: 120px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  padding: 24px;
+  gap: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #121212;
+  color: #f5f5f4;
+}
+
+.action-icon {
+  background: rgba(28, 79, 214, 0.15);
+  padding: 12px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1c4fd6;
+}
+
+.svg-btn { width: 28px; height: 28px; fill: currentColor; }
+
+.card-info { display: flex; flex-direction: column; text-align: left; }
+
+.main-text { font-family: 'Oswald', sans-serif; font-size: 1.05rem; }
+
+.sub-text { font-size: 0.85rem; color: rgba(245, 245, 244, 0.55); margin-top: 4px; }
+
+.action-card:hover { 
+  transform: translateY(-3px); 
+  border-color: #1c4fd6;
+  background: #161616;
+}
+
+.modal-wrapper {
+  position: fixed; inset: 0; z-index: 4000;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px);
+}
+
+.custom-panel, .camera-panel {
+  background: #121212;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  color: #f5f5f4;
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+  width: 92%;
+  max-width: 440px;
+}
+
+.panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+
+.panel-header h3 { font-family: 'Oswald', sans-serif; font-size: 1.3rem; margin: 0; color: #1c4fd6; }
+
+.close-panel {
+  background: rgba(255, 255, 255, 0.03);
+  border: none; color: #f5f5f4;
+  font-size: 1.6rem; width: 36px; height: 36px;
+  border-radius: 12px; cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.close-panel:hover { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+
+.panel-body { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 24px; }
+
+.qr-container { background: #f5f5f4; padding: 16px; border-radius: 16px; }
+.qr-container img { width: 180px; height: 180px; display: block; }
+
+.web-preview {
+  width: 70px; height: 70px; background: rgba(255, 255, 255, 0.03);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+}
+
+.large-svg { width: 32px; fill: #f5f5f4; }
+
+.panel-body p, .panel-footer p { color: rgba(245, 245, 244, 0.55); font-size: 0.95rem; line-height: 1.6; margin: 0; }
+
+.action-btn-full {
+  width: 100%; padding: 14px; border-radius: 12px; border: none;
+  background: #1c4fd6; color: #ffffff;
+  font-family: 'Oswald', sans-serif; font-size: 0.95rem;
+  cursor: pointer; transition: all 0.2s ease;
+}
+
+.action-btn-full.outline {
+  background: transparent; border: 1.5px solid rgba(255, 255, 255, 0.15);
+  color: #f5f5f4; margin-top: 8px;
+}
+
+.action-btn-full:hover { background: #123ba0; transform: translateY(-1px); }
+
+.camera-container {
+  position: relative; width: 100%; aspect-ratio: 4 / 3;
+  background: #000000; border-radius: 16px; overflow: hidden;
+  margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.video-feed { width: 100%; height: 100%; object-fit: cover; }
+
+.face-overlay {
+  position: absolute; inset: 0; background-color: rgba(0, 0, 0, 0.6);
+  mask: radial-gradient(circle, transparent 50%, black 50%);
+}
+
+.qr-overlay {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 220px; height: 220px; border: 2.5px solid #1c4fd6;
+  border-radius: 16px; box-shadow: 0 0 0 1000px rgba(0,0,0,0.5);
+}
+
+.scanner-line {
+  position: absolute; width: 100%; height: 3px; background: #1c4fd6;
+  box-shadow: 0 0 12px #1c4fd6; animation: scan 2.2s infinite ease-in-out;
+}
+
+@keyframes scan { 0%, 100% { top: 0%; } 50% { top: 100%; } }
+
+.pop-enter-active, .pop-leave-active { transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.pop-enter-from, .pop-leave-to { opacity: 0; transform: scale(0.95); }
+
+.fade-enter-active, .fade-leave-active { transition: opacity 0.25s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+
+@media (max-width: 680px) {
+  .attendance-methods, .action-buttons-container { flex-direction: column; }
+  .action-card { height: 100px; }
+  .gym-name-display { font-size: 1.8rem; }
+  .dashboard-content { padding: 24px 16px; }
+  .custom-panel, .camera-panel { padding: 24px 20px; }
+}
 </style>

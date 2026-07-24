@@ -3,35 +3,73 @@
     <NotificationSystem ref="toastRef" />
     
     <div class="panel-header">
-      <h2 class="form-title">ENVÍO MASIVO</h2>
-      <button class="close-x" @click="$emit('close')">
-        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      <div class="title-group">
+        <h2 class="form-title">ENVÍO <span class="highlight">MASIVO</span></h2>
+        <p class="form-subtitle">Difusión y comunicación masiva</p>
+      </div>
+      <button class="close-x" @click="$emit('close')" aria-label="Cerrar modal">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
       </button>
     </div>
     
     <div class="form-body">
       <div class="input-group">
-        <label>Asunto</label>
-        <input type="text" v-model="emailForm.asunto" class="custom-input" placeholder="Ej. Promoción especial">
+        <label>Destinatarios</label>
+        <textarea 
+          v-model="emailForm.destinatarios" 
+          class="custom-input textarea-field" 
+          rows="2" 
+          placeholder="correo1@mail.com, correo2@mail.com"
+        ></textarea>
       </div>
 
       <div class="input-group">
-        <label>Destinatarios</label>
-        <textarea v-model="emailForm.destinatarios" class="custom-input" rows="2" placeholder="ejemplo@mail.com"></textarea>
+        <label>Asunto</label>
+        <input 
+          type="text" 
+          v-model="emailForm.asunto" 
+          class="custom-input" 
+          placeholder="Ej. Promoción especial"
+        >
       </div>
 
-      <div class="toolbar">
-        <button @click="execCommand('bold')"><b>B</b></button>
-        <button @click="execCommand('italic')"><i>I</i></button>
-        <button @click="$refs.fileInput.click()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M21 15l-5-5L5 21"/></svg>
-        </button>
-        <input type="file" ref="fileInput" @change="handleImage" style="display: none" accept="image/*">
+      <div class="editor-container">
+        <div class="toolbar">
+          <button type="button" class="tool-btn" @click="execCommand('bold')" title="Negrita">
+            <b>B</b>
+          </button>
+          <button type="button" class="tool-btn" @click="execCommand('italic')" title="Cursiva">
+            <i>I</i>
+          </button>
+          <button type="button" class="tool-btn" @click="execCommand('underline')" title="Subrayado">
+            <u>U</u>
+          </button>
+          <div class="toolbar-separator"></div>
+          <button type="button" class="tool-btn" @click="$refs.fileInput.click()" title="Adjuntar imagen">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M21 15l-5-5L5 21"/>
+            </svg>
+          </button>
+          <input type="file" ref="fileInput" @change="handleImage" style="display: none" accept="image/*">
+        </div>
+
+        <div 
+          ref="editor" 
+          class="custom-input editor-area" 
+          contenteditable="true" 
+          @input="updateContent"
+          data-placeholder="Escribe el contenido masivo..."
+        ></div>
       </div>
 
-      <div ref="editor" class="custom-input editor-area" contenteditable="true" @input="updateContent"></div>
-
-      <button class="btn-send" @click="sendEmail">Enviar Correo</button>
+      <button class="btn-send" @click="sendEmail">
+        <span>Enviar Correo Masivo</span>
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+      </button>
     </div>
   </div>
 </template>
@@ -46,10 +84,12 @@ const emailForm = reactive({ asunto: '', destinatarios: '', mensaje: '' });
 
 const execCommand = (cmd) => {
   document.execCommand(cmd, false, null);
-  editor.value.focus();
+  if (editor.value) editor.value.focus();
 };
 
-const updateContent = (e) => { emailForm.mensaje = e.target.innerHTML; };
+const updateContent = (e) => { 
+  emailForm.mensaje = e.target.innerHTML; 
+};
 
 const handleImage = (e) => {
   const file = e.target.files[0];
@@ -57,40 +97,218 @@ const handleImage = (e) => {
     const reader = new FileReader();
     reader.onload = (ev) => {
       document.execCommand('insertImage', false, ev.target.result);
-      toastRef.value.notify('Imagen añadida', 'success');
+      if (toastRef.value) {
+        toastRef.value.notify('Imagen añadida', 'success');
+      }
     };
     reader.readAsDataURL(file);
   }
 };
 
 const sendEmail = () => {
-  if (!emailForm.asunto || !emailForm.mensaje) {
-    toastRef.value.notify('Completa asunto y mensaje', 'error');
+  if (!emailForm.asunto || !emailForm.mensaje.trim()) {
+    if (toastRef.value) {
+      toastRef.value.notify('Completa asunto y mensaje', 'error');
+    }
     return;
   }
-  toastRef.value.notify('Correo enviado masivamente', 'success');
+  if (toastRef.value) {
+    toastRef.value.notify('Correo enviado masivamente', 'success');
+  }
 };
 </script>
 
 <style scoped>
 .form-panel { 
-  background: #121212; border: 1px solid rgba(255, 255, 255, 0.09); 
-  color: #f5f5f4; border-radius: 24px; padding: 24px; 
-  width: 95%; max-width: 440px; max-height: 90vh; overflow-y: auto; 
+  background: #121214; 
+  border: 1px solid rgba(255, 255, 255, 0.08); 
+  color: #f5f5f4; 
+  border-radius: 20px; 
+  padding: 24px; 
+  width: 95%; 
+  max-width: 460px; 
+  max-height: 90vh; 
+  overflow-y: auto; 
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
 }
-.panel-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
-.form-title { font-family: 'Oswald', sans-serif; color: #1c4fd6; font-size: 1.2rem; }
-.input-group { margin-bottom: 15px; }
-.input-group label { font-family: 'Oswald', sans-serif; font-size: 11px; text-transform: uppercase; display: block; margin-bottom: 5px; }
-.custom-input { background: #1a1a1a; border: 1px solid #333; color: white; padding: 10px; border-radius: 12px; width: 100%; box-sizing: border-box; }
-.toolbar { display: flex; gap: 8px; margin-bottom: 10px; padding: 5px; background: #1a1a1a; border: 1px solid #333; border-radius: 8px; }
-.toolbar button { background: none; border: 1px solid #444; color: white; padding: 4px 10px; border-radius: 6px; cursor: pointer; }
-.editor-area { min-height: 120px; outline: none; overflow-y: auto; text-align: left; }
-.btn-send { background: #1c4fd6; color: white; border: none; border-radius: 12px; height: 45px; width: 100%; margin-top: 15px; font-family: 'Oswald'; cursor: pointer; }
+
+.panel-header { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: flex-start;
+  margin-bottom: 20px; 
+}
+
+.title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.form-title { 
+  font-family: 'Oswald', sans-serif; 
+  color: #fff; 
+  font-size: 1.15rem; 
+  letter-spacing: 0.8px;
+  margin: 0;
+}
+
+.form-subtitle {
+  font-size: 0.78rem;
+  color: #888;
+  margin: 0;
+}
+
+.highlight { 
+  color: #3b82f6; 
+}
+
+.input-group { 
+  margin-bottom: 14px; 
+}
+
+.input-group label { 
+  font-family: 'Oswald', sans-serif; 
+  font-size: 0.72rem; 
+  text-transform: uppercase; 
+  display: block; 
+  margin-bottom: 5px; 
+  color: #888;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.custom-input { 
+  background: #09090b; 
+  border: 1px solid rgba(255, 255, 255, 0.08); 
+  color: white; 
+  padding: 10px 14px; 
+  border-radius: 10px; 
+  width: 100%; 
+  box-sizing: border-box; 
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.custom-input:focus {
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+.textarea-field {
+  resize: vertical;
+  min-height: 42px;
+  max-height: 100px;
+}
+
+.editor-container {
+  margin-bottom: 18px;
+}
+
+.toolbar { 
+  display: flex; 
+  align-items: center;
+  gap: 6px; 
+  margin-bottom: 6px; 
+  padding: 6px; 
+  background: #09090b; 
+  border: 1px solid rgba(255, 255, 255, 0.08); 
+  border-radius: 10px; 
+}
+
+.tool-btn { 
+  background: rgba(255, 255, 255, 0.03); 
+  border: 1px solid rgba(255, 255, 255, 0.06); 
+  color: #ccc; 
+  padding: 6px 12px; 
+  border-radius: 6px; 
+  cursor: pointer; 
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.tool-btn:hover { 
+  background: rgba(255, 255, 255, 0.08); 
+  color: white; 
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.toolbar-separator {
+  width: 1px;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0 4px;
+}
+
+.editor-area { 
+  min-height: 130px; 
+  max-height: 220px;
+  outline: none; 
+  overflow-y: auto; 
+  text-align: left; 
+  line-height: 1.4;
+}
+
+.editor-area:empty:before {
+  content: attr(data-placeholder);
+  color: #555;
+  pointer-events: none;
+  display: block;
+}
+
+.btn-send { 
+  background: linear-gradient(135deg, #2563eb, #1d4ed8); 
+  color: white; 
+  border: none; 
+  border-radius: 10px; 
+  height: 44px; 
+  width: 100%; 
+  font-family: 'Oswald', sans-serif; 
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+  cursor: pointer; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: opacity 0.2s, transform 0.1s;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.btn-send:hover { 
+  opacity: 0.92; 
+}
+
+.btn-send:active {
+  transform: scale(0.98);
+}
 
 @media (max-width: 480px) {
   .form-panel { padding: 16px; }
   .toolbar { gap: 4px; }
   .btn-send { height: 40px; }
+}
+
+.close-x { 
+  background: rgba(255, 255, 255, 0.05); 
+  border: 1px solid rgba(255, 255, 255, 0.08); 
+  color: #aaa; 
+  cursor: pointer; 
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.close-x:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
 }
 </style>

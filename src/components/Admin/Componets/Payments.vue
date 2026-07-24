@@ -2,34 +2,46 @@
   <HeadingAdmin>
     <NotificationSystem ref="toastRef" />
     <main class="main-content">
-      <!-- Columna Izquierda -->
+      <!-- Columna Izquierda: Perfil de Cliente -->
       <div class="profile-section">
-        <h1 class="main-title">Jesus Luis <br> <span class="highlight">Ramires</span></h1>
-        <div class="avatar-circle">
-          <svg viewBox="0 0 24 24" fill="white"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+        <h1 class="main-title">Jesús Luis <br> <span class="highlight">Ramírez</span></h1>
+        <div class="avatar-wrapper">
+          <div class="avatar-circle">
+            <img src="../../../assets/humano.jpg" alt="Avatar del usuario" class="user-avatar-img" />
+          </div>
+          <div class="status-badge">Pendiente</div>
         </div>
-        <div class="status-badge">Pendiente</div>
         <p class="user-id">ID: GymPer001</p>
       </div>
 
-      <!-- Columna Derecha -->
+      <!-- Columna Derecha: Panel de Operaciones / Pago -->
       <div class="right-column">
         <div class="input-group search-bar-half">
           <label>Buscar Cliente</label>
-          <input type="text" placeholder="Buscar...">
+          <div class="search-input-wrapper">
+            <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" placeholder="Buscar por nombre o ID...">
+          </div>
         </div>
 
-        <div class="login-card">
+        <div class="login-card glass-effect">
           <div class="form-grid">
-            <div class="input-group"><label>Próximo Corte</label><input type="date"></div>
-            <div class="input-group"><label>Nuevo Corte</label><input type="date"></div>
+            <div class="input-group">
+              <label>Próximo Corte</label>
+              <input type="date" class="custom-input">
+            </div>
+            <div class="input-group">
+              <label>Nuevo Corte</label>
+              <input type="date" class="custom-input">
+            </div>
           </div>
 
           <div class="header-row">
-            
-            <div class="input-group2"><label>Estado de Cuenta</label></div>
-            <button class="btn-promos"  type="button" @click="activeModal = 'promo'">
-              <svg viewBox="0 0 24 24" fill="currentColor" style="width: 16px;">
+            <div class="input-group-label">Estado de Cuenta</div>
+            <button class="btn-promos" type="button" @click="activeModal = 'promo'">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
                 <path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z"/>
               </svg>
               Promos
@@ -37,45 +49,90 @@
           </div>
           
           <div class="styled-box">
-            <span class="amount-val">$ 450.00</span>
+            <div class="amount-info">
+              <span class="amount-label">Total a pagar</span>
+              <div class="amount-row">
+                <span class="currency">$</span>
+                <span class="amount-val">{{ montoRecibir ? montoRecibir.toFixed(2) : '450.00' }}</span>
+              </div>
+            </div>
             <div class="recargo-container">
               <span class="red">+ $50 Recargo</span>
-              <span class="mensual-text">Mensual</span>
+              <span class="mensual-text">{{ ofertaSeleccionada ? ofertaSeleccionada.nombre : 'Mensual' }}</span>
             </div>
           </div>
 
-          <div class="input-group"><label>Monto a Recibir</label></div>
-          <div class="input-with-symbol">
-            <span class="symbol">$</span>
-            <input type="number" v-model="montoRecibir" placeholder="0.00">
+          <!-- Sección Tipo de Pago y Folio -->
+          <div class="payment-details-grid">
+            <div class="input-group">
+              <label>Tipo de Pago</label>
+              <div class="input-wrapper select-wrapper-container">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="input-icon">
+                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                  <line x1="1" y1="10" x2="23" y2="10"></line>
+                </svg>
+                <select v-model="tipoPago" class="custom-select">
+                  <option disabled value="">Seleccionar</option>
+                  <option value="Efectivo">Efectivo</option>
+                  <option value="Transferencia">Transferencia</option>
+                  <option value="Tarjeta">Tarjeta</option>
+                </select>
+                <svg class="select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label>Folio / Referencia</label>
+              <div class="input-wrapper input-with-icon-simple">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="input-icon">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <input type="text" v-model="folioReferencia" placeholder="N° de comprobante">
+              </div>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>Monto a Recibir</label>
+            <div class="input-with-symbol">
+              <span class="symbol">$</span>
+              <input type="number" v-model="montoRecibir" placeholder="0.00">
+            </div>
           </div>
           
-          <div style="margin-top: 25px;">
-            <button class="btn-primary" :disabled="isButtonDisabled" :class="{ 'disabled': isButtonDisabled }"@click="confirmPayment">Confirmar Pago</button>
+          <div class="action-buttons">
+            <button class="btn-primary" :disabled="isButtonDisabled" :class="{ 'disabled': isButtonDisabled }" @click="confirmPayment">
+              Confirmar Pago
+            </button>
+            
+            <button class="btn-secondary" @click="downloadReceipt">
+              <svg viewBox="0 0 24 24" fill="currentColor" class="btn-icon" width="16" height="16">
+                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+              </svg>
+              Descargar Recibo
+            </button>
           </div>
-          
-          <button class="btn-secondary" style="margin-top: 10px;" @click="downloadReceipt">
-            <svg viewBox="0 0 24 24" fill="currentColor" class="btn-icon">
-              <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-            </svg>
-            Descargar Recibo
-          </button>
         </div>
       </div>
     </main>
-          <transition name="pop">
+
+    <transition name="pop">
       <div v-if="activeModal === 'promo'" class="modal-wrapper" @click.self="activeModal = null">
-        <Promo @close="activeModal = null" />
+        <!-- AQUÍ ESTÁ EL CAMBIO CLAVE: Escuchamos el evento select-oferta -->
+        <Promo @select-oferta="handleSelectOferta" @close="activeModal = null" />
       </div>
     </transition>  
   </HeadingAdmin>
 </template>
 
 <script setup>
-import { ref, computed, reactive } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router'; 
 import HeadingAdmin from '../HeadingAdmin.vue';
-
 import Promo from '../Componets/Promos.vue';
 import NotificationSystem from '../../Modals/NotificationSystem.vue'; 
 
@@ -84,50 +141,168 @@ const activeModal = ref(null);
 const toastRef = ref(null);
 
 const montoRecibir = ref(null);
-const isButtonDisabled = computed(() => !montoRecibir.value || montoRecibir.value <= 100);
+const tipoPago = ref('');
+const folioReferencia = ref('');
+const ofertaSeleccionada = ref(null);
+
+const isButtonDisabled = computed(() => !montoRecibir.value || montoRecibir.value <= 100 || !tipoPago.value);
+
+// Función para manejar la selección de la promo, inyectar el precio, cambiar el texto y cerrar el modal
+const handleSelectOferta = (oferta) => {
+  ofertaSeleccionada.value = oferta;
+  montoRecibir.value = oferta.precio;
+  activeModal.value = null; // Esto cierra el modal automáticamente
+  if (toastRef.value) {
+    toastRef.value.notify(`Oferta aplicada: ${oferta.nombre}`, 'success');
+  }
+};
 
 const confirmPayment = () => {
-  if (isButtonDisabled.value) {
-    toastRef.value.notify('El monto debe ser mayor a 100', 'error');
+  if (!tipoPago.value) {
+    if (toastRef.value) toastRef.value.notify('Selecciona el tipo de pago', 'error');
     return;
   }
-  
-  // Aquí tu lógica de pago...
-  
-  toastRef.value.notify('Pago confirmado correctamente', 'success');
+  if (isButtonDisabled.value) {
+    if (toastRef.value) toastRef.value.notify('El monto debe ser mayor a 100', 'error');
+    return;
+  }
+  if (toastRef.value) toastRef.value.notify('Pago confirmado correctamente', 'success');
 };
 
 const downloadReceipt = () => {
-  // Lógica de generación o descarga del PDF
-  console.log("Generando recibo...");
-  
-  // Notificación de éxito
-  toastRef.value.notify('Descargando recibo...', 'success');
-  
-  // Aquí podrías añadir un setTimeout si necesitas simular un proceso
-};
-
-const goToPromos = () => {
-  router.push('/admin/promos'); // Ajusta esta ruta a la que tengas en tu router/index.js
+  if (toastRef.value) toastRef.value.notify('Descargando recibo...', 'success');
 };
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;700;800&family=Oswald:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;600;700&display=swap');
 
+.main-content { 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  gap: 80px; 
+  padding: 40px; 
+  min-height: 80vh; 
+  box-sizing: border-box;
+}
 
-.main-content { display: flex; align-items: center; justify-content: center; gap: 300px; padding: 40px; min-height: 80vh; }
-.profile-section { display: flex; flex-direction: column; align-items: center; text-align: center; }
-.main-title { font-family: 'Anton', sans-serif; font-size: 3.5rem; color: #fff; margin: 0 0 20px 0; line-height: 1.1; }
-.highlight { color: #3b82f6; }
-.avatar-circle { width: 250px; height: 250px; background: #000; border-radius: 50%; border: 4px solid #3b82f6; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
-.status-badge { background: #ffa704; padding: 8px 30px; border-radius: 20px; font-weight: 700; font-family: 'Oswald', sans-serif; font-size: 1.1rem; color: #000; }
-.user-id { margin-top: 15px; color: #94a3b8; font-weight: 600; font-family: 'Inter', sans-serif; font-size: 1.2rem; }
+.profile-section { 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  text-align: center; 
+}
 
-.right-column { display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 420px; }
-.search-bar-half { width: 50%; align-self: flex-end; }
-.login-card { background: rgba(18, 18, 18, 0.7); backdrop-filter: blur(20px); padding: 25px; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.12); }
-.header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.main-title { 
+  font-family: 'Anton', sans-serif; 
+  font-size: 3.5rem; 
+  color: #fff; 
+  margin: 0 0 16px 0; 
+  line-height: 1.05; 
+  letter-spacing: 1px;
+}
+
+.highlight { 
+  color: #3b82f6; 
+}
+
+.avatar-wrapper {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.avatar-circle { 
+  width: 220px; 
+  height: 220px; 
+  background: #09090b; 
+  border-radius: 50%; 
+  border: 4px solid #3b82f6; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  box-shadow: 0 0 35px rgba(59, 130, 246, 0.25);
+  overflow: hidden;
+}
+
+.user-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.status-badge { 
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffa704; 
+  padding: 8px 24px; 
+  border-radius: 20px; 
+  font-weight: 700; 
+  font-family: 'Oswald', sans-serif; 
+  font-size: 1.05rem; 
+  color: #000; 
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.user-id { 
+  margin-top: 15px; 
+  color: #94a3b8; 
+  font-weight: 600; 
+  font-family: 'Inter', sans-serif; 
+  font-size: 1.2rem; 
+  letter-spacing: 0.5px;
+}
+
+.right-column { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 16px; 
+  width: 100%; 
+  max-width: 420px; 
+}
+
+.search-bar-half { 
+  width: 50%; 
+  align-self: flex-end; 
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  color: #71717a;
+  pointer-events: none;
+}
+
+.search-input-wrapper input {
+  padding-left: 36px !important;
+}
+
+.login-card { 
+  background: rgba(18, 18, 18, 0.7); 
+  backdrop-filter: blur(20px); 
+  padding: 24px; 
+  border-radius: 24px; 
+  border: 1px solid rgba(255, 255, 255, 0.12); 
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+}
+
+.header-row { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  margin-bottom: 10px; 
+}
 
 .modal-wrapper {
   position: fixed;
@@ -140,7 +315,7 @@ const goToPromos = () => {
   align-items: center;
   justify-content: center;
   z-index: 9999; 
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(6px);
 }
 
 .pop-enter-active, .pop-leave-active {
@@ -150,38 +325,261 @@ const goToPromos = () => {
   opacity: 0;
 }
 
-.btn-promos { background: transparent; border: 1px solid #3b82f6; color: #3b82f6; border-radius: 20px; padding: 4px 12px; display: flex; align-items: center; gap: 6px; font-family: 'Oswald', sans-serif; cursor: pointer; transition: 0.3s; }
-.btn-primary { width: 100%; padding: 14px; background: #1c4fd6; color: white; border: none; border-radius: 12px; font-family: 'Oswald', sans-serif; font-weight: 700; cursor: pointer; }
-.btn-primary.disabled { background: #444; cursor: not-allowed; }
-.btn-secondary { width: 100%; padding: 14px; background: transparent; border: 1px solid #3b82f6; color: #3b82f6; border-radius: 12px; font-family: 'Oswald', sans-serif; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
-
-
-.input-with-symbol { display: flex; align-items: center; background: #141414; border: 1px solid #333; border-radius: 8px; padding: 0 15px; }
-.input-with-symbol .symbol { color: #fff; font-size: 1.2rem; font-weight: bold; margin-right: 8px; }
-.input-with-symbol input { background: transparent; border: none; padding: 15px 0; font-size: 1.2rem; color: #fff; width: 100%; outline: none; }
-.input-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; }
-.input-group label { font-family: 'Oswald', sans-serif; color: #fff; font-size: 14px; }
-.input-group2 {  display: flex; flex-direction: column;  margin-bottom: 0px; }
-.input-group2 label { font-family: 'Oswald', sans-serif; color: #fff; font-size: 14px; }
-.header-row { 
+.btn-promos { 
+  background: transparent; 
+  border: 1px solid #3b82f6; 
+  color: #3b82f6; 
+  border-radius: 20px; 
+  padding: 4px 12px; 
   display: flex; 
-  justify-content: space-between; 
   align-items: center; 
-  margin-bottom: 10px; 
+  gap: 6px; 
+  font-family: 'Oswald', sans-serif; 
+  cursor: pointer; 
+  transition: 0.3s; 
 }
-input:not(.input-with-symbol input) { background: #141414; border: 1px solid #333; border-radius: 8px; color: #fff; padding: 10px; font-family: 'Inter', sans-serif; outline: none; }
-.styled-box { background: #141414; border: 1px solid #333; border-radius: 8px; padding: 12px; display: flex; align-items: center; justify-content: space-between; color: #fff; margin-bottom: 20px; }
-.amount-val { font-size: 1.8rem; font-weight: 800; }
-.recargo-container { display: flex; flex-direction: column; align-items: flex-end; }
-.red { color: #dc2626; font-weight: 700; font-size: 0.9rem; }
-.mensual-text { font-family: 'Oswald', sans-serif; font-size: 0.9rem; color: #fff; }
-.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.btn-icon { width: 18px; height: 18px; }
 
-.btn-primary, 
-.btn-secondary, 
-.btn-promos {
-  transition: transform 0.2s ease, background 0.3s, border 0.3s;
+.btn-promos:hover {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.btn-primary { 
+  width: 100%; 
+  padding: 14px; 
+  background: #1c4fd6; 
+  color: white; 
+  border: none; 
+  border-radius: 12px; 
+  font-family: 'Oswald', sans-serif; 
+  font-weight: 700; 
+  cursor: pointer; 
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+.btn-primary.disabled { 
+  background: #444; 
+  color: #888;
+  cursor: not-allowed; 
+}
+
+.btn-secondary { 
+  width: 100%; 
+  padding: 14px; 
+  background: transparent; 
+  border: 1px solid #3b82f6; 
+  color: #3b82f6; 
+  border-radius: 12px; 
+  font-family: 'Oswald', sans-serif; 
+  font-weight: 700; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  gap: 8px; 
+  cursor: pointer; 
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 25px;
+}
+
+.payment-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 5px;
+}
+
+.select-wrapper-container, .input-with-icon-simple {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.input-icon {
+  position: absolute;
+  left: 12px;
+  color: #71717a;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.custom-select {
+  width: 100%;
+  background: #141414;
+  border: 1px solid #333;
+  border-radius: 8px;
+  color: #fff;
+  padding: 10px 32px 10px 36px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+  text-overflow: ellipsis;
+  box-sizing: border-box;
+}
+
+.custom-select option {
+  background-color: #18181b;
+  color: #fff;
+  padding: 8px;
+}
+
+.select-arrow {
+  position: absolute;
+  right: 12px;
+  color: #71717a;
+  pointer-events: none;
+}
+
+.input-with-icon-simple input {
+  width: 100%;
+  background: #141414;
+  border: 1px solid #333;
+  border-radius: 8px;
+  color: #fff;
+  padding: 10px 10px 10px 36px !important;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.input-with-symbol { 
+  display: flex; 
+  align-items: center; 
+  background: #141414; 
+  border: 1px solid #333; 
+  border-radius: 8px; 
+  padding: 0 15px; 
+  box-sizing: border-box;
+}
+
+.input-with-symbol .symbol { 
+  color: #fff; 
+  font-size: 1.2rem; 
+  font-weight: bold; 
+  margin-right: 8px; 
+}
+
+.input-with-symbol input { 
+  background: transparent; 
+  border: none; 
+  padding: 15px 0; 
+  font-size: 1.2rem; 
+  color: #fff; 
+  width: 100%; 
+  outline: none; 
+}
+
+.input-group { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 8px; 
+  margin-bottom: 15px; 
+}
+
+.input-group label, .input-group-label { 
+  font-family: 'Oswald', sans-serif; 
+  color: #fff; 
+  font-size: 14px; 
+}
+
+input:not(.input-with-symbol input, .input-with-icon-simple input) { 
+  background: #141414; 
+  border: 1px solid #333; 
+  border-radius: 8px; 
+  color: #fff; 
+  padding: 10px; 
+  font-family: 'Inter', sans-serif; 
+  outline: none; 
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.styled-box { 
+  background: #141414; 
+  border: 1px solid #333; 
+  border-radius: 8px; 
+  padding: 14px 18px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+  color: #fff; 
+  margin-bottom: 20px; 
+}
+
+.amount-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.amount-label {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-family: 'Oswald', sans-serif;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.amount-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.currency {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.amount-val { 
+  font-size: 1.8rem; 
+  font-weight: 800; 
+  color: #ffffff;
+  letter-spacing: 0.5px;
+  line-height: 1;
+}
+
+.recargo-container { 
+  display: flex; 
+  flex-direction: column; 
+  align-items: flex-end; 
+}
+
+.red { 
+  color: #dc2626; 
+  font-weight: 700; 
+  font-size: 0.9rem; 
+}
+
+.mensual-text { 
+  font-family: 'Oswald', sans-serif; 
+  font-size: 0.9rem; 
+  color: #fff; 
+}
+
+.form-grid { 
+  display: grid; 
+  grid-template-columns: 1fr 1fr; 
+  gap: 10px; 
+}
+
+.btn-icon { 
+  width: 18px; 
+  height: 18px; 
 }
 
 @media (hover: hover) {
@@ -198,35 +596,52 @@ input:not(.input-with-symbol input) { background: #141414; border: 1px solid #33
   transform: scale(0.95);
 }
 
-.btn-primary:disabled {
-  transform: none !important;
-}
-
-
 @media (max-width: 768px) {
-  .main-content { flex-direction: column; gap: 20px; padding: 15px; }
-  .main-title { font-size: 2.0rem; }
-  .avatar-circle { width: 100px; height: 100px; }
-  .status-badge { font-size: 0.9rem; padding: 5px 20px; }
-  .user-id { font-size: 1rem; }
-  
-  .styled-box { padding: 8px 12px; }
-  .amount-val { font-size: 1.3rem; }
-  .red { font-size: 0.75rem; } 
-  .mensual-text { font-size: 0.75rem; }
-
-  .btn-promos { 
-    padding: 2px 8px; 
-    font-size: 0.75rem; 
+  .main-content { 
+    flex-direction: column; 
+    gap: 15px; 
+    padding: 10px; 
   }
-  .btn-promos svg { width: 12px !important; }
-
-  .right-column { width: 100%; }
-  .search-bar-half { width: 100%; align-self: center; }
-  .form-grid { grid-template-columns: 1fr; }
-  .form-grid .input-group,
-  .form-grid .input-group input {
-    width: 100%;
+  .main-title { 
+    font-size: 1.7rem; 
+    margin-bottom: 10px;
+  }
+  .avatar-circle { 
+    width: 100px; 
+    height: 100px; 
+    border-width: 3px;
+  }
+  .status-badge { 
+    font-size: 0.75rem; 
+    padding: 3px 12px; 
+  }
+  .user-id { 
+    font-size: 0.85rem; 
+    margin-top: 8px;
+    margin-bottom: 0px;
+  }
+  .profile-section {
+    gap: 0px;
+  }
+  .right-column { 
+    width: 100%; 
+  }
+  .search-bar-half { 
+    width: 100%; 
+    align-self: center; 
+  }
+  .form-grid, .payment-details-grid { 
+    grid-template-columns: 1fr; 
+  }
+  .login-card {
+    padding: 16px;
+  }
+  .styled-box {
+    padding: 10px 14px;
+    margin-bottom: 14px;
+  }
+  .amount-val {
+    font-size: 1.4rem;
   }
 }
 </style>
