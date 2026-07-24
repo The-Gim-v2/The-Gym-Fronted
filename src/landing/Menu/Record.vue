@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { reactive, ref, computed } from 'vue';
 import Logo from '@/landing/logo.vue';
+import MembershipModal from '../../components/Modals/MembershipModal.vue'; // Ajusta la ruta de tu modal si es necesario
 
 const allDays = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 const fileInput = ref<HTMLInputElement | null>(null);
 const previewImage = ref<string | null>(null);
 const showPassword = ref(false);
 const submitted = ref(false);
+const showPaymentModal = ref(false); // Control para abrir el modal de pago
 
 const form = reactive({
   nombreGimnasio: '',
@@ -15,7 +17,8 @@ const form = reactive({
   entidad: 'SLP', municipio: '', cp: '', colonia: '', calle: '', numExt: '', numInt: '',
   selectedDays: [] as string[],
   precioMes: '', precioSem: '',
-  email: '', password: '', confirmPassword: ''
+  email: '', password: '', confirmPassword: '',
+  tipoMembresia: 'Plan Pro (Seleccionado)' // Campo de texto para la membresía pagada/seleccionada
 });
 
 const toggleDay = (day: string) => {
@@ -30,6 +33,16 @@ const onFileSelected = (event: Event) => {
   if (file) previewImage.value = URL.createObjectURL(file);
 };
 
+const handleUpdateMembership = () => {
+  showPaymentModal.value = true;
+};
+
+const handlePaymentSuccess = (msg: string) => {
+  showPaymentModal.value = false;
+  // Aquí puedes actualizar form.tipoMembresia con el plan que el usuario pagó en el modal si lo deseas
+  console.log(msg);
+};
+
 const handleRegister = () => {
   console.log('Registro:', form);
   submitted.value = true;
@@ -39,6 +52,13 @@ const handleRegister = () => {
 <template>
   <div class="register-page">
     <div class="glow"></div>
+
+    <!-- Modal de Membresía / Pago -->
+    <MembershipModal 
+      v-if="showPaymentModal" 
+      @close="showPaymentModal = false"
+      @success="handlePaymentSuccess"
+    />
 
     <header class="top-bar">
       <router-link :to="{ name: 'home' }" class="top-brand">
@@ -59,6 +79,7 @@ const handleRegister = () => {
         <form @submit.prevent="handleRegister">
           <div class="rg-grid">
 
+            <!-- COLUMNA 1: Imagen, Gimnasio y Administrador -->
             <div class="form-column">
               <h3 class="section-divider first">Imagen del gimnasio</h3>
               <div class="upload-container">
@@ -112,6 +133,7 @@ const handleRegister = () => {
               </div>
             </div>
 
+            <!-- COLUMNA 2: Cuenta de acceso y Ubicación -->
             <div class="form-column">
               <h3 class="section-divider first">Cuenta de acceso</h3>
               <div class="stack-gap">
@@ -180,6 +202,7 @@ const handleRegister = () => {
               </div>
             </div>
 
+            <!-- COLUMNA 3: Operación, Membresía pagada y Registro -->
             <div class="form-column rg-col3">
               <h3 class="section-divider first">Configuración de operación</h3>
               <div class="input-group">
@@ -219,6 +242,27 @@ const handleRegister = () => {
                 </div>
               </div>
 
+              <!-- SECCIÓN DE MEMBRESÍA (Texto informativo + botón para abrir modal de pago) justo antes del registro -->
+              <h3 class="section-divider">Membresía seleccionada</h3>
+              <div class="input-group">
+                <label for="tipoMembresia">Plan adquirido</label>
+                <div class="membership-inline-row">
+                  <div class="flex-grow">
+                    <input 
+                      id="tipoMembresia" 
+                      type="text" 
+                      v-model="form.tipoMembresia" 
+                      readonly 
+                      placeholder="Ningún plan seleccionado" 
+                      required 
+                    />
+                  </div>
+                  <button type="button" class="action-btn" @click="handleUpdateMembership" title="Pagar o cambiar membresía">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>
+                  </button>
+                </div>
+              </div>
+
               <div class="actions-section">
                 <button type="submit" class="btn-primary">
                   Registrar gimnasio
@@ -238,6 +282,41 @@ const handleRegister = () => {
 </template>
 
 <style scoped>
+.membership-inline-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.flex-grow {
+  flex-grow: 1;
+}
+
+.action-btn {
+  background: rgba(28, 79, 214, 0.15);
+  border: 1px solid rgba(28, 79, 214, 0.4);
+  color: #8fb4f8;
+  border-radius: 12px;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.action-btn:hover {
+  background: #1c4fd6;
+  color: #ffffff;
+}
+
+.action-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
 .register-page {
   min-height: 100vh;
   background: #0a0a0a;
@@ -430,6 +509,13 @@ input, select {
 }
 
 input::placeholder { color: rgba(245, 245, 244, 0.4); }
+
+input[readonly] {
+  background: #111111;
+  color: #8fb4f8;
+  border-color: rgba(28, 79, 214, 0.3);
+  cursor: default;
+}
 
 input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.6; cursor: pointer; }
 
