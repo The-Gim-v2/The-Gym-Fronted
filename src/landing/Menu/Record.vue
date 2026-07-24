@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { reactive, ref, computed } from 'vue';
 import Logo from '@/landing/logo.vue';
-import MembershipModal from '../../components/Modals/MembershipModal.vue'; // Ajusta la ruta de tu modal si es necesario
+import MembershipModal from '../../components/Modals/MembershipModal.vue';
 
 const allDays = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 const fileInput = ref<HTMLInputElement | null>(null);
 const previewImage = ref<string | null>(null);
 const showPassword = ref(false);
 const submitted = ref(false);
-const showPaymentModal = ref(false); // Control para abrir el modal de pago
+const showPaymentModal = ref(false);
 
 const form = reactive({
   nombreGimnasio: '',
@@ -18,7 +18,7 @@ const form = reactive({
   selectedDays: [] as string[],
   precioMes: '', precioSem: '',
   email: '', password: '', confirmPassword: '',
-  tipoMembresia: 'Plan Pro (Seleccionado)' // Campo de texto para la membresía pagada/seleccionada
+  tipoMembresia: 'Plan Pro (Seleccionado)'
 });
 
 const toggleDay = (day: string) => {
@@ -39,7 +39,6 @@ const handleUpdateMembership = () => {
 
 const handlePaymentSuccess = (msg: string) => {
   showPaymentModal.value = false;
-  // Aquí puedes actualizar form.tipoMembresia con el plan que el usuario pagó en el modal si lo deseas
   console.log(msg);
 };
 
@@ -202,9 +201,10 @@ const handleRegister = () => {
               </div>
             </div>
 
-            <!-- COLUMNA 3: Operación, Membresía pagada y Registro -->
+            <!-- COLUMNA 3: Operación, Membresía y Registro organizados en 3 columnas reales -->
             <div class="form-column rg-col3">
-              <h3 class="section-divider first">Configuración de operación</h3>
+              <h3 class="section-divider first">Configuración de operación y membresía</h3>
+              
               <div class="input-group">
                 <label>Días de apertura</label>
                 <div class="days-container">
@@ -242,9 +242,7 @@ const handleRegister = () => {
                 </div>
               </div>
 
-              <!-- SECCIÓN DE MEMBRESÍA (Texto informativo + botón para abrir modal de pago) justo antes del registro -->
-              <h3 class="section-divider">Membresía seleccionada</h3>
-              <div class="input-group">
+              <div class="input-group" style="margin-top: 14px;">
                 <label for="tipoMembresia">Plan adquirido</label>
                 <div class="membership-inline-row">
                   <div class="flex-grow">
@@ -286,6 +284,7 @@ const handleRegister = () => {
   display: flex;
   gap: 8px;
   align-items: center;
+  max-width: 100%;
 }
 
 .flex-grow {
@@ -323,7 +322,7 @@ const handleRegister = () => {
   color: #f5f5f4;
   font-family: 'Inter', sans-serif;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
   padding-bottom: 60px;
 }
 
@@ -347,9 +346,9 @@ const handleRegister = () => {
 
 .top-bar {
   width: 100%;
-  max-width: 1400px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 24px clamp(20px, 4vw, 60px);
+  padding: 24px clamp(20px, 4vw, 40px);
   box-sizing: border-box;
   position: relative;
 }
@@ -371,29 +370,30 @@ const handleRegister = () => {
   display: flex;
   justify-content: center;
   width: 100%;
-  padding: 8px clamp(16px, 3vw, 40px) 0;
+  padding: 0 clamp(16px, 3vw, 40px);
   box-sizing: border-box;
 }
 
+/* Tarjeta principal con un ancho amplio pero controlado para pantallas completas de laptop */
 .register-card {
   width: 100%;
-  max-width: 1760px;
+  max-width: 1400px; 
   background: rgba(18, 18, 18, 0.7);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 24px;
-  padding: clamp(28px, 3vw, 56px);
+  padding: clamp(28px, 3vw, 48px);
   box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55);
   box-sizing: border-box;
   animation: fadeUp 0.6s ease both;
 }
 
-.header-section { text-align: center; margin-bottom: 36px; }
+.header-section { text-align: center; margin-bottom: 32px; }
 
 .title {
   font-family: 'Anton', sans-serif;
-  font-size: clamp(1.9rem, 5vw, 2.6rem);
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
   letter-spacing: -1px;
   text-transform: uppercase;
   margin: 0 0 8px;
@@ -418,13 +418,37 @@ const handleRegister = () => {
 .rg-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: clamp(28px, 3vw, 45px);
+  gap: clamp(24px, 2.5vw, 36px);
   align-items: start;
 }
 
 .form-column { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 
-.rg-col3 { grid-column: auto; }
+/* En pantallas grandes (laptops a 100%), distribuimos exactamente en 3 columnas reales para que los inputs no se estiren de más */
+@media (min-width: 1200px) {
+  .rg-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .rg-col3 {
+    grid-column: auto; /* Vuelve a comportarse como una tercera columna normal */
+    max-width: none;
+    margin: 0;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1199px) {
+  .rg-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .rg-col3 {
+    grid-column: 1 / -1;
+    max-width: 700px;
+    margin: 0 auto;
+    width: 100%;
+  }
+}
 
 .section-divider {
   font-family: 'Oswald', sans-serif;
@@ -583,7 +607,12 @@ select option { background: #161616; color: #f5f5f4; }
   box-shadow: 0 4px 12px rgba(28, 79, 214, 0.3);
 }
 
-.price-row { margin-top: 18px; }
+.price-row { 
+  margin-top: 14px; 
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
 
 .label-help { display: inline-flex; align-items: center; gap: 6px; position: relative; margin-bottom: 8px; }
 
@@ -627,7 +656,7 @@ select option { background: #161616; color: #f5f5f4; }
 
 .help-icon:hover .tooltip { visibility: visible; opacity: 1; }
 
-.actions-section { margin-top: 34px; display: flex; flex-direction: column; gap: 16px; }
+.actions-section { margin-top: 30px; display: flex; flex-direction: column; gap: 14px; }
 
 .btn-primary {
   width: 100%;
@@ -664,14 +693,8 @@ select option { background: #161616; color: #f5f5f4; }
 .footer-link a { color: #5b8bf0; text-decoration: none; font-weight: 700; }
 .footer-link a:hover { text-decoration: underline; }
 
-@media (min-width: 900px) {
-  .rg-grid { grid-template-columns: 1fr 1fr; }
-  .rg-col3 { grid-column: 1 / -1; }
-}
-
-@media (min-width: 1500px) {
-  .rg-grid { grid-template-columns: 1fr 1fr 1fr; }
-  .rg-col3 { grid-column: auto; }
+@media (max-width: 768px) {
+  .price-row { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 480px) {

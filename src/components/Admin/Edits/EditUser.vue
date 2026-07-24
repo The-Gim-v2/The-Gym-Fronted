@@ -470,5 +470,8 @@ input:focus {
     width: 140px;
     height: 140px;
   }
+  .btn-primary {
+    width: 100%;
+  }
 }
 </style>

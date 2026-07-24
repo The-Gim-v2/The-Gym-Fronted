@@ -494,5 +494,8 @@ input:focus {
     width: 18px;
     height: 18px;
   }
+  .btn-primary {
+    width: 100%;
+  }
 }
 </style>

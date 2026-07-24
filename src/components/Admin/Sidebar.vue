@@ -6,11 +6,30 @@
 
     <aside :class="['sidebar', { 'sidebar-open': isSidebarOpen }]">
       <div class="sidebar-header">
-        <div class="header-main">
-          <svg class="icon-small" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5H7z" fill="currentColor"/></svg>
-          <span class="gym-title">Nombre del Gym</span>
+      <div class="gym-selector" :class="{ 'is-open': isGymDropdownOpen }">
+        <div class="header-main" @click="toggleGymDropdown">
+          <svg class="icon-small" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="currentColor"/></svg>
+          <div class="gym-titles-container">
+            <span class="gym-label">Sucursal Actual</span>
+            <span class="gym-title">{{ selectedGym }}</span>
+          </div>
+          <svg class="arrow-icon gym-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5H7z" fill="currentColor"/></svg>
+        </div>
+        
+        <!-- Menú desplegable con las opciones -->
+        <div class="gym-dropdown-menu">
+          <div 
+            v-for="gym in gyms" 
+            :key="gym" 
+            class="gym-option"
+            :class="{ 'active': selectedGym === gym }"
+            @click="selectGym(gym)"
+          >
+            <span>{{ gym }}</span>
+          </div>
         </div>
       </div>
+    </div>
 
       <div class="menu-scroll">
         <router-link to="/admin/profile" class="nav-item">
@@ -147,13 +166,6 @@
         </button>
       </header>
 
-      <main class="dashboard-body">
-        <slot>
-          <div class="brand-card">
-            <h1>Panel de Control</h1>
-          </div>
-        </slot>
-      </main>
     </div>
   </div>
 </template>
@@ -165,6 +177,14 @@ const router = useRouter();
 const isSidebarOpen = ref(false);
 const openSection = ref<string | null>(null);
 
+// NUEVO: Estado para el selector de sucursales
+const isGymDropdownOpen = ref(false);
+const selectedGym = ref('Gimnasio Principal');
+const gyms = ref([
+  'Gimnasio Principal',
+  'Sucursal Secundaria'
+]);
+
 const toggleSidebar = () => {
   isSidebarOpen.value = !isSidebarOpen.value;
 };
@@ -173,10 +193,20 @@ const toggleGroup = (section: string) => {
   openSection.value = openSection.value === section ? null : section;
 };
 
+// NUEVO: Función para alternar el menú de sucursales y cambiar la seleccionada
+const toggleGymDropdown = () => {
+  isGymDropdownOpen.value = !isGymDropdownOpen.value;
+};
+
+const selectGym = (gym: string) => {
+  selectedGym.value = gym;
+  isGymDropdownOpen.value = false;
+  // Aquí puedes agregar lógica adicional si necesitas recargar datos según la sucursal
+};
+
 const handleLogout = () => {
   localStorage.removeItem('token'); 
   localStorage.removeItem('user');
-  
   router.push('/login'); 
 };
 </script>
@@ -200,6 +230,7 @@ const handleLogout = () => {
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   height: 100vh;
+  max-height: 100dvh; 
   display: flex;
   flex-direction: column;
   border-right: 1px solid rgba(255, 255, 255, 0.06);
@@ -211,10 +242,98 @@ const handleLogout = () => {
   left: 0;
 }
 
+
+/* --- SELECTOR DE SUCURSALES --- */
+.gym-selector {
+  position: relative;
+  cursor: pointer;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 0.2s ease;
+}
+
+.gym-selector:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.sidebar-header .header-main {
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.gym-titles-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.gym-label {
+  font-size: 0.7rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.gym-title { 
+  font-weight: 600; 
+  font-size: 0.95rem; 
+  color: #f8fafc;
+}
+
+.gym-arrow {
+  width: 18px;
+  height: 18px;
+  color: #64748b;
+  transition: transform 0.25s ease;
+}
+
+.gym-selector.is-open .gym-arrow {
+  transform: rotate(180deg);
+  color: #3b82f6;
+}
+
+/* Menú flotante de sucursales */
+.gym-dropdown-menu {
+  max-height: 0;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 0 0 12px 12px;
+  transition: max-height 0.25s ease;
+}
+
+.gym-selector.is-open .gym-dropdown-menu {
+  max-height: 150px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.gym-option {
+  padding: 10px 16px;
+  font-size: 0.88rem;
+  color: #94a3b8;
+  transition: background 0.2s, color 0.2s;
+}
+
+.gym-option:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+}
+
+.gym-option.active {
+  color: #3b82f6;
+  font-weight: 600;
+  background: rgba(59, 130, 246, 0.08);
+}
+
 .sidebar-header {
-  padding: 24px 20px;
+  padding: 20px 20px; 
   background: rgba(255, 255, 255, 0.02);
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  flex-shrink: 0; /* Evita que el header se comprima */
 }
 
 .header-main { 
@@ -223,13 +342,26 @@ const handleLogout = () => {
   gap: 10px; 
 }
 
+.gym-titles-container {
+  display: flex;
+  flex-direction: column;
+}
+
 .gym-title { 
   font-weight: 700; 
-  font-size: 1.15rem; 
+  font-size: 1.05rem; 
   letter-spacing: -0.02em;
   background: linear-gradient(to right, #ffffff, #94a3b8);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  line-height: 1.2;
+}
+
+.gym-subtitle {
+  font-weight: 500;
+  font-size: 0.8rem;
+  color: #64748b;
+  line-height: 1.2;
 }
 
 .icon-small {
@@ -242,7 +374,7 @@ const handleLogout = () => {
 .menu-scroll { 
   flex: 1; 
   overflow-y: auto; 
-  padding: 16px 12px; 
+  padding: 12px 12px;
 }
 
 /* --- ITEMS DEL MENÚ --- */
@@ -362,8 +494,10 @@ const handleLogout = () => {
 
 /* --- FOOTER / LOGOUT --- */
 .sidebar-footer { 
-  padding: 16px; 
+  padding: 14px 16px; 
   border-top: 1px solid rgba(255, 255, 255, 0.04); 
+  flex-shrink: 0; 
+  background: #0a0a0a;
 }
 
 .btn-logout {
@@ -424,28 +558,6 @@ const handleLogout = () => {
   z-index: 900;
 }
 
-.dashboard-body {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 24px;
-}
-
-.brand-card {
-  background: rgba(30, 41, 59, 0.4);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 48px 64px;
-  border-radius: 20px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-  text-align: center;
-}
-.brand-card h1 { 
-  color: white; 
-  margin: 0; 
-  font-size: 2rem; 
-  letter-spacing: 1px;
-}
 
 /* --- RESPONSIVO MÓVIL --- */
 .mobile-toggle {
