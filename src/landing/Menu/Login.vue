@@ -24,25 +24,35 @@ const clearMessages = () => {
 
 const handleSubmit = () => {
   const userEmail = email.value.toLowerCase().trim();
-  const role = VALID_USERS[userEmail];
+  const roleName = VALID_USERS[userEmail];
 
   if (password.value !== '123') {
     errorMessage.value = 'Contraseña incorrecta. Intenta de nuevo.';
-    successMessage.value = '';
     return;
   }
-  if (!role) {
+  if (!roleName) {
     errorMessage.value = 'Usuario no reconocido.';
-    successMessage.value = '';
     return;
   }
 
   errorMessage.value = '';
-  successMessage.value = `Acceso concedido como ${role}. Redirigiendo...`;
+  
+  // Mostramos el mensaje de éxito que se ve en tu imagen antes de redirigir
+  successMessage.value = `Acceso concedido como ${roleName}. Redirigiendo...`;
 
-  if (userEmail === 'admin@gmail.com') {
-    router.push({ name: 'admin-dashboard' });
-  }
+  // Retardamos ligeramente la redirección para que se alcance a apreciar la animación y el mensaje
+  setTimeout(() => {
+    if (userEmail === 'admin@gmail.com' || userEmail === 'dueño@gmail.com') {
+      localStorage.setItem('user_role', 'admin'); 
+      router.push({ name: 'admin-dashboard' });
+    } else if (userEmail === 'recepcionista@gmail.com') {
+      localStorage.setItem('user_role', 'recepcion'); 
+      router.push({ name: 'recepcion-dashboard' });
+    } else {
+      errorMessage.value = 'Este usuario debe iniciar sesión en el portal de clientes.';
+      successMessage.value = '';
+    }
+  }, 1000); // 1 segundo de retraso para el efecto visual
 };
 </script>
 
@@ -129,6 +139,7 @@ const handleSubmit = () => {
   position: relative;
   overflow: hidden;
 }
+
 .glow {
   position: absolute;
   top: -160px;
@@ -143,15 +154,29 @@ const handleSubmit = () => {
   animation: pulseGlow 6s ease-in-out infinite;
   pointer-events: none;
 }
+
 .highlight { color: #3b82f6; }
 
-@keyframes pulseGlow { 0%, 100% { opacity: 0.28; } 50% { opacity: 0.5; } }
-@keyframes fadeUp { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pulseGlow { 
+  0%, 100% { opacity: 0.28; } 
+  50% { opacity: 0.5; } 
+}
+
+@keyframes fadeUp { 
+  from { opacity: 0; transform: translateY(22px); } 
+  to { opacity: 1; transform: translateY(0); } 
+}
+
 @keyframes shake {
   10%, 90% { transform: translateX(-1px); }
   20%, 80% { transform: translateX(2px); }
   30%, 50%, 70% { transform: translateX(-4px); }
   40%, 60% { transform: translateX(4px); }
+}
+
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 .top-bar {
@@ -168,13 +193,6 @@ const handleSubmit = () => {
   align-items: center;
   gap: 12px;
   text-decoration: none;
-}
-
-.logo-text-sm {
-  font-family: 'Anton', sans-serif;
-  font-size: 18px;
-  letter-spacing: 0.3px;
-  color: #f5f5f4;
 }
 
 .logo-text {
@@ -210,7 +228,7 @@ const handleSubmit = () => {
   padding: clamp(32px, 5vw, 50px);
   box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55);
   box-sizing: border-box;
-  animation: fadeUp 0.6s ease both;
+  animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .card-header { text-align: center; margin-bottom: 32px; }
@@ -223,8 +241,6 @@ const handleSubmit = () => {
   margin: 0 0 8px;
   color: #f5f5f4;
 }
-
-.highlight-texto { color: #3a6bd6; }
 
 .subtitle { font-size: 14px; color: rgba(245, 245, 244, 0.55); margin: 0; }
 
@@ -314,6 +330,7 @@ input:focus {
   background: rgba(28, 79, 214, 0.15);
   border: 1px solid rgba(28, 79, 214, 0.4);
   color: #8fb4f8;
+  animation: fadeInScale 0.3s ease; /* Animación de aparición para el éxito */
 }
 
 .btn-primary {

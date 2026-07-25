@@ -138,7 +138,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router'; 
-import HeadingAdmin from '../HeadingAdmin.vue';
+import HeadingAdmin from '../HeadingRecepcion.vue';
 import Promo from '../Componets/Promos.vue';
 import NotificationSystem from '../../Modals/NotificationSystem.vue'; 
 

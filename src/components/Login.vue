@@ -28,21 +28,31 @@ const handleSubmit = () => {
 
   if (password.value !== '123') {
     errorMessage.value = 'Contraseña incorrecta. Intenta de nuevo.';
-    successMessage.value = '';
     return;
   }
   if (!role) {
     errorMessage.value = 'Usuario no reconocido.';
-    successMessage.value = '';
     return;
   }
 
   errorMessage.value = '';
   successMessage.value = `Acceso concedido como ${role}. Redirigiendo...`;
 
-  if (userEmail === 'admin@gmail.com') {
-    router.push({ name: 'admin-dashboard' });
-  }
+  setTimeout(() => {
+    if (userEmail === 'admin@gmail.com') {
+      localStorage.setItem('user_role', 'admin'); 
+      router.push({ name: 'admin-dashboard' });
+    } else if (userEmail === 'recepcionista@gmail.com') {
+      localStorage.setItem('user_role', 'recepcion'); 
+      router.push({ name: 'recepcion-dashboard' });
+    } else if (userEmail === 'dueño@gmail.com') {
+      localStorage.setItem('user_role', 'admin');
+      router.push({ name: 'admin-dashboard' });
+    } else {
+      errorMessage.value = 'Este usuario debe iniciar sesión en el portal de clientes.';
+      successMessage.value = '';
+    }
+  }, 1000);
 };
 </script>
 
@@ -81,7 +91,7 @@ const handleSubmit = () => {
 
           <div class="input-group">
             <div class="label-row">
-              <label for="password">Contraseña</label>
+              <label for="password">Contraseña</label> 
               <router-link :to="{ name: 'recover-password-client' }" class="forgot-link">¿Olvidaste tu contraseña?</router-link>
             </div>
             <div class="input-wrapper">
@@ -110,7 +120,7 @@ const handleSubmit = () => {
 
           <div class="divider"><span>¿ERES NUEVO?</span></div>
 
-          <router-link to="/RecordClient" class="btn-secondary">Registrarte</router-link>
+          <router-link to="/record-client" class="btn-secondary">Registrarte</router-link>
         </form>
       </div>
     </main>
@@ -144,7 +154,6 @@ const handleSubmit = () => {
   animation: pulseGlow 6s ease-in-out infinite;
   pointer-events: none;
 }
-.highlight { color: #3b82f6; }
 
 @keyframes pulseGlow { 0%, 100% { opacity: 0.28; } 50% { opacity: 0.5; } }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
@@ -153,6 +162,10 @@ const handleSubmit = () => {
   20%, 80% { transform: translateX(2px); }
   30%, 50%, 70% { transform: translateX(-4px); }
   40%, 60% { transform: translateX(4px); }
+}
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 .top-bar {
@@ -315,6 +328,7 @@ input:focus {
   background: rgba(28, 79, 214, 0.15);
   border: 1px solid rgba(28, 79, 214, 0.4);
   color: #8fb4f8;
+  animation: fadeInScale 0.3s ease;
 }
 
 .btn-primary {

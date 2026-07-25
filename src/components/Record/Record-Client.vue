@@ -127,9 +127,9 @@
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router';
 import { ref, reactive } from 'vue';
 import Heading from '../Record/Heading.vue';
-import AddCorteComponent from '../../components/Admin/Componets/Cut.vue';
 import Help from '../../components/Admin/Componets/Help.vue';
 import NotificationSystem from '../../components/Modals/NotificationSystem.vue'; 
 

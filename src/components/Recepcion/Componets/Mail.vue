@@ -1,0 +1,305 @@
+<template>
+  <div class="form-panel glass-effect">
+    <NotificationSystem ref="toastRef" />
+    
+    <div class="panel-header">
+      <div class="title-group">
+        <h2 class="form-title">ENVIAR <span class="highlight">CORREO</span></h2>
+        <p class="form-subtitle">Redacta y personaliza tu mensaje</p>
+      </div>
+      <button class="close-x" @click="$emit('close')" aria-label="Cerrar modal">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    
+    <div class="form-body">
+      <div class="input-group">
+        <label>Destinatarios</label>
+        <input 
+          type="text" 
+          v-model="emailForm.destinatarios" 
+          class="custom-input" 
+          placeholder="ejemplo@mail.com, otro@mail.com"
+        >
+      </div>
+
+      <div class="input-group">
+        <label>Asunto</label>
+        <input 
+          type="text" 
+          v-model="emailForm.asunto" 
+          class="custom-input" 
+          placeholder="Ej. Promoción especial de temporada"
+        >
+      </div>
+
+      <div class="editor-container">
+        <div class="toolbar">
+          <button type="button" class="tool-btn" @click="execCommand('bold')" title="Negrita">
+            <b>B</b>
+          </button>
+          <button type="button" class="tool-btn" @click="execCommand('italic')" title="Cursiva">
+            <i>I</i>
+          </button>
+          <button type="button" class="tool-btn" @click="execCommand('underline')" title="Subrayado">
+            <u>U</u>
+          </button>
+          <div class="toolbar-separator"></div>
+          <button type="button" class="tool-btn" @click="$refs.fileInput.click()" title="Adjuntar imagen">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M21 15l-5-5L5 21"/>
+            </svg>
+          </button>
+          <input type="file" ref="fileInput" @change="handleImage" style="display: none" accept="image/*">
+        </div>
+
+        <div 
+          ref="editor" 
+          class="custom-input editor-area" 
+          contenteditable="true" 
+          @input="updateContent"
+          data-placeholder="Escribe tu mensaje aquí..."
+        ></div>
+      </div>
+
+      <button class="btn-send" @click="sendEmail">
+        <span>Enviar Correo</span>
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, reactive } from 'vue';
+import NotificationSystem from '../../Modals/NotificationSystem.vue';
+
+const toastRef = ref(null);
+const editor = ref(null);
+const emailForm = reactive({ asunto: '', destinatarios: '', mensaje: '' });
+
+const execCommand = (cmd) => {
+  document.execCommand(cmd, false, null);
+  if (editor.value) editor.value.focus();
+};
+
+const updateContent = (e) => { 
+  emailForm.mensaje = e.target.innerHTML; 
+};
+
+const handleImage = (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      document.execCommand('insertImage', false, ev.target.result);
+      if (toastRef.value) {
+        toastRef.value.notify('Imagen añadida al contenido', 'success');
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+};
+
+const sendEmail = () => {
+  if (!emailForm.asunto || !emailForm.mensaje.trim()) {
+    if (toastRef.value) {
+      toastRef.value.notify('Completa el asunto y el mensaje', 'error');
+    }
+    return;
+  }
+  if (toastRef.value) {
+    toastRef.value.notify('Correo enviado correctamente', 'success');
+  }
+};
+</script>
+
+<style scoped>
+.form-panel { 
+  background: #121214; 
+  border: 1px solid rgba(255, 255, 255, 0.08); 
+  color: #f5f5f4; 
+  border-radius: 20px; 
+  padding: 24px; 
+  width: 95%; 
+  max-width: 460px; 
+  max-height: 90vh; 
+  overflow-y: auto; 
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+}
+
+.panel-header { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: flex-start;
+  margin-bottom: 20px; 
+}
+
+.title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.form-title { 
+  font-family: 'Oswald', sans-serif; 
+  color: #fff; 
+  font-size: 1.15rem; 
+  letter-spacing: 0.8px;
+  margin: 0;
+}
+
+.form-subtitle {
+  font-size: 0.78rem;
+  color: #888;
+  margin: 0;
+}
+
+.input-group { 
+  margin-bottom: 14px; 
+}
+
+.input-group label { 
+  font-family: 'Oswald', sans-serif; 
+  font-size: 0.72rem; 
+  text-transform: uppercase; 
+  display: block; 
+  margin-bottom: 5px; 
+  color: #888;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.custom-input { 
+  background: #09090b; 
+  border: 1px solid rgba(255, 255, 255, 0.08); 
+  color: white; 
+  padding: 10px 14px; 
+  border-radius: 10px; 
+  width: 100%; 
+  box-sizing: border-box; 
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.custom-input:focus {
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+.editor-container {
+  margin-bottom: 18px;
+}
+
+.toolbar { 
+  display: flex; 
+  align-items: center;
+  gap: 6px; 
+  margin-bottom: 6px; 
+  padding: 6px; 
+  background: #09090b; 
+  border: 1px solid rgba(255, 255, 255, 0.08); 
+  border-radius: 10px; 
+}
+.highlight { color: #3b82f6; }
+
+.tool-btn { 
+  background: rgba(255, 255, 255, 0.03); 
+  border: 1px solid rgba(255, 255, 255, 0.06); 
+  color: #ccc; 
+  padding: 6px 12px; 
+  border-radius: 6px; 
+  cursor: pointer; 
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.tool-btn:hover { 
+  background: rgba(255, 255, 255, 0.08); 
+  color: white; 
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.toolbar-separator {
+  width: 1px;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0 4px;
+}
+
+.editor-area { 
+  min-height: 130px; 
+  max-height: 220px;
+  outline: none; 
+  overflow-y: auto; 
+  text-align: left; 
+  line-height: 1.4;
+}
+
+.editor-area:empty:before {
+  content: attr(data-placeholder);
+  color: #555;
+  pointer-events: none;
+  display: block;
+}
+
+.btn-send { 
+  background: linear-gradient(135deg, #2563eb, #1d4ed8); 
+  color: white; 
+  border: none; 
+  border-radius: 10px; 
+  height: 44px; 
+  width: 100%; 
+  font-family: 'Oswald', sans-serif; 
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+  cursor: pointer; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: opacity 0.2s, transform 0.1s;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.btn-send:hover { 
+  opacity: 0.92; 
+}
+
+.btn-send:active {
+  transform: scale(0.98);
+}
+
+@media (max-width: 480px) {
+  .form-panel { padding: 16px; }
+  .toolbar { gap: 4px; }
+  .btn-send { height: 40px; }
+}
+
+.close-x { 
+  background: rgba(255, 255, 255, 0.05); 
+  border: 1px solid rgba(255, 255, 255, 0.08); 
+  color: #aaa; 
+  cursor: pointer; 
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.close-x:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+</style>
