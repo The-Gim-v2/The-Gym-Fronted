@@ -1,20 +1,39 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useReveal } from '../useReveal';
-import { ClipboardList, MessageSquareText, BarChart3, CalendarDays } from 'lucide-vue-next';
+import { ClipboardList, MessageSquareText, BarChart3, CalendarDays, Rocket } from 'lucide-vue-next';
 
-// --- IMPORTACIÓN DE IMÁGENES LOCALES (Asegúrate de apuntar a los 4 archivos correctos) ---
-import imgScreen1 from '../../assets/regiter.png';
-import imgScreen2 from '../../assets/pagos.png';
-import imgScreen3 from '../../assets/icono.png'; // Cambia esto por tu archivo real de rutinas
-import imgScreen4 from '../../assets/pagos.png'; // Cambia esto por tu archivo real de métricas
+// --- IMPORTACIÓN DE IMÁGENES LOCALES ---
+import imgScreen1 from '../../assets/Operation/organiza.png';
+import imgScreen2 from '../../assets/Operation/acompaña.png';
+import imgScreen3 from '../../assets/Operation/analiza.png';
 
-// --- CONFIGURACIÓN DE PANTALLAS (4 elementos únicos) ---
+// --- CONFIGURACIÓN DE PANTALLAS (Sincronizadas con las 4 tarjetas) ---
 const screenshots = computed(() => [
-  { img: imgScreen1, title: "Registro Inteligente", desc: "Altas de clientes ultra rápidas" },
-  { img: imgScreen2, title: "Agenda y Citas", desc: "Control total de horarios" },
-  { img: imgScreen3, title: "Rutinas a Medida", desc: "Planificación deportiva avanzada" },
-  { img: imgScreen4, title: "Métricas y Progreso", desc: "Gráficas de rendimiento real" }
+  { 
+    type: 'image',
+    img: imgScreen1, 
+    title: "Gestión Total", 
+    desc: "Controla clientes, pagos y operación" 
+  },
+  { 
+    type: 'image',
+    img: imgScreen2, 
+    title: "Experiencia Móvil", 
+    desc: "App dedicada y mensajería en tiempo real" 
+  },
+  { 
+    type: 'image',
+    img: imgScreen3, 
+    title: "Métricas de Impacto", 
+    desc: "Visualiza el progreso físico de tus usuarios" 
+  },
+  { 
+    type: 'upcoming',
+    title: 'PRÓXIMAMENTE',
+    desc: 'Asistencia de IA integrada para rutinas y comunicación avanzada.',
+    icon: Rocket
+  }
 ]);
 
 // --- LÓGICA DE CONTROL ---
@@ -143,29 +162,45 @@ onUnmounted(() => {
               
               <div class="iphone-screen-container-pro">
                 <div class="dynamic-island">
-                <div class="camera-lens"></div>
-                <div class="sensor-dot"></div>
+                  <div class="camera-lens"></div>
+                  <div class="sensor-dot"></div>
                 </div>
 
                 <div class="carousel-track-pro" :style="{ transform: `translateX(-${currentSlideIndex * (100 / screenshots.length)}%)`, width: `${screenshots.length * 100}%` }">
-                    <div v-for="(slide, sIdx) in screenshots" :key="sIdx" class="carousel-slide-pro" :style="{ width: `${100 / screenshots.length}%` }">
-                    <img :src="slide.img" :alt="slide.title" class="preview-active-img-pro" loading="lazy" />
-                    <div class="screen-overlay-gradient-pro"></div>
-                    <div class="screen-caption-tag-pro">
+                  <div v-for="(slide, sIdx) in screenshots" :key="sIdx" class="carousel-slide-pro" :style="{ width: `${100 / screenshots.length}%` }">
+                    
+                    <!-- Renderizado condicional para Imagen o Próximamente -->
+                    <template v-if="slide.type === 'image'">
+                      <img :src="slide.img" :alt="slide.title" class="preview-active-img-pro" loading="lazy" />
+                      <div class="screen-overlay-gradient-pro"></div>
+                      <div class="screen-caption-tag-pro">
                         <span class="live-dot-pro"></span>
                         <span>{{ slide.title }}</span>
-                    </div>
-                    </div>
+                      </div>
+                    </template>
+
+                    <template v-else-if="slide.type === 'upcoming'">
+                      <div class="upcoming-slide-content">
+                        <div class="upcoming-icon-wrapper">
+                          <component :is="slide.icon" :size="36" />
+                        </div>
+                        <span class="upcoming-badge">{{ slide.title }}</span>
+                        <h4 class="upcoming-title">Inteligencia Deportiva</h4>
+                        <p class="upcoming-desc">{{ slide.desc }}</p>
+                      </div>
+                    </template>
+
+                  </div>
                 </div>
 
                 <div class="screen-indicators-pro">
-                    <span 
+                  <span 
                     v-for="(_, dotIdx) in screenshots" 
                     :key="dotIdx" 
                     class="indicator-dot-pro"
                     :class="{ active: currentSlideIndex === dotIdx }"
                     @click="selectFeature(dotIdx)"
-                    ></span>
+                  ></span>
                 </div>
 
               </div>
@@ -551,7 +586,7 @@ onUnmounted(() => {
 .carousel-slide-pro {
   height: 100%;
   position: relative;
-  flex: 0 0 auto; /* Impide que flexbox comprima las imágenes */
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -608,6 +643,63 @@ onUnmounted(() => {
   100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
 }
 
+/* Estilos para el estado Próximamente (Planifica / IA) */
+.upcoming-slide-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 30px 24px;
+  height: 100%;
+  background: radial-gradient(circle at center, rgba(28,79,214,0.18) 0%, #08080c 70%);
+}
+
+.upcoming-icon-wrapper {
+  width: 70px;
+  height: 70px;
+  background: rgba(28, 79, 214, 0.15);
+  border: 1px solid rgba(58, 107, 214, 0.4);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #60a5fa;
+  margin-bottom: 20px;
+  box-shadow: 0 0 30px rgba(28, 79, 214, 0.25);
+}
+
+.upcoming-badge {
+  font-family: 'Oswald', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #3b82f6;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  background: rgba(59, 130, 246, 0.1);
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+.upcoming-title {
+  font-family: 'Anton', sans-serif;
+  font-size: 1.5rem;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+  margin: 0 0 10px 0;
+  text-transform: uppercase;
+}
+
+.upcoming-desc {
+  font-size: 0.85rem;
+  color: rgba(245, 245, 244, 0.65);
+  line-height: 1.5;
+  margin: 0;
+  max-width: 240px;
+}
+
 .screen-indicators-pro {
   position: absolute;
   bottom: 14px;
@@ -632,6 +724,51 @@ onUnmounted(() => {
   border-radius: 4px;
   background: #3a6bd6;
   box-shadow: 0 0 8px rgba(28,79,214,0.8);
+}
+/* Efecto de pulso épico para el fondo */
+@keyframes epicGlow {
+  0% {
+    background: radial-gradient(circle at center, rgba(28,79,214,0.15) 0%, #08080c 70%);
+    box-shadow: inset 0 0 15px rgba(28,79,214,0.1);
+  }
+  50% {
+    background: radial-gradient(circle at center, rgba(58,130,246,0.3) 0%, #08080c 70%);
+    box-shadow: inset 0 0 35px rgba(58,130,246,0.4);
+  }
+  100% {
+    background: radial-gradient(circle at center, rgba(28,79,214,0.15) 0%, #08080c 70%);
+    box-shadow: inset 0 0 15px rgba(28,79,214,0.1);
+  }
+}
+
+.upcoming-slide-content {
+  animation: epicGlow 4s ease-in-out infinite;
+}
+
+/* Icono con flotación magnética intensa */
+@keyframes floatIcon {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(3deg); }
+}
+
+.upcoming-icon-wrapper {
+  animation: floatIcon 3s ease-in-out infinite;
+}
+@keyframes hologramReveal {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) translateY(10px);
+    filter: blur(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0);
+  }
+}
+
+.upcoming-slide-content {
+  animation: hologramReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards, epicGlow 4s ease-in-out infinite;
 }
 
 @media (max-width: 968px) {

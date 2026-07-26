@@ -2,6 +2,15 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useReveal } from '../useReveal';
 
+// --- IMPORTACIÓN DE IMÁGENES LOCALES ---
+import img1 from '../../assets/Propietario/menu.png';
+import img2 from '../../assets/Propietario/regiter.png';
+import img3 from '../../assets/Propietario/usuarios.png';
+
+import img4 from '../../assets/Recepcionista/menu.png';
+import img5 from '../../assets/Recepcionista/regiter.png';
+import img6 from '../../assets/Recepcionista/pagos.png';
+
 const { el, revealed } = useReveal();
 
 interface Slide {
@@ -19,29 +28,30 @@ interface PhoneItem {
   slides: Slide[];
 }
 
-const phoneData: PhoneItem[] = [
+// --- DATOS ESTÁTICOS (Soluciona pantallas en blanco por fallos de computed con assets) ---
+const screenshots: PhoneItem[] = [
   {
-    role: 'Dueño / Administrador',
+    role: 'Propietario',
     badgeClass: 'owner-tag',
     phoneFrame: 'iphone-frame',
     slides: [
       {
         type: 'image',
-        src: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=600&auto=format&fit=crop',
-        title: 'Finanzas en Vivo',
-        desc: 'Control total de ingresos, gastos y flujo de caja.'
+        src: img1,
+        title: 'Menú Único',
+        desc: 'Un menú centralizado y exclusivo para el control total del propietario.'
       },
       {
         type: 'image',
-        src: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=600&auto=format&fit=crop',
-        title: 'Métricas de Crecimiento',
-        desc: 'Visualiza tendencias de altas, bajas y renovaciones.'
+        src: img2,
+        title: 'Registro de Clientes',
+        desc: 'Registra y administra a tus clientes para un seguimiento más eficiente.'
       },
       {
         type: 'image',
-        src: 'https://images.unsplash.com/photo-1542626991-cbc4e32524cc?q=80&w=600&auto=format&fit=crop',
-        title: 'Reportes con IA',
-        desc: 'Resúmenes ejecutivos generados por tu asistente inteligente.'
+        src: img3,
+        title: 'Gestión de Usuarios',
+        desc: 'Visualiza a todos tus usuarios y comunícate con ellos fácilmente.'
       },
     ],
   },
@@ -52,21 +62,21 @@ const phoneData: PhoneItem[] = [
     slides: [
       {
         type: 'image',
-        src: 'https://images.unsplash.com/photo-1586769852836-bc069f11e1b6?q=80&w=600&auto=format&fit=crop',
-        title: 'Control de Entrada',
-        desc: 'Escaneo QR rápido y validación biométrica en segundos.'
+        src: img4,
+        title: 'Menú Específico',
+        desc: 'Interfaz diseñada para la recepción, restringiendo el acceso a información sensible.'
       },
       {
         type: 'image',
-        src: 'https://images.unsplash.com/photo-1556155092-490a1ba16284?q=80&w=600&auto=format&fit=crop',
-        title: 'Agenda Diaria',
-        desc: 'Visualiza clases, citas y eventos programados.'
+        src: img5,
+        title: 'Registro de Clientes',
+        desc: 'Permite al personal de recepción dar de alta a nuevos clientes rápidamente.'
       },
       {
         type: 'image',
-        src: 'https://images.unsplash.com/photo-1591696205602-2f950c417cb9?q=80&w=600&auto=format&fit=crop',
-        title: 'Punto de Venta',
-        desc: 'Venta ágil de membresías, productos y servicios.'
+        src: img6,
+        title: 'Control de Pagos',
+        desc: 'Gestiona y recibe los pagos de manera ágil y segura.'
       },
     ],
   },
@@ -116,9 +126,9 @@ let slideInterval: any = null;
 onMounted(() => {
   slideInterval = setInterval(() => {
     currentSlides.value = currentSlides.value.map((current, index) => {
-      if (index === 2) return 0; 
-      const targetPhone = phoneData[index];
-      if (!targetPhone) return 0;
+      const targetPhone = screenshots[index];
+      if (!targetPhone || targetPhone.slides.length <= 1) return 0; 
+      
       return (current + 1) % targetPhone.slides.length;
     });
   }, 4500);
@@ -147,7 +157,7 @@ onUnmounted(() => {
 
       <div class="devices-display">
         <div 
-          v-for="(phone, index) in phoneData" 
+          v-for="(phone, index) in screenshots" 
           :key="phone.role"
           class="phone-column-wrapper"
           :style="{ animationDelay: `${0.2 + index * 0.15}s` }"
@@ -159,36 +169,41 @@ onUnmounted(() => {
             <div class="hw-punch" v-else></div>
 
             <div class="screen-container">
-              <div class="carousel-viewport">
+                <div class="carousel-viewport">
+            <div 
+                class="carousel-track" 
+                :style="{ 
+                width: `${phone.slides.length * 100}%`, 
+                transform: `translateX(-${(currentSlides[index] ?? 0) * (100 / phone.slides.length)}%)` 
+                }"
+            >
                 <div 
-                  class="carousel-track" 
-                  :style="{ transform: `translateX(-${(currentSlides[index] ?? 0) * 100}%)` }"
+                v-for="(slide, sIdx) in phone.slides" 
+                :key="sIdx" 
+                class="carousel-slide-content"
+                :style="{ width: `${100 / phone.slides.length}%` }"
                 >
-                  <div 
-                    v-for="(slide, sIdx) in phone.slides" 
-                    :key="sIdx" 
-                    class="carousel-slide-content"
-                  >
-                    <div v-if="slide.type === 'image'" class="slide-inner-wrapper">
-                      <img :src="slide.src" :alt="slide.title" class="app-screenshot-img" />
-                      <div class="image-gradient-overlay"></div>
-                      <div class="screenshot-data-overlay">
-                        <div class="mock-app-title">{{ slide.title }}</div>
-                        <div class="mock-app-desc">{{ slide.desc }}</div>
-                      </div>
+                <!-- Contenido del slide (image o upcoming) igual que antes -->
+                <div v-if="slide.type === 'image'" class="slide-inner-wrapper">
+                    <img :src="slide.src" :alt="slide.title" class="app-screenshot-img" />
+                    <div class="image-gradient-overlay"></div>
+                    <div class="screenshot-data-overlay">
+                    <div class="mock-app-title">{{ slide.title }}</div>
+                    <div class="mock-app-desc">{{ slide.desc }}</div>
                     </div>
-
-                    <div v-else-if="slide.type === 'upcoming'" class="slide-coming-soon">
-                      <div class="soon-content-box">
-                        <div class="soon-icon-lg animate-pulse">{{ slide.icon }}</div>
-                        <div class="mock-app-title highlight-text">{{ slide.title }}</div>
-                        <div class="mock-app-desc">{{ slide.desc }}</div>
-                        <div class="loading-bar-line"><span></span></div>
-                      </div>
-                    </div>
-                  </div>
                 </div>
-              </div>
+
+                <div v-else-if="slide.type === 'upcoming'" class="slide-coming-soon">
+                    <div class="soon-content-box">
+                    <div class="soon-icon-lg animate-pulse">{{ slide.icon }}</div>
+                    <div class="mock-app-title highlight-text">{{ slide.title }}</div>
+                    <div class="mock-app-desc">{{ slide.desc }}</div>
+                    <div class="loading-bar-line"><span></span></div>
+                    </div>
+                </div>
+                </div>
+            </div>
+            </div>
 
               <div class="carousel-pips-controller">
                 <template v-if="index !== 2">
@@ -210,6 +225,7 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+/* (Mismos estilos CSS que ya tenías) */
 .devices-section {
   position: relative;
   padding: clamp(60px, 8vw, 140px) clamp(16px, 4vw, 60px);
@@ -355,7 +371,6 @@ onUnmounted(() => {
   animation: floatingPhoneAdvanced 6s ease-in-out infinite;
 }
 
-/* Ajuste preventivo para celulares muy pequeños */
 @media (max-width: 360px) {
   .mockup-phone-v2 {
     width: 245px;

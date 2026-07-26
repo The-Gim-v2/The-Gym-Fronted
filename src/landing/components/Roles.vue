@@ -5,7 +5,7 @@ const { el, revealed } = useReveal();
 
 const ROLES = [
   {
-    name: 'Dirección / Gerencia',
+    name: 'Propietario',
     icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9h1"/><path d="M9 13h1"/><path d="M9 17h1"/></svg>`,
     accent: '#3b82f6', // Azul
     desc: 'Toma decisiones inteligentes y maximiza la rentabilidad.',

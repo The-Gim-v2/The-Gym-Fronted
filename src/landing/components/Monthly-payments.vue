@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { useReveal } from '../useReveal';
 
+const router = useRouter();
 const { el, revealed } = useReveal();
 const sliderRef = ref<HTMLElement | null>(null);
 
@@ -12,7 +14,8 @@ const PLANS = [
     badge: '7 días gratis',
     features: ['Acceso completo por 7 días', 'Sin tarjeta de crédito requerida', 'Pasa automáticamente a Básica', 'Soporte estándar'],
     btnText: 'Comenzar gratis',
-    popular: false
+    popular: false,
+    isFree: true
   },
   {
     name: 'Básica',
@@ -20,7 +23,8 @@ const PLANS = [
     badge: null,
     features: ['1 Sede incluida', 'Hasta 100 miembros (usuarios)', 'Control total de pagos', 'Sin edición de colores del sistema', 'Sin IA integrada', 'Soporte estándar'],
     btnText: 'Seleccionar',
-    popular: false
+    popular: false,
+    isFree: false
   },
   {
     name: 'Intermedia',
@@ -28,7 +32,8 @@ const PLANS = [
     badge: null,
     features: ['Hasta 2 Sedes', 'Hasta 200 miembros (usuarios)', 'Sin edición de colores del sistema', 'Sin IA integrada', 'Control de pagos y reportes', 'Soporte estándar'],
     btnText: 'Seleccionar',
-    popular: false
+    popular: false,
+    isFree: false
   },
   {
     name: 'Avanzada',
@@ -36,7 +41,8 @@ const PLANS = [
     badge: null,
     features: ['Hasta 2 Sedes', 'Hasta 300 miembros (usuarios)', 'IA integrada (3 tokens/día)', 'Con edición de colores del sistema', 'Gestión de roles y pagos', 'Soporte estándar'],
     btnText: 'Seleccionar',
-    popular: false
+    popular: false,
+    isFree: false
   },
   {
     name: 'Pro',
@@ -44,7 +50,8 @@ const PLANS = [
     badge: 'Más popular',
     features: ['De 3 a 5 Sedes (o más)', 'Sin límite de miembros', 'IA sin límite de tokens', 'Con edición de colores del sistema', 'Estadísticas avanzadas', 'Recordatorios automáticos'],
     btnText: 'Seleccionar Pro',
-    popular: true
+    popular: true,
+    isFree: false
   },
   {
     name: 'Sistema Permanente',
@@ -52,7 +59,8 @@ const PLANS = [
     badge: 'Pago único',
     features: ['Licencia permanente básica', 'Sin mensualidades', 'Sin Módulos avanzados y IA','Instalación incluida', 'Soporte estándar'],
     btnText: 'Adquirir sistema',
-    popular: false
+    popular: false,
+    isFree: false
   },
   {
     name: 'Sistema Avanzado',
@@ -60,9 +68,23 @@ const PLANS = [
     badge: 'Pago único',
     features: ['Licencia permanente completa', 'Sin mensualidades', 'Módulos avanzados y IA', 'Soporte prioritario'],
     btnText: 'Adquirir sistema',
-    popular: false
+    popular: false,
+    isFree: false
   }
 ];
+
+// Función optimizada para guardar la selección y redirigir al registro
+const selectPlan = (plan: typeof PLANS[0]) => {
+  // 1. Guardamos los datos clave en localStorage para que Record.vue y MembershipModal los lean
+  localStorage.setItem('selectedPlan', plan.name);
+  localStorage.setItem('isFreePlan', plan.isFree ? 'true' : 'false');
+
+  // 2. Redirigimos a la vista de registro pasando el plan por query string
+  router.push({
+    path: '/record',
+    query: { plan: plan.name }
+  });
+};
 </script>
 
 <template>
@@ -112,7 +134,8 @@ const PLANS = [
                 {{ feature }}
               </div>
             </div>
-            <button class="plan-btn">{{ plan.btnText }}</button>
+            <!-- Se pasa el objeto plan completo a la función selectPlan -->
+            <button class="plan-btn" @click="selectPlan(plan)">{{ plan.btnText }}</button>
           </div>
         </div>
       </div>
@@ -132,7 +155,6 @@ const PLANS = [
 
 .container { max-width: 1450px; margin: 0 auto; position: relative; z-index: 2; }
 
-/* --- NUEVO FONDO: NEURAL NETWORK & GEOMETRIC BEAMS --- */
 .neural-network-bg {
   position: absolute;
   top: 0; left: 0; width: 100%; height: 100%;
@@ -207,7 +229,6 @@ const PLANS = [
   background: radial-gradient(circle at center, transparent 30%, rgba(2, 4, 10, 0.94) 100%);
 }
 
-/* --- ENCABEZADO --- */
 .header {
   text-align: center;
   margin-bottom: 70px;
@@ -249,7 +270,6 @@ const PLANS = [
   transform: translateY(0);
 }
 
-/* Carrusel y Escritorio Mejorado */
 .pricing-slider {
   display: flex;
   gap: 30px;
@@ -266,7 +286,6 @@ const PLANS = [
   display: none;
 }
 
-/* --- ANIMACIÓN DE FLOTACIÓN (Escritorio) --- */
 @keyframes cardFloat {
   0% { transform: translateY(0px); }
   50% { transform: translateY(-8px); }
@@ -289,7 +308,6 @@ const PLANS = [
   -webkit-backdrop-filter: blur(14px);
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  
   animation: cardFloat 6s ease-in-out infinite;
 }
 
