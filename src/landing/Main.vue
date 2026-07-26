@@ -5,7 +5,10 @@ import AboutUs from '../landing/components/About-Us.vue'
 import Benefits from '../landing/components/Benefits.vue'
 import Roles from '../landing/components/Roles.vue'
 import MonthlyPayments from '../landing/components/Monthly-payments.vue'
+import FitDevicesSection from './components/FitDevicesSection.vue'
+import FitStatsSection from './components/FitStatsSection.vue'
 import Footer from '../landing/components/Footer.vue'
+import Operation from './components/Operation.vue'
 import Login from './Menu/Login.vue'
 import Record from './Menu/Record.vue'
 const scrollToSection = (id: string) => {
@@ -21,12 +24,21 @@ const scrollToSection = (id: string) => {
     <Heading @navigate="scrollToSection" />
 
     <main class="flex-grow">
+      <!--Sobres Nosotros-->
       <AboutUs />
+      <!--Beneficios-->
       <Benefits />
+      <!--Resultados-->
+      <FitStatsSection/>
+      <!--APP-->
+      <FitDevicesSection/>
       <Roles />
+      <Operation/>
+      <!--Precios-->
       <MonthlyPayments />
-    </main>
 
+    </main>
+    <!--Pie de Pagina-->
     <Footer />
   </div>
 </template>

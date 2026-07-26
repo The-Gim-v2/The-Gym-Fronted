@@ -7,8 +7,9 @@ const isMenuOpen = ref(false);
 const NAV_LINKS = [
   { id: 'sobre-nosotros', label: 'Sobre nosotros' },
   { id: 'beneficios', label: 'Beneficios' },
-  { id: 'roles', label: 'Roles' },
-  { id: 'mensualidades', label: 'Mensualidades' },
+  { id: 'resultados', label: 'Resultados' },
+  { id: 'experiencia-app', label: 'App' },
+  { id: 'mensualidades', label: 'Precios' },
 ];
 
 const scrollToSection = (id: string) => {
@@ -27,7 +28,6 @@ const toggleMenu = () => {
 <template>
   <header class="nav-wrapper">
     <div class="nav-container">
-
       <div class="logo-section" @click="scrollToSection('sobre-nosotros')">
         <Logo />
         <span class="logo-text">FITMANAGE <span class="text-accent">PRO</span></span>
@@ -41,7 +41,7 @@ const toggleMenu = () => {
 
       <div class="auth-actions">
         <router-link to="/login" class="login-link">Iniciar sesión</router-link>
-        <router-link to="/Record" class="register-btn">Registrar Gym</router-link>
+        <router-link to="/Record" class="register-btn">Registrar Gimnasio</router-link>
       </div>
 
       <button class="mobile-toggle" aria-label="Abrir menú" @click="toggleMenu">
@@ -56,9 +56,10 @@ const toggleMenu = () => {
         <button v-for="link in NAV_LINKS" :key="link.id" @click="scrollToSection(link.id)" class="mobile-link">
           {{ link.label }}
         </button>
-        <hr class="divider" />
-        <router-link to="/login" @click="isMenuOpen = false" class="m-login">Iniciar sesión</router-link>
-        <router-link to="/Record" @click="isMenuOpen = false" class="m-register">Registrar tu Gimnasio</router-link>
+        <div class="mobile-auth">
+          <router-link to="/login" class="mobile-login" @click="isMenuOpen = false">Iniciar sesión</router-link>
+          <router-link to="/Record" class="mobile-register" @click="isMenuOpen = false">Registrar Gimnasio</router-link>
+        </div>
       </div>
     </Transition>
   </header>
@@ -70,187 +71,178 @@ const toggleMenu = () => {
   top: 0;
   left: 0;
   width: 100%;
-  z-index: 100;
-  background: rgba(10, 10, 10, 0.82);
+  background: rgba(5, 5, 8, 0.88);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  z-index: 1000;
   font-family: 'Inter', sans-serif;
 }
 
 .nav-container {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 clamp(20px, 4vw, 60px);
-  height: 84px;
+  padding: 16px clamp(20px, 5vw, 60px);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
 }
 
 .logo-section {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   cursor: pointer;
 }
 
 .logo-text {
   font-family: 'Anton', sans-serif;
-  font-size: 19px;
-  letter-spacing: 0.3px;
-  line-height: 1;
-  white-space: nowrap;
+  font-size: 20px;
   color: #f5f5f4;
+  letter-spacing: 0.5px;
 }
 
-.text-accent {
-  color: #1c4fd6;
-}
+.text-accent { color: #3a6bd6; }
 
 .desktop-links {
   display: flex;
-  align-items: center;
-  gap: 30px;
+  gap: 32px;
 }
 
 .nav-link {
-  font-family: 'Oswald', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
-  color: rgba(245, 245, 244, 0.62);
-  background: none;
+  background: transparent;
   border: none;
+  color: rgba(245, 245, 244, 0.65);
+  font-family: 'Inter', sans-serif;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
   cursor: pointer;
-  padding: 8px 0;
-  transition: color 0.25s;
+  transition: color 0.25s ease;
 }
 
-.nav-link:hover {
-  color: #f5f5f4;
-}
+.nav-link:hover { color: #ffffff; }
 
 .auth-actions {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 22px;
 }
 
 .login-link {
-  font-family: 'Oswald', sans-serif;
-  font-size: 12.5px;
-  font-weight: 700;
-  letter-spacing: 0.8px;
-  color: #f5f5f4;
+  color: rgba(245, 245, 244, 0.8);
+  font-family: 'Inter', sans-serif;
+  font-size: 13.5px;
+  font-weight: 600;
   text-transform: uppercase;
   text-decoration: none;
+  transition: color 0.25s ease;
 }
+
+.login-link:hover { color: #60a5fa; }
 
 .register-btn {
   background: #1c4fd6;
   color: #ffffff;
-  font-family: 'Oswald', sans-serif;
-  font-size: 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13.5px;
   font-weight: 700;
-  letter-spacing: 0.5px;
   text-transform: uppercase;
-  padding: 12px 20px;
-  border-radius: 8px;
+  padding: 11px 22px;
+  border-radius: 12px;
   text-decoration: none;
-  white-space: nowrap;
-  transition: all 0.25s ease;
+  box-shadow: 0 4px 15px rgba(28, 79, 214, 0.3);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.register-btn:hover {
-  background: #123ba0;
-  transform: translateY(-2px);
+.register-btn:hover { 
+  background: #1844c0; 
+  transform: translateY(-2px); 
+  box-shadow: 0 6px 20px rgba(28, 79, 214, 0.45);
 }
 
 .mobile-toggle {
   display: none;
-  background: none;
+  background: transparent;
   border: none;
   cursor: pointer;
-  padding: 8px;
+  padding: 4px;
+}
+
+.hamburger {
+  width: 24px;
+  height: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .hamburger span {
   display: block;
-  width: 24px;
+  width: 100%;
   height: 2px;
   background: #f5f5f4;
-  margin: 6px 0;
-  transition: 0.25s;
+  transition: all 0.3s ease;
 }
 
-.hamburger.is-active span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
-.hamburger.is-active span:nth-child(2) { opacity: 0; }
-.hamburger.is-active span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
-
 .mobile-menu {
-  position: fixed;
-  top: 84px;
+  position: absolute;
+  top: 100%;
   left: 0;
   width: 100%;
-  height: calc(100vh - 84px);
-  background: rgba(8, 8, 8, 0.99);
-  z-index: 99;
-  padding: 32px 28px;
+  background: #050508;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 26px;
-  overflow-y: auto;
+  gap: 16px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
 }
 
 .mobile-link {
-  text-align: left;
-  font-family: 'Oswald', sans-serif;
-  font-size: 22px;
+  background: transparent;
+  border: none;
+  color: rgba(245, 245, 244, 0.8);
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
   font-weight: 600;
-  color: #f5f5f4;
-  background: none;
-  border: none;
+  text-transform: uppercase;
+  text-align: left;
+  padding: 8px 0;
   cursor: pointer;
-  padding: 0;
+  transition: color 0.2s;
 }
 
-.divider {
-  border: none;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  margin: 6px 0;
-  width: 100%;
+.mobile-link:hover { color: #60a5fa; }
+
+.mobile-auth {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.m-login, .m-register {
-  font-family: 'Oswald', sans-serif;
+.mobile-login, .mobile-register {
+  text-align: center;
+  padding: 13px;
+  border-radius: 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
   text-decoration: none;
 }
 
-.m-login {
-  font-size: 16px;
-  font-weight: 700;
-  color: rgba(245, 245, 244, 0.85);
-}
-
-.m-register {
-  background: #1c4fd6;
-  color: #ffffff;
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  padding: 16px;
-  border-radius: 10px;
-  text-align: center;
-}
+.mobile-login { background: rgba(255, 255, 255, 0.05); color: #f5f5f4; border: 1px solid rgba(255, 255, 255, 0.08); }
+.mobile-register { background: #1c4fd6; color: #ffffff; }
 
 .slide-enter-active, .slide-leave-active { transition: all 0.3s ease; }
-.slide-enter-from, .slide-leave-to { opacity: 0; transform: translateY(-15px); }
+.slide-enter-from, .slide-leave-to { opacity: 0; transform: translateY(-10px); }
 
-@media (max-width: 960px) {
+@media (max-width: 900px) {
   .desktop-links, .auth-actions { display: none; }
   .mobile-toggle { display: block; }
 }
