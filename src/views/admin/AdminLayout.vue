@@ -24,7 +24,7 @@ const route = useRoute();
 
 // Extrae el nombre de la ruta para pasárselo al Heading automáticamente
 const currentRouteName = computed(() => {
-  return (route.name as string)?.replace('Admin-', '').replace('-', ' ') || 'Dashboard';
+  return (route.name as string)?.replace('admin-', '').replace('-', ' ') || 'Dashboard';
 });
 </script>
 
