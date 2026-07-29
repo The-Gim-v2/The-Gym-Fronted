@@ -1,5 +1,5 @@
 <template>
-  <div class="admin-layout">
+  <div class="Owner-layout">
     <!-- <aside class="sidebar-container">
       <Sidebar /> 
     </aside>-->
@@ -18,13 +18,13 @@
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 //import Heading from '../../components/Admin/HeadingAdmin.vue';
-import Sidebar from '../../components/Admin/Sidebar.vue';
+import Sidebar from '../../components/Owner/Sidebar.vue';
 
 const route = useRoute();
 
 // Extrae el nombre de la ruta para pasárselo al Heading automáticamente
 const currentRouteName = computed(() => {
-  return (route.name as string)?.replace('Admin-', '').replace('-', ' ') || 'Dashboard';
+  return (route.name as string)?.replace('Owner-', '').replace('-', ' ') || 'Dashboard';
 });
 </script>
 

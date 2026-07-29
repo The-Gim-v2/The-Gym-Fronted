@@ -34,7 +34,7 @@ const tutorialEnabled = ref(localStorage.getItem('tutorialActivo') === 'true');
 // Diccionario de tutoriales
 // Dentro de tu HelpButton.vue, en la sección <script setup>
 const tutoriales = {
-  'admin-dashboard': [
+  'Owner-dashboard': [
     { title: "Dashboard", description: "Vista general de la actividad del sistema." }
   ],
   'register-clients': [
@@ -73,7 +73,7 @@ const tutoriales = {
     { title: "Precios", description: "Configura las tarifas y costos del sistema." }
   ],
   'fees-management': [
-    { title: "Cuotas", description: "Administra los cargos y cuotas vigentes." }
+    { title: "Cuotas", description: "Owneristra los cargos y cuotas vigentes." }
   ],
   'attendance-log': [
     { title: "Bitácora de Asistencia", description: "Registro diario de entradas y salidas." }
@@ -87,7 +87,7 @@ const tutoriales = {
   'revenue-log': [
     { title: "Ingresos", description: "Historial detallado de los ingresos totales." }
   ],
-  'admin-settings': [
+  'Owner-settings': [
     { title: "Configuración", description: "Ajustes globales del sistema." }
   ],
   'profile': [

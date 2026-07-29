@@ -1,5 +1,5 @@
 <template>
-  <HeadingAdmin>
+  <HeadingOwner>
     <NotificationSystem ref="toastRef" />
     <main class="main-content">
       <header class="header-section">
@@ -116,7 +116,7 @@
         <CorreoMasivo @close="activeModal = null" />
       </div>
     </transition>   
-  </HeadingAdmin>
+  </HeadingOwner>
 </template>
 
 <style scoped>
@@ -396,7 +396,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import HeadingAdmin from './HeadingAdmin.vue';
+import HeadingOwner from './HeadingOwner.vue';
 import CorreoMasivo from './Componets/Bulk-Email.vue';
 import NotificationSystem from '../Modals/NotificationSystem.vue'; 
 import ModalComponent from '../Modals/ModalComponent.vue';
@@ -464,6 +464,6 @@ const ejecutarEliminacion = () => {
   toastRef.value.notify('Usuario eliminado correctamente', 'success');
 };
 
-const goToPayments = (id) => router.push(`/admin/pay/${id}`);
-const goToEdit = (id) => router.push(`/admin/editar-usuario/${id}`);
+const goToPayments = (id) => router.push(`/Owner/pay/${id}`);
+const goToEdit = (id) => router.push(`/Owner/editar-usuario/${id}`);
 </script>

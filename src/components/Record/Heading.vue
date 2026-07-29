@@ -114,7 +114,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import Sidebar from '../Admin/Sidebar.vue';
+import Sidebar from '../Owner/Sidebar.vue';
 
 const isSidebarOpen = ref(false);
 </script>

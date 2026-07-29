@@ -1,11 +1,11 @@
 <template>
-  <HeadingAdmin>
+  <HeadingOwner>
     <NotificationSystem ref="toastRef" />
     <main class="main-content">
       <header class="header-section">
         <div class="title-wrapper">
           <h1 class="main-title">Usuarios</h1>
-          <!--<p class="main-subtitle">Control y administración general de socios</p>-->
+          <!--<p class="main-subtitle">Control y Owneristración general de socios</p>-->
         </div>
       
         <div class="actions-bar">
@@ -146,7 +146,7 @@
         <EnvioCorreo @close="activeModal = null" />
       </div>
     </transition>   
-  </HeadingAdmin>
+  </HeadingOwner>
 </template>
 
 <style scoped>
@@ -436,7 +436,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import HeadingAdmin from '../HeadingAdmin.vue';
+import HeadingOwner from '../HeadingOwner.vue';
 import ModalComponent from '../../Modals/ModalComponent.vue';
 import CorreoMasivo from '../Componets/Bulk-Email.vue';
 import EnvioCorreo from '../Componets/Mail.vue';
@@ -512,6 +512,6 @@ const executeDelete = () => {
   }
 };
 
-const goToEdit = (id) => router.push(`/admin/editar-usuario/${id}`);
+const goToEdit = (id) => router.push(`/Owner/editar-usuario/${id}`);
 const openWhatsApp = (phone) => window.open(`https://wa.me/${phone.replace(/\D/g, '')}`, '_blank');
 </script>

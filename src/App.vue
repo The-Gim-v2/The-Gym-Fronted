@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
-import HelpButton from './components/Admin/HelpButton.vue';
+import HelpButton from './components/Owner/HelpButton.vue';
 </script>
 
 

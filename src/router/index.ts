@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { adminRoutes } from './admin.routes'
+import { OwnerRoutes } from './owner.routes.ts'
 import { recepcionRoutes } from './recepcionista.route.ts'
+import { AdminRoutes } from './admin.routes.ts'
 import Main from '@/landing/Main.vue'
 import Login from '@/landing/Menu/Login.vue'
 import RecoverPassword from '@/landing/Menu/Recover-password.vue'
@@ -47,8 +48,9 @@ const router = createRouter({
       name: 'record-client',
       component: RecordClient,
     },
-    ...adminRoutes,
+    ...OwnerRoutes,
     ...recepcionRoutes,
+    ...AdminRoutes,
     {
       path: '/:pathMatch(.*)*',
       name: 'not-found',

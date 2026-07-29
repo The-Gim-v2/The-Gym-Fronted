@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { reactive, ref, onMounted, onUnmounted, computed } from 'vue';
-import HeadingAdmin from '../HeadingAdmin.vue';
+import HeadingOwner from '../HeadingOwner.vue';
 import RegisterGymModal from '../../Record/Record-Gym.vue'; 
 import AIChatModal from '../../Record/Record-Staff.vue'; 
-import MembershipModal from '../../Modals/MembershipModal.vue'; // Ajusta según la ubicación de tu componente de pagos
+import MembershipModal from '../../Modals/MembershipModal.vue'; 
 
 const allDays = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 const fileInput = ref<HTMLInputElement | null>(null);
@@ -14,6 +14,7 @@ const showPassword = ref(false);
 const showAddSedeModal = ref(false);
 const showAIModal = ref(false);
 const showPaymentModal = ref(false); 
+const showCancelModal = ref(false); // <--- Nuevo estado para el modal de baja
 
 // Sistema de notificaciones (tipo toast flotante)
 const notification = reactive({
@@ -111,6 +112,17 @@ const handlePaymentSuccess = (msg: string) => {
   showNotification(msg, 'success');
 };
 
+// Funciones para el flujo de cancelación de suscripción con modal personalizado
+const handleCancelSubscription = () => {
+  showCancelModal.value = true;
+};
+
+const confirmCancelSubscription = () => {
+  showCancelModal.value = false;
+  // Lógica de baja de suscripción
+  showNotification('Has solicitado dar de baja tu suscripción.', 'warning');
+};
+
 const handleAddSede = () => {
   if (!isProMember.value) {
     showNotification('Esta función solo está disponible para cuentas con Membresía Pro.', 'warning');
@@ -129,7 +141,7 @@ const handleInteractAI = () => {
 </script>
 
 <template>
-  <HeadingAdmin>
+  <HeadingOwner>
     <main class="main-content">
       
       <!-- Notificación flotante tipo Toast -->
@@ -163,7 +175,7 @@ const handleInteractAI = () => {
           </div>
 
           <h3 class="gym-name-display">{{ form.nombreGimnasio || 'Gimnasio' }}</h3>
-          <p class="profile-hint">Actualiza la información de tu establecimiento y administrador.</p>
+          <p class="profile-hint">Actualiza la información de tu establecimiento y perfil.</p>
         </div>
 
         <!-- Columna Derecha: Formularios -->
@@ -179,7 +191,7 @@ const handleInteractAI = () => {
                   <input id="nombreGimnasio" type="text" v-model="form.nombreGimnasio" required />
                 </div>
                 <div class="input-group">
-                  <label for="curp">CURP (Administrador)</label>
+                  <label for="curp">CURP</label>
                   <input id="curp" type="text" v-model="form.curp" disabled class="input-disabled" title="El CURP no se puede editar" />
                 </div>
               </div>
@@ -193,6 +205,10 @@ const handleInteractAI = () => {
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>
                     </button>
                   </div>
+                  <!-- Botón para disparar el modal de cancelación -->
+                  <button type="button" class="btn-cancel-subscription" @click="handleCancelSubscription">
+                    Darse de baja / Cancelar suscripción
+                  </button>
                 </div>
 
                 <div class="input-group special-buttons-group">
@@ -335,7 +351,27 @@ const handleInteractAI = () => {
         </div>
       </div>
 
-      <!-- Componente Modular Externo de Pago (Con transición integrada) -->
+      <!-- Modal Personalizado de Confirmación de Baja -->
+      <div v-if="showCancelModal" class="modal-overlay" @click.self="showCancelModal = false">
+        <div class="modal-container modal-small animate-modal">
+          <div class="modal-header">
+            <h3>¿Estás seguro?</h3>
+            <button class="close-btn" @click="showCancelModal = false">&times;</button>
+          </div>
+          <div class="modal-body text-center">
+            <div class="warning-icon-wrapper">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            </div>
+            <p class="modal-text">¿Estás seguro de que deseas cancelar tu suscripción y dar de baja el servicio? Perderás acceso a los beneficios activos.</p>
+            <div class="modal-actions">
+              <button type="button" class="btn-secondary-modal" @click="showCancelModal = false">Conservar plan</button>
+              <button type="button" class="btn-danger-modal" @click="confirmCancelSubscription">Sí, dar de baja</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Componente Modular Externo de Pago -->
       <MembershipModal 
         v-if="showPaymentModal" 
         @close="showPaymentModal = false" 
@@ -363,13 +399,13 @@ const handleInteractAI = () => {
             <button class="close-btn" @click="showAIModal = false">&times;</button>
           </div>
           <div class="modal-body">
-            <AIChatModal @close="showAIModal = false" />
+            <AIChatModal @click="showAIModal = false" />
           </div>
         </div>
       </div>
 
     </main>
-  </HeadingAdmin>
+  </HeadingOwner>
 </template>
 
 <style scoped>
@@ -386,7 +422,6 @@ const handleInteractAI = () => {
 
 .highlight { color: #3b82f6; }
 
-/* Animación de apertura de modales */
 .animate-modal {
   animation: modalScale 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -396,7 +431,6 @@ const handleInteractAI = () => {
   to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-/* Toast Notificación Flotante */
 .floating-toast {
   position: fixed;
   top: 24px;
@@ -634,6 +668,25 @@ input:focus {
 
 .action-btn svg { width: 20px; height: 20px; }
 
+.btn-cancel-subscription {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-align: left;
+  padding: 4px 0 0 2px;
+  cursor: pointer;
+  width: fit-content;
+  transition: color 0.2s ease;
+}
+
+.btn-cancel-subscription:hover {
+  color: #f87171;
+  text-decoration: underline;
+}
+
 .dual-action-buttons {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -751,6 +804,10 @@ input:focus {
   box-shadow: 0 20px 40px rgba(0,0,0,0.6);
 }
 
+.modal-small {
+  max-width: 440px !important;
+}
+
 .modal-header {
   padding: 20px 24px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
@@ -781,6 +838,71 @@ input:focus {
 .modal-body {
   padding: 24px;
   overflow-y: auto;
+}
+
+.text-center { text-align: center; }
+
+.warning-icon-wrapper {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px auto;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.modal-text {
+  font-family: 'Inter', sans-serif;
+  color: #cbd5e1;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 24px;
+}
+
+.modal-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.btn-secondary-modal {
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-family: 'Oswald', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: background 0.2s;
+}
+
+.btn-secondary-modal:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.btn-danger-modal {
+  padding: 12px;
+  border-radius: 12px;
+  background: #ef4444;
+  border: none;
+  color: #fff;
+  font-family: 'Oswald', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: background 0.2s;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.btn-danger-modal:hover {
+  background: #dc2626;
 }
 
 @media (max-width: 1024px) { 

@@ -1,28 +1,25 @@
 <template>
-  <HeadingAdmin>
+  <HeadingOwner>
     <NotificationSystem ref="toastRef" />
     <main class="main-content">
       <header class="header-section">
-        <h1 class="main-title">Asistencia  <span class="highlight"> Semanal </span></h1>
+        <h1 class="main-title">Ingresos</h1>
       
         <div class="actions-bar">
-            <select class="status-select" v-model="selectedDay">
-                <option value="">Dia Semanal (Todas)</option>
-                <option value="Lunes">Lunes</option>
-                <option value="Martes">Martes</option>
-                <option value="Miercoles">Miercoles</option>
-                <option value="Jueves">Jueves</option>
-                <option value="Viernes">Viernes</option>
-                <option value="Sabado">Sabado</option>
-                <option value="Domingo">Domingo</option>
+            <select class="status-select" v-model="selectedMembership">
+                <option value="">Mensualidad (Todas)</option>
+                <option value="Mensual">Mensual</option>
+                <option value="Quincenal">Quincenal</option>
             </select>
-            <button class="btn-bulk"  @click="activeModal = 'asistencias'">
+            <button class="btn-bulk"  @click="activeModal = 'ganancias'">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
-                    <path d="M18 20V10M12 20V4M6 20v-6"/>
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                    <line x1="12" y1="22.08" x2="12" y2="12"/>
                 </svg>
                 <div class="btn-text-wrapper">
-                    <span class="btn-label">Reportes</span>
-                    <span class="highlight-text-custom">Ver Gráfica</span>
+                    <span class="btn-label">Ingresos Totales</span>
+                    <span class="highlight-text-custom">{{ formatCurrency(totalIncome) }}</span>
                 </div>
             </button>
             <input type="text" class="search-input" placeholder="Buscar usuario..." v-model="searchQuery" >
@@ -33,23 +30,23 @@
       <div class="table-container desktop-only">
         <table class="user-table">
           <thead>
-            <tr><th>Foto</th><th>Nombre</th><th>Correo</th><th>Membresia</th><th>Fecha a Vencer</th><th>Status</th></tr>
+            <tr><th>Foto</th><th>Nombre</th><th>Correo</th><th>Fecha a Vencer</th><th>Membresia</th><th>Monto</th></tr>
           </thead>
           <tbody>
             <tr v-for="user in filteredUsers" :key="user.id">
               <td><div class="avatar-small"></div></td>
               <td class="text-bold">{{ user.name }}</td>
               <td>{{ user.email }}</td>
-              <td><span :class="['status-badge2', getMembershipClass(user.membership)]">{{ user.membership }}</span></td>
               <td>{{ user.expirationDate }}</td>
-              <td><span :class="['status-badge', getStatusClass(user.status)]">{{ user.status }}</span></td>
+              <td><span :class="['status-badge2', getMembershipClass(user.membership)]">{{ user.membership }}</span></td>
+              <td><span class="status-badge">{{ user.amount }}</span></td>
               <td class="actions-cell"></td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <!-- VISTA MÓVIL REESTRUCTURADA (Alineada perfectamente con los estilos limpios de deudores y renovaciones) -->
+      <!-- VISTA MÓVIL REESTRUCTURADA -->
       <div class="mobile-only">
         <div v-for="user in filteredUsers" :key="user.id" class="user-card">
           <div class="card-top-section">
@@ -58,7 +55,7 @@
               <div class="text-bold name-text">{{ user.name }}</div>
               <div class="badges-row">
                 <span :class="['status-badge2', getMembershipClass(user.membership)]">{{ user.membership }}</span>
-                <span :class="['status-badge', getStatusClass(user.status)]">{{ user.status }}</span>
+                <span class="status-badge">{{ user.amount }}</span>
               </div>
             </div>
           </div>
@@ -88,18 +85,17 @@
 
     </main>
       <transition name="pop">
-      <div v-if="activeModal === 'asistencias'" class="modal-wrapper" @click.self="activeModal = null">
-        <Asistencias @close="activeModal = null" />
+      <div v-if="activeModal === 'ganancias'" class="modal-wrapper" @click.self="activeModal = null">
+        <Ganancias @close="activeModal = null" />
       </div>
     </transition>  
-  </HeadingAdmin>
+  </HeadingOwner>
 </template>
 
 <style scoped>
 .main-content { padding: 30px 40px; max-width: 1400px; margin: 0 auto; }
 .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 20px; }
 .main-title { font-family: 'Anton', sans-serif; font-size: 2rem; color: #fff; margin: 0; letter-spacing: 0.5px; }
-.highlight { color: #3b82f6; }
 
 .modal-wrapper {
   position: fixed;
@@ -217,7 +213,7 @@
 .highlight-text-custom { 
     font-size: 0.95rem; 
     font-weight: 700; 
-    color: #34d399; 
+    color: #588ef2; 
 }
 
 @media (max-width: 900px) {
@@ -309,23 +305,27 @@
 .actions-cell { display: flex; gap: 12px; }
 .avatar-small { width: 40px; height: 40px; background: #262626; color: #bbb; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; border: 1px solid #333; }
 
-.status-badge {
-  padding: 3px 10px;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  border: 1px solid;
-  font-weight: 600;
-  display: inline-block;
+.status-badge { 
+    background: rgba(6, 78, 59, 0.3); 
+    color: #34d399; 
+    padding: 3px 10px; 
+    border-radius: 20px; 
+    font-size: 0.75rem; 
+    border: 1px solid rgba(6, 78, 59, 0.6);
+    font-weight: 600;
+    display: inline-block;
 }
 
-.status-green { background: rgba(6, 78, 59, 0.3); color: #34d399; border-color: rgba(6, 78, 59, 0.6); }
-.status-red { background: rgba(153, 27, 27, 0.3); color: #f87171; border-color: rgba(153, 27, 27, 0.6); }
-.status-orange { background: rgba(180, 83, 9, 0.3); color: #fbbf24; border-color: rgba(180, 83, 9, 0.6); }
-.status-yellow { background: rgba(161, 161, 35, 0.3); color: #fef08a; border-color: rgba(161, 161, 35, 0.6); }
-.status-default { background: #333; color: #fff; border-color: #555; }
+.status-badge2 { 
+    padding: 3px 10px; 
+    border-radius: 20px; 
+    font-size: 0.75rem; 
+    border: 1px solid;
+    font-weight: 600;
+    display: inline-block;
+}
 
 .text-bold { font-weight: 600; color: #fff; }
-.status-badge2 { padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; border: 1px solid; font-weight: 600; display: inline-block; }
 
 .modal-body-custom { text-align: center; color: #fff; padding: 10px 5px; }
 .modal-body-custom h2 { font-size: 1.3rem; margin-bottom: 10px; font-weight: 600; }
@@ -345,47 +345,61 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import HeadingAdmin from '../HeadingAdmin.vue';
+import HeadingOwner from '../HeadingOwner.vue';
 import ModalComponent from '../../Modals/ModalComponent.vue';
-import Asistencias from '../Componets/Attendance.vue';
+import Ganancias from '../Componets/Earnings.vue';
 import NotificationSystem from '../../Modals/NotificationSystem.vue'; 
 
 const activeModal = ref(null);
 const router = useRouter();
 const showDelete = ref(false);
 const selectedUser = ref(null);
-const selectedDay = ref('');
+const selectedMembership = ref(''); 
 const searchQuery = ref('');
 
 const filteredUsers = computed(() => {
   return users.value.filter(user => {
-    const matchStatus = selectedDay.value ? user.dia === selectedDay.value : true;
+    const matchMembership = selectedMembership.value ? user.mensualidad === selectedMembership.value : true;
     
     const term = searchQuery.value.toLowerCase();
     const matchSearch = 
       user.name.toLowerCase().includes(term) || 
       user.email.toLowerCase().includes(term) ||
       user.membership.toLowerCase().includes(term) ||
-      user.status.toLowerCase().includes(term) ||
+      user.amount.toLowerCase().includes(term) ||
       user.mensualidad.toLowerCase().includes(term) || 
       user.phone.toLowerCase().includes(term) ||
       user.expirationDate.toLowerCase().includes(term) ||
       user.id.toString().includes(term);
     
-    return matchStatus && matchSearch;
+    return matchMembership && matchSearch;
   });
 });
 
 const users = ref([
-  { id: 1, name: 'Maria Luis Ramires Sanchez', email: 'Maria.luis@example.com', expirationDate: '18/03/2026', status: 'Activo', phone: '+52 481 123 4321', mensualidad: 'Mensual', membership: '2 Meses', dia: 'Lunes' },
-  { id: 2, name: 'Francisco Luis Ramires Sanchez', email: 'Francisco.luis@example.com', expirationDate: '18/03/2026', status: 'Pendiente', phone: '+52 481 123 4321', mensualidad: 'Quincenal', membership: '1 Mes', dia: 'Martes' },
-  { id: 3, name: 'Luis Ramires Sanchez', email: 'Luis.luis@example.com', expirationDate: '18/03/2026', status: 'Activo', phone: '+52 481 123 4321', mensualidad: 'Mensual', membership: '4 Meses', dia: 'Miercoles' },
-  { id: 4, name: 'Jose Luis Ramires Sanchez', email: 'Jose.luis@example.com', expirationDate: '18/03/2026', status: 'Inactivo', phone: '+52 481 123 4321', mensualidad: 'Quincenal', membership: '1 Mes', dia: 'Jueves' },
-  { id: 5, name: 'Mario Luis Ramires Sanchez', email: 'Mario.luis@example.com', expirationDate: '18/03/2026', status: 'Pendiente', phone: '+52 481 123 4321', mensualidad: 'Mensual', membership: '3 Meses', dia: 'Viernes' },
-  { id: 6, name: 'Jesus Luis Ramires Sanchez', email: 'Jesus.luis@example.com', expirationDate: '18/03/2026', status: 'Inactivo', phone: '+52 481 123 4321', mensualidad: 'Quincenal', membership: '1 Mes', dia: 'Sabado' },
-  { id: 7, name: 'Ana Luis Ramires Sanchez', email: 'Ana.luis@example.com', expirationDate: '18/03/2026', status: 'Activo', phone: '+52 481 123 4321', mensualidad: 'Mensual', membership: '2 Meses', dia: 'Martes' },
-  { id: 8, name: 'Carlos Luis Ramires Sanchez', email: 'Carlos.luis@example.com', expirationDate: '18/03/2026', status: 'Pendiente', phone: '+52 481 123 4321', mensualidad: 'Quincenal', membership: '1 Mes', dia: 'Lunes' }
+  { id: 1, name: 'Jesus Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expirationDate: '18/03/2026', membership: '1 Mes', amount: '$ 900.00', mensualidad: 'Mensual', phone: '+52 481 123 4321' },
+  { id: 2, name: 'Maria Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expirationDate: '18/03/2026', membership: '2 Meses', amount: '$ 500.00', mensualidad: 'Quincenal', phone: '+52 481 123 4321' },
+  { id: 3, name: 'Erick Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expirationDate: '18/03/2026', membership: '4 Meses', amount: '$ 500.00', mensualidad: 'Mensual', phone: '+52 481 123 4321' },
+  { id: 4, name: 'Luis Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expirationDate: '18/03/2026', membership: '6 Meses', amount: '$ 800.00', mensualidad: 'Quincenal', phone: '+52 481 123 4321' },
+  { id: 5, name: 'Fernando Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expirationDate: '18/03/2026', membership: '2 Meses', amount: '$ 500.00', mensualidad: 'Mensual', phone: '+52 481 123 4321' },
+  { id: 6, name: 'Mario Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expirationDate: '18/03/2026', membership: '3 Meses', amount: '$ 500.00', mensualidad: 'Quincenal', phone: '+52 481 123 4321' },
+  { id: 7, name: 'Jorge Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expirationDate: '18/03/2026', membership: '5 Meses', amount: '$ 500.00', mensualidad: 'Mensual', phone: '+52 481 123 4321' },
+  { id: 8, name: 'Francisco Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expirationDate: '18/03/2026', membership: '1 Mes', amount: '$ 500.00', mensualidad: 'Quincenal', phone: '+52 481 123 4321' }
 ]);
+
+const totalIncome = computed(() => {
+  return filteredUsers.value.reduce((sum, user) => {
+    const amountValue = parseFloat(user.amount.replace(/[^0-9.]/g, '')) || 0;
+    return sum + amountValue;
+  }, 0);
+});
+
+const formatCurrency = (value) => {
+  return new Intl.NumberFormat('es-MX', {
+    style: 'currency',
+    currency: 'MXN',
+  }).format(value);
+};
 
 const getMembershipClass = (membership) => {
   const classes = {
@@ -397,15 +411,5 @@ const getMembershipClass = (membership) => {
     '6 Meses': 'membership-pink'
   };
   return classes[membership] || 'membership-default';
-};
-
-const getStatusClass = (status) => {
-  const classes = {
-    'Activo': 'status-green',
-    'Inactivo': 'status-red',
-    'Pendiente': 'status-orange',
-    'Próximo a vencer': 'status-yellow'
-  };
-  return classes[status] || 'status-default';
 };
 </script>

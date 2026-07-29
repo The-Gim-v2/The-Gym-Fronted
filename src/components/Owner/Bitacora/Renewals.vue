@@ -1,5 +1,5 @@
 <template>
-  <HeadingAdmin>
+  <HeadingOwner>
     <main class="main-content">
       <header class="header-section">
         <div class="title-wrapper">
@@ -87,7 +87,7 @@
       </ModalComponent>
 
     </main>
-  </HeadingAdmin>
+  </HeadingOwner>
 </template>
 
 <style scoped>
@@ -345,7 +345,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import HeadingAdmin from '../HeadingAdmin.vue';
+import HeadingOwner from '../HeadingOwner.vue';
 import ModalComponent from '../../Modals/ModalComponent.vue';
 import RenovacionModal from '../Componets/Account-Recovery.vue'; // Asegúrate de ajustar la ruta de tu componente externo de renovación
 

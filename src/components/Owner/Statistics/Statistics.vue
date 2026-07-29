@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue';
-import HeadingAdmin from '../HeadingAdmin.vue';
+import HeadingOwner from '../HeadingOwner.vue';
 import FitnessPet from '@/components/FitnessPet.vue';
 
 const searchQuery = ref('');
@@ -58,7 +58,7 @@ const diasCalendario = ref([
 </script>
 
 <template>
-  <HeadingAdmin>
+  <HeadingOwner>
     <main class="main-content">
       <div class="glow"></div>
       <div class="stats-container">
@@ -199,7 +199,7 @@ const diasCalendario = ref([
         </div>
       </div>
     </main>
-  </HeadingAdmin>
+  </HeadingOwner>
 </template>
 
 <style scoped>

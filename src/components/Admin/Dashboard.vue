@@ -1,450 +1,960 @@
-<template>
-  <HeadingAdmin>
-    <div class="main-layout">
-      <main class="dashboard-content">
-        <div class="gym-brand-card">
-          <h1 class="gym-name-display">
-            ULTRA <span class="highlight-blue">FITNESS</span> CENTER
-          </h1>
-          <p class="gym-subtitle">Sistema de Gestión de Alto Rendimiento</p>
-        </div>
+<script setup lang="ts">
+import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router'; 
 
-        <div class="attendance-methods">
-          <button class="attendance-btn glass-effect" @click="openCamera('facial')">
-            <svg class="svg-btn" viewBox="0 0 24 24"><path d="M9 11.75c-.69 0-1.25.56-1.25 1.25s.56 1.25 1.25 1.25 1.25-.56 1.25-1.25-.56-1.25-1.25-1.25zm6 0c-.69 0-1.25.56-1.25 1.25s.56 1.25 1.25 1.25 1.25-.56 1.25-1.25-.56-1.25-1.25-1.25zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8 0-.29.02-.58.05-.86 2.36-1.05 4.23-2.98 5.21-5.37C11.07 8.33 14.05 10 17.42 10c.78 0 1.53-.09 2.25-.26.21.71.33 1.47.33 2.26 0 4.41-3.59 8-8 8z"/></svg>
-            <span>Asistencia Facial</span>
-          </button>
-          <button class="attendance-btn glass-effect" @click="openCamera('scanner')">
-            <svg class="svg-btn" viewBox="0 0 24 24"><path d="M4 4h7V11H4V4M13 4h7V11h-7V4M4 13h7v7H4v-7M13 13h3v2h-3v-2M18 13h2v2h-2v-2M13 15h2v2h-2v-2M15 18h2v2h-2v-2M18 18h2v2h-2v-2M13 18h2v2h-2v-2M18 15h2v2h-2v-2z"/></svg>
-            <span>Escáner QR</span>
-          </button>
-        </div>
+const router = useRouter(); 
 
-        <div class="action-buttons-container">
-          <button class="action-card primary" @click="activeModal = 'add-schedule'">
-            <div class="action-icon">
-              <svg viewBox="0 0 24 24" class="svg-btn"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
-            </div>
-            <div class="card-info">
-              <span class="main-text">Añadir Horario</span>
-              <span class="sub-text">Gestión de turnos</span>
-            </div>
-          </button>
-          <button class="action-card secondary" @click="activeModal = 'view-schedule'">
-            <div class="action-icon">
-              <svg viewBox="0 0 24 24" class="svg-btn"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
-            </div>
-            <div class="card-info">
-              <span class="main-text">Ver Horario</span>
-              <span class="sub-text">Lunes a Domingo</span>
-            </div>
-          </button>
-        </div>
-      </main>
-      
-      <NotificationsPanel 
-        :is-open="isNotificationsOpen" 
-        :notifications="notifications" 
-        @close="isNotificationsOpen = false"
-      />
+interface GymUser {
+  id: number;
+  name: string;
+  owner: string;
+  email: string;
+  phone: string;
+  plan: string;
+  status: 'activo' | 'pendiente' | 'bloqueado' | 'baja';
+  registrationDate: string;
+  sedes: number;
+}
 
-      <transition name="pop">
-        <div v-if="activeModal" class="modal-wrapper" @click.self="closeModal">
-          
-          <AddScheduleModal v-if="activeModal === 'add-schedule'" @close="closeModal" />
-          <ViewScheduleModal v-if="activeModal === 'view-schedule'" @close="closeModal" />
-
-          <div v-if="activeModal === 'facial' || activeModal === 'scanner'" class="camera-panel glass-effect">
-            <div class="panel-header">
-              <h3>{{ activeModal === 'facial' ? 'Escaneo Facial' : 'Escaneando QR' }}</h3>
-              <button class="close-panel" @click="closeModal">&times;</button>
-            </div>
-            <div class="camera-container">
-              <video ref="videoPlayer" autoplay playsinline class="video-feed"></video>
-              <div v-if="activeModal === 'facial'" class="face-overlay"></div>
-              <div v-if="activeModal === 'scanner'" class="qr-overlay"><div class="scanner-line"></div></div>
-            </div>
-            <div class="panel-footer">
-              <p v-if="activeModal === 'facial'">Coloca tu rostro dentro del círculo</p>
-              <p v-else>Centra el código QR en el recuadro</p>
-              <button class="action-btn-full outline" @click="closeModal">Cancelar</button>
-            </div>
-          </div>
-
-          <div v-if="activeModal === 'qr'" class="custom-panel glass-effect">
-            <div class="panel-header">
-              <h3>Código QR de Acceso</h3>
-              <button class="close-panel" @click="activeModal = null">&times;</button>
-            </div>
-            <div class="panel-body qr-view">
-              <div class="qr-container">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ULTRAFITNESS" alt="QR Code">
-              </div>
-              <p>Muestra este código en la entrada para que los socios registren su asistencia.</p>
-              <button class="action-btn-full">Descargar para Imprimir</button>
-            </div>
-          </div>
-
-          <div v-if="activeModal === 'website'" class="custom-panel glass-effect">
-            <div class="panel-header">
-              <h3>Tu Sitio Web</h3>
-              <button class="close-panel" @click="activeModal = null">&times;</button>
-            </div>
-            <div class="panel-body web-view">
-              <div class="web-preview">
-                 <svg viewBox="0 0 24 24" class="large-svg"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 14H9v-2h6v2zm4-4H5V6h14v8z"/></svg>
-              </div>
-              <p>Gestiona la apariencia pública de tu gimnasio desde aquí.</p>
-              <button class="action-btn-full outline">Visitar Sitio Público</button>
-              <button class="action-btn-full">Configurar landing page</button>
-            </div>
-          </div>
-        </div>
-      </transition>
-    </div>
-  </HeadingAdmin>
-</template>
-
-<script setup>
-import { ref, onBeforeUnmount } from 'vue';
-import Sidebar from '../../components/Admin/Sidebar.vue';
-import NotificationsPanel from './Notifications/NotificationsPanel.vue';
-import AddScheduleModal from '../Modals/AddScheduleModal.vue';
-import ViewScheduleModal from '../Modals/ViewScheduleModal.vue';
-import HeadingAdmin from './HeadingAdmin.vue';
-
-const isSidebarOpen = ref(false);
-const isNotificationsOpen = ref(false);
-const activeModal = ref(null);
-const videoPlayer = ref(null);
-let stream = null;
-
-const notifications = ref([
-  { id: 1, title: 'Carlos Atleta', message: 'Cliente inactivo por 29 días', time: 'hace 7 días', read: false },
-  { id: 2, title: 'Sofia Runner', message: 'Cliente inactivo por 26 días', time: 'hace 7 días', read: false },
-  { id: 3, title: 'Pedro Crossfit', message: 'Cliente inactivo por 25 días', time: 'hace 7 días', read: false }
+const gyms = ref<GymUser[]>([
+  {
+    id: 1,
+    name: 'FitCenter Central',
+    owner: 'Carlos Mendoza',
+    email: 'carlos@fitcenter.com',
+    phone: '5512345678',
+    plan: 'Pro',
+    status: 'activo',
+    registrationDate: '2026-07-10',
+    sedes: 4
+  },
+  {
+    id: 2,
+    name: 'Iron Gym Polanco',
+    owner: 'Ana Sofía Garza',
+    email: 'anasofia@irongym.mx',
+    phone: '5587654321',
+    plan: 'Avanzada',
+    status: 'pendiente',
+    registrationDate: '2026-07-15',
+    sedes: 2
+  },
+  {
+    id: 3,
+    name: 'Energy Fitness',
+    owner: 'Roberto Gómez',
+    email: 'roberto@energy.com',
+    phone: '5598761234',
+    plan: 'Básica',
+    status: 'bloqueado',
+    registrationDate: '2026-06-20',
+    sedes: 1
+  },
+  {
+    id: 4,
+    name: 'Crossfit Xelhua',
+    owner: 'Silvestre Jesús',
+    email: 'silvestre@xelhua.com',
+    phone: '5533221144',
+    plan: 'Sistema Avanzado',
+    status: 'activo',
+    registrationDate: '2026-07-25',
+    sedes: 3
+  }
 ]);
 
-const toggleSidebar = () => { isSidebarOpen.value = !isSidebarOpen.value; };
+const searchQuery = ref('');
+const statusFilter = ref('todos');
+const showEditModal = ref(false);
+const showLogoutModal = ref(false); // Estado para el modal de cerrar sesión
+const selectedGym = ref<GymUser | null>(null);
 
-const openCamera = async (type) => {
-  activeModal.value = type;
-  try {
-    setTimeout(async () => {
-      stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: type === 'scanner' ? 'environment' : 'user' } 
-      });
-      if (videoPlayer.value) {
-        videoPlayer.value.srcObject = stream;
-      }
-    }, 100);
-  } catch (err) {
-    console.error("Error al acceder a la cámara: ", err);
-    alert("No se pudo acceder a la cámara. Verifica los permisos.");
-    activeModal.value = null;
+const filteredGyms = computed(() => {
+  return gyms.value.filter(gym => {
+    const matchesSearch = 
+      gym.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      gym.owner.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      gym.email.toLowerCase().includes(searchQuery.value.toLowerCase());
+    
+    const matchesStatus = statusFilter.value === 'todos' || gym.status === statusFilter.value;
+
+    return matchesSearch && matchesStatus;
+  });
+});
+
+const openEditModal = (gym: GymUser) => {
+  selectedGym.value = { ...gym };
+  showEditModal.value = true;
+};
+
+const saveGymChanges = () => {
+  if (!selectedGym.value) return;
+  const index = gyms.value.findIndex(g => g.id === selectedGym.value?.id);
+  if (index !== -1) {
+    gyms.value[index] = { ...selectedGym.value };
+  }
+  showEditModal.value = false;
+  alert('Información del gimnasio actualizada con éxito.');
+};
+
+const updateStatus = (status: 'activo' | 'pendiente' | 'bloqueado' | 'baja') => {
+  if (selectedGym.value) {
+    selectedGym.value.status = status;
   }
 };
 
-const closeModal = () => {
-  if (stream) {
-    stream.getTracks().forEach(track => track.stop());
+const deleteGym = (id: number) => {
+  if (confirm('¿Estás seguro de eliminar permanentemente este gimnasio? Esta acción no se puede deshacer.')) {
+    gyms.value = gyms.value.filter(g => g.id !== id);
+    showEditModal.value = false;
   }
-  activeModal.value = null;
 };
 
-onBeforeUnmount(() => closeModal());
+// Funciones para el flujo del modal de cierre de sesión animado
+const confirmLogout = () => {
+  localStorage.removeItem('token'); 
+  localStorage.removeItem('user');
+  showLogoutModal.value = false;
+  router.push('/login'); 
+};
 </script>
 
-<style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;700&display=swap');
+<template>
+  <div class="dashboard-wrapper">
+    <div class="dashboard-container">
+      
+      <!-- Encabezado -->
+      <div class="dashboard-header">
+        <div class="header-titles">
+          <div>
+            <h2 class="main-title">Panel de <span class="text-accent">Control</span></h2>
+            <p class="subtitle">Gestión de gimnasios, estados de mensualidad y accesos.</p>
+          </div>
+        </div>
 
+        <div class="header-actions-right">
+          <div class="stats-pill">
+            <span>Total: <strong>{{ gyms.length }}</strong></span>
+          </div>
+          <button class="logout-btn" @click="showLogoutModal = true" title="Cerrar sesión">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            <span>Cerrar Sesión</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Barra de Filtros y Buscador -->
+      <div class="filters-bar">
+        <div class="search-box">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input 
+            type="text" 
+            v-model="searchQuery" 
+            placeholder="Buscar por nombre, dueño o correo..." 
+          />
+        </div>
+
+        <div class="status-filter-group">
+          <select v-model="statusFilter" class="select-filter">
+            <option value="todos">Todos los estados</option>
+            <option value="activo">Activo (Pagado)</option>
+            <option value="pendiente">Pendiente (Sin pago)</option>
+            <option value="bloqueado">Bloqueado</option>
+            <option value="baja">Dado de baja</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- VISTA ESCRITORIO (TABLA) -->
+      <div class="table-card desktop-only">
+        <div class="table-responsive">
+          <table class="gym-table">
+            <thead>
+              <tr>
+                <th>Gimnasio</th>
+                <th>Dueño / Contacto</th>
+                <th>Plan Actual</th>
+                <th>Sedes</th>
+                <th>Fecha Registro</th>
+                <th>Estatus Mensualidad</th>
+                <th class="text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="gym in filteredGyms" :key="gym.id">
+                <td>
+                  <div class="gym-name">{{ gym.name }}</div>
+                  <div class="gym-email">{{ gym.email }}</div>
+                </td>
+                <td>
+                  <div class="owner-name">{{ gym.owner }}</div>
+                  <div class="owner-phone">{{ gym.phone }}</div>
+                </td>
+                <td>
+                  <span class="plan-badge">{{ gym.plan }}</span>
+                </td>
+                <td>{{ gym.sedes }}</td>
+                <td>{{ gym.registrationDate }}</td>
+                <td>
+                  <span :class="['status-badge', gym.status]">
+                    {{ gym.status.toUpperCase() }}
+                  </span>
+                </td>
+                <td class="text-right">
+                  <button class="action-btn" @click="openEditModal(gym)" title="Editar y gestionar">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                    Gestionar
+                  </button>
+                </td>
+              </tr>
+              <tr v-if="filteredGyms.length === 0">
+                <td colspan="7" class="empty-state">No se encontraron gimnasios con los filtros seleccionados.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- VISTA MÓVIL (TARJETAS) -->
+      <div class="mobile-only">
+        <div v-for="gym in filteredGyms" :key="gym.id" class="gym-card-mobile">
+          <div class="card-header-mobile">
+            <div>
+              <div class="gym-name">{{ gym.name }}</div>
+              <div class="gym-email">{{ gym.email }}</div>
+            </div>
+            <span :class="['status-badge', gym.status]">
+              {{ gym.status.toUpperCase() }}
+            </span>
+          </div>
+
+          <div class="card-body-mobile">
+            <div class="info-row">
+              <span class="info-label">Dueño:</span>
+              <span class="info-value">{{ gym.owner }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Teléfono:</span>
+              <span class="info-value">{{ gym.phone }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Plan:</span>
+              <span class="plan-badge">{{ gym.plan }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Sedes / Registro:</span>
+              <span class="info-value">{{ gym.sedes }} sedes ({{ gym.registrationDate }})</span>
+            </div>
+          </div>
+
+          <div class="card-footer-mobile">
+            <button class="action-btn full-width" @click="openEditModal(gym)">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
+              Gestionar Gimnasio
+            </button>
+          </div>
+        </div>
+
+        <div v-if="filteredGyms.length === 0" class="empty-state">
+          No se encontraron gimnasios con los filtros seleccionados.
+        </div>
+      </div>
+
+      <!-- MODAL DE EDICIÓN / GESTIÓN DE USUARIO -->
+      <div v-if="showEditModal && selectedGym" class="modal-overlay" @click.self="showEditModal = false">
+        <div class="modal-container animate-modal">
+          <div class="modal-header">
+            <h3>Gestionar: {{ selectedGym.name }}</h3>
+            <button class="close-btn" @click="showEditModal = false">&times;</button>
+          </div>
+
+          <div class="modal-body">
+            <form @submit.prevent="saveGymChanges" class="edit-form">
+              
+              <div class="form-grid">
+                <div class="input-group">
+                  <label>Nombre del Gimnasio</label>
+                  <input type="text" v-model="selectedGym.name" required />
+                </div>
+                <div class="input-group">
+                  <label>Nombre del Propietario</label>
+                  <input type="text" v-model="selectedGym.owner" required />
+                </div>
+                <div class="input-group">
+                  <label>Correo Electrónico</label>
+                  <input type="email" v-model="selectedGym.email" required />
+                </div>
+                <div class="input-group">
+                  <label>Teléfono</label>
+                  <input type="text" v-model="selectedGym.phone" required />
+                </div>
+                <div class="input-group">
+                  <label>Plan Contratado</label>
+                  <input type="text" v-model="selectedGym.plan" required />
+                </div>
+                <div class="input-group">
+                  <label>Número de Sedes</label>
+                  <input type="number" v-model="selectedGym.sedes" min="1" required />
+                </div>
+              </div>
+
+              <!-- Sección de Control de Estatus y Acciones Críticas -->
+              <div class="management-actions-box">
+                <label class="section-label">Estatus de Mensualidad y Acceso</label>
+                <div class="status-action-buttons">
+                  <button 
+                    type="button" 
+                    class="status-ctrl-btn active-ctrl" 
+                    :class="{ selected: selectedGym.status === 'activo' }"
+                    @click="updateStatus('activo')"
+                  >
+                    Activo (Pagado)
+                  </button>
+                  <button 
+                    type="button" 
+                    class="status-ctrl-btn pending-ctrl" 
+                    :class="{ selected: selectedGym.status === 'pendiente' }"
+                    @click="updateStatus('pendiente')"
+                  >
+                    Pendiente
+                  </button>
+                  <button 
+                    type="button" 
+                    class="status-ctrl-btn block-ctrl" 
+                    :class="{ selected: selectedGym.status === 'bloqueado' }"
+                    @click="updateStatus('bloqueado')"
+                  >
+                    Bloquear
+                  </button>
+                  <button 
+                    type="button" 
+                    class="status-ctrl-btn baja-ctrl" 
+                    :class="{ selected: selectedGym.status === 'baja' }"
+                    @click="updateStatus('baja')"
+                  >
+                    Dar de Baja
+                  </button>
+                </div>
+              </div>
+
+              <div class="modal-footer-actions">
+                <button type="button" class="btn-delete" @click="deleteGym(selectedGym.id)">
+                  Eliminar
+                </button>
+                <div class="right-actions">
+                  <button type="button" class="btn-secondary" @click="showEditModal = false">Cancelar</button>
+                  <button type="submit" class="btn-primary">Guardar</button>
+                </div>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL ANIMADO DE CIERRE DE SESIÓN -->
+      <div v-if="showLogoutModal" class="modal-overlay" @click.self="showLogoutModal = false">
+        <div class="modal-container logout-modal-container animate-modal">
+          <div class="logout-modal-body">
+            <div class="logout-icon-wrapper">
+              <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+              </svg>
+            </div>
+            <h3>Cierre de Sesión</h3>
+            <p>¿Estás seguro de que deseas cerrar sesión?</p>
+            
+            <div class="logout-modal-actions">
+              <button type="button" class="btn-secondary" @click="showLogoutModal = false">Cancelar</button>
+              <button type="button" class="btn-danger-solid" @click="confirmLogout">Cerrar Sesión</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</template>
+
+<style scoped>
 .dashboard-wrapper {
-  display: flex;
-  min-height: 100vh;
-  background: #0a0a0a;
   position: relative;
-  overflow-x: hidden;
+  min-height: 100vh;
+  padding: 40px 20px;
+  background: #161616;
   font-family: 'Inter', sans-serif;
   color: #f5f5f4;
 }
 
-.sidebar-container {
-  width: 280px;
-  background: #121212;
-  height: 100vh;
-  position: fixed;
-  top: 0;
-  left: 0;
-  transform: translateX(-100%); 
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: 3000;
-  box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+.dashboard-container {
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
-.sidebar-open .sidebar-container { transform: translateX(0); }
-
-.sidebar-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 2500;
-  backdrop-filter: blur(6px);
-}
-
-.main-layout {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  transition: margin-left 0.4s ease;
-}
-
-@media (min-width: 1024px) {
-  .sidebar-open .main-layout { margin-left: 280px; }
-}
-
-.top-nav {
+.dashboard-header {
   display: flex;
   justify-content: space-between;
-  padding: 16px 24px;
-  background: rgba(18, 18, 18, 0.7);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+  align-items: flex-end;
+  margin-bottom: 30px;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
-.nav-left, .nav-right { display: flex; gap: 16px; align-items: center; }
-
-.toggle-btn, .nav-action-btn {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 12px;
-  padding: 12px;
-  cursor: pointer;
+.header-actions-right {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-}
-
-.toggle-btn:hover, .nav-action-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: #1c4fd6;
-  transform: translateY(-2px);
-}
-
-.notification { position: relative; }
-
-.dot {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 8px;
-  height: 8px;
-  background: #1c4fd6;
-  border-radius: 50%;
-  box-shadow: 0 0 8px #1c4fd6;
-}
-
-.svg-icon { width: 22px; height: 22px; fill: none; stroke: #f5f5f4; stroke-width: 2; }
-
-.dashboard-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 24px;
-  gap: 32px;
-}
-
-.gym-brand-card {
-  text-align: center;
-  padding: 40px;
-  background: #121212;
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 24px;
-  width: 100%;
-  max-width: 550px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-}
-
-.gym-name-display {
-  font-family: 'Archivo Black', sans-serif;
-  font-size: 2.4rem;
-  color: #f5f5f4;
-  margin: 0;
-  letter-spacing: -1px;
-}
-
-.highlight-blue {
-  color: #1c4fd6;
-}
-
-.gym-subtitle { color: rgba(245, 245, 244, 0.55); margin-top: 12px; font-size: 1rem; font-weight: 500; }
-
-.attendance-methods { display: flex; gap: 20px; width: 100%; max-width: 550px; }
-
-.attendance-btn {
-  flex: 1;
-  padding: 24px 16px;
-  border-radius: 16px;
-  background: #121212;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
   align-items: center;
   gap: 12px;
-  font-family: 'Oswald', sans-serif;
-  font-weight: 700;
-  color: #f5f5f4;
-  transition: all 0.2s ease;
 }
 
-.attendance-btn:hover { 
-  background: #1c4fd6; 
-  border-color: #1c4fd6;
-  box-shadow: 0 8px 24px rgba(28, 79, 214, 0.3);
-  transform: translateY(-2px);
+.main-title {
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(2rem, 4vw, 2.5rem);
+  text-transform: uppercase;
+  margin: 0;
+  letter-spacing: 0.5px;
+  color: #ffffff;
 }
 
-.action-buttons-container { display: flex; gap: 20px; width: 100%; max-width: 550px; }
+.text-accent { color: #3b82f6; }
 
-.action-card {
-  flex: 1;
-  height: 120px;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  display: flex;
-  align-items: center;
-  padding: 24px;
-  gap: 16px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  background: #121212;
-  color: #f5f5f4;
+.subtitle {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 6px 0 0;
 }
 
-.action-icon {
+.stats-pill {
   background: rgba(28, 79, 214, 0.15);
-  padding: 12px;
+  border: 1px solid rgba(28, 79, 214, 0.4);
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #8fb4f8;
+  height: fit-content;
+}
+
+.logout-btn {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #f87171;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+  height: fit-content;
+}
+
+.logout-btn:hover {
+  background: #ef4444;
+  color: #fff;
+}
+
+/* Filtros y buscador */
+.filters-bar {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.search-box {
+  position: relative;
+  flex: 1;
+  min-width: 280px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  color: #888;
+}
+
+.search-box input {
+  width: 100%;
+  background: #1f1f1f;
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 12px;
+  padding: 12px 14px 12px 42px;
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.search-box input:focus {
+  border-color: #3b82f6;
+}
+
+.select-filter {
+  background: #1f1f1f;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+  cursor: pointer;
+  width: 100%;
+}
+
+/* Control de vistas escritorio/móvil */
+.desktop-only { display: block; }
+.mobile-only { display: none; }
+
+/* Estilos de la Tabla (Escritorio) */
+.table-card {
+  background: #1c1c1c;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.gym-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 14px;
+}
+
+.gym-table th {
+  background: #161616;
+  padding: 16px 20px;
+  color: #888;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+
+.gym-table td {
+  padding: 16px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  color: #e5e5e5;
+}
+
+.gym-name { font-weight: 600; color: #fff; }
+.gym-email, .owner-phone { font-size: 12px; color: #888; }
+.owner-name { color: #d4d4d4; }
+
+.plan-badge {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  display: inline-block;
+}
+
+.status-badge.activo { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+.status-badge.pendiente { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+.status-badge.bloqueado { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+.status-badge.baja { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+.text-right { text-align: right; }
+
+.action-btn {
+  background: rgba(28, 79, 214, 0.15);
+  border: 1px solid rgba(28, 79, 214, 0.4);
+  color: #8fb4f8;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.action-btn:hover {
+  background: #1c4fd6;
+  color: #fff;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #888;
+}
+
+/* Estilos de Tarjetas Móviles */
+@media (max-width: 900px) {
+  .desktop-only { display: none; }
+  .mobile-only { display: block; }
+  .dashboard-wrapper { padding: 20px 12px; }
+  .dashboard-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .header-actions-right { width: 100%; justify-content: space-between; }
+  .filters-bar { flex-direction: column; }
+  .search-box, .status-filter-group { width: 100%; min-width: 100%; }
+
+  .gym-card-mobile {
+    background: #1c1c1c;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  }
+
+  .card-header-mobile {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .card-body-mobile {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+    font-size: 13px;
+  }
+
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .info-label {
+    color: #888;
+  }
+
+  .info-value {
+    color: #e5e5e5;
+    font-weight: 500;
+  }
+
+  .card-footer-mobile {
+    display: flex;
+    gap: 8px;
+  }
+
+  .action-btn.full-width {
+    width: 100%;
+    justify-content: center;
+    padding: 10px;
+    font-size: 13px;
+  }
+}
+
+/* Modal Estilos y Animaciones */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #1c4fd6;
+  z-index: 2000;
+  padding: 16px;
+  animation: fadeIn 0.25s ease-out forwards;
 }
 
-.svg-btn { width: 28px; height: 28px; fill: currentColor; }
-
-.card-info { display: flex; flex-direction: column; text-align: left; }
-
-.main-text { font-family: 'Oswald', sans-serif; font-size: 1.05rem; }
-
-.sub-text { font-size: 0.85rem; color: rgba(245, 245, 244, 0.55); margin-top: 4px; }
-
-.action-card:hover { 
-  transform: translateY(-3px); 
-  border-color: #1c4fd6;
+.modal-container {
   background: #161616;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 680px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.8);
+  animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.modal-wrapper {
-  position: fixed; inset: 0; z-index: 4000;
-  display: flex; align-items: center; justify-content: center;
-  background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px);
+.logout-modal-container {
+  max-width: 420px;
 }
 
-.custom-panel, .camera-panel {
-  background: #121212;
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  color: #f5f5f4;
-  border-radius: 24px;
-  padding: 32px;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-  width: 92%;
-  max-width: 440px;
+.logout-modal-body {
+  padding: 32px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-
-.panel-header h3 { font-family: 'Oswald', sans-serif; font-size: 1.3rem; margin: 0; color: #1c4fd6; }
-
-.close-panel {
-  background: rgba(255, 255, 255, 0.03);
-  border: none; color: #f5f5f4;
-  font-size: 1.6rem; width: 36px; height: 36px;
-  border-radius: 12px; cursor: pointer;
-  transition: all 0.2s ease;
+.logout-icon-wrapper {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
 }
 
-.close-panel:hover { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
-
-.panel-body { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 24px; }
-
-.qr-container { background: #f5f5f4; padding: 16px; border-radius: 16px; }
-.qr-container img { width: 180px; height: 180px; display: block; }
-
-.web-preview {
-  width: 70px; height: 70px; background: rgba(255, 255, 255, 0.03);
-  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+.logout-modal-body h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.25rem;
+  color: #fff;
+  font-family: 'Oswald', sans-serif;
+  letter-spacing: 0.5px;
 }
 
-.large-svg { width: 32px; fill: #f5f5f4; }
-
-.panel-body p, .panel-footer p { color: rgba(245, 245, 244, 0.55); font-size: 0.95rem; line-height: 1.6; margin: 0; }
-
-.action-btn-full {
-  width: 100%; padding: 14px; border-radius: 12px; border: none;
-  background: #1c4fd6; color: #ffffff;
-  font-family: 'Oswald', sans-serif; font-size: 0.95rem;
-  cursor: pointer; transition: all 0.2s ease;
+.logout-modal-body p {
+  color: #aaa;
+  font-size: 14px;
+  margin: 0 0 24px 0;
 }
 
-.action-btn-full.outline {
-  background: transparent; border: 1.5px solid rgba(255, 255, 255, 0.15);
-  color: #f5f5f4; margin-top: 8px;
+.logout-modal-actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
 }
 
-.action-btn-full:hover { background: #123ba0; transform: translateY(-1px); }
-
-.camera-container {
-  position: relative; width: 100%; aspect-ratio: 4 / 3;
-  background: #000000; border-radius: 16px; overflow: hidden;
-  margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.12);
+.logout-modal-actions button {
+  flex: 1;
 }
 
-.video-feed { width: 100%; height: 100%; object-fit: cover; }
-
-.face-overlay {
-  position: absolute; inset: 0; background-color: rgba(0, 0, 0, 0.6);
-  mask: radial-gradient(circle, transparent 50%, black 50%);
+.btn-danger-solid {
+  background: #ef4444;
+  border: none;
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
-.qr-overlay {
-  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-  width: 220px; height: 220px; border: 2.5px solid #1c4fd6;
-  border-radius: 16px; box-shadow: 0 0 0 1000px rgba(0,0,0,0.5);
+.btn-danger-solid:hover {
+  background: #dc2626;
 }
 
-.scanner-line {
-  position: absolute; width: 100%; height: 3px; background: #1c4fd6;
-  box-shadow: 0 0 12px #1c4fd6; animation: scan 2.2s infinite ease-in-out;
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-@keyframes scan { 0%, 100% { top: 0%; } 50% { top: 100%; } }
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.92) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
 
-.pop-enter-active, .pop-leave-active { transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-.pop-enter-from, .pop-leave-to { opacity: 0; transform: scale(0.95); }
+.modal-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #1c1c1c;
+}
 
-.fade-enter-active, .fade-leave-active { transition: opacity 0.25s ease; }
-.fade-enter-from, .fade-leave-to { opacity: 0; }
+.modal-header h3 {
+  margin: 0;
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.15rem;
+  color: #fff;
+  letter-spacing: 0.5px;
+}
 
-@media (max-width: 680px) {
-  .attendance-methods, .action-buttons-container { flex-direction: column; }
-  .action-card { height: 100px; }
-  .gym-name-display { font-size: 1.8rem; }
-  .dashboard-content { padding: 24px 16px; }
-  .custom-panel, .camera-panel { padding: 24px 20px; }
+.close-btn {
+  background: transparent;
+  border: none;
+  color: #aaa;
+  font-size: 1.8rem;
+  cursor: pointer;
+}
+
+.modal-body {
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+@media(max-width: 650px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.input-group label {
+  font-size: 12px;
+  color: #aaa;
+}
+
+.input-group input {
+  background: #1f1f1f;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+}
+
+.input-group input:focus {
+  border-color: #3b82f6;
+}
+
+.management-actions-box {
+  background: #1f1f1f;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.section-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 12px;
+}
+
+.status-action-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+@media(min-width: 550px) {
+  .status-action-buttons {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.status-ctrl-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #aaa;
+  padding: 10px 6px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.status-ctrl-btn.active-ctrl.selected { background: #10b981; color: #fff; border-color: #10b981; }
+.status-ctrl-btn.pending-ctrl.selected { background: #3b82f6; color: #fff; border-color: #3b82f6; }
+.status-ctrl-btn.block-ctrl.selected { background: #f59e0b; color: #fff; border-color: #f59e0b; }
+.status-ctrl-btn.baja-ctrl.selected { background: #ef4444; color: #fff; border-color: #ef4444; }
+
+.modal-footer-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.right-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-delete {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.btn-delete:hover {
+  background: #ef4444;
+  color: #fff;
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: #1c4fd6;
+  border: none;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: 'Oswald', sans-serif;
+  letter-spacing: 0.5px;
+}
+
+.btn-primary:hover {
+  background: #153eb5;
 }
 </style>

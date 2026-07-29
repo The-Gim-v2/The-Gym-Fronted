@@ -130,7 +130,7 @@
 import { useRouter } from 'vue-router';
 import { ref, reactive } from 'vue';
 import Heading from '../Record/Heading.vue';
-import Help from '../../components/Admin/Componets/Help.vue';
+import Help from '../../components/Owner/Componets/Help.vue';
 import NotificationSystem from '../../components/Modals/NotificationSystem.vue'; 
 
 const activeModal = ref(null);

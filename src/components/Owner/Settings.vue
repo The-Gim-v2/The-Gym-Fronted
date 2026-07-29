@@ -1,5 +1,5 @@
 <template>
-  <HeadingAdmin>
+  <HeadingOwner>
     <main class="main-content">
       <div class="header-section">
         <div>
@@ -110,12 +110,12 @@
         </div>
       </transition>
     </main>
-  </HeadingAdmin>
+  </HeadingOwner>
 </template>
 
 <script setup>
 import { reactive, onMounted } from 'vue';
-import HeadingAdmin from './HeadingAdmin.vue';
+import HeadingOwner from './HeadingOwner.vue';
 
 const toast = reactive({ visible: false, message: '' });
 

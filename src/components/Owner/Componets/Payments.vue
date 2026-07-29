@@ -1,5 +1,5 @@
 <template>
-  <HeadingAdmin>
+  <HeadingOwner>
     <NotificationSystem ref="toastRef" />
     <main class="main-content">
       <!-- Columna Izquierda: Tarjeta de Perfil con Animación de Flotación -->
@@ -132,14 +132,14 @@
         <Promo @select-oferta="handleSelectOferta" @close="activeModal = null" />
       </div>
     </transition>  
-  </HeadingAdmin>
+  </HeadingOwner>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router'; 
-import HeadingAdmin from '../HeadingAdmin.vue';
-import Promo from '../Componets/Promos.vue';
+import HeadingOwner from '../HeadingOwner.vue';
+import Promo from './Promos.vue';
 import NotificationSystem from '../../Modals/NotificationSystem.vue'; 
 
 const router = useRouter();

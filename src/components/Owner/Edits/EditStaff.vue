@@ -1,5 +1,5 @@
 <template>
-  <HeadingAdmin>
+  <HeadingOwner>
     <main class="main-content">
       <!-- Barra de búsqueda superior alineada -->
       <div class="search-bar-container-top">
@@ -92,13 +92,13 @@
         </div>
       </div>
     </main>
-  </HeadingAdmin>
+  </HeadingOwner>
 </template>
 
 <script setup>
 import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router'; 
-import HeadingAdmin from '../HeadingAdmin.vue';
+import HeadingOwner from '../HeadingOwner.vue';
 
 const router = useRouter(); 
 const fileInput = ref(null); 

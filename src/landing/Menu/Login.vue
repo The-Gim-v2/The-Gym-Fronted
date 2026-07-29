@@ -4,8 +4,8 @@ import { useRouter } from 'vue-router';
 import Logo from '@/landing/logo.vue';
 
 const VALID_USERS: Record<string, string> = {
-  'admin@gmail.com': 'Administrador',
-  'dueño@gmail.com': 'Dueño',
+  'admin@gmail.com': 'Admin',
+  'propietario@gmail.com': 'Owner',
   'recepcionista@gmail.com': 'Recepcionista',
   'cliente@gmail.com': 'Cliente',
 };
@@ -43,9 +43,12 @@ const handleSubmit = () => {
   // Retardamos ligeramente la redirección para que se alcance a apreciar la animación y el mensaje
   setTimeout(() => {
     if (userEmail === 'admin@gmail.com' || userEmail === 'dueño@gmail.com') {
-      localStorage.setItem('user_role', 'admin'); 
-      router.push({ name: 'admin-dashboard' });
-    } else if (userEmail === 'recepcionista@gmail.com') {
+      localStorage.setItem('user_role', 'Admin'); 
+      router.push({ name: 'Admin-dashboard' });
+    } else if (userEmail === 'propietario@gmail.com') {
+      localStorage.setItem('user_role', 'Owner');
+      router.push({ name: 'Owner-dashboard' });
+    }  else if (userEmail === 'recepcionista@gmail.com') {
       localStorage.setItem('user_role', 'recepcion'); 
       router.push({ name: 'recepcion-dashboard' });
     } else {

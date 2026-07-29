@@ -1,5 +1,5 @@
 <template>
-  <HeadingAdmin>
+  <HeadingOwner>
     <NotificationSystem ref="toastRef" />
     <main class="main-content-promos">
       
@@ -120,12 +120,12 @@
       </div>
 
     </main>
-  </HeadingAdmin>
+  </HeadingOwner>
 </template>
 
 <script setup>
 import { ref, reactive } from 'vue';
-import HeadingAdmin from '../HeadingAdmin.vue';
+import HeadingOwner from '../HeadingOwner.vue';
 import NotificationSystem from '../../Modals/NotificationSystem.vue';
 
 const toastRef = ref(null);

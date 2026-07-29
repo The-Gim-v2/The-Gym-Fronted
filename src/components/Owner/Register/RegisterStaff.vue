@@ -1,31 +1,60 @@
 <template>
-  <HeadingAdmin>
+  <HeadingOwner>
     <NotificationSystem ref="toastRef" />
     <main class="main-content">
       <div class="profile-card">
-        <!-- Sección Perfil / Avatar (Fija o sticky en desktop) -->
+        <!-- Sección Izquierda: Título y Avatar con vista previa -->
         <div class="profile-section">
-          <h1 class="main-title">Registra tus <br> <span class="highlight">Clientes</span></h1>
+          <h1 class="main-title">Registra a tu <br> <span class="highlight">Personal</span></h1>
+          
           <div class="avatar-wrapper">
-            <div class="avatar-circle">
-              <img v-if="avatarPreview" :src="avatarPreview" alt="Vista previa del cliente" class="avatar-img" />
+            <div class="avatar-circle" @click="$refs.fileInput.click()" title="Hacer clic para subir foto">
+              <img v-if="avatarPreview" :src="avatarPreview" alt="Vista previa del empleado" class="avatar-img" />
               <svg v-else viewBox="0 0 24 24" fill="white"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
             </div>
-            <button type="button" class="avatar-action btn-camera" @click="$refs.fileInput.click()" title="Subir foto de perfil">
+            <button type="button" class="avatar-action btn-camera" @click="$refs.fileInput.click()" title="Subir fotografía">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
             </button>
-            <input type="file" ref="fileInput" @change="handleFileChange" accept="image/*" style="display: none" />
+            <input type="file" ref="fileInput" accept="image/*" style="display: none" @change="handleFileChange" />
           </div>
-          <p class="profile-hint">Sube una fotografía reciente del cliente para identificarlo rápidamente en el sistema.</p>
+          <p class="profile-hint">Sube una fotografía oficial o reciente para el expediente del empleado.</p>
         </div>
 
         <!-- Columna Derecha: Formularios -->
         <div class="forms-wrapper">
           
-          <!-- Datos Personales -->
+          <!-- Tarjeta 1: Credenciales y Rol (Primero para controlar la visibilidad) -->
           <div class="login-card">
-            <h3 class="section-title">Datos Personales</h3>
+            <h3 class="section-title">Credenciales y Rol</h3>
             <div class="form-grid">
+              <div class="input-group">
+                <label>Rol en el sistema</label>
+                <select v-model="form.rol" class="custom-select">
+                  <option value="" disabled>Seleccionar rol</option>
+                  <option value="Owner">Dueño</option>
+                  <option value="entrenador">Entrenador</option>
+                  <option value="recepcion">Recepción</option>
+                </select>
+              </div>
+              <div class="input-group">
+                <label>Correo electrónico</label>
+                <input type="email" v-model="form.email" placeholder="correo@ejemplo.com">
+              </div>
+              <div class="input-group span-full" v-if="form.rol === 'entrenador'">
+                <label>Especialidad</label>
+                <input type="text" v-model="form.especialidad" placeholder="Ej. Musculación, Funcional, Yoga">
+              </div>
+            </div>
+          </div>
+
+          <!-- Tarjeta 2: Datos del empleado -->
+          <div class="login-card">
+            <h3 class="section-title">Datos del empleado</h3>
+            <div class="form-grid">
+              <div class="input-group span-full">
+                <label>CURP</label>
+                <input type="text" v-model="form.curp" placeholder="Ej. ABCD010101HDF000">
+              </div>
               <div class="input-group">
                 <label>Nombres</label>
                 <input type="text" v-model="form.nombres" placeholder="Ej. Juan">
@@ -46,114 +75,78 @@
                 <label>Celular</label>
                 <input type="text" v-model="form.celular" placeholder="+52 000 000 0000">
               </div>
+
+              <!-- Campos de Redes Sociales (Ocultos si el rol es 'recepcion' o 'Owner') -->
+              <template v-if="form.rol !== 'recepcion' && form.rol !== 'Owner'">
+                <div class="input-group">
+                  <label>Facebook</label>
+                  <input type="text" v-model="form.facebook" placeholder="usuario_fb">
+                </div>
+                <div class="input-group">
+                  <label>Instagram</label>
+                  <input type="text" v-model="form.instagram" placeholder="@usuario_ig">
+                </div>
+                <div class="input-group">
+                  <label>TikTok</label>
+                  <input type="text" v-model="form.tiktok" placeholder="@usuario_tt">
+                </div>
+                <div class="input-group">
+                  <label>Otras app</label>
+                  <input type="text" v-model="form.otrasApps" placeholder="Ej. X, LinkedIn">
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <!-- Tarjeta 3: Horario de trabajo -->
+          <div class="login-card">
+            <h3 class="section-title">Horario de trabajo</h3>
+            <div class="form-grid">
               <div class="input-group">
-                <label>Correo electrónico</label>
-                <input type="email" v-model="form.email" placeholder="ejemplo@correo.com">
+                <label>Entrada</label>
+                <input type="time" v-model="form.horaEntrada">
+              </div>
+              <div class="input-group">
+                <label>Salida</label>
+                <input type="time" v-model="form.horaSalida">
               </div>
             </div>
           </div>
 
-          <!-- Registro Físico -->
-          <div class="login-card">
-            <h3 class="section-title">Registro de Físico</h3>
-            <div class="form-grid">
-              <div class="input-group">
-                <label>Peso (Kg)</label>
-                <input type="number" step="0.1" v-model="form.peso" placeholder="Ej. 70">
-              </div>
-              <div class="input-group">
-                <label>Altura (cm)</label>
-                <input type="number" v-model="form.altura" placeholder="Ej. 175">
-              </div>
-            </div>
-          </div>
-          
-          <!-- Datos de Membresía -->
-          <div class="login-card">
-            <div class="membership-header">
-              <h3 class="section-title mb-0">Datos de Membresía</h3>
-              <div class="membership-actions-row">
-                <div class="toggle-group-small">
-                  <button type="button" class="btn-toggle-small" :class="{ active: form.tipoMembresia === 'mes' }" @click="form.tipoMembresia = 'mes'">Mes</button>
-                  <button type="button" class="btn-toggle-small" :class="{ active: form.tipoMembresia === 'semana' }" @click="form.tipoMembresia = 'semana'">Semana</button>
-                </div>
-                <div class="actions-group">
-                  <button type="button" class="action-btn" title="Documentación / Corte" @click="activeModal = 'corte'">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                      <polyline points="14 2 14 8 20 8"></polyline>
-                      <line x1="16" y1="13" x2="8" y2="13"></line>
-                      <line x1="16" y1="17" x2="8" y2="17"></line>
-                    </svg>
-                  </button>
-                  <button type="button" class="action-btn" title="Ayuda" @click="activeModal = 'help'">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                      <circle cx="12" cy="12" r="10"></circle>
-                      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-                      <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            </div>
-            
-            <div class="form-grid mt-3">
-              <div class="input-group">
-                <label>Inscripción</label>
-                <input type="date" v-model="form.fechaInscripcion">
-              </div>
-              <div class="input-group">
-                <label>Fecha Corte</label>
-                <input type="date" v-model="form.fechaCorte">
-              </div>
-            </div>
-          </div>
-          
           <button type="button" class="btn-primary" @click="saveRegistration">Finalizar Registro</button>
         </div>
       </div>
     </main>
-
-    <transition name="pop">
-      <div v-if="activeModal === 'corte'" class="modal-wrapper" @click.self="activeModal = null">
-        <AddCorteComponent @close="activeModal = null" />
-      </div>
-    </transition> 
-    
-    <transition name="pop">
-      <div v-if="activeModal === 'help'" class="modal-wrapper" @click.self="activeModal = null">
-        <Help @close="activeModal = null" />
-      </div>
-    </transition> 
-  </HeadingAdmin>
+  </HeadingOwner>
 </template>
 
 <script setup>
 import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
-import HeadingAdmin from '../HeadingAdmin.vue';
-import AddCorteComponent from '../Componets/Cut.vue';
-import Help from '../Componets/Help.vue';
+import HeadingOwner from '../HeadingOwner.vue';
 import NotificationSystem from '../../Modals/NotificationSystem.vue'; 
 
 const router = useRouter();
-const activeModal = ref(null);
 const toastRef = ref(null);
 const fileInput = ref(null);
 const avatarPreview = ref(null);
 
 const form = reactive({
+  curp: '',
   nombres: '',
   apellidoP: '',
   apellidoM: '',
   fechaNacimiento: '',
   celular: '',
+  facebook: '',
+  instagram: '',
+  tiktok: '',
+  otrasApps: '',
+  rol: '',
   email: '',
-  peso: '',
-  altura: '',
-  tipoMembresia: 'mes',
-  fechaInscripcion: '',
-  fechaCorte: ''
+  especialidad: '',
+  horaEntrada: '',
+  horaSalida: ''
 });
 
 const handleFileChange = (e) => {
@@ -164,13 +157,13 @@ const handleFileChange = (e) => {
 };
 
 const saveRegistration = () => {
-  if (!form.nombres || !form.apellidoP || !form.apellidoM || !form.fechaNacimiento) {
-    toastRef.value?.notify('Por favor, completa los campos obligatorios', 'warning');
+  if (!form.nombres || !form.apellidoP) {
+    toastRef.value?.notify('Por favor, completa los campos obligatorios (Nombres y Apellido Paterno)', 'warning');
     return;
   }
   
   try {
-    console.log("Datos a guardar:", form);
+    console.log("Datos del personal a guardar:", form);
     toastRef.value?.notify('Registro guardado con éxito', 'success');
   } catch (error) {
     toastRef.value?.notify('Error al guardar el registro', 'error');
@@ -189,7 +182,9 @@ const saveRegistration = () => {
   box-sizing: border-box; 
 }
 
-.highlight { color: #3b82f6; }
+.highlight { 
+  color: #3b82f6; 
+}
 
 .profile-card { 
   display: grid; 
@@ -255,6 +250,10 @@ const saveRegistration = () => {
   gap: 20px; 
 }
 
+.form-grid .span-full {
+  grid-column: span 2;
+}
+
 .input-group { 
   display: flex; 
   flex-direction: column; 
@@ -269,7 +268,7 @@ label {
   letter-spacing: 0.5px;
 }
 
-input { 
+input, .custom-select { 
   background: #141414; 
   border: 1.5px solid rgba(255, 255, 255, 0.12); 
   border-radius: 12px; 
@@ -279,13 +278,23 @@ input {
   box-sizing: border-box; 
   font-family: 'Inter', sans-serif;
   font-size: 0.95rem;
+  outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-input:focus {
+input:focus, .custom-select:focus {
   border-color: #3b82f6;
-  outline: none;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.custom-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px;
+  padding-right: 40px;
+  cursor: pointer;
 }
 
 .section-title { 
@@ -299,12 +308,6 @@ input:focus {
   padding-bottom: 10px; 
 }
 
-.section-title.mb-0 {
-  margin-bottom: 0;
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
 /* Avatar Components */
 .avatar-circle { 
   width: 150px; 
@@ -316,6 +319,7 @@ input:focus {
   align-items: center; 
   justify-content: center; 
   overflow: hidden;
+  cursor: pointer;
   box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2);
 }
 
@@ -346,88 +350,12 @@ input:focus {
   color: white;
   transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.2s;
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  touch-action: manipulation;
 }
 
 .avatar-action svg {
   width: 20px;  
   height: 20px;
-}
-
-/* Membresía header */
-.membership-header { 
-  display: flex; 
-  justify-content: space-between; 
-  align-items: center; 
-  margin-bottom: 20px; 
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08); 
-  padding-bottom: 12px;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.membership-actions-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.toggle-group-small { 
-  display: flex; 
-  gap: 4px; 
-  background: rgba(255,255,255,0.06); 
-  padding: 4px; 
-  border-radius: 10px; 
-  border: 1px solid rgba(255,255,255,0.04);
-}
-
-.btn-toggle-small { 
-  padding: 6px 14px; 
-  border: none; 
-  color: #a1a1aa; 
-  border-radius: 8px; 
-  cursor: pointer; 
-  font-size: 0.8rem; 
-  font-family: 'Oswald', sans-serif;
-  letter-spacing: 0.5px;
-  background: transparent; 
-  transition: all 0.2s ease;
-}
-
-.btn-toggle-small.active { 
-  background: #3b82f6; 
-  color: white;
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
-}
-
-.actions-group { 
-  display: flex; 
-  gap: 8px; 
-}
-
-.action-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: rgba(59, 130, 246, 0.15);
-  border: 1px solid rgba(59, 130, 246, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: #60a5fa;
-  transition: all 0.2s ease;
-}
-
-.action-btn:hover {
-  background: #3b82f6;
-  color: white;
-  transform: translateY(-2px);
-}
-
-.action-btn svg {
-  width: 18px;
-  height: 18px;
 }
 
 /* Botón principal */
@@ -463,33 +391,6 @@ input:focus {
   transform: scale(0.96);
 }
 
-/* Modal Wrapper */
-.modal-wrapper {
-  position: fixed;
-  top: 0; 
-  left: 0; 
-  width: 100%; 
-  height: 100%;
-  background: rgba(0, 0, 0, 0.75);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  backdrop-filter: blur(6px);
-}
-
-/* Transiciones de modales */
-.pop-enter-active,
-.pop-leave-active {
-  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.pop-enter-from,
-.pop-leave-to {
-  opacity: 0;
-  transform: scale(0.9);
-}
-
 /* Responsive Media Queries */
 @media (max-width: 1024px) { 
   .profile-card { 
@@ -510,6 +411,10 @@ input:focus {
     gap: 14px;
   } 
 
+  .form-grid .span-full {
+    grid-column: span 1;
+  }
+
   .login-card { 
     padding: 20px;
     border-radius: 20px;
@@ -518,16 +423,6 @@ input:focus {
   .avatar-circle {
     width: 130px;
     height: 130px;
-  }
-  
-  .membership-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  
-  .membership-actions-row {
-    width: 100%;
-    justify-content: space-between;
   }
 }
 </style>
