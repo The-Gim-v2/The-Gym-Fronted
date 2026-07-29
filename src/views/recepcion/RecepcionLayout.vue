@@ -18,7 +18,7 @@
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 //import Heading from '../../components/Admin/HeadingAdmin.vue';
-import Sidebar from '../../components/Admin/Sidebar.vue';
+import Sidebar from '../../components/Recepcion/Sidebar.vue';
 
 const route = useRoute();
 

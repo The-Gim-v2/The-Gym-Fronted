@@ -10,12 +10,12 @@ export const AdminRoutes = [
         meta: { allowedRole: 'Admin' }
       },
       // Grupo de Registro
-      {
+      /*{
         path: 'editar-usuario/:id',
         name: 'edit-user',
         component: () => import('@/components/Admin/Edits/EditUser.vue'),
          meta: { allowedRole: 'Admin' }
-      },
+      },*/
       
    ]
   }
