@@ -78,12 +78,12 @@ const handlePaymentSuccess = (msg: string) => {
     />
     
     <header class="top-bar">
-      <router-link :to="{ name: 'home' }" class="top-brand">
+      <!--<router-link :to="{ name: 'home' }" class="top-brand">
         <Logo />
         <span class="logo-text">
           <span class="text-accent">SAHWA</span>
         </span>
-      </router-link>
+      </router-link>-->
     </header>
 
     <main class="main-content">
@@ -333,7 +333,7 @@ const handlePaymentSuccess = (msg: string) => {
   width: 100%;
   max-width: 1440px;
   margin: 0 auto;
-  padding: 24px clamp(20px, 4vw, 40px);
+  padding: 18px clamp(20px, 4vw, 40px);
   box-sizing: border-box;
   position: relative;
 }
