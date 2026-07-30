@@ -86,7 +86,7 @@ const setMobileSlide = (index: number) => { currentMobileIndex.value = index; };
                       <span class="dot-amber"></span>
                       <span class="dot-green"></span>
                     </div>
-                    <div class="mockup-url">fitmanage.pro/dashboard</div>
+                    <div class="mockup-url">SAWHA</div>
                   </div>
                   <div class="mockup-body">
                     <Transition name="fade" mode="out-in">

@@ -66,7 +66,9 @@ const handleSubmit = () => {
     <header class="top-bar">
       <router-link :to="{ name: 'home' }" class="top-brand">
         <Logo />
-        <span class="logo-text">FITMANAGE <span class="text-accent">PRO</span></span>
+        <span class="logo-text">
+          <span class="text-accent">SAHWA</span>
+        </span>
       </router-link>
     </header>
 
@@ -198,17 +200,35 @@ const handleSubmit = () => {
   text-decoration: none;
 }
 
+
 .logo-text {
   font-family: 'Anton', sans-serif;
-  font-size: 19px;
-  letter-spacing: 0.3px;
-  line-height: 1;
-  white-space: nowrap;
-  color: #f5f5f4;
+  font-size: clamp(20px, 5vw, 24px);
+  letter-spacing: 1px;
+  display: inline-block;
+  animation: floatText 3s ease-in-out infinite;
+}
+.text-accent {
+  background: linear-gradient(135deg, #60a5fa 0%, #3a6bd6 50%, #1d4ed8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 8px rgba(58, 107, 214, 0.4));
+  display: inline-block;
 }
 
-.text-accent {
-  color: #1c4fd6;
+@keyframes floatText {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-4px); }
+  100% { transform: translateY(0px); }
+}
+.hamburger.is-active span:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+.hamburger.is-active span:nth-child(2) {
+  opacity: 0;
+}
+.hamburger.is-active span:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
 }
 
 .login-container {

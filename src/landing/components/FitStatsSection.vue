@@ -105,7 +105,7 @@ const vIntersect = {
       </div>
 
       <!-- Grid de Beneficios -->
-      <div class="benefits-grid-title">Por qué elegir FitManage Pro</div>
+      <div class="benefits-grid-title">Por qué elegir SAHWA</div>
       <div class="benefits-grid">
         <div class="benefit-card">
           <div class="benefit-icon green-icon">
