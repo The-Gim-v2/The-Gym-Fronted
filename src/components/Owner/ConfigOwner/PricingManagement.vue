@@ -18,9 +18,14 @@
                 <p>{{ promo.meses }} meses por ${{ promo.precio }}</p>
               </div>
             </div>
-            <button class="icon-action-btn delete-btn" @click="confirmarEliminarPromocion(promo)" title="Eliminar Promoción">
-              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-            </button>
+            <div class="item-actions">
+              <button class="icon-action-btn edit-btn" @click="abrirModalEditarPromocion(promo)" title="Editar Promoción">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+              </button>
+              <button class="icon-action-btn delete-btn" @click="confirmarEliminarPromocion(promo)" title="Eliminar Promoción">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+              </button>
+            </div>
           </div>
 
           <div v-if="promociones.length === 0" class="empty-state">
@@ -52,9 +57,11 @@
                 </div>
               </div>
             </div>
-            <button class="icon-action-btn edit-btn" @click="abrirModalEditarPrecio(precio)" title="Editar Precio">
-              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
-            </button>
+            <div class="item-actions">
+              <button class="icon-action-btn edit-btn" @click="abrirModalEditarPrecio(precio)" title="Editar Precio">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -184,6 +191,14 @@ const abrirModalAgregarPromo = () => {
   modalConfig.form = { id: null, nombre: '', meses: '', precio: '' };
 };
 
+const abrirModalEditarPromocion = (promo) => {
+  modalConfig.isOpen = true;
+  modalConfig.type = 'promo';
+  modalConfig.title = `Editar Promoción: ${promo.nombre}`;
+  modalConfig.isNew = false;
+  modalConfig.form = { ...promo };
+};
+
 const confirmarEliminarPromocion = (promo) => {
   deleteModalConfig.idItemToDelete = promo.id;
   deleteModalConfig.isOpen = true;
@@ -218,6 +233,12 @@ const guardarDatos = () => {
       };
       promociones.value.push(nuevaPromo);
       toastRef.value.notify('Promoción agregada exitosamente', 'success');
+    } else {
+      const index = promociones.value.findIndex(p => p.id === modalConfig.form.id);
+      if (index !== -1) {
+        promociones.value[index] = { ...modalConfig.form };
+        toastRef.value.notify('Promoción actualizada correctamente', 'success');
+      }
     }
   } else if (modalConfig.type === 'precio') {
     const index = preciosSistema.value.findIndex(p => p.id === modalConfig.form.id);
@@ -241,14 +262,18 @@ const guardarDatos = () => {
   min-height: 80vh;
   box-sizing: border-box;
   width: 100%;
+  color: var(--color-texto-general, #e5e5e5);
 }
-.highlight { color: #3b82f6; }
+
+.highlight { 
+  color: var(--color-highlight, #3b82f6); 
+}
 
 .promo-box-container {
-  background: rgba(18, 18, 18, 0.75);
+  background: var(--bg-cards, rgba(18, 18, 18, 0.75));
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 24px;
+  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.12));
+  border-radius: var(--app-border-radius, 24px);
   width: 100%;
   max-width: 480px;
   height: 600px;
@@ -256,19 +281,19 @@ const guardarDatos = () => {
   flex-direction: column;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.6);
 }
 
 .box-header {
-  background: #222;
+  background: var(--bg-cards, #222);
   padding: 20px;
   text-align: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--border-line, rgba(255, 255, 255, 0.08));
 }
 
 .box-header h2 {
   font-family: 'Anton', sans-serif;
-  color: #fff;
+  color: var(--color-titulos, #fff);
   font-size: 1.8rem;
   margin: 0;
   letter-spacing: 1px;
@@ -285,9 +310,9 @@ const guardarDatos = () => {
 }
 
 .item-row {
-  background: rgba(25, 25, 25, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
+  background: var(--bg-cards, rgba(25, 25, 25, 0.9));
+  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.08));
+  border-radius: var(--app-border-radius, 14px);
   padding: 15px;
   display: flex;
   align-items: center;
@@ -296,7 +321,7 @@ const guardarDatos = () => {
 }
 
 .item-row:hover {
-  border-color: rgba(59, 130, 246, 0.4);
+  border-color: var(--color-highlight, rgba(59, 130, 246, 0.4));
   transform: translateY(-2px);
 }
 
@@ -309,20 +334,20 @@ const guardarDatos = () => {
 .icon-tag {
   width: 28px;
   height: 28px;
-  color: #3b82f6;
+  color: var(--color-highlight, #3b82f6);
   flex-shrink: 0;
 }
 
 .item-info h4 {
   font-family: 'Oswald', sans-serif;
-  color: #fff;
+  color: var(--color-titulos, #fff);
   font-size: 1.1rem;
   margin: 0 0 4px 0;
 }
 
 .item-info p {
   font-family: 'Inter', sans-serif;
-  color: #94a3b8;
+  color: var(--color-highlight, #94a3b8);
   font-size: 0.9rem;
   margin: 0;
 }
@@ -335,22 +360,28 @@ const guardarDatos = () => {
 
 .price-val {
   font-family: 'Inter', sans-serif;
-  color: #fff;
+  color: var(--color-texto-general, #fff);
   font-weight: 800;
   font-size: 1.1rem;
 }
 
 .duration-val {
   font-family: 'Inter', sans-serif;
-  color: #3b82f6;
+  color: var(--color-highlight, #3b82f6);
   font-size: 0.85rem;
   font-weight: 600;
 }
 
+.item-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
 .icon-action-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+  background: var(--bg-input, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--border-input, rgba(255, 255, 255, 0.1));
+  border-radius: var(--app-border-radius, 10px);
   width: 40px;
   height: 40px;
   display: flex;
@@ -358,19 +389,21 @@ const guardarDatos = () => {
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s;
-  color: #fff;
+  color: var(--color-texto-general, #fff);
 }
 
-.delete-btn:hover {
-  background: rgba(220, 38, 38, 0.2);
-  border-color: #dc2626;
-  color: #dc2626;
-}
+@media (hover: hover) {
+  .delete-btn:hover {
+    background: rgba(220, 38, 38, 0.2);
+    border-color: #dc2626;
+    color: #dc2626;
+  }
 
-.edit-btn:hover {
-  background: rgba(59, 130, 246, 0.2);
-  border-color: #3b82f6;
-  color: #3b82f6;
+  .edit-btn:hover {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: var(--color-highlight, #3b82f6);
+    color: var(--color-highlight, #3b82f6);
+  }
 }
 
 .icon-action-btn svg {
@@ -382,8 +415,8 @@ const guardarDatos = () => {
   position: absolute;
   bottom: 20px;
   right: 20px;
-  background: #3b82f6;
-  color: white;
+  background: var(--color-botones, #3b82f6);
+  color: var(--color-texto-botones, white);
   border: none;
   border-radius: 50%;
   width: 55px;
@@ -396,9 +429,11 @@ const guardarDatos = () => {
   transition: transform 0.2s, background 0.2s;
 }
 
-.floating-add-btn:hover {
-  background: #2563eb;
-  transform: scale(1.08);
+@media (hover: hover) {
+  .floating-add-btn:hover {
+    filter: brightness(0.95);
+    transform: scale(1.08);
+  }
 }
 
 .floating-add-btn svg {
@@ -408,7 +443,7 @@ const guardarDatos = () => {
 
 .empty-state {
   text-align: center;
-  color: #777;
+  color: var(--color-highlight, #777);
   font-family: 'Inter', sans-serif;
   margin-top: 50px;
 }
@@ -429,9 +464,9 @@ const guardarDatos = () => {
 }
 
 .custom-modal-card {
-  background: #18181b;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 20px;
+  background: var(--bg-cards, #18181b);
+  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.15));
+  border-radius: var(--app-border-radius, 20px);
   padding: 30px;
   width: 100%;
   max-width: 400px;
@@ -455,7 +490,7 @@ const guardarDatos = () => {
 }
 
 .delete-msg {
-  color: #94a3b8;
+  color: var(--color-highlight, #94a3b8);
   font-family: 'Inter', sans-serif;
   font-size: 0.95rem;
   margin-bottom: 20px;
@@ -463,7 +498,7 @@ const guardarDatos = () => {
 
 .custom-modal-card h3 {
   font-family: 'Anton', sans-serif;
-  color: #fff;
+  color: var(--color-titulos, #fff);
   font-size: 1.5rem;
   margin-top: 0;
   margin-bottom: 10px;
@@ -485,25 +520,27 @@ const guardarDatos = () => {
 
 .input-group label {
   font-family: 'Oswald', sans-serif;
-  color: #cbd5e1;
+  color: var(--color-etiquetas, var(--color-texto-general, #cbd5e1));
   font-size: 13px;
 }
 
 .input-group input {
-  background: #121212;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 10px;
-  color: #fff;
+  background: var(--bg-input, #121212);
+  border: 1.5px solid var(--border-input, rgba(255, 255, 255, 0.15));
+  border-radius: var(--app-border-radius, 10px);
+  color: var(--color-texto-input, var(--color-texto-general, #fff));
   padding: 12px;
   font-family: 'Inter', sans-serif;
   outline: none;
   font-size: 1rem;
   width: 100%;
   box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .input-group input:focus {
-  border-color: #3b82f6;
+  border-color: var(--color-highlight, #3b82f6);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
 .modal-actions {
@@ -515,18 +552,20 @@ const guardarDatos = () => {
 .btn-primary {
   flex: 1;
   padding: 12px;
-  background: #1c4fd6;
-  color: white;
+  background: var(--color-botones, #1c4fd6);
+  color: var(--color-texto-botones, white);
   border: none;
-  border-radius: 10px;
+  border-radius: var(--app-border-radius, 10px);
   font-family: 'Oswald', sans-serif;
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: filter 0.2s;
 }
 
-.btn-primary:hover {
-  background: #2563eb;
+@media (hover: hover) {
+  .btn-primary:hover {
+    filter: brightness(0.95);
+  }
 }
 
 .btn-danger {
@@ -535,7 +574,7 @@ const guardarDatos = () => {
   background: #dc2626;
   color: white;
   border: none;
-  border-radius: 10px;
+  border-radius: var(--app-border-radius, 10px);
   font-family: 'Oswald', sans-serif;
   font-weight: 700;
   cursor: pointer;
@@ -550,17 +589,19 @@ const guardarDatos = () => {
   flex: 1;
   padding: 12px;
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #fff;
-  border-radius: 10px;
+  border: 1.5px solid var(--border-input, rgba(255, 255, 255, 0.2));
+  color: var(--color-texto-general, #fff);
+  border-radius: var(--app-border-radius, 10px);
   font-family: 'Oswald', sans-serif;
   font-weight: 700;
   cursor: pointer;
   transition: background 0.2s;
 }
 
-.btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.05);
+@media (hover: hover) {
+  .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
 }
 
 .pop-enter-active, .pop-leave-active {

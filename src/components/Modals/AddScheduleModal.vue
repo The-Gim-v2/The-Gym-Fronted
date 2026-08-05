@@ -71,7 +71,7 @@
       </form>
     </div>
 
-    <!-- Notificación Toast posicionada flotando encima del panel, pero abajo -->
+    <!-- Notificación Toast flotante -->
     <transition name="toast-slide">
       <div v-if="toast.show" :class="['toast-notification', toast.type]">
         <svg v-if="toast.type === 'success'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
@@ -83,7 +83,7 @@
 </template>
 
 <script setup>
-import { reactive, watch, ref } from 'vue';
+import { reactive, watch } from 'vue';
 
 const props = defineProps({
   initialData: {
@@ -161,7 +161,7 @@ const guardarActividad = () => {
   width: 100%;
 }
 
-/* --- Estilos del Toast (Flotando por encima pero en la parte inferior del panel) --- */
+/* --- Estilos del Toast --- */
 .toast-notification {
   position: absolute;
   bottom: 25px;
@@ -172,7 +172,7 @@ const guardarActividad = () => {
   align-items: center;
   gap: 10px;
   padding: 12px 22px;
-  border-radius: 14px;
+  border-radius: var(--app-border-radius, 14px);
   font-family: 'Inter', sans-serif;
   font-size: 0.9rem;
   font-weight: 600;
@@ -180,16 +180,17 @@ const guardarActividad = () => {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
   white-space: nowrap;
   pointer-events: none;
+  backdrop-filter: blur(10px);
 }
 
 .toast-notification.success {
-  background: #10b981;
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(16, 185, 129, 0.9);
+  border: 1px solid rgba(52, 211, 153, 0.4);
 }
 
 .toast-notification.error {
-  background: #ef4444;
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(239, 68, 68, 0.9);
+  border: 1px solid rgba(248, 113, 113, 0.4);
 }
 
 .toast-notification svg {
@@ -198,7 +199,6 @@ const guardarActividad = () => {
   stroke: #fff;
 }
 
-/* Animaciones del Toast (Entrada desde abajo) */
 .toast-slide-enter-active,
 .toast-slide-leave-active {
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -212,11 +212,11 @@ const guardarActividad = () => {
 
 /* --- Panel de Formulario --- */
 .form-panel {
-  background: rgba(18, 18, 18, 0.92);
+  background: var(--bg-cards, rgba(18, 18, 18, 0.92));
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #f5f5f4;
-  border-radius: 24px;
+  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.12));
+  color: var(--color-texto-general, #f5f5f4);
+  border-radius: var(--app-border-radius, 24px);
   padding: 24px;
   width: 94%;
   max-width: 440px;
@@ -243,7 +243,7 @@ const guardarActividad = () => {
   justify-content: space-between; 
   align-items: center; 
   margin-bottom: 16px; 
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--border-line, rgba(255, 255, 255, 0.08));
   padding-bottom: 12px;
 }
 
@@ -251,21 +251,21 @@ const guardarActividad = () => {
   font-family: 'Anton', sans-serif; 
   font-size: 1.4rem; 
   margin: 0; 
-  color: #fff;
+  color: var(--color-titulos, #fff);
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
 
-.highlight { color: #3b82f6; }
+.highlight { color: var(--color-highlight, #3b82f6); }
 
 .close-x { 
   background: rgba(255, 255, 255, 0.05); 
   border: 1px solid rgba(255, 255, 255, 0.1); 
-  color: #f5f5f4; 
+  color: var(--color-texto-general, #f5f5f4); 
   font-size: 1.3rem; 
   width: 36px; 
   height: 36px; 
-  border-radius: 12px; 
+  border-radius: var(--app-border-radius, 12px); 
   cursor: pointer; 
   display: flex;
   align-items: center;
@@ -293,12 +293,11 @@ const guardarActividad = () => {
 .input-group label { 
   font-family: 'Oswald', sans-serif; 
   font-size: 0.8rem; 
-  color: #a1a1aa;
+  color: var(--color-etiquetas, #a1a1aa);
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
 
-/* Horarios en lista vertical hacia abajo */
 .schedule-vertical-stack {
   display: flex;
   flex-direction: column;
@@ -311,17 +310,17 @@ const guardarActividad = () => {
 }
 
 .custom-select, .custom-input, .custom-textarea { 
-  background: #141414; 
-  border: 1.5px solid rgba(255, 255, 255, 0.12); 
-  color: white; 
+  background: var(--bg-input, #141414); 
+  border: 1.5px solid var(--border-input, rgba(255, 255, 255, 0.12)); 
+  color: var(--color-texto-input, #fff); 
   padding: 10px 14px; 
-  border-radius: 12px; 
+  border-radius: var(--app-border-radius, 12px); 
   width: 100%; 
   font-family: 'Inter', sans-serif;
   font-size: 0.9rem;
   box-sizing: border-box;
   outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s, color 0.2s;
 }
 
 .custom-select {
@@ -340,15 +339,15 @@ const guardarActividad = () => {
 }
 
 .custom-select:focus, .custom-input:focus, .custom-textarea:focus {
-  border-color: #3b82f6;
+  border-color: var(--color-highlight, #3b82f6);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  background: var(--bg-input-focus, var(--bg-input, #141414));
 }
 
 .time-input {
   cursor: pointer;
 }
 
-/* Selector de Color */
 .color-picker-container {
   display: flex;
   gap: 10px;
@@ -381,20 +380,20 @@ const guardarActividad = () => {
   align-items: center;
   gap: 10px; 
   margin-top: 12px; 
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid var(--border-line, rgba(255, 255, 255, 0.08));
   padding-top: 14px;
 }
 
 .btn-cancel { 
   background: transparent; 
   border: none; 
-  color: #94a3b8; 
+  color: var(--color-texto-general, #94a3b8); 
   cursor: pointer; 
   font-family: 'Oswald', sans-serif;
   font-size: 0.9rem;
   letter-spacing: 0.5px;
   padding: 10px 14px;
-  border-radius: 10px;
+  border-radius: var(--app-border-radius, 10px);
   transition: color 0.2s, background 0.2s;
 }
 .btn-cancel:hover { 
@@ -403,11 +402,11 @@ const guardarActividad = () => {
 }
 
 .btn-save { 
-  background: #1c4fd6; 
-  color: white; 
+  background: var(--color-botones, #1c4fd6); 
+  color: var(--color-texto-botones, white); 
   padding: 10px 22px; 
   border: none; 
-  border-radius: 12px; 
+  border-radius: var(--app-border-radius, 12px); 
   cursor: pointer; 
   font-family: 'Oswald', sans-serif;
   font-weight: 700;
@@ -419,9 +418,10 @@ const guardarActividad = () => {
 
 @media (hover: hover) {
   .btn-save:hover { 
-    background: #1742be; 
+    background: var(--color-botones, #1742be); 
     transform: translateY(-2px);
     box-shadow: 0 6px 18px rgba(28, 79, 214, 0.5);
+    filter: brightness(0.95);
   }
 }
 

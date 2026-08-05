@@ -418,9 +418,10 @@ const handleInteractAI = () => {
   padding: 40px clamp(16px, 3vw, 40px); 
   box-sizing: border-box; 
   position: relative;
+  color: var(--color-texto-general, #e5e5e5);
 }
 
-.highlight { color: #3b82f6; }
+.highlight { color: var(--color-highlight, #3b82f6); }
 
 .animate-modal {
   animation: modalScale 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -440,7 +441,7 @@ const handleInteractAI = () => {
   align-items: center;
   gap: 12px;
   padding: 14px 22px;
-  border-radius: 14px;
+  border-radius: var(--app-border-radius, 14px);
   font-family: 'Inter', sans-serif;
   font-size: 0.95rem;
   font-weight: 600;
@@ -472,16 +473,16 @@ const handleInteractAI = () => {
   gap: 30px; 
   width: 100%; 
   max-width: 1250px;
-  margin: 0 auto;   
+  margin: 0 auto;    
   align-items: start; 
 }
 
 .profile-section { 
-  background: rgba(18, 18, 18, 0.75); 
+  background: var(--bg-cards, rgba(18, 18, 18, 0.75)); 
   backdrop-filter: blur(12px);
   padding: 40px 24px; 
-  border-radius: 24px; 
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: var(--app-border-radius, 24px); 
+  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.09));
   display: flex; 
   flex-direction: column; 
   align-items: center; 
@@ -495,7 +496,7 @@ const handleInteractAI = () => {
 .main-title { 
   font-family: 'Anton', sans-serif; 
   font-size: 2.2rem; 
-  color: #fff; 
+  color: var(--color-titulos, #fff); 
   margin: 0 0 24px 0; 
   line-height: 1.1; 
   text-transform: uppercase; 
@@ -505,14 +506,14 @@ const handleInteractAI = () => {
 .gym-name-display {
   font-family: 'Anton', sans-serif;
   font-size: 1.3rem;
-  color: #fff;
+  color: var(--color-titulos, #fff);
   margin: 16px 0 6px;
   letter-spacing: 0.5px;
 }
 
 .profile-hint {
   font-family: 'Inter', sans-serif;
-  color: #94a3b8;
+  color: var(--color-highlight, #94a3b8);
   font-size: 0.85rem;
   line-height: 1.4;
   margin-top: 6px;
@@ -526,12 +527,12 @@ const handleInteractAI = () => {
 }
 
 .login-card { 
-  background: rgba(18, 18, 18, 0.75); 
+  background: var(--bg-cards, rgba(18, 18, 18, 0.75)); 
   backdrop-filter: blur(12px);
   padding: 36px; 
   margin-top: 25px;
-  border-radius: 24px; 
-  border: 1px solid rgba(255, 255, 255, 0.12); 
+  border-radius: var(--app-border-radius, 24px); 
+  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.12)); 
   box-sizing: border-box;
 }
 
@@ -553,28 +554,29 @@ const handleInteractAI = () => {
 
 label { 
   font-family: 'Oswald', sans-serif; 
-  color: #f5f5f4; 
+  color: var(--color-etiquetas, var(--color-texto-general, #f5f5f4)); 
   font-size: 0.85rem; 
   font-weight: 600; 
   letter-spacing: 0.5px;
 }
 
 input { 
-  background: #141414; 
-  border: 1.5px solid rgba(255, 255, 255, 0.12); 
-  border-radius: 12px; 
-  color: #fff; 
+  background: var(--bg-input, var(--bg-cards, #141414)); 
+  border: 1.5px solid var(--border-input, rgba(255, 255, 255, 0.12)); 
+  border-radius: var(--app-border-radius, 12px); 
+  color: var(--color-texto-input, var(--color-texto-general, #fff)); 
   padding: 12px 14px; 
   width: 100%; 
   box-sizing: border-box; 
   font-family: 'Inter', sans-serif;
   font-size: 0.95rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s, color 0.2s;
 }
 
 input:focus {
-  border-color: #3b82f6;
+  border-color: var(--color-highlight, #3b82f6);
   outline: none;
+  background: var(--bg-input-focus, var(--bg-cards, #141414));
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
@@ -587,21 +589,21 @@ input:focus {
 
 .section-title { 
   font-family: 'Oswald', sans-serif; 
-  color: #5b8bf0; 
+  color: var(--color-highlight, #5b8bf0); 
   font-size: 0.95rem; 
   margin: 0 0 24px 0; 
   text-transform: uppercase; 
   letter-spacing: 0.5px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08); 
+  border-bottom: 1px solid var(--border-line, rgba(255, 255, 255, 0.08)); 
   padding-bottom: 12px; 
 }
 
 .avatar-circle { 
   width: 150px; 
   height: 150px; 
-  background: #141414; 
+  background: var(--bg-cards, #141414); 
   border-radius: 50%; 
-  border: 4px solid #3b82f6; 
+  border: 4px solid var(--color-highlight, #3b82f6); 
   display: flex; 
   align-items: center; 
   justify-content: center; 
@@ -626,15 +628,15 @@ input:focus {
   width: 42px; 
   height: 42px; 
   border-radius: 50%; 
-  background: #3b82f6; 
-  border: 2px solid #121212; 
+  background: var(--color-botones, #3b82f6); 
+  border: 2px solid var(--bg-cards, #121212); 
   cursor: pointer; 
   bottom: 0; 
   right: 0; 
   display: flex; 
   align-items: center; 
   justify-content: center;
-  color: white;
+  color: var(--color-texto-botones, white);
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
@@ -649,7 +651,7 @@ input:focus {
 .action-btn {
   width: 46px;
   height: 46px;
-  border-radius: 12px;
+  border-radius: var(--app-border-radius, 12px);
   background: rgba(59, 130, 246, 0.15);
   border: 1px solid rgba(59, 130, 246, 0.3);
   display: flex;
@@ -662,7 +664,7 @@ input:focus {
 }
 
 .action-btn:hover {
-  background: #3b82f6;
+  background: var(--color-botones, #3b82f6);
   color: white;
 }
 
@@ -695,7 +697,7 @@ input:focus {
 
 .btn-custom-action {
   padding: 12px 14px;
-  border-radius: 12px;
+  border-radius: var(--app-border-radius, 12px);
   font-family: 'Oswald', sans-serif;
   font-weight: 600;
   font-size: 0.85rem;
@@ -711,13 +713,13 @@ input:focus {
 }
 
 .btn-sede, .btn-ai {
-  background: linear-gradient(135deg, rgba(187, 247, 208, 0.25), rgba(96, 165, 250, 0.25));
+  background: var(--color-botones, #1c4fd6);
   color: #e2e8f0;
   border-color: rgba(96, 165, 250, 0.4);
 }
 
 .btn-sede:hover:not(.btn-disabled), .btn-ai:hover:not(.btn-disabled) {
-  background: linear-gradient(135deg, rgba(187, 247, 208, 0.4), rgba(96, 165, 250, 0.4));
+  background: var(--color-botones, #1c4fd6);
   color: #ffffff;
 }
 
@@ -731,7 +733,7 @@ input:focus {
 .days-container { display: flex; gap: 6px; flex-wrap: wrap; }
 .day-chip {
   padding: 8px 14px;
-  border-radius: 10px;
+  border-radius: var(--app-border-radius, 10px);
   font-family: 'Oswald', sans-serif;
   font-weight: 600;
   font-size: 0.8rem;
@@ -742,8 +744,8 @@ input:focus {
   transition: all 0.2s ease;
 }
 .day-chip.active {
-  border-color: #3b82f6;
-  background: #3b82f6;
+  border-color: var(--color-highlight, #3b82f6);
+  background: var(--color-highlight, #3b82f6);
   color: #ffffff;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
@@ -759,10 +761,10 @@ input:focus {
 .btn-primary {
   width: 100%;
   padding: 16px;
-  background: #1c4fd6;
-  color: white;
+  background: var(--color-botones, #1c4fd6);
+  color: var(--color-texto-botones, white);
   border: none;
-  border-radius: 14px;
+  border-radius: var(--app-border-radius, 14px);
   font-family: 'Oswald', sans-serif;
   font-weight: 700;
   font-size: 1rem;
@@ -775,8 +777,9 @@ input:focus {
 }
 
 .btn-primary:hover {
-  background: #1742be;
+  background: var(--color-botones, #1742be);
   transform: translateY(-2px);
+  filter: brightness(0.95);
 }
 
 .modal-overlay {
@@ -792,9 +795,9 @@ input:focus {
 }
 
 .modal-container {
-  background: #161616;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 20px;
+  background: var(--bg-cards, #161616);
+  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.15));
+  border-radius: var(--app-border-radius, 20px);
   width: 100%;
   max-width: 800px;
   max-height: 90vh;
@@ -810,7 +813,7 @@ input:focus {
 
 .modal-header {
   padding: 20px 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--border-line, rgba(255, 255, 255, 0.08));
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -818,7 +821,7 @@ input:focus {
 
 .modal-header h3 {
   font-family: 'Oswald', sans-serif;
-  color: #fff;
+  color: var(--color-titulos, #fff);
   font-size: 1.2rem;
   margin: 0;
   letter-spacing: 0.5px;
@@ -870,7 +873,7 @@ input:focus {
 
 .btn-secondary-modal {
   padding: 12px;
-  border-radius: 12px;
+  border-radius: var(--app-border-radius, 12px);
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.15);
   color: #fff;
@@ -888,7 +891,7 @@ input:focus {
 
 .btn-danger-modal {
   padding: 12px;
-  border-radius: 12px;
+  border-radius: var(--app-border-radius, 12px);
   background: #ef4444;
   border: none;
   color: #fff;

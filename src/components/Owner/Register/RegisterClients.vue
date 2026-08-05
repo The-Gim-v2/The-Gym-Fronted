@@ -187,9 +187,10 @@ const saveRegistration = () => {
   width: 100%; 
   padding: 40px clamp(16px, 3vw, 40px); 
   box-sizing: border-box; 
+  color: var(--color-texto-general, #e5e5e5);
 }
 
-.highlight { color: #3b82f6; }
+.highlight { color: var(--color-highlight, #3b82f6); }
 
 .profile-card { 
   display: grid; 
@@ -202,10 +203,10 @@ const saveRegistration = () => {
 }
 
 .profile-section { 
-  background: rgba(18, 18, 18, 0.75); 
+  background: var(--bg-cards, rgba(18, 18, 18, 0.75)); 
   backdrop-filter: blur(12px);
   padding: 40px 24px; 
-  border-radius: 24px; 
+  border-radius: var(--app-border-radius, 24px); 
   border: 1px solid rgba(255, 255, 255, 0.09);
   display: flex; 
   flex-direction: column; 
@@ -218,7 +219,7 @@ const saveRegistration = () => {
 .main-title { 
   font-family: 'Anton', sans-serif; 
   font-size: 2.2rem; 
-  color: #fff; 
+  color: var(--color-titulos, #fff); 
   margin: 0 0 24px 0; 
   line-height: 1.1; 
   text-transform: uppercase; 
@@ -227,10 +228,11 @@ const saveRegistration = () => {
 
 .profile-hint {
   font-family: 'Inter', sans-serif;
-  color: #94a3b8;
+  color: var(--color-texto-general, #94a3b8);
   font-size: 0.85rem;
   line-height: 1.4;
   margin-top: 10px;
+  opacity: 0.8;
 }
 
 .forms-wrapper { 
@@ -241,10 +243,10 @@ const saveRegistration = () => {
 }
 
 .login-card { 
-  background: rgba(18, 18, 18, 0.75); 
+  background: var(--bg-cards, rgba(18, 18, 18, 0.75)); 
   backdrop-filter: blur(12px);
   padding: 30px; 
-  border-radius: 24px; 
+  border-radius: var(--app-border-radius, 24px); 
   border: 1px solid rgba(255, 255, 255, 0.12); 
   box-sizing: border-box;
 }
@@ -263,34 +265,34 @@ const saveRegistration = () => {
 
 label { 
   font-family: 'Oswald', sans-serif; 
-  color: #f5f5f4; 
+  color: var(--color-texto-general, #f5f5f4); 
   font-size: 0.85rem; 
   font-weight: 600; 
   letter-spacing: 0.5px;
 }
 
 input { 
-  background: #141414; 
+  background: var(--bg-cards, #141414); 
   border: 1.5px solid rgba(255, 255, 255, 0.12); 
-  border-radius: 12px; 
-  color: #fff; 
+  border-radius: var(--app-border-radius, 12px); 
+  color: var(--color-texto-general, #fff); 
   padding: 12px 14px; 
   width: 100%; 
   box-sizing: border-box; 
   font-family: 'Inter', sans-serif;
   font-size: 0.95rem;
   transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
 }
 
 input:focus {
-  border-color: #3b82f6;
-  outline: none;
+  border-color: var(--color-highlight, #3b82f6);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
 .section-title { 
   font-family: 'Oswald', sans-serif; 
-  color: #5b8bf0; 
+  color: var(--color-highlight, #5b8bf0); 
   font-size: 0.95rem; 
   margin: 0 0 20px 0; 
   text-transform: uppercase; 
@@ -309,9 +311,9 @@ input:focus {
 .avatar-circle { 
   width: 150px; 
   height: 150px; 
-  background: #141414; 
+  background: var(--bg-cards, #141414); 
   border-radius: 50%; 
-  border: 4px solid #3b82f6; 
+  border: 4px solid var(--color-highlight, #3b82f6); 
   display: flex; 
   align-items: center; 
   justify-content: center; 
@@ -335,8 +337,8 @@ input:focus {
   width: 42px; 
   height: 42px; 
   border-radius: 50%; 
-  background: #3b82f6; 
-  border: 2px solid #121212; 
+  background: var(--color-highlight, #3b82f6); 
+  border: 2px solid var(--bg-cards, #121212); 
   cursor: pointer; 
   bottom: 0; 
   right: 0; 
@@ -376,7 +378,7 @@ input:focus {
   gap: 4px; 
   background: rgba(255,255,255,0.06); 
   padding: 4px; 
-  border-radius: 10px; 
+  border-radius: var(--app-border-radius, 10px); 
   border: 1px solid rgba(255,255,255,0.04);
 }
 
@@ -384,7 +386,7 @@ input:focus {
   padding: 6px 14px; 
   border: none; 
   color: #a1a1aa; 
-  border-radius: 8px; 
+  border-radius: var(--app-border-radius, 8px); 
   cursor: pointer; 
   font-size: 0.8rem; 
   font-family: 'Oswald', sans-serif;
@@ -394,7 +396,7 @@ input:focus {
 }
 
 .btn-toggle-small.active { 
-  background: #3b82f6; 
+  background: var(--color-highlight, #3b82f6); 
   color: white;
   font-weight: 600;
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
@@ -420,7 +422,7 @@ input:focus {
 }
 
 .action-btn:hover {
-  background: #3b82f6;
+  background: var(--color-highlight, #3b82f6);
   color: white;
   transform: translateY(-2px);
 }
@@ -430,22 +432,41 @@ input:focus {
   height: 18px;
 }
 
-/* Botón principal */
+
+input { 
+  background: var(--bg-input, var(--bg-cards, #141414)); 
+  border: 1.5px solid var(--border-input, rgba(255, 255, 255, 0.12)); 
+  border-radius: var(--app-border-radius, 12px); 
+  color: var(--color-texto-input, var(--color-texto-general, #fff)); 
+  padding: 12px 14px; 
+  width: 100%; 
+  box-sizing: border-box; 
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s, color 0.2s;
+}
+
+input:focus {
+  border-color: var(--color-highlight, #3b82f6);
+  background: var(--bg-input-focus, var(--bg-cards, #141414));
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
 .btn-primary {
-  width: 100%;
-  padding: 16px;
-  background: #1c4fd6;
-  color: white;
+  padding: 16px 36px;
+  background: var(--color-botones, #1c4fd6);
+  color: var(--color-texto-botones, white);
   border: none;
-  border-radius: 14px;
+  border-radius: var(--app-border-radius, 12px);
   font-family: 'Oswald', sans-serif;
   font-weight: 700;
-  font-size: 1rem;
-  letter-spacing: 0.5px;
+  font-size: 1.05rem;
   cursor: pointer;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
   transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  box-shadow: 0 4px 14px rgba(28, 79, 214, 0.35);
+  box-shadow: 0 4px 16px rgba(28, 79, 214, 0.4);
 }
 
 @media (hover: hover) {
@@ -512,7 +533,7 @@ input:focus {
 
   .login-card { 
     padding: 20px;
-    border-radius: 20px;
+    border-radius: var(--app-border-radius, 20px);
   }
 
   .avatar-circle {

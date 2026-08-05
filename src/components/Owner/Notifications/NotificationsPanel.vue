@@ -141,16 +141,15 @@ watch(() => props.isOpen, (val) => { if (val) currentView.value = 'list'; });
 </script>
 
 <style scoped>
-/* Contenedor principal con contraste mejorado para que destaque sobre el fondo del sistema */
 .notifications-panel {
   position: fixed;
   top: 75px;
   right: 20px;
   width: 380px;
   max-height: 85vh;
-  background: #17171c; /* Tono ligeramente más claro que el negro absoluto para separar capas */
-  border: 1px solid rgba(255, 255, 255, 0.14); /* Borde más definido */
-  border-radius: 20px;
+  background: #17171c;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--app-border-radius, 20px);
   display: flex;
   flex-direction: column;
   z-index: 2000;
@@ -209,13 +208,12 @@ watch(() => props.isOpen, (val) => { if (val) currentView.value = 'list'; });
   margin-top: 4px;
 }
 
-/* Tarjetas con contraste interno óptimo */
 .notif-card {
   padding: 14px;
   display: flex;
   gap: 14px;
-  border-radius: 14px;
-  background: #212128; /* Tono de tarjeta que resalta claramente sobre el fondo del panel */
+  border-radius: var(--app-border-radius, 14px);
+  background: #212128;
   border: 1px solid rgba(255, 255, 255, 0.06);
   transition: background 0.2s, border-color 0.2s;
   cursor: pointer;
@@ -232,8 +230,8 @@ watch(() => props.isOpen, (val) => { if (val) currentView.value = 'list'; });
 .notif-icon {
   width: 40px;
   height: 40px;
-  background: rgba(234, 179, 8, 0.12);
-  color: #fbbf24;
+  background: rgba(59, 130, 246, 0.12);
+  color: var(--color-highlight, #3b82f6);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -274,12 +272,12 @@ watch(() => props.isOpen, (val) => { if (val) currentView.value = 'list'; });
 .dot-unread {
   width: 8px;
   height: 8px;
-  background: #fbbf24;
+  background: var(--color-highlight, #3b82f6);
   border-radius: 50%;
   position: absolute;
   right: 16px;
   top: 16px;
-  box-shadow: 0 0 8px rgba(251, 191, 36, 0.6);
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.6);
 }
 
 .header-actions {
@@ -293,7 +291,7 @@ watch(() => props.isOpen, (val) => { if (val) currentView.value = 'list'; });
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 20px;
-  color: #fbbf24;
+  color: var(--color-highlight, #3b82f6);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -307,8 +305,8 @@ watch(() => props.isOpen, (val) => { if (val) currentView.value = 'list'; });
 }
 
 .btn-pill-action {
-  background: #fbbf24;
-  color: #17171c;
+  background: var(--color-highlight, #3b82f6);
+  color: #fff;
   border: none;
   padding: 6px 14px;
   border-radius: 20px;
@@ -356,7 +354,7 @@ watch(() => props.isOpen, (val) => { if (val) currentView.value = 'list'; });
 }
 
 .toggle-switch:checked {
-  background: #fbbf24;
+  background: var(--color-highlight, #3b82f6);
 }
 
 .toggle-switch::before {
@@ -388,7 +386,7 @@ watch(() => props.isOpen, (val) => { if (val) currentView.value = 'list'; });
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: #fff;
   padding: 11px;
-  border-radius: 14px;
+  border-radius: var(--app-border-radius, 14px);
   font-size: 0.85rem;
   font-weight: 500;
   cursor: pointer;
@@ -411,7 +409,6 @@ watch(() => props.isOpen, (val) => { if (val) currentView.value = 'list'; });
   transform: translateY(-10px);
 }
 
-/* Optimización Adaptativa Móvil Perfecta */
 @media (max-width: 480px) {
   .notifications-panel {
     top: 55px;

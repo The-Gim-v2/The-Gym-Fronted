@@ -9,14 +9,14 @@
       </div>
     </transition>
 
-    <div class="schedule-panel">
+    <div class="schedule-panel glass-effect">
       <!-- Header -->
       <div class="panel-header">
         <div class="title-container">
           <h3 class="title">Horario Semanal</h3>
           <span class="subtitle-mobile">Selecciona un horario disponible</span>
         </div>
-        <button class="close-btn" @click="$emit('close')">✕</button>
+        <button class="close-btn" @click="$emit('close')" title="Cerrar">✕</button>
       </div>
 
       <!-- Vista Móvil Optimizada -->
@@ -112,7 +112,7 @@ const selectSlot = (day, hour) => {
   width: 100%;
 }
 
-/* --- Estilos del Toast (Flotando en la parte inferior del panel) --- */
+/* --- Estilos del Toast --- */
 .toast-notification {
   position: absolute;
   bottom: 20px;
@@ -123,7 +123,7 @@ const selectSlot = (day, hour) => {
   align-items: center;
   gap: 8px;
   padding: 10px 16px;
-  border-radius: 12px;
+  border-radius: var(--app-border-radius, 12px);
   font-family: 'Inter', sans-serif;
   font-size: 0.85rem;
   font-weight: 600;
@@ -132,16 +132,17 @@ const selectSlot = (day, hour) => {
   white-space: nowrap;
   pointer-events: none;
   max-width: 90%;
+  backdrop-filter: blur(10px);
 }
 
 .toast-notification.success {
-  background: #10b981;
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(16, 185, 129, 0.9);
+  border: 1px solid rgba(52, 211, 153, 0.4);
 }
 
 .toast-notification.error {
-  background: #ef4444;
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(239, 68, 68, 0.9);
+  border: 1px solid rgba(248, 113, 113, 0.4);
 }
 
 .toast-notification svg {
@@ -151,7 +152,6 @@ const selectSlot = (day, hour) => {
   flex-shrink: 0;
 }
 
-/* Animaciones del Toast (Entrada desde abajo) */
 .toast-slide-enter-active,
 .toast-slide-leave-active {
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -164,13 +164,14 @@ const selectSlot = (day, hour) => {
 }
 
 .schedule-panel {
-  background: #0d0d0f;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 24px;
+  background: var(--bg-cards, rgba(18, 18, 18, 0.92));
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.08));
+  border-radius: var(--app-border-radius, 24px);
   padding: 20px;
   width: 92%;
   max-width: 1000px;
-  color: white;
+  color: var(--color-texto-general, white);
   font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   box-sizing: border-box;
   margin: 0 auto;
@@ -197,11 +198,11 @@ const selectSlot = (day, hour) => {
 }
 
 .tab {
-  background: #16161a;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  color: #94a3b8;
+  background: var(--bg-input, #16161a);
+  border: 1px solid var(--border-input, rgba(255, 255, 255, 0.05));
+  color: var(--color-etiquetas, #94a3b8);
   padding: 8px 16px;
-  border-radius: 12px;
+  border-radius: var(--app-border-radius, 12px);
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -210,9 +211,9 @@ const selectSlot = (day, hour) => {
 }
 
 .tab.active {
-  background: #1c4fd6;
-  color: white;
-  border-color: #1c4fd6;
+  background: var(--color-botones, #1c4fd6);
+  color: var(--color-texto-botones, white);
+  border-color: var(--color-botones, #1c4fd6);
   box-shadow: 0 4px 12px rgba(28, 79, 214, 0.4);
 }
 
@@ -225,11 +226,11 @@ const selectSlot = (day, hour) => {
 .day-active-title {
   font-family: 'Oswald', sans-serif;
   font-size: 1.1rem;
-  color: #e2e8f0;
+  color: var(--color-titulos, #e2e8f0);
   letter-spacing: 0.5px;
   text-transform: uppercase;
   margin-bottom: 2px;
-  border-left: 3px solid #1c4fd6;
+  border-left: 3px solid var(--color-botones, #1c4fd6);
   padding-left: 8px;
 }
 
@@ -243,10 +244,10 @@ const selectSlot = (day, hour) => {
 }
 
 .mobile-slot-card {
-  background: #141418;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--bg-input, #141418);
+  border: 1px solid var(--border-input, rgba(255, 255, 255, 0.06));
   padding: 12px 16px;
-  border-radius: 14px;
+  border-radius: var(--app-border-radius, 14px);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -262,7 +263,7 @@ const selectSlot = (day, hour) => {
 .time-badge {
   font-family: 'Oswald', sans-serif;
   font-size: 0.95rem;
-  color: #fff;
+  color: var(--color-titulos, #fff);
   letter-spacing: 0.5px;
 }
 
@@ -279,7 +280,7 @@ const selectSlot = (day, hour) => {
 }
 
 .sub-text {
-  color: #64748b;
+  color: var(--color-etiquetas, #64748b);
   font-size: 0.72rem;
 }
 
@@ -288,7 +289,7 @@ const selectSlot = (day, hour) => {
   color: white;
   border: none;
   padding: 8px 14px;
-  border-radius: 10px;
+  border-radius: var(--app-border-radius, 10px);
   cursor: pointer;
   font-weight: 600;
   font-size: 0.8rem;
@@ -302,7 +303,11 @@ const selectSlot = (day, hour) => {
 
 /* --- Vista de Escritorio --- */
 @media (min-width: 768px) {
-  .schedule-panel { padding: 32px; }
+  .schedule-panel { 
+    padding: 20px; 
+    display: flex;
+    flex-direction: column;
+  }
   .mobile-only { display: none; }
   .desktop-only { display: block; }
 
@@ -313,7 +318,7 @@ const selectSlot = (day, hour) => {
   }
   
   th { 
-    color: #94a3b8; 
+    color: var(--color-etiquetas, #94a3b8); 
     font-family: 'Oswald', sans-serif; 
     padding-bottom: 12px; 
     text-align: center; 
@@ -325,27 +330,27 @@ const selectSlot = (day, hour) => {
   .hour-cell { 
     font-family: 'Oswald', sans-serif; 
     font-weight: bold; 
-    color: #fff; 
+    color: var(--color-titulos, #fff); 
     text-align: right; 
     padding-right: 15px; 
     font-size: 0.95rem;
   }
   
   .slot-desktop { 
-    background: #141418; 
+    background: var(--bg-input, #141418); 
     padding: 16px; 
-    border-radius: 12px; 
+    border-radius: var(--app-border-radius, 12px); 
     text-align: center; 
     color: #10b981; 
     font-size: 0.85rem; 
     font-weight: 600;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-input, rgba(255, 255, 255, 0.05));
     cursor: pointer;
     transition: all 0.2s ease;
   }
   
   .slot-desktop:hover {
-    background: #1a1a22;
+    background: var(--bg-input-focus, #1a1a22);
     border-color: rgba(16, 185, 129, 0.4);
     transform: translateY(-2px);
   }
@@ -356,6 +361,8 @@ const selectSlot = (day, hour) => {
   justify-content: space-between; 
   align-items: flex-start; 
   margin-bottom: 20px; 
+  border-bottom: 1px solid var(--border-line, rgba(255, 255, 255, 0.08));
+  padding-bottom: 12px;
 }
 
 .title-container {
@@ -369,20 +376,21 @@ const selectSlot = (day, hour) => {
   margin: 0; 
   font-size: 1.4rem; 
   letter-spacing: 0.5px;
+  color: var(--color-titulos, #fff);
 }
 
 .subtitle-mobile {
   font-size: 0.78rem;
-  color: #64748b;
+  color: var(--color-etiquetas, #64748b);
 }
 
 .close-btn {
-  background: #16161a;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  color: #fff;
+  background: var(--bg-input, #16161a);
+  border: 1px solid var(--border-input, rgba(255, 255, 255, 0.05));
+  color: var(--color-texto-general, #fff);
   width: 36px;
   height: 36px;
-  border-radius: 10px;
+  border-radius: var(--app-border-radius, 10px);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -391,7 +399,8 @@ const selectSlot = (day, hour) => {
 }
 
 .close-btn:hover { 
-  background: #ef4444; 
-  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.15); 
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #ef4444; 
 }
 </style>

@@ -100,7 +100,6 @@ const cortes = ref([]);
 const toastRef = ref(null);
 
 const addCorte = () => {
-  // Validación básica de rango lógicamente coherente opcional, manteniendo la validación de duplicados original
   const isDuplicate = cortes.value.some(c => 
     c.tipo === form.tipo || 
     c.inicio === form.inicio || 
@@ -129,11 +128,9 @@ const removeCorte = (index) => {
 };
 
 const getDayClass = (n) => {
-  // 1. Prioridad: Día de corte
   const corteMatch = cortes.value.find(c => parseInt(c.corte) === n);
   if (corteMatch) return 'is-corte';
   
-  // 2. Rango de pago
   const rangeMatch = cortes.value.find(c => n >= c.inicio && n <= c.termino);
   if (!rangeMatch) return 'default-bg';
   
@@ -143,10 +140,10 @@ const getDayClass = (n) => {
 
 <style scoped>
 .form-panel { 
-  background: #121214; 
-  border: 1px solid rgba(255, 255, 255, 0.08); 
-  color: #f5f5f4; 
-  border-radius: 20px; 
+  background: var(--bg-cards, #121214); 
+  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.08)); 
+  color: var(--color-texto-general, #f5f5f4); 
+  border-radius: var(--app-border-radius, 20px); 
   padding: 24px; 
   width: 95%; 
   max-width: 460px; 
@@ -172,19 +169,19 @@ const getDayClass = (n) => {
 .form-title { 
   font-family: 'Oswald', sans-serif; 
   font-size: 1.15rem; 
-  color: #fff; 
+  color: var(--color-titulos, #fff); 
   letter-spacing: 0.8px;
   margin: 0;
 }
 
 .form-subtitle {
   font-size: 0.78rem;
-  color: #888;
+  color: var(--color-texto-secundario, #888);
   margin: 0;
 }
 
 .highlight { 
-  color: #3b82f6; 
+  color: var(--color-highlight, #3b82f6); 
 }
 
 .time-row { 
@@ -207,40 +204,43 @@ const getDayClass = (n) => {
   text-transform: uppercase; 
   display: block; 
   margin-bottom: 5px; 
-  color: #888;
+  color: var(--color-texto-secundario, #888);
   letter-spacing: 0.5px;
   font-weight: 600;
 }
 
 .custom-select { 
-  background: #09090b; 
-  border: 1px solid rgba(255, 255, 255, 0.08); 
-  color: white; 
+  background: var(--bg-input, #09090b); 
+  border: 1.5px solid var(--border-input, rgba(255, 255, 255, 0.08)); 
+  color: var(--color-texto-input, var(--color-texto-general, white)); 
   padding: 10px 8px; 
-  border-radius: 10px; 
+  border-radius: var(--app-border-radius, 10px); 
   width: 100%; 
   font-size: 0.85rem; 
   outline: none;
-  transition: border-color 0.2s;
+  transition: all 0.2s ease;
   box-sizing: border-box;
+  cursor: pointer;
 }
 
 .custom-select:focus {
-  border-color: rgba(59, 130, 246, 0.5);
+  border-color: var(--color-highlight, rgba(59, 130, 246, 0.5));
+  background: var(--bg-cards, rgba(255, 255, 255, 0.02));
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .saved-box { 
-  background: #09090b; 
+  background: var(--bg-input, #09090b); 
   padding: 12px 14px; 
-  border-radius: 12px; 
-  border: 1px solid rgba(255, 255, 255, 0.04); 
+  border-radius: var(--app-border-radius, 12px); 
+  border: 1px solid var(--border-input, rgba(255, 255, 255, 0.04)); 
   margin-bottom: 16px; 
 }
 
 .saved-header {
   font-size: 0.72rem;
   text-transform: uppercase;
-  color: #888;
+  color: var(--color-texto-secundario, #888);
   font-family: 'Oswald', sans-serif;
   letter-spacing: 0.5px;
   margin-bottom: 8px;
@@ -289,10 +289,10 @@ const getDayClass = (n) => {
 }
 
 .btn-save { 
-  background: linear-gradient(135deg, #2563eb, #1d4ed8); 
+  background: var(--color-highlight, linear-gradient(135deg, #2563eb, #1d4ed8)); 
   color: white; 
   border: none; 
-  border-radius: 10px; 
+  border-radius: var(--app-border-radius, 10px); 
   cursor: pointer; 
   height: 41px; 
   width: 46px; 
@@ -311,10 +311,10 @@ const getDayClass = (n) => {
 
 /* Calendario Estilos */
 .calendar-section {
-  background: #09090b;
+  background: var(--bg-input, #09090b);
   padding: 12px 14px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: var(--app-border-radius, 12px);
+  border: 1px solid var(--border-input, rgba(255, 255, 255, 0.04));
 }
 
 .calendar-header-info {
@@ -323,7 +323,7 @@ const getDayClass = (n) => {
   align-items: center;
   margin-bottom: 10px;
   font-size: 0.72rem;
-  color: #888;
+  color: var(--color-texto-secundario, #888);
   font-family: 'Oswald', sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -339,7 +339,7 @@ const getDayClass = (n) => {
   align-items: center;
   gap: 3px;
   font-size: 0.65rem;
-  color: #aaa;
+  color: var(--color-texto-secundario, #aaa);
   text-transform: none;
 }
 
@@ -381,7 +381,7 @@ const getDayClass = (n) => {
 .is-corte { background: #fbbf24 !important; color: #000 !important; font-weight: bold; box-shadow: 0 0 8px rgba(251, 191, 36, 0.4); }
 .mes { background: #1d4ed8; color: white; }
 .quin { background: #15803d; color: white; }
-.default-bg { background: #18181b; color: #52525b; border: 1px solid rgba(255, 255, 255, 0.02); }
+.default-bg { background: #18181b; color: var(--color-texto-secundario, #52525b); border: 1px solid rgba(255, 255, 255, 0.02); }
 
 .icon-del { 
   background: rgba(239, 68, 68, 0.1); 
@@ -404,7 +404,7 @@ const getDayClass = (n) => {
 .close-x { 
   background: rgba(255, 255, 255, 0.05); 
   border: 1px solid rgba(255, 255, 255, 0.08); 
-  color: #aaa; 
+  color: var(--color-texto-secundario, #aaa); 
   cursor: pointer; 
   width: 32px;
   height: 32px;
@@ -417,6 +417,6 @@ const getDayClass = (n) => {
 
 .close-x:hover {
   background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  color: var(--color-titulos, #fff);
 }
 </style>

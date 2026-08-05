@@ -176,10 +176,10 @@ const handleSubmit = () => {
 }
 
 .form-panel { 
-  background: #121214; 
-  border: 1px solid rgba(255, 255, 255, 0.08); 
-  color: #f5f5f4; 
-  border-radius: 20px; 
+  background: var(--bg-cards, #121214); 
+  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.08)); 
+  color: var(--color-texto-general, #f5f5f4); 
+  border-radius: var(--app-border-radius, 20px); 
   padding: 24px; 
   width: 100%; 
   max-width: 480px; 
@@ -205,19 +205,19 @@ const handleSubmit = () => {
 .form-title { 
   font-family: 'Oswald', sans-serif; 
   font-size: 1.2rem; 
-  color: #fff; 
+  color: var(--color-titulos, #fff); 
   letter-spacing: 0.8px;
   margin: 0;
 }
 
 .form-subtitle {
   font-size: 0.78rem;
-  color: #888;
+  color: var(--color-texto-secundario, #888);
   margin: 0;
 }
 
 .highlight { 
-  color: #3b82f6; 
+  color: var(--color-highlight, #3b82f6); 
 }
 
 .form-body {
@@ -240,7 +240,7 @@ const handleSubmit = () => {
 
 .input-group label {
   font-size: 0.75rem;
-  color: #a1a1aa;
+  color: var(--color-texto-secundario, #a1a1aa);
   font-family: 'Oswald', sans-serif;
   letter-spacing: 0.5px;
 }
@@ -254,7 +254,7 @@ const handleSubmit = () => {
 .input-icon {
   position: absolute;
   left: 12px;
-  color: #71717a;
+  color: var(--color-texto-secundario, #71717a);
   pointer-events: none;
   z-index: 2;
 }
@@ -262,11 +262,11 @@ const handleSubmit = () => {
 .input-wrapper input,
 .input-wrapper select {
   width: 100%;
-  background: #09090b;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
+  background: var(--bg-input, #09090b);
+  border: 1.5px solid var(--border-input, rgba(255, 255, 255, 0.08));
+  border-radius: var(--app-border-radius, 12px);
   padding: 11px 12px 11px 38px;
-  color: #fff;
+  color: var(--color-texto-input, var(--color-texto-general, #fff));
   font-size: 0.88rem;
   outline: none;
   transition: all 0.2s ease;
@@ -290,27 +290,27 @@ const handleSubmit = () => {
 .select-arrow {
   position: absolute;
   right: 12px;
-  color: #71717a;
+  color: var(--color-texto-secundario, #71717a);
   pointer-events: none;
 }
 
 .input-wrapper select option {
-  background-color: #18181b;
-  color: #fff;
+  background-color: var(--bg-input, #18181b);
+  color: var(--color-texto-general, #fff);
   padding: 12px;
 }
 
 .input-wrapper input:focus,
 .input-wrapper select:focus {
-  border-color: rgba(59, 130, 246, 0.5);
-  background: rgba(255, 255, 255, 0.02);
+  border-color: var(--color-highlight, rgba(59, 130, 246, 0.5));
+  background: var(--bg-cards, rgba(255, 255, 255, 0.02));
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .total-card {
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.05) 100%);
   border: 1px solid rgba(59, 130, 246, 0.3);
-  border-radius: 14px;
+  border-radius: var(--app-border-radius, 14px);
   padding: 14px 16px;
   display: flex;
   justify-content: space-between;
@@ -332,7 +332,7 @@ const handleSubmit = () => {
 
 .total-sub {
   font-size: 0.68rem;
-  color: #71717a;
+  color: var(--color-texto-secundario, #71717a);
 }
 
 .total-amount {
@@ -343,10 +343,10 @@ const handleSubmit = () => {
 }
 
 .submit-btn {
-  background: #3b82f6;
+  background: var(--color-highlight, #3b82f6);
   color: #fff;
   border: none;
-  border-radius: 12px;
+  border-radius: var(--app-border-radius, 12px);
   padding: 13px;
   font-family: 'Oswald', sans-serif;
   font-size: 0.95rem;
@@ -368,7 +368,7 @@ const handleSubmit = () => {
 .close-x { 
   background: rgba(255, 255, 255, 0.05); 
   border: 1px solid rgba(255, 255, 255, 0.08); 
-  color: #aaa; 
+  color: var(--color-texto-secundario, #aaa); 
   cursor: pointer; 
   width: 32px;
   height: 32px;
@@ -382,7 +382,7 @@ const handleSubmit = () => {
 
 .close-x:hover {
   background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  color: var(--color-titulos, #fff);
 }
 
 /* Responsividad mejorada para móviles */

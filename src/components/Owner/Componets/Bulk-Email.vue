@@ -120,10 +120,10 @@ const sendEmail = () => {
 
 <style scoped>
 .form-panel { 
-  background: #121214; 
-  border: 1px solid rgba(255, 255, 255, 0.08); 
-  color: #f5f5f4; 
-  border-radius: 20px; 
+  background: var(--bg-cards, #121214); 
+  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.08)); 
+  color: var(--color-texto-general, #f5f5f4); 
+  border-radius: var(--app-border-radius, 20px); 
   padding: 24px; 
   width: 95%; 
   max-width: 460px; 
@@ -148,7 +148,7 @@ const sendEmail = () => {
 
 .form-title { 
   font-family: 'Oswald', sans-serif; 
-  color: #fff; 
+  color: var(--color-titulos, #fff); 
   font-size: 1.15rem; 
   letter-spacing: 0.8px;
   margin: 0;
@@ -156,12 +156,12 @@ const sendEmail = () => {
 
 .form-subtitle {
   font-size: 0.78rem;
-  color: #888;
+  color: var(--color-texto-secundario, #888);
   margin: 0;
 }
 
 .highlight { 
-  color: #3b82f6; 
+  color: var(--color-highlight, #3b82f6); 
 }
 
 .input-group { 
@@ -174,26 +174,28 @@ const sendEmail = () => {
   text-transform: uppercase; 
   display: block; 
   margin-bottom: 5px; 
-  color: #888;
+  color: var(--color-texto-secundario, #888);
   letter-spacing: 0.5px;
   font-weight: 600;
 }
 
 .custom-input { 
-  background: #09090b; 
-  border: 1px solid rgba(255, 255, 255, 0.08); 
-  color: white; 
+  background: var(--bg-input, #09090b); 
+  border: 1.5px solid var(--border-input, rgba(255, 255, 255, 0.08)); 
+  color: var(--color-texto-input, var(--color-texto-general, #fff)); 
   padding: 10px 14px; 
-  border-radius: 10px; 
+  border-radius: var(--app-border-radius, 10px); 
   width: 100%; 
   box-sizing: border-box; 
   font-size: 0.9rem;
   outline: none;
-  transition: border-color 0.2s;
+  transition: all 0.2s ease;
 }
 
 .custom-input:focus {
-  border-color: rgba(59, 130, 246, 0.5);
+  border-color: var(--color-highlight, rgba(59, 130, 246, 0.5));
+  background: var(--bg-cards, rgba(255, 255, 255, 0.02));
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .textarea-field {
@@ -212,15 +214,15 @@ const sendEmail = () => {
   gap: 6px; 
   margin-bottom: 6px; 
   padding: 6px; 
-  background: #09090b; 
-  border: 1px solid rgba(255, 255, 255, 0.08); 
-  border-radius: 10px; 
+  background: var(--bg-input, #09090b); 
+  border: 1px solid var(--border-input, rgba(255, 255, 255, 0.08)); 
+  border-radius: var(--app-border-radius, 10px); 
 }
 
 .tool-btn { 
   background: rgba(255, 255, 255, 0.03); 
   border: 1px solid rgba(255, 255, 255, 0.06); 
-  color: #ccc; 
+  color: var(--color-texto-secundario, #ccc); 
   padding: 6px 12px; 
   border-radius: 6px; 
   cursor: pointer; 
@@ -233,7 +235,7 @@ const sendEmail = () => {
 
 .tool-btn:hover { 
   background: rgba(255, 255, 255, 0.08); 
-  color: white; 
+  color: var(--color-titulos, white); 
   border-color: rgba(255, 255, 255, 0.15);
 }
 
@@ -255,16 +257,16 @@ const sendEmail = () => {
 
 .editor-area:empty:before {
   content: attr(data-placeholder);
-  color: #555;
+  color: var(--color-texto-secundario, #555);
   pointer-events: none;
   display: block;
 }
 
 .btn-send { 
-  background: linear-gradient(135deg, #2563eb, #1d4ed8); 
+  background: var(--color-highlight, linear-gradient(135deg, #2563eb, #1d4ed8)); 
   color: white; 
   border: none; 
-  border-radius: 10px; 
+  border-radius: var(--app-border-radius, 10px); 
   height: 44px; 
   width: 100%; 
   font-family: 'Oswald', sans-serif; 
@@ -296,7 +298,7 @@ const sendEmail = () => {
 .close-x { 
   background: rgba(255, 255, 255, 0.05); 
   border: 1px solid rgba(255, 255, 255, 0.08); 
-  color: #aaa; 
+  color: var(--color-texto-secundario, #aaa); 
   cursor: pointer; 
   width: 32px;
   height: 32px;
@@ -309,6 +311,6 @@ const sendEmail = () => {
 
 .close-x:hover {
   background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  color: var(--color-titulos, #fff);
 }
 </style>

@@ -29,10 +29,10 @@
 
 <style scoped>
 .form-panel { 
-  background: #121214; 
-  border: 1px solid rgba(255, 255, 255, 0.08); 
-  color: #f5f5f4; 
-  border-radius: 20px; 
+  background: var(--bg-cards, #121214); 
+  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.08)); 
+  color: var(--color-texto-general, #f5f5f4); 
+  border-radius: var(--app-border-radius, 20px); 
   padding: 24px; 
   width: 95%; 
   max-width: 440px; 
@@ -56,25 +56,25 @@
 .form-title { 
   font-family: 'Oswald', sans-serif; 
   font-size: 1.15rem; 
-  color: #fff; 
+  color: var(--color-titulos, #fff); 
   letter-spacing: 0.8px;
   margin: 0;
 }
 
 .form-subtitle {
   font-size: 0.78rem;
-  color: #888;
+  color: var(--color-texto-secundario, #888);
   margin: 0;
 }
 
 .highlight { 
-  color: #3b82f6; 
+  color: var(--color-highlight, #3b82f6); 
 }
 
 .help-card {
-  background: #09090b;
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  border-radius: 12px;
+  background: var(--bg-input, #09090b);
+  border: 1px solid var(--border-input, rgba(255, 255, 255, 0.04));
+  border-radius: var(--app-border-radius, 12px);
   padding: 16px;
   display: flex;
   gap: 14px;
@@ -97,12 +97,12 @@
   font-family: 'Inter', sans-serif; 
   font-size: 0.88rem; 
   line-height: 1.5; 
-  color: #d1d5db; 
+  color: var(--color-texto-secundario, #d1d5db); 
   margin: 0; 
 }
 
 .help-text strong {
-  color: #fff;
+  color: var(--color-titulos, #fff);
   font-weight: 600;
 }
 
@@ -115,7 +115,7 @@
 .close-x { 
   background: rgba(255, 255, 255, 0.05); 
   border: 1px solid rgba(255, 255, 255, 0.08); 
-  color: #aaa; 
+  color: var(--color-texto-secundario, #aaa); 
   cursor: pointer; 
   width: 32px;
   height: 32px;
@@ -128,6 +128,6 @@
 
 .close-x:hover {
   background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  color: var(--color-titulos, #fff);
 }
 </style>

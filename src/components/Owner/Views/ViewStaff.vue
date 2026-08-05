@@ -5,7 +5,7 @@
       <header class="header-section">
         <div class="title-wrapper">
           <h1 class="main-title">Personal</h1>
-         <!-- <p class="main-subtitle">Control y Owneristración general del equipo de trabajo</p>-->
+         <!-- <p class="main-subtitle">Control y administración general del equipo de trabajo</p>-->
         </div>
       
         <div class="actions-bar">
@@ -24,7 +24,7 @@
             <input type="text" class="search-input" placeholder="Buscar personal..." v-model="searchQuery">
         </div>
       </header>
-            
+         
 
       <!-- VISTA ESCRITORIO -->
       <div class="table-container desktop-only">
@@ -109,22 +109,25 @@
         </div>
       </ModalComponent>
 
-      <!-- Modal Eliminar Unificado -->
-      <ModalComponent :isOpen="showDelete" @close="showDelete = false">
-        <div class="modal-body-custom">
-          <div class="modal-icon-container danger-bg">
-            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          </div>
-          <h2>¿DESEA ELIMINARLO?</h2>
-          <p>¿Deseas eliminar a <span class="highlight-name">{{ selectedUser?.name }}</span> temporalmente?</p>
-          <div class="modal-buttons">
-            <button class="btn-modal secondary" @click="showDelete = false">Cancelar</button>
-            <button class="btn-modal danger" @click="executeDelete">Confirmar</button>
+    </main>
+    <!-- Modal de Eliminación con la estructura directa -->
+      <transition name="pop">
+        <div v-if="showDelete" class="modal-wrapper" @click.self="showDelete = false">
+          <div class="custom-modal-card">
+            <div class="modal-body-custom">
+              <div class="modal-icon-container danger-bg">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              </div>
+              <h2>¿DESEA ELIMINARLO?</h2>
+              <p>¿Deseas eliminar a <span class="highlight-name">{{ selectedUser?.name }}</span> temporalmente?</p>
+              <div class="modal-buttons">
+                <button class="btn-modal secondary" @click="showDelete = false">Cancelar</button>
+                <button class="btn-modal danger" @click="executeDelete">Confirmar</button>
+              </div>
+            </div>
           </div>
         </div>
-      </ModalComponent>
-
-    </main>
+      </transition>
     <transition name="pop">
       <div v-if="activeModal === 'enviomasivo'" class="modal-wrapper" @click.self="activeModal = null">
         <CorreoMasivo @close="activeModal = null" />
@@ -139,7 +142,7 @@
 </template>
 
 <style scoped>
-.main-content { padding: 30px 40px; max-width: 1400px; margin: 0 auto; }
+.main-content { padding: 30px 40px; max-width: 1400px; margin: 0 auto; color: var(--color-texto-general, #e5e5e5); }
 .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 20px; }
 
 .title-wrapper {
@@ -148,29 +151,29 @@
   gap: 4px;
 }
 
-.main-title { font-family: 'Anton', sans-serif; font-size: 2rem; color: #fff; margin: 0; letter-spacing: 0.5px; }
-.main-subtitle { font-size: 0.88rem; color: #888; margin: 0; }
+.main-title { font-family: 'Anton', sans-serif; font-size: 2rem; color: var(--color-titulos, #fff); margin: 0; letter-spacing: 0.5px; }
+.main-subtitle { font-size: 0.88rem; color: var(--color-texto-general, #888); margin: 0; opacity: 0.8; }
 
 .actions-bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
 .search-input, .status-select { 
-  background: #141414; 
-  border: 1px solid #2a2a2a; 
+  background: var(--bg-cards, #141414); 
+  border: 1px solid rgba(255, 255, 255, 0.09); 
   padding: 10px 14px; 
-  border-radius: 10px; 
-  color: #fff; 
+  border-radius: var(--app-border-radius, 10px); 
+  color: var(--color-texto-general, #fff); 
   font-size: 0.9rem;
   outline: none;
   transition: border-color 0.2s;
 }
 .search-input { width: 220px; }
-.search-input:focus, .status-select:focus { border-color: #3b82f6; }
+.search-input:focus, .status-select:focus { border-color: var(--color-highlight, #3b82f6); }
 
 .btn-bulk {
-  background: #141414;
-  border: 1px solid #2a2a2a; 
+  background: var(--bg-cards, #141414);
+  border: 1px solid rgba(255, 255, 255, 0.09); 
   padding: 10px 16px;
-  border-radius: 10px;
-  color: #fff; 
+  border-radius: var(--app-border-radius, 10px);
+  color: var(--color-texto-general, #fff); 
   display: flex;
   align-items: center;
   gap: 8px;
@@ -179,8 +182,8 @@
   font-size: 0.9rem;
   transition: background 0.2s, border-color 0.2s;
 }
-.btn-bulk:hover { background: #1f1f1f; border-color: #444; }
-.btn-bulk svg { color: #3b82f6; }
+.btn-bulk:hover { background: rgba(255, 255, 255, 0.05); border-color: var(--color-highlight, #444); }
+.btn-bulk svg { color: var(--color-highlight, #3b82f6); }
 
 .modal-wrapper {
   position: fixed;
@@ -230,10 +233,10 @@
   .search-input { order: -1; }
 
   .user-card {
-    background: #141416;
+    background: var(--bg-cards, #141416);
     padding: 16px;
-    border-radius: 14px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--app-border-radius, 14px);
+    border: 1px solid rgba(255, 255, 255, 0.09);
     margin-bottom: 12px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.3);
   }
@@ -248,15 +251,15 @@
   .avatar-small {
     width: 44px;
     height: 44px;
-    background: #26262b;
+    background: rgba(255, 255, 255, 0.05);
     border-radius: 50%;
-    border: 1px solid #333;
+    border: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
     font-size: 0.9rem;
-    color: #bbb;
+    color: var(--color-texto-general, #bbb);
     flex-shrink: 0;
   }
 
@@ -272,7 +275,7 @@
   .name-text {
     font-size: 0.95rem;
     line-height: 1.25;
-    color: #fff;
+    color: var(--color-titulos, #fff);
     font-weight: 600;
   }
 
@@ -294,11 +297,13 @@
   }
 
   .email-text {
-    color: #94a3b8;
+    color: var(--color-texto-general, #94a3b8);
+    opacity: 0.8;
   }
 
   .phone-text {
-    color: #888;
+    color: var(--color-texto-general, #888);
+    opacity: 0.7;
   }
 
   .card-actions {
@@ -314,7 +319,7 @@
     min-width: 55px;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 8px;
+    border-radius: var(--app-border-radius, 8px);
     padding: 8px 4px;
     color: #e2e8f0;
     font-size: 0.72rem;
@@ -334,74 +339,81 @@
     color: #fff;
   }
 
-  .btn-email-chip {
-    color: #38bdf8;
-  }
-  .btn-email-chip:hover {
-    background: rgba(56, 189, 248, 0.1);
-    border-color: rgba(56, 189, 248, 0.3);
-  }
+  .btn-email-chip { color: #38bdf8; }
+  .btn-email-chip:hover { background: rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.3); }
 
-  .btn-wa-chip {
-    color: #22c55e;
-  }
-  .btn-wa-chip:hover {
-    background: rgba(34, 197, 94, 0.1);
-    border-color: rgba(34, 197, 94, 0.3);
-  }
+  .btn-wa-chip { color: #22c55e; }
+  .btn-wa-chip:hover { background: rgba(34, 197, 94, 0.1); border-color: rgba(34, 197, 94, 0.3); }
 
-  .btn-edit-chip {
-    color: #fbbf24;
-  }
-  .btn-edit-chip:hover {
-    background: rgba(251, 191, 36, 0.1);
-    border-color: rgba(251, 191, 36, 0.3);
-  }
+  .btn-edit-chip { color: #fbbf24; }
+  .btn-edit-chip:hover { background: rgba(251, 191, 36, 0.1); border-color: rgba(251, 191, 36, 0.3); }
 
-  .btn-delete-chip {
-    color: #f87171;
-  }
-  .btn-delete-chip:hover {
-    background: rgba(239, 68, 68, 0.1);
-    border-color: rgba(239, 68, 68, 0.3);
-  }
+  .btn-delete-chip { color: #f87171; }
+  .btn-delete-chip:hover { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); }
 }
 
-.table-container { background: #111; border-radius: 14px; border: 1px solid #222; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
-.user-table { width: 100%; border-collapse: collapse; color: #e5e5e5; text-align: left; }
-.user-table th { padding: 16px 20px; background: #161616; font-family: 'Oswald', sans-serif; font-size: 0.85rem; text-transform: uppercase; color: #888; letter-spacing: 0.5px; border-bottom: 1px solid #222; }
-.user-table td { padding: 16px 20px; border-top: 1px solid #1a1a1a; font-size: 0.92rem; vertical-align: middle; }
-.user-table tr:hover { background: rgba(255, 255, 255, 0.015); }
+.table-container { 
+  background: var(--bg-cards, #111); 
+  border-radius: var(--app-border-radius, 14px); 
+  border: 1px solid rgba(255, 255, 255, 0.09); 
+  overflow: hidden; 
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4); 
+}
+.user-table { width: 100%; border-collapse: collapse; color: var(--color-texto-general, #e5e5e5); text-align: left; }
+.user-table th { padding: 16px 20px; background: rgba(255, 255, 255, 0.02); font-family: 'Oswald', sans-serif; font-size: 0.85rem; text-transform: uppercase; color: var(--color-texto-general, #888); letter-spacing: 0.5px; border-bottom: 1px solid rgba(255, 255, 255, 0.09); }
+.user-table td { padding: 16px 20px; border-top: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.92rem; vertical-align: middle; }
+.user-table tr:hover { background: rgba(255, 255, 255, 0.02); }
 
 .actions-cell { display: flex; gap: 10px; }
 .icon-btn { 
-  background: #181818; 
-  border: 1px solid #2a2a2a; 
-  border-radius: 8px; 
+  background: rgba(255, 255, 255, 0.03); 
+  border: 1px solid rgba(255, 255, 255, 0.09); 
+  border-radius: var(--app-border-radius, 8px); 
   cursor: pointer; 
-  color: #aaa; 
+  color: var(--color-texto-general, #aaa); 
   padding: 8px; 
   display: flex; 
   align-items: center; 
   justify-content: center;
   transition: all 0.2s ease;
 }
-.icon-btn:hover { background: #262626; color: #fff; border-color: #444; transform: translateY(-1px); }
-.avatar-small { width: 40px; height: 40px; background: #262626; color: #bbb; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; border: 1px solid #333; }
+.icon-btn:hover { background: rgba(255, 255, 255, 0.08); color: #fff; border-color: var(--color-highlight, #444); transform: translateY(-1px); }
 
-.text-bold { font-weight: 600; color: #fff; }
+.avatar-small { 
+  width: 40px; 
+  height: 40px; 
+  background: rgba(255, 255, 255, 0.05); 
+  color: var(--color-texto-general, #bbb); 
+  border-radius: 50%; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  font-weight: 700; 
+  font-size: 0.9rem; 
+  border: 1px solid rgba(255, 255, 255, 0.1); 
+}
 
-.modal-body-custom { text-align: center; color: #fff; padding: 10px 5px; }
-.modal-body-custom h2 { font-size: 1.3rem; margin-bottom: 10px; font-weight: 600; }
-.modal-body-custom p { color: #aaa; font-size: 0.9rem; margin-bottom: 20px; line-height: 1.5; }
-.highlight-name { color: #fff; font-weight: 600; }
+.text-bold { font-weight: 600; color: var(--color-titulos, #fff); }
+.custom-modal-card {
+  background: var(--bg-cards, #18181b);
+  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.15));
+  border-radius: var(--app-border-radius, 20px);
+  padding: 30px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+}
+.modal-body-custom { text-align: center; color: var(--color-texto-general, #fff); padding: 10px 5px; }
+.modal-body-custom h2 { font-size: 1.3rem; margin-bottom: 10px; font-weight: 600; color: var(--color-titulos, #fff); }
+.modal-body-custom p { color: var(--color-texto-general, #aaa); font-size: 0.9rem; margin-bottom: 20px; line-height: 1.5; }
+.highlight-name { color: var(--color-titulos, #fff); font-weight: 600; }
 
 .modal-icon-container { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto; }
 .danger-bg { background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.2); }
 
 .modal-buttons { display: flex; gap: 10px; }
-.btn-modal { flex: 1; padding: 10px; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; border: none; transition: opacity 0.2s; }
-.btn-modal.secondary { background: #222; color: #ccc; border: 1px solid #333; }
+.btn-modal { flex: 1; padding: 10px; border-radius: var(--app-border-radius, 8px); font-size: 0.9rem; font-weight: 600; cursor: pointer; border: none; transition: opacity 0.2s; }
+.btn-modal.secondary { background: rgba(255, 255, 255, 0.05); color: #ccc; border: 1px solid rgba(255, 255, 255, 0.1); }
 .btn-modal.danger { background: #ef4444; color: white; }
 .btn-modal:hover { opacity: 0.9; }
 
@@ -456,7 +468,7 @@ const getRoleClass = (role) => {
   const classes = {
     'Recepcionista': 'role-recepcionista',
     'Entrenador': 'role-entrenador',
-    'Owneristrador': 'role-Owner'
+    'Owner': 'role-Owner'
   };
   return classes[role] || 'role-default';
 };

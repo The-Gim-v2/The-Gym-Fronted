@@ -173,17 +173,18 @@ const guardarConfiguracionGeneral = () => {
   min-height: 80vh;
   box-sizing: border-box;
   width: 100%;
+  color: var(--color-texto-general, #e5e5e5);
 }
 
 .highlight { 
-  color: #3b82f6; 
+  color: var(--color-highlight, #3b82f6); 
 }
 
 .promo-box-container {
-  background: rgba(18, 18, 18, 0.75);
+  background: var(--bg-cards, rgba(18, 18, 18, 0.75));
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 24px;
+  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.12));
+  border-radius: var(--app-border-radius, 24px);
   width: 100%;
   max-width: 480px;
   height: 650px;
@@ -191,19 +192,19 @@ const guardarConfiguracionGeneral = () => {
   flex-direction: column;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.6);
 }
 
 .box-header {
-  background: #222;
+  background: var(--bg-cards, #222);
   padding: 20px;
   text-align: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--border-line, rgba(255, 255, 255, 0.08));
 }
 
 .box-header h2 {
   font-family: 'Anton', sans-serif;
-  color: #fff;
+  color: var(--color-titulos, #fff);
   font-size: 1.8rem;
   margin: 0;
   letter-spacing: 1px;
@@ -220,9 +221,9 @@ const guardarConfiguracionGeneral = () => {
 }
 
 .item-row {
-  background: rgba(25, 25, 25, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
+  background: var(--bg-cards, rgba(25, 25, 25, 0.9));
+  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.08));
+  border-radius: var(--app-border-radius, 14px);
   padding: 15px;
   display: flex;
   align-items: center;
@@ -231,7 +232,7 @@ const guardarConfiguracionGeneral = () => {
 }
 
 .item-row:hover {
-  border-color: rgba(59, 130, 246, 0.4);
+  border-color: var(--color-highlight, rgba(59, 130, 246, 0.4));
 }
 
 .vertical-layout {
@@ -270,20 +271,20 @@ const guardarConfiguracionGeneral = () => {
 .icon-tag {
   width: 28px;
   height: 28px;
-  color: #3b82f6;
+  color: var(--color-highlight, #3b82f6);
   flex-shrink: 0;
 }
 
 .item-info h4 {
   font-family: 'Oswald', sans-serif;
-  color: #fff;
+  color: var(--color-titulos, #fff);
   font-size: 1.1rem;
   margin: 0 0 4px 0;
 }
 
 .item-info p {
   font-family: 'Inter', sans-serif;
-  color: #94a3b8;
+  color: var(--color-highlight, #94a3b8);
   font-size: 0.9rem;
   margin: 0;
 }
@@ -293,18 +294,18 @@ const guardarConfiguracionGeneral = () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(18, 18, 18, 0.6);
+  background: var(--bg-input, rgba(18, 18, 18, 0.6));
   padding: 8px 12px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--app-border-radius, 10px);
+  border: 1.5px solid var(--border-input, rgba(255, 255, 255, 0.1));
 }
 
 .btn-counter {
   width: 32px;
   height: 32px;
-  border-radius: 8px;
-  background: #3b82f6;
-  color: #fff;
+  border-radius: var(--app-border-radius, 8px);
+  background: var(--color-botones, #3b82f6);
+  color: var(--color-texto-botones, #fff);
   border: none;
   display: flex;
   align-items: center;
@@ -313,8 +314,10 @@ const guardarConfiguracionGeneral = () => {
   transition: background 0.2s;
 }
 
-.btn-counter:hover {
-  background: #2563eb;
+@media (hover: hover) {
+  .btn-counter:hover {
+    filter: brightness(0.95);
+  }
 }
 
 .btn-counter svg {
@@ -326,7 +329,7 @@ const guardarConfiguracionGeneral = () => {
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--color-texto-general, #fff);
 }
 
 /* Campos del Formulario */
@@ -343,25 +346,28 @@ const guardarConfiguracionGeneral = () => {
 
 .input-group label {
   font-family: 'Oswald', sans-serif;
-  color: #cbd5e1;
+  color: var(--color-etiquetas, var(--color-texto-general, #cbd5e1));
   font-size: 12px;
 }
 
 .custom-select, .custom-input {
-  background: rgba(25, 25, 25, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 10px;
-  color: #fff;
+  background: var(--bg-input, rgba(25, 25, 25, 0.9));
+  border: 1.5px solid var(--border-input, rgba(255, 255, 255, 0.15));
+  border-radius: var(--app-border-radius, 10px);
+  color: var(--color-texto-input, var(--color-texto-general, #fff));
   padding: 10px 12px;
   font-family: 'Inter', sans-serif;
   outline: none;
   font-size: 0.95rem;
   width: 100%;
   box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s, color 0.2s;
 }
 
 .custom-select:focus, .custom-input:focus {
-  border-color: #3b82f6;
+  border-color: var(--color-highlight, #3b82f6);
+  background: var(--bg-input-focus, var(--bg-cards, rgba(25, 25, 25, 0.9)));
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
 .input-money-wrapper {
@@ -374,7 +380,7 @@ const guardarConfiguracionGeneral = () => {
 .currency-symbol {
   position: absolute;
   left: 12px;
-  color: #94a3b8;
+  color: var(--color-highlight, #94a3b8);
   font-family: 'Inter', sans-serif;
   font-size: 0.95rem;
 }
@@ -387,38 +393,48 @@ const guardarConfiguracionGeneral = () => {
 .btn-primary-action {
   margin-top: 5px;
   padding: 12px;
-  background: #3b82f6;
-  color: white;
+  background: var(--color-botones, #3b82f6);
+  color: var(--color-texto-botones, white);
   border: none;
-  border-radius: 10px;
+  border-radius: var(--app-border-radius, 10px);
   font-family: 'Oswald', sans-serif;
   font-weight: 700;
   font-size: 1rem;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   width: 100%;
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
 }
 
-.btn-primary-action:hover {
-  background: #2563eb;
+@media (hover: hover) {
+  .btn-primary-action:hover {
+    transform: translateY(-1px);
+    filter: brightness(0.95);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+  }
 }
 
-/* Toggle Switch Estilizado */
+.btn-primary-action:active {
+  transform: scale(0.97);
+}
+
+/* Toggle Switch Estilizado con Variables */
 .toggle-switch {
   appearance: none;
   width: 44px;
   height: 24px;
-  background: #3f3f46;
+  background: var(--bg-input, #3f3f46);
+  border: 1.5px solid var(--border-input, transparent);
   border-radius: 12px;
   position: relative;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: background 0.3s, border-color 0.3s;
   outline: none;
   flex-shrink: 0;
 }
 
 .toggle-switch:checked {
-  background: #3b82f6;
+  background: var(--color-botones, #3b82f6);
 }
 
 .toggle-switch::before {
@@ -428,8 +444,8 @@ const guardarConfiguracionGeneral = () => {
   height: 18px;
   background: white;
   border-radius: 50%;
-  top: 3px;
-  left: 3px;
+  top: 2px;
+  left: 2px;
   transition: transform 0.3s;
 }
 

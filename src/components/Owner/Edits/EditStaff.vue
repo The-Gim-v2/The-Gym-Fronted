@@ -159,6 +159,7 @@ const saveChanges = () => {
   margin: 0 auto;
   padding: 30px 40px; 
   box-sizing: border-box; 
+  color: var(--color-texto-general, #e5e5e5);
 }
 
 .search-bar-container-top {
@@ -182,7 +183,7 @@ const saveChanges = () => {
 .search-icon {
   position: absolute;
   left: 14px;
-  color: #71717a;
+  color: var(--color-highlight, #3b82f6);
   pointer-events: none;
 }
 
@@ -205,11 +206,11 @@ const saveChanges = () => {
   flex-direction: column; 
   align-items: center; 
   text-align: center; 
-  background: rgba(18, 18, 18, 0.75); 
+  background: var(--bg-cards, rgba(18, 18, 18, 0.75)); 
   backdrop-filter: blur(20px);
   padding: 40px 24px; 
-  border-radius: 24px; 
-  border: 1px solid rgba(255, 255, 255, 0.12); 
+  border-radius: var(--app-border-radius, 24px); 
+  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.12)); 
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
   position: sticky;
   top: 30px;
@@ -218,7 +219,7 @@ const saveChanges = () => {
 .main-title { 
   font-family: 'Anton', sans-serif; 
   font-size: 2.6rem; 
-  color: #fff; 
+  color: var(--color-titulos, #fff); 
   margin: 0 0 20px 0; 
   line-height: 1.1; 
   text-transform: uppercase; 
@@ -226,7 +227,7 @@ const saveChanges = () => {
 }
 
 .highlight { 
-  color: #3b82f6; 
+  color: var(--color-highlight, #3b82f6); 
 }
 
 .avatar-wrapper { 
@@ -237,9 +238,9 @@ const saveChanges = () => {
 .avatar-circle { 
   width: 190px; 
   height: 190px; 
-  background: #09090b; 
+  background: var(--bg-cards, #09090b); 
   border-radius: 50%; 
-  border: 4px solid #3b82f6; 
+  border: 4px solid var(--color-highlight, #3b82f6); 
   display: flex; 
   align-items: center; 
   justify-content: center; 
@@ -258,13 +259,13 @@ const saveChanges = () => {
   width: 46px;  
   height: 46px; 
   border-radius: 50%;
-  background: #3b82f6;
-  border: 2px solid #000;
+  background: var(--color-botones, #3b82f6);
+  border: 2px solid var(--bg-cards, #000);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--color-texto-botones, #fff);
   bottom: 0;
   right: 0;
   transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.2s;
@@ -277,7 +278,7 @@ const saveChanges = () => {
 
 .user-id { 
   margin-top: 12px; 
-  color: #94a3b8; 
+  color: var(--color-highlight, #94a3b8); 
   font-weight: 600; 
   font-family: 'Inter', sans-serif; 
   font-size: 1.15rem;
@@ -312,11 +313,11 @@ const saveChanges = () => {
 }
 
 .login-card { 
-  background: rgba(18, 18, 18, 0.75); 
+  background: var(--bg-cards, rgba(18, 18, 18, 0.75)); 
   backdrop-filter: blur(20px);
   padding: 28px; 
-  border-radius: 24px; 
-  border: 1px solid rgba(255, 255, 255, 0.12); 
+  border-radius: var(--app-border-radius, 24px); 
+  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.12)); 
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
   height: 100%;
   box-sizing: border-box;
@@ -331,13 +332,13 @@ const saveChanges = () => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08); 
+  border-bottom: 1px solid var(--border-line, rgba(255, 255, 255, 0.08)); 
   padding-bottom: 12px; 
 }
 
 .section-title { 
   font-family: 'Oswald', sans-serif; 
-  color: #3b82f6; 
+  color: var(--color-highlight, #3b82f6); 
   font-size: 1.1rem; 
   margin: 0; 
   text-transform: uppercase; 
@@ -346,7 +347,7 @@ const saveChanges = () => {
 
 .card-subtitle {
   font-size: 0.85rem;
-  color: #71717a;
+  color: var(--color-highlight, #71717a);
   font-family: 'Inter', sans-serif;
 }
 
@@ -375,29 +376,29 @@ const saveChanges = () => {
 
 label { 
   font-family: 'Oswald', sans-serif; 
-  color: #f5f5f4; 
+  color: var(--color-etiquetas, var(--color-texto-general, #f5f5f4)); 
   font-size: 0.85rem; 
   font-weight: 600; 
   letter-spacing: 0.5px;
 }
 
-input { 
-  background: #141414; 
-  border: 1px solid #333; 
-  border-radius: 12px; 
-  color: #fff; 
-  padding: 13px 16px; 
-  font-family: 'Inter', sans-serif; 
-  font-size: 0.95rem;
+input, .custom-select { 
+  background: var(--bg-input, var(--bg-cards, #141414)); 
+  border: 1.5px solid var(--border-input, rgba(255, 255, 255, 0.12)); 
+  border-radius: var(--app-border-radius, 12px); 
+  color: var(--color-texto-input, var(--color-texto-general, #fff)); 
+  padding: 12px 14px; 
   width: 100%; 
   box-sizing: border-box; 
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
   outline: none;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s, color 0.2s;
 }
 
-input:focus { 
-  border-color: #3b82f6; 
-  background: rgba(20, 20, 20, 0.95);
+input:focus, .custom-select:focus {
+  border-color: var(--color-highlight, #3b82f6);
+  background: var(--bg-input-focus, var(--bg-cards, #141414));
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
@@ -408,10 +409,10 @@ input:focus {
 
 .btn-primary {
   padding: 16px 36px;
-  background: #1c4fd6;
-  color: white;
+  background: var(--color-botones, #1c4fd6);
+  color: var(--color-texto-botones, white);
   border: none;
-  border-radius: 12px;
+  border-radius: var(--app-border-radius, 12px);
   font-family: 'Oswald', sans-serif;
   font-weight: 700;
   font-size: 1.05rem;
@@ -425,7 +426,7 @@ input:focus {
 @media (hover: hover) {
   .btn-primary:hover {
     transform: translateY(-2px); 
-    background: #1742be;
+    filter: brightness(0.95);
     box-shadow: 0 6px 20px rgba(28, 79, 214, 0.6);
   }
   .avatar-action:hover {

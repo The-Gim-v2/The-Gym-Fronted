@@ -27,7 +27,7 @@
               <td><span class="status-badge" :class="getDebtClass(user.status)">{{ user.debt }}</span></td>
               <td class="actions-cell">
                 <button class="icon-btn" title="Renovar" @click="activeModal = 'renovacion'; selectedUser = user"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.5 4a3.5 3.5 0 1 0 5 0m-5 0V3m5 6l-5-5-5 5"/></svg></button>
-                <button class="icon-btn" title="Eliminar" @click="confirmDelete(user)"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+                <button class="icon-btn delete-icon-btn" title="Eliminar" @click="confirmDelete(user)"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
               </td>
             </tr>
           </tbody>
@@ -91,7 +91,7 @@
 </template>
 
 <style scoped>
-.main-content { padding: 30px 40px; max-width: 1400px; margin: 0 auto; }
+.main-content { padding: 30px 40px; max-width: 1400px; margin: 0 auto; color: var(--color-texto-general, #e5e5e5); }
 .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 20px; }
 
 .title-wrapper {
@@ -100,22 +100,22 @@
   gap: 4px;
 }
 
-.main-title { font-family: 'Anton', sans-serif; font-size: 2rem; color: #fff; margin: 0; letter-spacing: 0.5px; }
-.main-subtitle { font-size: 0.88rem; color: #888; margin: 0; }
+.main-title { font-family: 'Anton', sans-serif; font-size: 2rem; color: var(--color-titulos, #fff); margin: 0; letter-spacing: 0.5px; }
+.main-subtitle { font-size: 0.88rem; color: var(--color-texto-secundario, #888); margin: 0; }
 
 .actions-bar { display: flex; gap: 15px; align-items: center; }
-.search-input { 
-  background: #141414; 
-  border: 1px solid #2a2a2a; 
+.search-input, .status-select { 
+  background: var(--bg-cards, #141414); 
+  border: 1px solid rgba(255, 255, 255, 0.09); 
   padding: 10px 14px; 
-  border-radius: 10px; 
-  color: #fff; 
+  border-radius: var(--app-border-radius, 10px); 
+  color: var(--color-texto-general, #fff); 
   font-size: 0.9rem;
   outline: none;
   transition: border-color 0.2s;
-  width: 220px;
 }
-.search-input:focus { border-color: #3b82f6; }
+.search-input { width: 220px; }
+.search-input:focus, .status-select:focus { border-color: var(--color-highlight, #3b82f6); }
 
 .desktop-only { display: block; }
 .mobile-only { display: none; }
@@ -142,10 +142,10 @@
   }
 
   .user-card {
-    background: #141416;
+    background: var(--bg-cards, #141416);
     padding: 16px;
-    border-radius: 14px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--app-border-radius, 14px);
+    border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.08));
     margin-bottom: 12px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.3);
   }
@@ -160,15 +160,15 @@
   .avatar-small {
     width: 44px;
     height: 44px;
-    background: #26262b;
+    background: var(--bg-input, #26262b);
     border-radius: 50%;
-    border: 1px solid #333;
+    border: 1px solid var(--border-input, #333);
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
     font-size: 0.9rem;
-    color: #bbb;
+    color: var(--color-texto-general, #bbb);
     flex-shrink: 0;
   }
 
@@ -184,7 +184,7 @@
   .name-text {
     font-size: 0.95rem;
     line-height: 1.25;
-    color: #fff;
+    color: var(--color-titulos, #fff);
     font-weight: 600;
   }
 
@@ -206,7 +206,7 @@
   }
 
   .email-text {
-    color: #94a3b8;
+    color: var(--color-highlight, #94a3b8);
   }
 
   .expiration-warning {
@@ -219,7 +219,7 @@
   }
 
   .phone-text {
-    color: #888;
+    color: var(--color-texto-secundario, #888);
   }
 
   .card-actions {
@@ -235,7 +235,7 @@
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 8px;
     padding: 10px 8px;
-    color: #e2e8f0;
+    color: var(--color-texto-general, #e2e8f0);
     font-size: 0.85rem;
     font-weight: 500;
     font-family: inherit;
@@ -271,29 +271,31 @@
   }
 }
 
-.table-container { background: #111; border-radius: 14px; border: 1px solid #222; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
-.user-table { width: 100%; border-collapse: collapse; color: #e5e5e5; text-align: left; }
-.user-table th { padding: 16px 20px; background: #161616; font-family: 'Oswald', sans-serif; font-size: 0.85rem; text-transform: uppercase; color: #888; letter-spacing: 0.5px; border-bottom: 1px solid #222; }
-.user-table td { padding: 16px 20px; border-top: 1px solid #1a1a1a; font-size: 0.92rem; vertical-align: middle; }
+.table-container { background: var(--bg-cards, #111); border-radius: var(--app-border-radius, 14px); border: 1px solid var(--border-cards, #222); overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+.user-table { width: 100%; border-collapse: collapse; color: var(--color-texto-general, #e5e5e5); text-align: left; }
+.user-table th { padding: 16px 20px; background: var(--bg-cards, #161616); font-family: 'Oswald', sans-serif; font-size: 0.85rem; text-transform: uppercase; color: var(--color-texto-secundario, #888); letter-spacing: 0.5px; border-bottom: 1px solid var(--border-line, #222); }
+.user-table td { padding: 16px 20px; border-top: 1px solid var(--border-line, #1a1a1a); font-size: 0.92rem; vertical-align: middle; }
 .user-table tr:hover { background: rgba(255, 255, 255, 0.015); }
 
 .actions-cell { display: flex; gap: 12px; }
 .icon-btn { 
-  background: #181818; 
-  border: 1px solid #2a2a2a; 
-  border-radius: 8px; 
+  background: rgba(255, 255, 255, 0.03); 
+  border: 1px solid rgba(255, 255, 255, 0.09); 
+  border-radius: var(--app-border-radius, 8px); 
   cursor: pointer; 
-  color: #aaa; 
+  color: var(--color-texto-general, #aaa); 
   padding: 8px; 
   display: flex; 
   align-items: center; 
   justify-content: center;
   transition: all 0.2s ease;
 }
-.icon-btn:hover { background: #262626; color: #fff; border-color: #444; transform: translateY(-1px); }
-.avatar-small { width: 40px; height: 40px; background: #262626; color: #bbb; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; border: 1px solid #333; }
+.icon-btn:hover { background: rgba(255, 255, 255, 0.08); color: #fff; border-color: var(--color-highlight, #444); transform: translateY(-1px); }
+.delete-icon-btn:hover { color: #ef4444; border-color: rgba(239, 68, 68, 0.4); }
 
-.text-bold { font-weight: 600; color: #fff; }
+.avatar-small { width: 40px; height: 40px; background: var(--bg-input, #262626); color: var(--color-texto-general, #bbb); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; border: 1px solid var(--border-input, #333); }
+
+.text-bold { font-weight: 600; color: var(--color-titulos, #fff); }
 
 .status-badge { 
     padding: 4px 10px; 
@@ -328,17 +330,17 @@
 }
 
 /* Modales personalizados */
-.modal-body-custom { text-align: center; color: #fff; padding: 10px 5px; }
-.modal-body-custom h2 { font-size: 1.3rem; margin-bottom: 10px; font-weight: 600; }
-.modal-body-custom p { color: #aaa; font-size: 0.9rem; margin-bottom: 20px; line-height: 1.5; }
-.highlight-name { color: #fff; font-weight: 600; }
+.modal-body-custom { text-align: center; color: var(--color-texto-general, #fff); padding: 10px 5px; }
+.modal-body-custom h2 { font-size: 1.3rem; margin-bottom: 10px; font-weight: 600; color: var(--color-titulos, #fff); }
+.modal-body-custom p { color: var(--color-texto-secundario, #aaa); font-size: 0.9rem; margin-bottom: 20px; line-height: 1.5; }
+.highlight-name { color: var(--color-titulos, #fff); font-weight: 600; }
 
 .modal-icon-container { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto; }
 .danger-bg { background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.2); }
 
 .modal-buttons { display: flex; gap: 10px; }
 .btn-modal { flex: 1; padding: 10px; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; border: none; transition: opacity 0.2s; }
-.btn-modal.secondary { background: #222; color: #ccc; border: 1px solid #333; }
+.btn-modal.secondary { background: rgba(255, 255, 255, 0.05); color: var(--color-texto-general, #ccc); border: 1px solid rgba(255, 255, 255, 0.1); }
 .btn-modal.danger { background: #ef4444; color: white; }
 .btn-modal:hover { opacity: 0.9; }
 </style>
@@ -347,7 +349,7 @@
 import { ref, computed } from 'vue';
 import HeadingOwner from '../HeadingOwner.vue';
 import ModalComponent from '../../Modals/ModalComponent.vue';
-import RenovacionModal from '../Componets/Account-Recovery.vue'; // Asegúrate de ajustar la ruta de tu componente externo de renovación
+import RenovacionModal from '../Componets/Account-Recovery.vue'; 
 
 const activeModal = ref(null);
 const showDelete = ref(false);

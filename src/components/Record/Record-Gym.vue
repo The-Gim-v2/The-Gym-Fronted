@@ -183,8 +183,8 @@ const handleRegisterSede = () => {
 
 <style scoped>
 .register-page-modal {
-  color: #ffffff;
-  font-family: 'Inter', sans-serif;
+  color: var(--color-texto-general, #e5e5e5);
+  font-family: inherit;
   width: 100%;
 }
 
@@ -196,21 +196,21 @@ const handleRegisterSede = () => {
   letter-spacing: -0.5px;
   text-transform: uppercase;
   margin: 0 0 6px;
-  color: #ffffff;
+  color: var(--color-titulos, #fff);
 }
 
-.highlight-text { color: #3a6bd6; }
+.highlight-text { color: var(--color-highlight, #3b82f6); }
 
-.subtitle { font-size: 14.5px; color: rgba(255, 255, 255, 0.95); margin: 0; }
+.subtitle { font-size: 14.5px; color: var(--color-texto-general, rgba(255, 255, 255, 0.8)); margin: 0; }
 
 .alert-success {
   font-size: 14px;
   font-weight: 600;
   padding: 14px 16px;
-  border-radius: 10px;
-  background: rgba(28, 79, 214, 0.3);
-  border: 1px solid rgba(28, 79, 214, 0.6);
-  color: #ffffff;
+  border-radius: var(--app-border-radius, 10px);
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  color: #22c55e;
   margin-bottom: 20px;
   text-align: center;
 }
@@ -229,8 +229,8 @@ const handleRegisterSede = () => {
   font-weight: 700;
   font-size: 14px;
   letter-spacing: 0.6px;
-  color: #93c5fd;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+  color: var(--color-titulos, #fff);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
   padding-bottom: 6px;
   margin: 18px 0 8px;
   text-transform: uppercase;
@@ -242,41 +242,41 @@ const handleRegisterSede = () => {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(59, 130, 246, 0.25);
-  border: 1px solid rgba(59, 130, 246, 0.5);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.09);
   padding: 14px;
-  border-radius: 10px;
+  border-radius: var(--app-border-radius, 10px);
   font-size: 13.5px;
-  color: #ffffff;
+  color: var(--color-texto-general, #ccc);
   margin-top: 12px;
   line-height: 1.4;
 }
 
-.admin-locked-info strong { color: #bfdbfe; }
-.admin-locked-info svg { flex-shrink: 0; color: #93c5fd; }
+.admin-locked-info strong { color: var(--color-titulos, #fff); }
+.admin-locked-info svg { flex-shrink: 0; color: var(--color-highlight, #3b82f6); }
 
 .upload-container {
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 16px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.03);
   padding: 14px;
-  border-radius: 12px;
-  border: 1.5px dashed rgba(255, 255, 255, 0.35);
+  border-radius: var(--app-border-radius, 12px);
+  border: 1px dashed rgba(255, 255, 255, 0.15);
 }
 
 .image-preview {
   width: 70px;
   height: 70px;
-  background: #1a1a1a;
-  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: var(--app-border-radius, 10px);
   overflow: hidden;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   flex-shrink: 0;
 }
 
@@ -286,14 +286,14 @@ const handleRegisterSede = () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--color-texto-general, #aaa);
   gap: 4px;
   text-align: center;
 }
 
-.upload-placeholder span { font-size: 10px; font-weight: 700; text-transform: uppercase; color: #ffffff; }
+.upload-placeholder span { font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--color-texto-general, #fff); }
 
-.upload-info { font-size: 13.5px; color: rgba(255, 255, 255, 0.9); margin: 0; line-height: 1.4; }
+.upload-info { font-size: 13.5px; color: var(--color-texto-general, #aaa); margin: 0; line-height: 1.4; }
 
 .stack-gap { display: flex; flex-direction: column; gap: 12px; }
 
@@ -306,49 +306,53 @@ label {
   font-size: 13.5px;
   font-weight: 700;
   letter-spacing: 0.4px;
-  color: #ffffff;
+  color: var(--color-texto-general, #ccc);
 }
 
 input {
   width: 100%;
   padding: 12px 14px;
-  background: #181818;
-  border: 1.5px solid rgba(255, 255, 255, 0.3);
-  border-radius: 10px;
-  color: #ffffff;
-  font-weight: 600;
+  background: var(--bg-cards, #141414);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: var(--app-border-radius, 10px);
+  color: var(--color-texto-general, #fff);
+  font-weight: 500;
   font-size: 14.5px;
   box-sizing: border-box;
-  transition: border-color 0.2s ease;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-input::placeholder { color: rgba(255, 255, 255, 0.45); }
+input::placeholder { color: rgba(255, 255, 255, 0.3); }
 
 input:focus {
-  outline: none;
-  border-color: #3a6bd6;
-  box-shadow: 0 0 0 3px rgba(58, 107, 214, 0.35);
-  background: #202020;
+  border-color: var(--color-highlight, #3b82f6);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
 .days-container { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
 
 .day-chip {
   padding: 8px 12px;
-  border-radius: 8px;
+  border-radius: var(--app-border-radius, 8px);
   font-family: 'Oswald', sans-serif;
   font-weight: 700;
   font-size: 12.5px;
   cursor: pointer;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--color-texto-general, #aaa);
   transition: all 0.2s ease;
 }
 
+.day-chip:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
 .day-chip.active {
-  border-color: #3a6bd6;
-  background: #3a6bd6;
+  border-color: var(--color-highlight, #3b82f6);
+  background: var(--color-highlight, #3b82f6);
   color: #ffffff;
 }
 
@@ -359,10 +363,10 @@ input:focus {
 .btn-primary {
   width: 100%;
   padding: 15px;
-  background: #1c4fd6;
+  background: var(--color-highlight, #3b82f6);
   color: #ffffff;
   border: none;
-  border-radius: 10px;
+  border-radius: var(--app-border-radius, 10px);
   font-family: 'Oswald', sans-serif;
   font-weight: 700;
   font-size: 15px;
@@ -373,11 +377,11 @@ input:focus {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  box-shadow: 0 8px 20px rgba(28, 79, 214, 0.4);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
   transition: all 0.25s ease;
 }
 
-.btn-primary:hover { background: #123ba0; transform: translateY(-2px); }
+.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
 
 @media (max-width: 900px) {
   .rg-grid { grid-template-columns: 1fr; }

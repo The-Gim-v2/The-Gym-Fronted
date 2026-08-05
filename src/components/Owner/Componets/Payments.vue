@@ -8,11 +8,9 @@
           <h1 class="main-title">JOSÉ LUIS <br> <span class="highlight">RAMÍREZ</span></h1>
           
           <div class="avatar-wrapper">
-
             <div class="avatar-circle">
               <img src="../../../assets/humano.jpg" alt="Avatar del usuario" class="user-avatar-img" />
             </div>
-
           </div>
 
           <p class="user-id">ID: GymPer001</p>
@@ -220,10 +218,10 @@ const downloadReceipt = () => {
 }
 
 .profile-card {
-  background: rgba(18, 18, 18, 0.85);
+  background: var(--bg-cards, rgba(18, 18, 18, 0.85));
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 28px;
+  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.12));
+  border-radius: var(--app-border-radius, 28px);
   padding: 35px 30px;
   display: flex;
   flex-direction: column;
@@ -237,7 +235,7 @@ const downloadReceipt = () => {
 .main-title { 
   font-family: 'Anton', sans-serif; 
   font-size: 2.3rem; 
-  color: #fff; 
+  color: var(--color-titulos, #fff); 
   margin: 0 0 24px 0; 
   line-height: 1.05; 
   letter-spacing: 1px;
@@ -245,7 +243,7 @@ const downloadReceipt = () => {
 }
 
 .highlight { 
-  color: #3b82f6; 
+  color: var(--color-highlight, #3b82f6); 
 }
 
 .avatar-wrapper {
@@ -256,9 +254,9 @@ const downloadReceipt = () => {
 .avatar-circle { 
   width: 170px; 
   height: 170px; 
-  background: #09090b; 
+  background: var(--bg-input, #09090b); 
   border-radius: 50%; 
-  border: 3px solid #3b82f6; 
+  border: 3px solid var(--color-highlight, #3b82f6); 
   display: flex; 
   align-items: center; 
   justify-content: center; 
@@ -272,35 +270,10 @@ const downloadReceipt = () => {
   object-fit: cover;
 }
 
-/* Badges flotantes idénticos a la referencia */
-.floating-badge {
-  position: absolute;
-  width: 36px;
-  height: 36px;
-  background: #3b82f6;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ffffff;
-  border: 2px solid #121212;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-}
-
-.floating-badge.top-left {
-  top: 10px;
-  left: 5px;
-}
-
-.floating-badge.bottom-right {
-  bottom: 5px;
-  right: 5px;
-}
-
 .status-badge { 
   background: #22c55e; 
   padding: 8px 30px; 
-  border-radius: 20px; 
+  border-radius: var(--app-border-radius, 20px); 
   font-weight: 700; 
   font-family: 'Oswald', sans-serif; 
   font-size: 1rem; 
@@ -313,7 +286,7 @@ const downloadReceipt = () => {
 
 .user-id { 
   margin: 0 0 18px 0; 
-  color: #94a3b8; 
+  color: var(--color-texto-secundario, #94a3b8); 
   font-weight: 600; 
   font-family: 'Inter', sans-serif; 
   font-size: 1.05rem; 
@@ -334,6 +307,7 @@ const downloadReceipt = () => {
 }
 
 .search-input-wrapper {
+  
   position: relative;
   display: flex;
   align-items: center;
@@ -342,7 +316,7 @@ const downloadReceipt = () => {
 .search-icon {
   position: absolute;
   left: 12px;
-  color: #71717a;
+  color: var(--color-texto-secundario, #71717a);
   pointer-events: none;
 }
 
@@ -351,11 +325,11 @@ const downloadReceipt = () => {
 }
 
 .login-card { 
-  background: rgba(18, 18, 18, 0.7); 
+  background: var(--bg-cards, rgba(18, 18, 18, 0.7)); 
   backdrop-filter: blur(20px); 
   padding: 24px; 
-  border-radius: 24px; 
-  border: 1px solid rgba(255, 255, 255, 0.12); 
+  border-radius: var(--app-border-radius, 24px); 
+  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.12)); 
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
 }
 
@@ -389,9 +363,9 @@ const downloadReceipt = () => {
 
 .btn-promos { 
   background: transparent; 
-  border: 1px solid #3b82f6; 
-  color: #3b82f6; 
-  border-radius: 20px; 
+  border: 1px solid var(--color-highlight, #3b82f6); 
+  color: var(--color-highlight, #3b82f6); 
+  border-radius: var(--app-border-radius, 20px); 
   padding: 4px 12px; 
   display: flex; 
   align-items: center; 
@@ -405,17 +379,20 @@ const downloadReceipt = () => {
   background: rgba(59, 130, 246, 0.1);
 }
 
-.btn-primary { 
-  width: 100%; 
-  padding: 14px; 
-  background: #1c4fd6; 
-  color: white; 
-  border: none; 
-  border-radius: 12px; 
-  font-family: 'Oswald', sans-serif; 
-  font-weight: 700; 
-  cursor: pointer; 
-  transition: opacity 0.2s, transform 0.1s;
+.btn-primary {
+  padding: 16px 36px;
+  background: var(--color-botones, #1c4fd6);
+  color: var(--color-texto-botones, white);
+  border: none;
+  border-radius: var(--app-border-radius, 12px);
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 4px 16px rgba(28, 79, 214, 0.4);
 }
 
 .btn-primary.disabled { 
@@ -428,9 +405,9 @@ const downloadReceipt = () => {
   width: 100%; 
   padding: 14px; 
   background: transparent; 
-  border: 1px solid #3b82f6; 
-  color: #3b82f6; 
-  border-radius: 12px; 
+  border: 1px solid var(--color-highlight, #3b82f6); 
+  color: var(--color-highlight, #3b82f6); 
+  border-radius: var(--app-border-radius, 12px); 
   font-family: 'Oswald', sans-serif; 
   font-weight: 700; 
   display: flex; 
@@ -469,17 +446,17 @@ const downloadReceipt = () => {
 .input-icon {
   position: absolute;
   left: 12px;
-  color: #71717a;
+  color: var(--color-texto-secundario, #71717a);
   pointer-events: none;
   z-index: 2;
 }
 
 .custom-select {
   width: 100%;
-  background: #141414;
-  border: 1px solid #333;
-  border-radius: 8px;
-  color: #fff;
+  background: var(--bg-cards, #141414); 
+  border: 1px solid var(--border-input, #333);
+  border-radius: var(--app-border-radius, 8px);
+  color: var(--color-texto-general, #fff);
   padding: 10px 32px 10px 36px;
   font-family: 'Inter', sans-serif;
   font-size: 0.9rem;
@@ -501,16 +478,18 @@ const downloadReceipt = () => {
 .select-arrow {
   position: absolute;
   right: 12px;
-  color: #71717a;
+  color: var(--color-texto-secundario, #71717a);
   pointer-events: none;
 }
 
+
+
 .input-with-icon-simple input {
   width: 100%;
-  background: #141414;
-  border: 1px solid #333;
-  border-radius: 8px;
-  color: #fff;
+  background: var(--bg-cards, #141414); 
+  border: 1px solid var(--border-input, #333);
+  border-radius: var(--app-border-radius, 8px);
+  color: var(--color-texto-general, #fff);
   padding: 10px 10px 10px 36px !important;
   font-family: 'Inter', sans-serif;
   font-size: 0.9rem;
@@ -521,15 +500,15 @@ const downloadReceipt = () => {
 .input-with-symbol { 
   display: flex; 
   align-items: center; 
-  background: #141414; 
-  border: 1px solid #333; 
-  border-radius: 8px; 
+  background: var(--bg-cards, #141414); 
+  border: 1px solid var(--border-input, #333); 
+  border-radius: var(--app-border-radius, 8px); 
   padding: 0 15px; 
   box-sizing: border-box;
 }
 
 .input-with-symbol .symbol { 
-  color: #fff; 
+  color: var(--color-texto-general, #fff); 
   font-size: 1.2rem; 
   font-weight: bold; 
   margin-right: 8px; 
@@ -540,7 +519,7 @@ const downloadReceipt = () => {
   border: none; 
   padding: 15px 0; 
   font-size: 1.2rem; 
-  color: #fff; 
+  color: var(--color-texto-general, #fff); 
   width: 100%; 
   outline: none; 
 }
@@ -554,15 +533,15 @@ const downloadReceipt = () => {
 
 .input-group label, .input-group-label { 
   font-family: 'Oswald', sans-serif; 
-  color: #fff; 
+  color: var(--color-titulos, #fff); 
   font-size: 14px; 
 }
 
 input:not(.input-with-symbol input, .input-with-icon-simple input) { 
-  background: #141414; 
-  border: 1px solid #333; 
-  border-radius: 8px; 
-  color: #fff; 
+  background: var(--bg-cards, #141414); 
+  border: 1px solid var(--border-input, #333); 
+  border-radius: var(--app-border-radius, 8px); 
+  color: var(--color-texto-general, #fff); 
   padding: 10px; 
   font-family: 'Inter', sans-serif; 
   outline: none; 
@@ -571,14 +550,14 @@ input:not(.input-with-symbol input, .input-with-icon-simple input) {
 }
 
 .styled-box { 
-  background: #141414; 
-  border: 1px solid #333; 
-  border-radius: 8px; 
+  background: var(--bg-cards, #141414); 
+  border: 1px solid var(--border-input, #333); 
+  border-radius: var(--app-border-radius, 8px); 
   padding: 14px 18px; 
   display: flex; 
   align-items: center; 
   justify-content: space-between; 
-  color: #fff; 
+  color: var(--color-texto-general, #fff); 
   margin-bottom: 20px; 
 }
 
@@ -589,7 +568,7 @@ input:not(.input-with-symbol input, .input-with-icon-simple input) {
 
 .amount-label {
   font-size: 0.75rem;
-  color: #94a3b8;
+  color: var(--color-texto-secundario, #94a3b8);
   font-family: 'Oswald', sans-serif;
   text-transform: uppercase;
   margin-bottom: 2px;
@@ -604,13 +583,13 @@ input:not(.input-with-symbol input, .input-with-icon-simple input) {
 .currency {
   font-size: 1.2rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--color-texto-general, #ffffff);
 }
 
 .amount-val { 
   font-size: 1.8rem; 
   font-weight: 800; 
-  color: #ffffff;
+  color: var(--color-texto-general, #ffffff);
   letter-spacing: 0.5px;
   line-height: 1;
 }
@@ -630,7 +609,7 @@ input:not(.input-with-symbol input, .input-with-icon-simple input) {
 .mensual-text { 
   font-family: 'Oswald', sans-serif; 
   font-size: 0.9rem; 
-  color: #fff; 
+  color: var(--color-titulos, #fff); 
 }
 
 .form-grid { 

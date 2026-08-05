@@ -3,7 +3,7 @@
     <NotificationSystem ref="toastRef" />
     <main class="main-content">
       <header class="header-section">
-        <h1 class="main-title">Asistencia  <span class="highlight"> Semanal </span></h1>
+        <h1 class="main-title">Asistencia <span class="highlight">Semanal</span></h1>
       
         <div class="actions-bar">
             <select class="status-select" v-model="selectedDay">
@@ -16,7 +16,7 @@
                 <option value="Sabado">Sabado</option>
                 <option value="Domingo">Domingo</option>
             </select>
-            <button class="btn-bulk"  @click="activeModal = 'asistencias'">
+            <button class="btn-bulk" @click="activeModal = 'asistencias'">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
                     <path d="M18 20V10M12 20V4M6 20v-6"/>
                 </svg>
@@ -25,10 +25,10 @@
                     <span class="highlight-text-custom">Ver Gráfica</span>
                 </div>
             </button>
-            <input type="text" class="search-input" placeholder="Buscar usuario..." v-model="searchQuery" >
+            <input type="text" class="search-input" placeholder="Buscar usuario..." v-model="searchQuery">
         </div>
-        </header>
-            
+      </header>
+          
       <!-- VISTA ESCRITORIO -->
       <div class="table-container desktop-only">
         <table class="user-table">
@@ -49,7 +49,7 @@
         </table>
       </div>
 
-      <!-- VISTA MÓVIL REESTRUCTURADA (Alineada perfectamente con los estilos limpios de deudores y renovaciones) -->
+      <!-- VISTA MÓVIL -->
       <div class="mobile-only">
         <div v-for="user in filteredUsers" :key="user.id" class="user-card">
           <div class="card-top-section">
@@ -87,7 +87,7 @@
       </ModalComponent>
 
     </main>
-      <transition name="pop">
+    <transition name="pop">
       <div v-if="activeModal === 'asistencias'" class="modal-wrapper" @click.self="activeModal = null">
         <Asistencias @close="activeModal = null" />
       </div>
@@ -96,10 +96,10 @@
 </template>
 
 <style scoped>
-.main-content { padding: 30px 40px; max-width: 1400px; margin: 0 auto; }
+.main-content { padding: 30px 40px; max-width: 1400px; margin: 0 auto; color: var(--color-texto-general, #e5e5e5); }
 .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 20px; }
-.main-title { font-family: 'Anton', sans-serif; font-size: 2rem; color: #fff; margin: 0; letter-spacing: 0.5px; }
-.highlight { color: #3b82f6; }
+.main-title { font-family: 'Anton', sans-serif; font-size: 2rem; color: var(--color-titulos, #fff); margin: 0; letter-spacing: 0.5px; }
+.highlight { color: var(--color-highlight, #3b82f6); }
 
 .modal-wrapper {
   position: fixed;
@@ -113,30 +113,37 @@
 }
 
 .actions-bar { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
-.search-input { 
-  background: #141414; 
-  border: 1px solid #2a2a2a; 
-  padding: 10px 14px; 
-  border-radius: 10px; 
-  color: #fff; 
-  font-size: 0.9rem;
-  outline: none;
-  transition: border-color 0.2s;
-  width: 220px;
-}
-.search-input:focus { border-color: #3b82f6; }
 
-.status-select {
-  background: #141414;
-  border: 1px solid #2a2a2a;
-  padding: 10px 14px;
-  border-radius: 10px;
-  color: #fff;
+/* Input de búsqueda unificado con el comportamiento de pagos */
+.search-input, .status-select { 
+  background: var(--bg-cards, #141414); 
+  border: 1px solid rgba(255, 255, 255, 0.09); 
+  padding: 10px 14px; 
+  border-radius: var(--app-border-radius, 10px); 
+  color: var(--color-texto-general, #fff); 
   font-size: 0.9rem;
   outline: none;
   transition: border-color 0.2s;
 }
-.status-select:focus { border-color: #3b82f6; }
+.search-input { width: 220px; }
+.search-input:focus, .status-select:focus { border-color: var(--color-highlight, #3b82f6); }
+
+
+/* Select de días unificado */
+.status-select {
+  background: var(--bg-cards, #141414); 
+  border: 1.5px solid var(--border-input, #2a2a2e);
+  padding: 10px 14px;
+  border-radius: var(--app-border-radius, 10px);
+  color: var(--color-texto-input, var(--color-texto-general, #fff));
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s, color 0.2s;
+}
+.status-select:focus { 
+  border-color: var(--color-highlight, #3b82f6); 
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
 
 .badges-row {
     display: flex;
@@ -157,7 +164,7 @@
 }
 
 .email-text {
-    color: #94a3b8;
+    color: var(--color-highlight, #94a3b8);
 }
 
 .expiration-warning {
@@ -181,22 +188,30 @@
 .mobile-only { display: none; }
 
 .phone-text { color: #888; }
-.btn-bulk { 
-    background: #141414; 
-    border: 1px solid #2a2a2a; 
-    padding: 10px 16px; 
-    border-radius: 10px; 
-    color: #fff; 
-    display: flex; 
-    align-items: center; 
-    gap: 12px; 
-    cursor: pointer;
-    transition: background 0.2s, border-color 0.2s;
-}
 
-.btn-bulk:hover {
-    border-color: #444;
-    background: #1c1c1c;
+.btn-bulk {
+  background: var(--bg-cards, #141414);
+  border: 1px solid rgba(255, 255, 255, 0.09); 
+  padding: 10px 16px;
+  border-radius: var(--app-border-radius, 10px);
+  color: var(--color-texto-general, #fff); 
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: 0.9rem;
+  transition: background 0.2s, border-color 0.2s;
+}
+.btn-bulk:hover { background: rgba(255, 255, 255, 0.05); border-color: var(--color-highlight, #444); }
+.btn-bulk svg { color: var(--color-highlight, #3b82f6); }
+
+
+@media (hover: hover) {
+  .btn-bulk:hover {
+      border-color: var(--color-highlight, #444);
+      background: var(--bg-cards, #1c1c1f);
+  }
 }
 
 .btn-text-wrapper {
@@ -210,14 +225,14 @@
     font-size: 0.65rem; 
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    color: #888; 
+    color: var(--color-texto-secundario, #888); 
     font-weight: 600; 
 }
 
 .highlight-text-custom { 
     font-size: 0.95rem; 
     font-weight: 700; 
-    color: #34d399; 
+    color: var(--color-highlight-alt, #34d399); 
 }
 
 @media (max-width: 900px) {
@@ -240,7 +255,7 @@
   .status-select { 
     width: 100%; 
     order: 0;
-  }   
+  }    
   .btn-bulk { 
     width: 100%;
     order: 1;
@@ -255,15 +270,15 @@
   .name-text {
     font-size: 0.95rem;
     line-height: 1.25;
-    color: #fff;
+    color: var(--color-titulos, #fff);
     font-weight: 600;
   }
 
   .user-card {
-    background: #141416;
+    background: var(--bg-cards, #141416);
     padding: 16px;
-    border-radius: 14px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--app-border-radius, 14px);
+    border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.08));
     margin-bottom: 12px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.3);
   }
@@ -278,15 +293,15 @@
   .avatar-small {
     width: 44px;
     height: 44px;
-    background: #26262b;
+    background: var(--bg-input, #26262b);
     border-radius: 50%;
-    border: 1px solid #333;
+    border: 1px solid var(--border-input, #333);
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
     font-size: 0.9rem;
-    color: #bbb;
+    color: var(--color-texto-general, #bbb);
     flex-shrink: 0;
   }
 
@@ -300,14 +315,23 @@
   }
 }
 
-.table-container { background: #111; border-radius: 14px; border: 1px solid #222; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
-.user-table { width: 100%; border-collapse: collapse; color: #e5e5e5; text-align: left; }
-.user-table th { padding: 16px 20px; background: #161616; font-family: 'Oswald', sans-serif; font-size: 0.85rem; text-transform: uppercase; color: #888; letter-spacing: 0.5px; border-bottom: 1px solid #222; }
-.user-table td { padding: 16px 20px; border-top: 1px solid #1a1a1a; font-size: 0.92rem; vertical-align: middle; }
-.user-table tr:hover { background: rgba(255, 255, 255, 0.015); }
+.table-container { 
+  background: var(--bg-cards, #111); 
+  border-radius: var(--app-border-radius, 14px); 
+  border: 1px solid var(--border-cards, #222); 
+  overflow: hidden; 
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4); 
+}
+.user-table { width: 100%; border-collapse: collapse; color: var(--color-texto-general, #e5e5e5); text-align: left; }
+.user-table th { padding: 16px 20px; background: var(--bg-cards, #161616); font-family: 'Oswald', sans-serif; font-size: 0.85rem; text-transform: uppercase; color: var(--color-texto-secundario, #888); letter-spacing: 0.5px; border-bottom: 1px solid var(--border-line, #222); }
+.user-table td { padding: 16px 20px; border-top: 1px solid var(--border-line, #1a1a1a); font-size: 0.92rem; vertical-align: middle; }
+
+@media (hover: hover) {
+  .user-table tr:hover { background: rgba(255, 255, 255, 0.015); }
+}
 
 .actions-cell { display: flex; gap: 12px; }
-.avatar-small { width: 40px; height: 40px; background: #262626; color: #bbb; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; border: 1px solid #333; }
+.avatar-small { width: 40px; height: 40px; background: var(--bg-input, #262626); color: var(--color-texto-general, #bbb); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; border: 1px solid var(--border-input, #333); }
 
 .status-badge {
   padding: 3px 10px;
@@ -324,20 +348,20 @@
 .status-yellow { background: rgba(161, 161, 35, 0.3); color: #fef08a; border-color: rgba(161, 161, 35, 0.6); }
 .status-default { background: #333; color: #fff; border-color: #555; }
 
-.text-bold { font-weight: 600; color: #fff; }
+.text-bold { font-weight: 600; color: var(--color-titulos, #fff); }
 .status-badge2 { padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; border: 1px solid; font-weight: 600; display: inline-block; }
 
-.modal-body-custom { text-align: center; color: #fff; padding: 10px 5px; }
-.modal-body-custom h2 { font-size: 1.3rem; margin-bottom: 10px; font-weight: 600; }
-.modal-body-custom p { color: #aaa; font-size: 0.9rem; margin-bottom: 20px; line-height: 1.5; }
-.highlight-name { color: #fff; font-weight: 600; }
+.modal-body-custom { text-align: center; color: var(--color-texto-general, #fff); padding: 10px 5px; }
+.modal-body-custom h2 { font-size: 1.3rem; margin-bottom: 10px; font-weight: 600; color: var(--color-titulos, #fff); }
+.modal-body-custom p { color: var(--color-texto-secundario, #aaa); font-size: 0.9rem; margin-bottom: 20px; line-height: 1.5; }
+.highlight-name { color: var(--color-titulos, #fff); font-weight: 600; }
 
 .modal-icon-container { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto; }
 .danger-bg { background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.2); }
 
 .modal-buttons { display: flex; gap: 10px; }
-.btn-modal { flex: 1; padding: 10px; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; border: none; transition: opacity 0.2s; }
-.btn-modal.secondary { background: #222; color: #ccc; border: 1px solid #333; }
+.btn-modal { flex: 1; padding: 10px; border-radius: var(--app-border-radius, 8px); font-size: 0.9rem; font-weight: 600; cursor: pointer; border: none; transition: opacity 0.2s; }
+.btn-modal.secondary { background: rgba(255, 255, 255, 0.05); color: var(--color-texto-general, #ccc); border: 1px solid rgba(255, 255, 255, 0.1); }
 .btn-modal.danger { background: #ef4444; color: white; }
 .btn-modal:hover { opacity: 0.9; }
 </style>
@@ -351,6 +375,7 @@ import Asistencias from '../Componets/Attendance.vue';
 import NotificationSystem from '../../Modals/NotificationSystem.vue'; 
 
 const activeModal = ref(null);
+const toastRef = ref(null);
 const router = useRouter();
 const showDelete = ref(false);
 const selectedUser = ref(null);

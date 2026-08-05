@@ -79,10 +79,22 @@
 
 .app-wrapper { 
   min-height: 100vh; 
-  background: #0a0a0a; 
+  background: var(--bg-custom, #0a0a0a); 
   font-family: 'Inter', sans-serif; 
   position: relative;
   overflow-x: hidden;
+  transition: background 0.3s ease; 
+}
+
+.custom-panel {
+  background: var(--bg-cards, #121212);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  color: var(--color-texto-general, #f5f5f4);
+  border-radius: var(--app-border-radius, 24px); 
+  padding: 32px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+  width: 92%;
+  max-width: 440px;
 }
 
 .sidebar-container { 
@@ -91,7 +103,7 @@
   position: fixed; 
   top: 0; 
   left: 0; 
-  background: #121212; 
+  background: var(--bg-cards, #121212); 
   transform: translateX(-100%); 
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
   z-index: 3000; 
@@ -130,12 +142,14 @@
   justify-content: space-between; 
   align-items: center;
   padding: 16px 24px; 
-  background: rgba(18, 18, 18, 0.7); 
+  /* AQUÍ APLICAMOS EL COLOR DEL HEADING QUE SELECCIONES EN CONFIGURACIÓN */
+  background: var(--color-heading-bg, rgba(18, 18, 18, 0.7)); 
   backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.09); 
   position: sticky;
   top: 0;
   z-index: 1000;
+  transition: background-color 0.3s ease;
 }
 
 .nav-left, .nav-right { display: flex; gap: 16px; align-items: center; }
@@ -144,7 +158,7 @@
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.12);
   padding: 12px; 
-  border-radius: 12px;
+  border-radius: var(--app-border-radius, 12px);
   cursor: pointer; 
   display: flex; 
   align-items: center;
@@ -155,11 +169,18 @@
 .nav-action-btn:hover { 
   transform: translateY(-2px);
   background: rgba(255, 255, 255, 0.08); 
-  border-color: #1c4fd6; 
-  box-shadow: 0 4px 12px rgba(28, 79, 214, 0.3);
+  border-color: var(--color-highlight, #3b82f6); 
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
-.svg-icon { width: 22px; height: 22px; fill: none; stroke: #f5f5f4; stroke-width: 2; pointer-events: none; }
+.svg-icon { 
+  width: 22px; 
+  height: 22px; 
+  fill: none; 
+  stroke: var(--color-svg, #f5f5f4); 
+  stroke-width: 2; 
+  pointer-events: none; 
+}
 
 .notification { position: relative; }
 .dot { 
@@ -168,9 +189,9 @@
   right: 10px; 
   width: 8px; 
   height: 8px; 
-  background: #1c4fd6; 
+  background: var(--color-highlight, #3b82f6); 
   border-radius: 50%; 
-  box-shadow: 0 0 8px #1c4fd6;
+  box-shadow: 0 0 8px var(--color-highlight, #3b82f6);
 }
 
 .main-content-wrapper {
@@ -190,42 +211,37 @@
   backdrop-filter: blur(8px);
 }
 
-.custom-panel {
-  background: #121212;
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  color: #f5f5f4;
-  border-radius: 24px;
-  padding: 32px;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-  width: 92%;
-  max-width: 440px;
-}
-
 .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-.panel-header h3 { font-family: 'Oswald', sans-serif; font-size: 1.3rem; margin: 0; color: #1c4fd6; }
+
+.panel-header h3 { 
+  font-family: 'Oswald', sans-serif; 
+  font-size: 1.3rem; 
+  margin: 0; 
+  color: var(--color-titulos, #ffffff);
+}
 
 .close-panel {
   background: rgba(255, 255, 255, 0.03);
   border: none; 
-  color: #f5f5f4;
+  color: var(--color-texto-general, #f5f5f4);
   font-size: 1.6rem; 
   width: 36px; 
   height: 36px;
-  border-radius: 12px; 
+  border-radius: var(--app-border-radius, 12px); 
   cursor: pointer;
   transition: all 0.2s ease;
 }
 .close-panel:hover { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
 
 .panel-body { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 24px; }
-.qr-container { background: #f5f5f4; padding: 16px; border-radius: 16px; }
+.qr-container { background: var(--color-etiquetas, #f5f5f4); padding: 16px; border-radius: var(--app-border-radius, 16px); }
 .qr-container img { width: 180px; height: 180px; display: block; }
 
 .qr-preview-container {
   width: 150px; 
   height: 150px; 
-  background: #f5f5f4;
-  border-radius: 16px; 
+  background: var(--color-etiquetas, #f5f5f4);
+  border-radius: var(--app-border-radius, 16px); 
   display: flex; 
   align-items: center; 
   justify-content: center;
@@ -235,15 +251,15 @@
 }
 .preview-qr-img { width: 100%; height: 100%; display: block; }
 
-.panel-body p { color: rgba(245, 245, 244, 0.55); font-size: 0.95rem; line-height: 1.6; margin: 0; }
+.panel-body p { color: var(--color-texto-general, rgba(245, 245, 244, 0.55)); font-size: 0.95rem; line-height: 1.6; margin: 0; }
 
 .action-btn-full {
   width: 100%; 
   padding: 14px; 
-  border-radius: 12px; 
+  border-radius: var(--app-border-radius, 12px); 
   border: none;
-  background: #1c4fd6; 
-  color: #ffffff;
+  background: var(--color-botones, #1c4fd6); 
+  color: var(--color-texto-botones, #ffffff);
   font-family: 'Oswald', sans-serif; 
   font-size: 0.95rem;
   cursor: pointer; 
@@ -252,10 +268,10 @@
 .action-btn-full.outline {
   background: transparent; 
   border: 1.5px solid rgba(255, 255, 255, 0.15);
-  color: #f5f5f4; 
+  color: var(--color-etiquetas, #f5f5f4); 
   margin-top: 8px;
 }
-.action-btn-full:hover { background: #123ba0; transform: translateY(-1px); }
+.action-btn-full:hover { filter: brightness(0.9); transform: translateY(-1px); }
 
 .pop-enter-active, .pop-leave-active { transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
 .pop-enter-from, .pop-leave-to { opacity: 0; transform: scale(0.95); }
@@ -265,7 +281,7 @@
 </style>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import Sidebar from './Sidebar.vue';
 import NotificationsPanel from './Notifications/NotificationsPanel.vue';
 
@@ -274,4 +290,54 @@ const isNotificationsOpen = ref(false);
 const activeModal = ref(null);
 const notifications = ref([{ id: 1, title: 'Sistema', message: 'Bienvenido', time: 'ahora', read: false }]);
 const toggleSidebar = () => { isSidebarOpen.value = !isSidebarOpen.value; };
+
+// Función actualizada para sincronizar todos los estilos globales incluyendo el Heading superior
+const aplicarEstilosGlobales = () => {
+  const savedColors = JSON.parse(localStorage.getItem('app-colors'));
+  const savedRadius = localStorage.getItem('app-radius');
+  const savedDensidad = localStorage.getItem('app-densidad');
+
+  const root = document.documentElement;
+
+  if (savedColors) {
+    if (savedColors.headingBg) root.style.setProperty('--color-heading-bg', savedColors.headingBg);
+    if (savedColors.tablas) root.style.setProperty('--color-tablas', savedColors.tablas);
+    if (savedColors.interfaz) {
+      root.style.setProperty('--color-interfaz', savedColors.interfaz);
+      root.style.setProperty('--bg-custom', savedColors.interfaz);
+    }
+    if (savedColors.botones) root.style.setProperty('--color-botones', savedColors.botones);
+    if (savedColors.tarjetas) root.style.setProperty('--bg-cards', savedColors.tarjetas);
+    if (savedColors.titulos) root.style.setProperty('--color-titulos', savedColors.titulos);
+    if (savedColors.highlight) root.style.setProperty('--color-highlight', savedColors.highlight);
+    if (savedColors.etiquetas) root.style.setProperty('--color-etiquetas', savedColors.etiquetas);
+    if (savedColors.textoGeneral) root.style.setProperty('--color-texto-general', savedColors.textoGeneral);
+    if (savedColors.textoBotones) root.style.setProperty('--color-texto-botones', savedColors.textoBotones);
+    if (savedColors.svgColor) root.style.setProperty('--color-svg', savedColors.svgColor);
+  }
+  
+  if (savedRadius) {
+    root.style.setProperty('--app-border-radius', savedRadius);
+  }
+  
+  if (savedDensidad === 'compacto') {
+    root.style.setProperty('--panel-padding', '16px');
+    root.style.setProperty('--row-padding', '10px 0');
+  } else if (savedDensidad === 'espacioso') {
+    root.style.setProperty('--panel-padding', '38px');
+    root.style.setProperty('--row-padding', '22px 0');
+  } else {
+    root.style.setProperty('--panel-padding', '30px');
+    root.style.setProperty('--row-padding', '16px 0');
+  }
+};
+
+onMounted(() => {
+  aplicarEstilosGlobales();
+  window.addEventListener('app-settings-updated', aplicarEstilosGlobales);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('app-settings-updated', aplicarEstilosGlobales);
+});
 </script>

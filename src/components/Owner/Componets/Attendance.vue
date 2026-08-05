@@ -92,10 +92,10 @@ const porcentajeCrecimiento = computed(() => {
 
 <style scoped>
 .form-panel { 
-  background: #121214; 
-  border: 1px solid rgba(255, 255, 255, 0.08); 
-  color: white; 
-  border-radius: 20px; 
+  background: var(--bg-cards, #121214); 
+  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.08)); 
+  color: var(--color-texto-general, #fff); 
+  border-radius: var(--app-border-radius, 20px); 
   padding: 24px; 
   width: 95%; 
   max-width: 480px; 
@@ -121,12 +121,12 @@ const porcentajeCrecimiento = computed(() => {
   font-size: 1.15rem; 
   letter-spacing: 0.8px; 
   margin: 0;
-  color: #fff;
+  color: var(--color-titulos, #fff);
 }
 
 .form-subtitle {
   font-size: 0.78rem;
-  color: #888;
+  color: var(--color-texto-secundario, #888);
   margin: 0;
 }
 
@@ -151,23 +151,23 @@ const porcentajeCrecimiento = computed(() => {
 
 .month-label { 
   font-size: 0.72rem; 
-  color: #888; 
+  color: var(--color-texto-secundario, #888); 
   text-transform: uppercase; 
   letter-spacing: 0.5px; 
   font-weight: 600;
 }
 
 .active-label {
-  color: #60a5fa;
+  color: var(--color-highlight, #60a5fa);
 }
 
 .month-stat {
   font-size: 0.75rem;
-  color: #aaa;
+  color: var(--color-texto-secundario, #aaa);
 }
 
 .highlight-stat {
-  color: #fff;
+  color: var(--color-titulos, #fff);
   font-weight: 500;
 }
 
@@ -176,15 +176,15 @@ const porcentajeCrecimiento = computed(() => {
   align-items: flex-end; 
   gap: 3px; 
   height: 85px; 
-  background: #09090b; 
+  background: var(--bg-input, #09090b); 
   padding: 10px 8px; 
-  border-radius: 12px; 
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: var(--app-border-radius, 12px); 
+  border: 1px solid var(--border-input, rgba(255, 255, 255, 0.04));
 }
 
 .active-month { 
   border-color: rgba(59, 130, 246, 0.3); 
-  background: linear-gradient(to bottom, #09090b, #0d1224);
+  background: linear-gradient(to bottom, var(--bg-input, #09090b), #0d1224);
 }
 
 .day-bar { 
@@ -196,11 +196,11 @@ const porcentajeCrecimiento = computed(() => {
 }
 
 .day-bar:hover {
-  background: #71717a;
+  background: var(--color-texto-secundario, #71717a);
 }
 
 .active-month .day-bar { 
-  background: #3b82f6; 
+  background: var(--color-highlight, #3b82f6); 
 }
 
 .active-month .day-bar:hover { 
@@ -218,7 +218,7 @@ const porcentajeCrecimiento = computed(() => {
 
 .summary-item span { 
   font-size: 0.72rem; 
-  color: #888; 
+  color: var(--color-texto-secundario, #888); 
   display: block; 
   margin-bottom: 2px;
 }
@@ -226,7 +226,7 @@ const porcentajeCrecimiento = computed(() => {
 .summary-item strong { 
   font-family: 'Oswald', sans-serif; 
   font-size: 1.1rem; 
-  color: #fff; 
+  color: var(--color-titulos, #fff); 
   letter-spacing: 0.5px;
 }
 
@@ -236,11 +236,11 @@ const porcentajeCrecimiento = computed(() => {
 
 .text-success { color: #34d399 !important; }
 .text-danger { color: #f87171 !important; }
-.highlight { color: #3b82f6; }
+.highlight { color: var(--color-highlight, #3b82f6); }
 .close-x { 
   background: rgba(255, 255, 255, 0.05); 
   border: 1px solid rgba(255, 255, 255, 0.08); 
-  color: #aaa; 
+  color: var(--color-texto-secundario, #aaa); 
   cursor: pointer; 
   width: 32px;
   height: 32px;
@@ -253,6 +253,6 @@ const porcentajeCrecimiento = computed(() => {
 
 .close-x:hover {
   background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  color: var(--color-titulos, #fff);
 }
 </style>
