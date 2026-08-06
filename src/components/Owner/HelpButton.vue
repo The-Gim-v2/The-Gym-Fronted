@@ -392,6 +392,23 @@ const tutoriales = {
       description: "Aplica y almacena de forma definitiva todas las modificaciones realizadas en el perfil del gimnasio y del administrador.", 
       selector: '#tutor-64' 
     }
+  ],
+  'pay': [
+    { 
+      title: "Búsqueda de Cliente", 
+      description: "Busca rápidamente al cliente por su nombre o ID de usuario para gestionar su estado de cuenta y pagos.", 
+      selector: '#tutorial-step-0' 
+    },
+    { 
+      title: "Detalles del Pago y Fechas", 
+      description: "Consulta y modifica los cortes de fechas, revisa el estado de cuenta actual, calcula recargos e ingresa los datos del tipo de pago y folio.", 
+      selector: '#tutorial-step-1' 
+    },
+    { 
+      title: "Acciones de Confirmación", 
+      description: "Confirma el registro del pago una vez completados los datos obligatorios o descarga el recibo correspondiente.", 
+      selector: '#tutorial-step-2' 
+    }
   ]
 };
 

@@ -21,7 +21,7 @@
 
       <!-- Columna Derecha: Panel de Operaciones / Pago -->
       <div class="right-column">
-        <div class="input-group search-bar-half">
+        <div id="tutorial-step-0" class="input-group search-bar-half">
           <label>Buscar Cliente</label>
           <div class="search-input-wrapper">
             <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
@@ -31,7 +31,7 @@
           </div>
         </div>
 
-        <div class="login-card glass-effect">
+        <div id="tutorial-step-1" class="login-card glass-effect">
           <div class="form-grid">
             <div class="input-group">
               <label>Próximo Corte</label>
@@ -109,7 +109,7 @@
             </div>
           </div>
           
-          <div class="action-buttons">
+          <div id="tutorial-step-2" class="action-buttons">
             <button class="btn-primary" :disabled="isButtonDisabled" :class="{ 'disabled': isButtonDisabled }" @click="confirmPayment">
               Confirmar Pago
             </button>
@@ -190,7 +190,6 @@ const downloadReceipt = () => {
   box-sizing: border-box;
 }
 
-/* Animación de flotación suave (Floating Animation) */
 @keyframes floatCard {
   0% {
     transform: translateY(0px);
@@ -210,7 +209,6 @@ const downloadReceipt = () => {
   animation: floatCard 4s ease-in-out infinite;
 }
 
-/* Contenedor y diseño exacto tipo Card de la imagen */
 .profile-card-container {
   display: flex;
   justify-content: center;
@@ -307,7 +305,6 @@ const downloadReceipt = () => {
 }
 
 .search-input-wrapper {
-  
   position: relative;
   display: flex;
   align-items: center;
@@ -481,8 +478,6 @@ const downloadReceipt = () => {
   color: var(--color-texto-secundario, #71717a);
   pointer-events: none;
 }
-
-
 
 .input-with-icon-simple input {
   width: 100%;
