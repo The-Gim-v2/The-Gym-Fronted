@@ -56,7 +56,7 @@ const activeStep = ref(null);
 const tutorialEnabled = ref(localStorage.getItem('tutorialActivo') === 'true');
 const targetRect = ref(null);
 
-// Diccionario limpio apuntando directamente a los IDs que acabamos de colocar
+// Diccionario limpio apuntando directamente a los IDs
 const tutoriales = {
   'Owner-dashboard': [
     { 
@@ -109,13 +109,13 @@ const tutoriales = {
       selector: '#tutorial-step-0' 
     },
     { 
-      title: "Datos del Empleado", 
-      description: "Captura la información oficial y de contacto del colaborador, incluyendo su CURP, nombre completo, fecha de nacimiento, teléfono y perfiles de redes sociales.",
+      title: "Credenciales y Rol", 
+      description: "Define el rol que desempeñará en el sistema (permisos de acceso) y asigna el correo electrónico con el que iniciará sesión.",
       selector: '#tutorial-step-1' 
     },
     { 
-      title: "Credenciales y Rol", 
-      description: "Define el rol que desempeñará en el sistema (permisos de acceso) y asigna el correo electrónico con el que iniciará sesión.",
+      title: "Datos del Empleado", 
+      description: "Captura la información oficial y de contacto del colaborador, incluyendo su CURP, nombre completo, fecha de nacimiento, teléfono y perfiles de redes sociales.",
       selector: '#tutorial-step-2' 
     },
     { 
@@ -174,8 +174,61 @@ const tutoriales = {
       description: "Realiza acciones específicas para cada registro: registrar un pago, editar los datos del usuario o eliminar el registro.", 
       selector: '#tutorial-step-2' 
     }
+  ],
+  'pricing-management': [
+    { 
+      title: "Promociones", 
+      description: "Visualiza y administra las promociones vigentes (como Promocion Amigos o Paquete entrenador), con opciones para editarlas, eliminarlas o agregar nuevas mediante el botón flotante.", 
+      selector: '#tutorial-step-0' 
+    },
+    { 
+      title: "Cambios de Precios", 
+      description: "Administra y modifica los costos de las mensualidades y tarifas del sistema (como la Mensualidad Fija o el Costo Semanal).", 
+      selector: '#tutorial-step-1' 
+    }
+  ],
+'fees-management': [
+    { 
+      title: "Estatus: Pendientes", 
+      description: "Activa o desactiva la aplicación automática de recargos para usuarios con pago vencido pero que aún se mantienen activos.", 
+      selector: '#tutorial-step-0' 
+    },
+    { 
+      title: "Estatus: Inactivos", 
+      description: "Define si el sistema debe cambiar automáticamente a estatus inactivo a los usuarios con cuenta suspendida por falta de pago.", 
+      selector: '#tutorial-step-1' 
+    },
+    { 
+      title: "Bloqueo en Torniquete", 
+      description: "Habilita el bloqueo automático para denegar el ingreso al gimnasio en la puerta o torniquete por motivos de morosidad.", 
+      selector: '#tutorial-step-2' 
+    },
+    { 
+      title: "Periodo de Gracia", 
+      description: "Configura los días de tolerancia otorgados después de la fecha de vencimiento antes de aplicar multas o restricciones.", 
+      selector: '#tutorial-step-3' 
+    },
+    { 
+      title: "Tipo de Servicio Afectado", 
+      description: "Selecciona a qué membresías, clases, casilleros o conceptos generales aplican estas reglas de morosidad.", 
+      selector: '#tutorial-step-4' 
+    },
+    { 
+      title: "Monto de la Multa", 
+      description: "Establece la cantidad monetaria fija que se cobrará por concepto de retraso o penalización.", 
+      selector: '#tutorial-step-5' 
+    },
+    { 
+      title: "Frecuencia del Recargo", 
+      description: "Determina si el cargo por mora se aplica una sola vez por vencimiento o si se acumula de forma diaria, semanal o mensual.", 
+      selector: '#tutorial-step-6' 
+    },
+    { 
+      title: "Límite Máximo de Multas", 
+      description: "Establece el tope máximo acumulable que una multa o recargo puede alcanzar en la cuenta del usuario.", 
+      selector: '#tutorial-step-7' 
+    }
   ]
-
 };
 
 const steps = computed(() => tutoriales[route.name] || []);
@@ -202,40 +255,56 @@ const updateTargetPosition = () => {
   }
 };
 
-
 const popoverStyle = computed(() => {
   if (!targetRect.value) return { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' };
   
   const rect = targetRect.value;
-  const spaceBelow = window.innerHeight - (rect.top + rect.height);
-  const popoverHeight = 220; // Altura estimada del popover
-  
-  // Si no cabe abajo y tampoco arriba de forma cómoda, lo centramos o adaptamos para móviles
+  const popoverHeight = 220; 
+
+  // Vista en dispositivos móviles (pantallas menores o iguales a 768px)
   if (window.innerWidth <= 768) {
+    const spaceBelow = window.innerHeight - (rect.top + rect.height);
+    
+    // Si hay espacio suficiente abajo del elemento enfocado, lo colocamos abajo pero dentro de la pantalla
+    if (spaceBelow >= popoverHeight + 20) {
+      return {
+        top: Math.min(window.innerHeight - popoverHeight - 20, rect.top + rect.height + 12) + 'px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: '92%',
+        maxWidth: '360px'
+      };
+    }
+    
+    // Si no cabe abajo, lo fijamos limpiamente en la parte inferior de la pantalla flotando por encima
     return {
-      bottom: '20px',
+      bottom: '24px',
       left: '50%',
       transform: 'translateX(-50%)',
-      width: '90%',
-      maxWidth: '340px'
+      width: '92%',
+      maxWidth: '360px'
     };
   }
 
-  // Si hay suficiente espacio abajo, lo ponemos abajo; si no, lo colocamos arriba del elemento
+  // Vista de Escritorio
+  const spaceBelow = window.innerHeight - (rect.top + rect.height);
   if (spaceBelow > popoverHeight + 20) {
     return {
       top: (rect.top + rect.height + 12) + 'px',
       left: Math.max(20, Math.min(rect.left, window.innerWidth - 360)) + 'px',
-      transform: 'none'
+      transform: 'none',
+      width: '340px'
     };
   } else {
     return {
       top: Math.max(20, rect.top - popoverHeight - 12) + 'px',
       left: Math.max(20, Math.min(rect.left, window.innerWidth - 360)) + 'px',
-      transform: 'none'
+      transform: 'none',
+      width: '340px'
     };
   }
 });
+
 const startTutorial = () => {
   if (steps.value.length > 0) {
     activeStep.value = 0;
@@ -282,8 +351,8 @@ onUnmounted(() => {
   position: fixed;
   bottom: 30px;
   right: 30px;
-  width: 60px;
-  height: 60px;
+  width: 40px;
+  height: 40px;
   background: var(--color-botones, #1c4fd6);
   color: white;
   border-radius: 50%;
@@ -307,7 +376,6 @@ onUnmounted(() => {
   overflow: hidden;
 }
 
-/* El foco brillante exacto como en el video */
 .spotlight-box {
   position: absolute;
   border-radius: 12px;
@@ -321,13 +389,13 @@ onUnmounted(() => {
   position: absolute;
   background: #1b232e;
   color: #fff;
-  padding: 20px;
+  padding: 15px;
   border-radius: 12px;
-  width: 340px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+  box-shadow: 0 15px 20px rgba(0,0,0,0.6);
   border: 1px solid rgba(255, 255, 255, 0.1);
   z-index: 10000;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
 }
 
 .popover-header {

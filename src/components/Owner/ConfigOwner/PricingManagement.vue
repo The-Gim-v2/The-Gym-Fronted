@@ -4,7 +4,7 @@
     <main class="main-content-promos">
       
       <!-- CUADRO IZQUIERDO: PROMOCIONES -->
-      <div class="promo-box-container">
+      <div class="promo-box-container" id="tutorial-step-0">
         <div class="box-header">
           <h2>Promociones</h2>
         </div>
@@ -33,16 +33,17 @@
           </div>
         </div>
 
-        <!-- Botón flotante para agregar promoción -->
+        <!-- Botón para agregar promoción -->
         <button class="floating-add-btn" @click="abrirModalAgregarPromo" title="Agregar Promoción">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+          <svg class="add-icon-svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+          <span class="add-text-mobile">Agregar Promoción</span>
         </button>
       </div>
 
       <!-- CUADRO DERECHO: CAMBIOS DE PRECIOS -->
-      <div class="promo-box-container">
+      <div class="promo-box-container" id="tutorial-step-1">
         <div class="box-header">
-          <h2>Cambios de <span class="highlight"> Precios</span></h2>
+          <h2>Cambios de <span class="highlight">Precios</span></h2>
         </div>
 
         <div class="box-content">
@@ -75,7 +76,6 @@
           <h3>{{ modalConfig.title }}</h3>
           
           <form @submit.prevent="guardarDatos">
-            <!-- Formulario para Promociones con Meses y Precio independientes -->
             <template v-if="modalConfig.type === 'promo'">
               <div class="input-group">
                 <label>Nombre de la Promoción</label>
@@ -93,7 +93,6 @@
               </div>
             </template>
 
-            <!-- Formulario para Precios del Sistema -->
             <template v-if="modalConfig.type === 'precio'">
               <div class="input-group">
                 <label>Concepto</label>
@@ -148,7 +147,6 @@ import NotificationSystem from '../../Modals/NotificationSystem.vue';
 
 const toastRef = ref(null);
 
-// Listas de datos reactivos actualizadas con meses y precio separados
 const promociones = ref([
   { id: 1, nombre: 'Promocion Amigos', meses: 3, precio: 1800 },
   { id: 2, nombre: 'Paquete entrenador', meses: 1, precio: 800 }
@@ -160,7 +158,6 @@ const preciosSistema = ref([
   { id: 3, concepto: 'Paquete entrenador', monto: 800, duracion: '1 mes' }
 ]);
 
-// Configuración del Modal Único (para Agregar/Editar)
 const modalConfig = reactive({
   isOpen: false,
   type: '', 
@@ -177,7 +174,6 @@ const modalConfig = reactive({
   }
 });
 
-// Configuración del Modal de Confirmación de Eliminación
 const deleteModalConfig = reactive({
   isOpen: false,
   idItemToDelete: null
@@ -276,12 +272,13 @@ const guardarDatos = () => {
   border-radius: var(--app-border-radius, 24px);
   width: 100%;
   max-width: 480px;
-  height: 600px;
+  min-height: 600px;
   display: flex;
   flex-direction: column;
   position: relative;
   overflow: hidden;
   box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+  padding-bottom: 20px;
 }
 
 .box-header {
@@ -317,6 +314,7 @@ const guardarDatos = () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   transition: all 0.2s ease;
 }
 
@@ -329,6 +327,12 @@ const guardarDatos = () => {
   display: flex;
   align-items: center;
   gap: 15px;
+  min-width: 0;
+  flex: 1;
+}
+
+.item-info div {
+  min-width: 0;
 }
 
 .icon-tag {
@@ -343,6 +347,7 @@ const guardarDatos = () => {
   color: var(--color-titulos, #fff);
   font-size: 1.1rem;
   margin: 0 0 4px 0;
+  word-break: break-word;
 }
 
 .item-info p {
@@ -350,12 +355,14 @@ const guardarDatos = () => {
   color: var(--color-highlight, #94a3b8);
   font-size: 0.9rem;
   margin: 0;
+  word-break: break-word;
 }
 
 .price-details {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .price-val {
@@ -376,6 +383,7 @@ const guardarDatos = () => {
   display: flex;
   gap: 8px;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .icon-action-btn {
@@ -411,6 +419,7 @@ const guardarDatos = () => {
   height: 20px;
 }
 
+/* Botón flotante en escritorio */
 .floating-add-btn {
   position: absolute;
   bottom: 20px;
@@ -427,6 +436,16 @@ const guardarDatos = () => {
   cursor: pointer;
   box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
   transition: transform 0.2s, background 0.2s;
+  z-index: 10;
+}
+
+.add-text-mobile {
+  display: none;
+}
+
+.add-icon-svg {
+  width: 30px;
+  height: 30px;
 }
 
 @media (hover: hover) {
@@ -436,16 +455,23 @@ const guardarDatos = () => {
   }
 }
 
-.floating-add-btn svg {
-  width: 30px;
-  height: 30px;
-}
-
 .empty-state {
   text-align: center;
   color: var(--color-highlight, #777);
   font-family: 'Inter', sans-serif;
   margin-top: 50px;
+}
+
+/* Ajustes globales/profundos para que las notificaciones no se salgan del margen en móvil */
+:deep(.notification-container),
+:deep(.notification),
+:deep(.toast-container) {
+  max-width: calc(100vw - 30px) !important;
+  box-sizing: border-box !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  right: auto !important;
+  margin: 0 auto !important;
 }
 
 /* Estilos de Modales */
@@ -612,6 +638,43 @@ const guardarDatos = () => {
   transform: scale(0.95);
 }
 
+@media (max-width: 480px) {
+  .item-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .item-actions {
+    justify-content: flex-end;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-top: 10px;
+  }
+
+  .floating-add-btn {
+    position: relative;
+    bottom: auto;
+    right: auto;
+    width: calc(100% - 30px);
+    margin: 10px auto 0 auto;
+    height: 48px;
+    border-radius: var(--app-border-radius, 12px);
+    gap: 8px;
+    box-shadow: none;
+  }
+
+  .add-text-mobile {
+    display: inline;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+  }
+
+  .add-icon-svg {
+    width: 22px;
+    height: 22px;
+  }
+}
+
 @media (max-width: 900px) {
   .main-content-promos {
     flex-direction: column;
@@ -621,7 +684,8 @@ const guardarDatos = () => {
   }
   .promo-box-container {
     max-width: 100%;
-    height: 500px;
+    min-height: auto;
+    height: auto;
   }
 }
 </style>

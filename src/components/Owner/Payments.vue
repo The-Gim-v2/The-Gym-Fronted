@@ -5,7 +5,6 @@
       <header class="header-section">
         <div class="title-wrapper">
           <h1 class="main-title">Pagos</h1>
-          <!--<p class="main-subtitle">Control y registro de pagos, membresías y estados de cuenta</p>-->
         </div>
       
         <div class="actions-bar" id="tutorial-step-0">
@@ -45,7 +44,7 @@
               <td>{{user.expirationDate}}</td>
               <td><span :class="['status-badge', getStatusClass(user.status)]">{{ user.status }}</span></td>
               
-                <td class="actions-cell" :id="index === 0 ? 'tutorial-step-2' : null">
+              <td class="actions-cell" :id="!isMobile && index === 0 ? 'tutorial-step-2' : null">
                 <button class="icon-btn" title="Pago" @click="goToPayments(user.id)">
                   <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2" ry="2"/><circle cx="12" cy="12" r="3"/><path d="M12 9v6M10.5 10.5h3M10.5 13.5h3"/><path d="M6 3h14c1.1 0 2 .9 2 2v10"/></svg>
                 </button>
@@ -63,7 +62,7 @@
 
       <!-- VISTA MÓVIL -->
       <div class="mobile-only">
-       <div v-for="(user, index) in filteredUsers" :key="user.id" class="user-card" :id="index === 0 ? 'tutorial-step-1' : null">
+       <div v-for="(user, index) in filteredUsers" :key="user.id" class="user-card" :id="isMobile && index === 0 ? 'tutorial-step-1' : null">
           <div class="card-top-section">
             <div class="avatar-small"></div>
             <div class="card-user-titles">
@@ -81,7 +80,7 @@
             <span class="phone-text">{{ user.phone }}</span>
           </div>
 
-          <div class="card-actions" :id="index === 0 ? 'tutorial-step-2' : null">
+          <div class="card-actions" :id="isMobile && index === 0 ? 'tutorial-step-2' : null">
             <button class="action-chip btn-pay-chip" @click="goToPayments(user.id)">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2" ry="2"/><circle cx="12" cy="12" r="3"/><path d="M12 9v6M10.5 10.5h3M10.5 13.5h3"/><path d="M6 3h14c1.1 0 2 .9 2 2v10"/></svg>
               <span>Pago</span>
@@ -135,7 +134,6 @@
 }
 
 .main-title { font-family: 'Anton', sans-serif; font-size: 2rem; color: var(--color-titulos, #fff); margin: 0; letter-spacing: 0.5px; }
-.main-subtitle { font-size: 0.88rem; color: var(--color-texto-general, #888); margin: 0; opacity: 0.8; }
 
 .actions-bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
 .search-input, .status-select { 
@@ -422,12 +420,21 @@
 </style>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import HeadingOwner from './HeadingOwner.vue';
 import CorreoMasivo from './Componets/Bulk-Email.vue';
 import NotificationSystem from '../Modals/NotificationSystem.vue'; 
 import ModalComponent from '../Modals/ModalComponent.vue';
+
+const windowWidth = ref(window.innerWidth);
+const handleResize = () => {
+  windowWidth.value = window.innerWidth;
+};
+onMounted(() => window.addEventListener('resize', handleResize));
+onUnmounted(() => window.removeEventListener('resize', handleResize));
+
+const isMobile = computed(() => windowWidth.value <= 900);
 
 const activeModal = ref(null);
 const toastRef = ref(null);
