@@ -404,7 +404,7 @@ const setupStepTimer = () => {
   if (isMobile.value) {
     revealTimer = setTimeout(() => {
       textRevealed.value = true;
-    }, 5000);
+    }, 1500);
   } else {
     textRevealed.value = true;
   }
