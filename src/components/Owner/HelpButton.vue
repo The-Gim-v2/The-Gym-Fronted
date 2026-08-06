@@ -802,7 +802,7 @@ onUnmounted(() => {
 .tutorial-overlay {
   position: fixed;
   top: 0; left: 0; width: 100vw; height: 100vh;
-  background: transparent; /* Fondo totalmente transparente para no afectar los componentes */
+  background: transparent; 
   z-index: 9999;
   overflow: hidden;
 }
@@ -810,7 +810,6 @@ onUnmounted(() => {
 .spotlight-box {
   position: absolute;
   border-radius: 14px;
-  /* La sombra gigante oscurece todo el exterior de la caja, dejando el centro transparente y nítido */
   box-shadow: 0 0 0 9999px rgba(2, 6, 23, 0.85), 0 0 25px rgba(85, 88, 247, 0.9);
   border: 2px solid #6366f1;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
