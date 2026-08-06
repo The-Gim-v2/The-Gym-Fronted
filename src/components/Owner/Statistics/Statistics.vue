@@ -67,7 +67,7 @@ const diasCalendario = ref([
             <h1 class="title">Estadísticas <span class="highlight-text">del Usuario</span></h1>
             <p class="subtitle">Monitoreo integral de composición corporal, rendimiento y asistencias</p>
           </div>
-          <div class="search-bar-wrapper">
+          <div id="tutor-0" class="search-bar-wrapper">
             <div class="search-input-container">
               <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
               <input type="text" v-model="searchQuery" placeholder="Buscar por nombre o ID..." class="search-input" />
@@ -79,39 +79,39 @@ const diasCalendario = ref([
           
           <!-- COLUMNA IZQUIERDA -->
           <div class="column-left">
-            <div class="user-profile-card">
+            <div id="tutor-1" class="user-profile-card">
               <div class="profile-header-tag">Usuario Activo</div>
               <div class="profile-main-info">
                 <div class="avatar-wrapper">
-                  <div class="avatar-circle">
+                  <div id="tutor-2" class="avatar-circle">
                     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                   </div>
-                  <div class="attendance-badge">{{ user.asistenciaPorcentaje }}% asistencia</div>
+                  <div id="tutor-3" class="attendance-badge">{{ user.asistenciaPorcentaje }}% asistencia</div>
                 </div>
                 <div class="user-names">
-                  <h2>{{ user.nombre }}</h2>
-                  <span class="user-id">ID: {{ user.id }}</span>
+                  <h2 id="tutor-4">{{ user.nombre }}</h2>
+                  <span id="tutor-5" class="user-id">ID: {{ user.id }}</span>
                 </div>
               </div>
 
               <div class="section-subtitle-small">Composición Corporal Principal</div>
-              <div class="metrics-grid">
-                <div class="metric-box"><span class="metric-label">Peso Inicial</span><span class="metric-value">{{ user.pesoInicial }}</span></div>
-                <div class="metric-box"><span class="metric-label">Peso Actual</span><span class="metric-value accent">{{ user.pesoActual }}</span></div>
-                <div class="metric-box"><span class="metric-label">Estatura</span><span class="metric-value">{{ user.estatura }}</span></div>
-                <div class="metric-box"><span class="metric-label">% Grasa</span><span class="metric-value warning">{{ user.grasaCorporal }}</span></div>
-                <div class="metric-box"><span class="metric-label">Masa Muscular</span><span class="metric-value accent">{{ user.masaMuscular }}</span></div>
-                <div class="metric-box"><span class="metric-label">Calorías Q/d</span><span class="metric-value">{{ user.caloriasPromedio }}</span></div>
+              <div id="tutor-6" class="metrics-grid">
+                <div id="tutor-7" class="metric-box"><span class="metric-label">Peso Inicial</span><span class="metric-value">{{ user.pesoInicial }}</span></div>
+                <div id="tutor-8" class="metric-box"><span class="metric-label">Peso Actual</span><span class="metric-value accent">{{ user.pesoActual }}</span></div>
+                <div id="tutor-9" class="metric-box"><span class="metric-label">Estatura</span><span class="metric-value">{{ user.estatura }}</span></div>
+                <div id="tutor-10" class="metric-box"><span class="metric-label">% Grasa</span><span class="metric-value warning">{{ user.grasaCorporal }}</span></div>
+                <div id="tutor-11" class="metric-box"><span class="metric-label">Masa Muscular</span><span class="metric-value accent">{{ user.masaMuscular }}</span></div>
+                <div id="tutor-12" class="metric-box"><span class="metric-label">Calorías Q/d</span><span class="metric-value">{{ user.caloriasPromedio }}</span></div>
               </div>
 
               <div class="section-subtitle-small">Indicadores Avanzados & Rendimiento</div>
-              <div class="metrics-grid advanced-metrics">
-                <div class="metric-box"><span class="metric-label">Agua Corporal</span><span class="metric-value info">{{ user.aguaCorporal }}</span></div>
-                <div class="metric-box"><span class="metric-label">Índice IMC</span><span class="metric-value">{{ user.imc }}</span></div>
-                <div class="metric-box"><span class="metric-label">Aumento Fuerza</span><span class="metric-value accent">{{ user.aumentoFuerza }}</span></div>
+              <div id="tutor-13" class="metrics-grid advanced-metrics">
+                <div id="tutor-14" class="metric-box"><span class="metric-label">Agua Corporal</span><span class="metric-value info">{{ user.aguaCorporal }}</span></div>
+                <div id="tutor-15" class="metric-box"><span class="metric-label">Índice IMC</span><span class="metric-value">{{ user.imc }}</span></div>
+                <div id="tutor-16" class="metric-box"><span class="metric-label">Aumento Fuerza</span><span class="metric-value accent">{{ user.aumentoFuerza }}</span></div>
               </div>
 
-              <div class="performance-chart-box">
+              <div id="tutor-17" class="performance-chart-box">
                 <div class="chart-header">
                   <span class="chart-title">Eficiencia de Ganancia Muscular</span>
                   <span class="chart-percentage">+18.4% este mes</span>
@@ -121,19 +121,19 @@ const diasCalendario = ref([
                 </div>
               </div>
 
-              <div class="contact-info-list">
-                <div class="contact-item"><span class="contact-label">Fecha de inscripción</span><span class="contact-val">{{ user.inscripcion }}</span></div>
-                <div class="contact-item"><span class="contact-label">Celular</span><span class="contact-val">{{ user.celular }}</span></div>
-                <div class="contact-item"><span class="contact-label">Correo electrónico</span><span class="contact-val email-text">{{ user.correo }}</span></div>
+              <div id="tutor-18" class="contact-info-list">
+                <div id="tutor-19" class="contact-item"><span class="contact-label">Fecha de inscripción</span><span class="contact-val">{{ user.inscripcion }}</span></div>
+                <div id="tutor-20" class="contact-item"><span class="contact-label">Celular</span><span class="contact-val">{{ user.celular }}</span></div>
+                <div id="tutor-21" class="contact-item"><span class="contact-label">Correo electrónico</span><span class="contact-val email-text">{{ user.correo }}</span></div>
               </div>
             </div>
 
             <div class="bottom-financial-grid">
-              <div class="info-card">
+              <div id="tutor-22" class="info-card">
                 <span class="card-mini-title">Próximo Corte</span>
                 <span class="card-highlight-val red">{{ user.proximoCorte }}</span>
               </div>
-              <div class="info-card">
+              <div id="tutor-23" class="info-card">
                 <span class="card-mini-title">Saldo a Pagar</span>
                 <span class="card-highlight-val green">{{ user.saldoAPagar }}</span>
               </div>
@@ -143,7 +143,7 @@ const diasCalendario = ref([
           <!-- COLUMNA DERECHA -->
           <div class="column-right">
             
-            <div class="calendar-card">
+            <div id="tutor-24" class="calendar-card">
               <div class="calendar-header">
                 <h3>Asistencia de Mayo</h3>
                 <span class="year-badge">2026</span>
@@ -164,7 +164,7 @@ const diasCalendario = ref([
             </div>
 
             <!-- TARJETA DE RACHA INTACTA (TAL COMO LA SOLICITASTE) -->
-            <div class="streak-card" :class="`theme-${etapaActual}`">
+            <div id="tutor-25" class="streak-card" :class="`theme-${etapaActual}`">
               <div class="streak-header-row">
                 <div class="streak-title-group">
                   <span class="section-subtitle-small">Mascota & Racha del Usuario</span>

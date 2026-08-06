@@ -409,6 +409,327 @@ const tutoriales = {
       description: "Confirma el registro del pago una vez completados los datos obligatorios o descarga el recibo correspondiente.", 
       selector: '#tutorial-step-2' 
     }
+  ],
+  'edit-user': [
+    { 
+      title: "Búsqueda de Cliente", 
+      description: "Localiza rápidamente a cualquier cliente registrado mediante su nombre o número de identificación.", 
+      selector: '#tutor-0' 
+    },
+    { 
+      title: "Perfil del Cliente", 
+      description: "Visualiza la información general, el avatar, el estado de actividad y accede a las acciones rápidas del usuario.", 
+      selector: '#tutor-1' 
+    },
+    { 
+      title: "Fotografía de Perfil", 
+      description: "Muestra la imagen oficial actual del cliente en el sistema.", 
+      selector: '#tutor-2' 
+    },
+    { 
+      title: "Estadísticas del Usuario", 
+      description: "Consulta el historial detallado y las métricas de rendimiento o asistencia del cliente.", 
+      selector: '#tutor-3' 
+    },
+    { 
+      title: "Cambiar Fotografía", 
+      description: "Sube o actualiza la imagen de perfil del cliente desde tus archivos locales.", 
+      selector: '#tutor-4' 
+    },
+    { 
+      title: "Identificador Único", 
+      description: "Muestra el código de registro intransferible asignado al cliente en el sistema.", 
+      selector: '#tutor-5' 
+    },
+    { 
+      title: "Estado de Actividad", 
+      description: "Indica si la membresía o el estatus actual del cliente se encuentra activo.", 
+      selector: '#tutor-6' 
+    },
+    { 
+      title: "Datos Personales", 
+      description: "Consulta y edita la información general, nombres, apellidos y datos de contacto del cliente.", 
+      selector: '#tutor-7' 
+    },
+    { 
+      title: "Seguimiento Físico", 
+      description: "Registra y monitorea los cambios en el peso y la altura inicial del usuario.", 
+      selector: '#tutor-14' 
+    },
+    { 
+      title: "Membresía", 
+      description: "Administra la sede asignada y el estado actual del plan contratado por el cliente.", 
+      selector: '#tutor-17' 
+    },
+    { 
+      title: "Guardar Cambios", 
+      description: "Aplica y almacena de forma definitiva todas las modificaciones realizadas en el perfil y datos del cliente.", 
+      selector: '#tutor-20' 
+    }
+  ],
+  'edit-staff': [
+    { 
+      title: "Búsqueda de Personal", 
+      description: "Localiza rápidamente a cualquier colaborador registrado mediante su nombre o número de identificación.", 
+      selector: '#tutor-0' 
+    },
+    { 
+      title: "Perfil del Personal", 
+      description: "Visualiza la información general, el avatar y el estado de actividad del colaborador.", 
+      selector: '#tutor-1' 
+    },
+    { 
+      title: "Fotografía de Perfil", 
+      description: "Muestra la imagen oficial actual del colaborador en el sistema.", 
+      selector: '#tutor-2' 
+    },
+    { 
+      title: "Cambiar Fotografía", 
+      description: "Sube o actualiza la imagen de perfil del colaborador desde tus archivos locales.", 
+      selector: '#tutor-3' 
+    },
+    { 
+      title: "Identificador Único", 
+      description: "Muestra el código de registro intransferible asignado al personal en el sistema.", 
+      selector: '#tutor-4' 
+    },
+    { 
+      title: "Estado de Actividad", 
+      description: "Indica si el estatus actual del colaborador se encuentra activo.", 
+      selector: '#tutor-5' 
+    },
+    { 
+      title: "Datos Personales", 
+      description: "Consulta y edita la información general, CURP, nombres, apellidos y redes sociales del colaborador.", 
+      selector: '#tutor-6' 
+    },
+    { 
+      title: "CURP", 
+      description: "Ingresa o actualiza la Clave Única de Registro de Población del colaborador.", 
+      selector: '#tutor-7' 
+    },
+    { 
+      title: "Nombres", 
+      description: "Establece el nombre o nombres del colaborador.", 
+      selector: '#tutor-8' 
+    },
+    { 
+      title: "Apellido Paterno", 
+      description: "Registra el apellido paterno del colaborador.", 
+      selector: '#tutor-9' 
+    },
+    { 
+      title: "Apellido Materno", 
+      description: "Registra el apellido materno del colaborador.", 
+      selector: '#tutor-10' 
+    },
+    { 
+      title: "Fecha de Nacimiento", 
+      description: "Especifica la fecha de nacimiento del colaborador.", 
+      selector: '#tutor-11' 
+    },
+    { 
+      title: "Celular", 
+      description: "Indica el número de teléfono celular de contacto.", 
+      selector: '#tutor-12' 
+    },
+    { 
+      title: "Facebook", 
+      description: "Añade el enlace o usuario de Facebook del colaborador.", 
+      selector: '#tutor-13' 
+    },
+    { 
+      title: "Instagram", 
+      description: "Añade el perfil o cuenta de Instagram del colaborador.", 
+      selector: '#tutor-14' 
+    },
+    { 
+      title: "Tiktok", 
+      description: "Añade la cuenta de TikTok del colaborador.", 
+      selector: '#tutor-15' 
+    },
+    { 
+      title: "Otras app", 
+      description: "Registra otras aplicaciones o redes sociales de contacto.", 
+      selector: '#tutor-16' 
+    },
+    { 
+      title: "Credenciales", 
+      description: "Administra el correo, la sede asignada, el rol en el sistema y la especialidad.", 
+      selector: '#tutor-17' 
+    },
+    { 
+      title: "Correo electrónico", 
+      description: "Establece la dirección de correo electrónico institucional o de contacto.", 
+      selector: '#tutor-18' 
+    },
+    { 
+      title: "Sede", 
+      description: "Indica la sucursal o sede asignada al colaborador.", 
+      selector: '#tutor-19' 
+    },
+    { 
+      title: "Rol en el sistema", 
+      description: "Define el rol o puesto que desempeña el colaborador en el sistema.", 
+      selector: '#tutor-20' 
+    },
+    { 
+      title: "Especialidad", 
+      description: "Especifica el área de especialización o disciplina del colaborador.", 
+      selector: '#tutor-21' 
+    },
+    { 
+      title: "Horario de trabajo", 
+      description: "Configura las horas de entrada y salida de la jornada laboral.", 
+      selector: '#tutor-22' 
+    },
+    { 
+      title: "Entrada", 
+      description: "Define la hora de inicio de la jornada laboral.", 
+      selector: '#tutor-23' 
+    },
+    { 
+      title: "Salida", 
+      description: "Define la hora de finalización de la jornada laboral.", 
+      selector: '#tutor-24' 
+    },
+    { 
+      title: "Guardar Cambios", 
+      description: "Aplica y almacena de forma definitiva todas las modificaciones realizadas en el perfil del personal.", 
+      selector: '#tutor-25' 
+    }
+  ],
+  'statistics': [
+    { 
+      title: "Búsqueda de Usuario", 
+      description: "Localiza rápidamente a cualquier usuario registrado mediante su nombre o número de identificación.", 
+      selector: '#tutor-0' 
+    },
+    { 
+      title: "Perfil del Usuario", 
+      description: "Visualiza la tarjeta general de información, estado y métricas principales del usuario.", 
+      selector: '#tutor-1' 
+    },
+    { 
+      title: "Avatar del Usuario", 
+      description: "Muestra el identificador visual o icono del usuario en el sistema.", 
+      selector: '#tutor-2' 
+    },
+    { 
+      title: "Porcentaje de Asistencia", 
+      description: "Indica el nivel general de asistencia acumulada del usuario.", 
+      selector: '#tutor-3' 
+    },
+    { 
+      title: "Nombre del Usuario", 
+      description: "Muestra el nombre completo registrado del usuario.", 
+      selector: '#tutor-4' 
+    },
+    { 
+      title: "Identificador Único", 
+      description: "Muestra el código de registro del usuario en el sistema.", 
+      selector: '#tutor-5' 
+    },
+    { 
+      title: "Composición Corporal Principal", 
+      description: "Contiene las métricas clave como peso inicial, actual, estatura, porcentaje de grasa, masa muscular y calorías.", 
+      selector: '#tutor-6' 
+    },
+    { 
+      title: "Peso Inicial", 
+      description: "Muestra el peso registrado al inicio del seguimiento.", 
+      selector: '#tutor-7' 
+    },
+    { 
+      title: "Peso Actual", 
+      description: "Muestra el peso más reciente del usuario.", 
+      selector: '#tutor-8' 
+    },
+    { 
+      title: "Estatura", 
+      description: "Indica la altura registrada del usuario.", 
+      selector: '#tutor-9' 
+    },
+    { 
+      title: "Porcentaje de Grasa", 
+      description: "Muestra el nivel de grasa corporal estimado.", 
+      selector: '#tutor-10' 
+    },
+    { 
+      title: "Masa Muscular", 
+      description: "Muestra el valor de la masa muscular en kilogramos.", 
+      selector: '#tutor-11' 
+    },
+    { 
+      title: "Calorías Promedio", 
+      description: "Muestra el estimado de calorías quemadas o consumidas por día.", 
+      selector: '#tutor-12' 
+    },
+    { 
+      title: "Indicadores Avanzados", 
+      description: "Muestra métricas detalladas de agua corporal, índice IMC y aumento de fuerza.", 
+      selector: '#tutor-13' 
+    },
+    { 
+      title: "Agua Corporal", 
+      description: "Indica el porcentaje de agua corporal del usuario.", 
+      selector: '#tutor-14' 
+    },
+    { 
+      title: "Índice IMC", 
+      description: "Muestra el Índice de Masa Corporal calculado.", 
+      selector: '#tutor-15' 
+    },
+    { 
+      title: "Aumento de Fuerza", 
+      description: "Muestra el progreso en la ganancia de fuerza.", 
+      selector: '#tutor-16' 
+    },
+    { 
+      title: "Eficiencia de Ganancia Muscular", 
+      description: "Gráfica y barra de progreso que detalla el rendimiento mensual.", 
+      selector: '#tutor-17' 
+    },
+    { 
+      title: "Información de Contacto e Inscripción", 
+      description: "Muestra los detalles de fecha de alta, celular y correo electrónico.", 
+      selector: '#tutor-18' 
+    },
+    { 
+      title: "Fecha de Inscripción", 
+      description: "Indica cuándo se registró por primera vez el usuario.", 
+      selector: '#tutor-19' 
+    },
+    { 
+      title: "Celular", 
+      description: "Número telefónico de contacto del usuario.", 
+      selector: '#tutor-20' 
+    },
+    { 
+      title: "Correo Electrónico", 
+      description: "Dirección de email registrada del usuario.", 
+      selector: '#tutor-21' 
+    },
+    { 
+      title: "Próximo Corte", 
+      description: "Muestra la fecha límite del siguiente pago o renovación.", 
+      selector: '#tutor-22' 
+    },
+    { 
+      title: "Saldo a Pagar", 
+      description: "Indica la cantidad monetaria pendiente del usuario.", 
+      selector: '#tutor-23' 
+    },
+    { 
+      title: "Calendario de Asistencia", 
+      description: "Vista detallada de los días del mes con los estados de asistencia (asistió, faltó, hoy).", 
+      selector: '#tutor-24' 
+    },
+    { 
+      title: "Mascota y Racha", 
+      description: "Muestra la evolución de la mascota virtual y los días seguidos de racha del usuario.", 
+      selector: '#tutor-25' 
+    }
   ]
 };
 
