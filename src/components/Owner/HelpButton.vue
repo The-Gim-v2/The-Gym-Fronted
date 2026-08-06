@@ -7,9 +7,9 @@
       </svg>
     </button>
 
-    <!-- Overlay con efecto Spotlight -->
+    <!-- Overlay transparente -->
     <div v-if="activeStep !== null" class="tutorial-overlay" @click="closeTutorial">
-      <!-- Recuadro iluminado (Spotlight) sobre la tarjeta actual -->
+      <!-- Recuadro iluminado (Spotlight): Su sombra oscurece el exterior y deja el centro transparente -->
       <div 
         v-if="targetRect" 
         class="spotlight-box" 
@@ -73,7 +73,7 @@ const handleResize = () => {
   }
 };
 
-// Diccionario limpio apuntando directamente a los IDs
+// Diccionario de tutoriales
 const tutoriales = {
   'Owner-dashboard': [
     { 
@@ -402,10 +402,9 @@ const setupStepTimer = () => {
   if (revealTimer) clearTimeout(revealTimer);
 
   if (isMobile.value) {
-    // Revelar texto automáticamente después de 10 segundos en móvil
     revealTimer = setTimeout(() => {
       textRevealed.value = true;
-    }, 10000);
+    }, 5000);
   } else {
     textRevealed.value = true;
   }
@@ -447,11 +446,8 @@ const popoverStyle = computed(() => {
   const rect = targetRect.value;
   const popoverHeight = 220; 
 
-  // En dispositivos móviles, colocamos la tarjeta flotante arriba o abajo del spotlight para NO taparlo
   if (isMobile.value) {
     const spaceBelow = window.innerHeight - (rect.top + rect.height);
-    
-    // Si hay espacio suficiente abajo del elemento iluminado, la ponemos abajo
     if (spaceBelow > popoverHeight + 20) {
       return {
         top: (rect.top + rect.height + 12) + 'px',
@@ -461,7 +457,6 @@ const popoverStyle = computed(() => {
         transform: 'none'
       };
     } else {
-      // Si no, la ponemos arriba del elemento iluminado
       return {
         top: Math.max(16, rect.top - popoverHeight - 12) + 'px',
         left: '16px',
@@ -472,7 +467,6 @@ const popoverStyle = computed(() => {
     }
   }
 
-  // Vista de Escritorio
   const spaceBelow = window.innerHeight - (rect.top + rect.height);
   if (spaceBelow > popoverHeight + 20) {
     return {
@@ -565,8 +559,7 @@ onUnmounted(() => {
 .tutorial-overlay {
   position: fixed;
   top: 0; left: 0; width: 100vw; height: 100vh;
-  background: rgba(2, 6, 23, 0.75);
-  backdrop-filter: blur(3px);
+  background: transparent; /* Fondo totalmente transparente para no afectar los componentes */
   z-index: 9999;
   overflow: hidden;
 }
@@ -574,7 +567,8 @@ onUnmounted(() => {
 .spotlight-box {
   position: absolute;
   border-radius: 14px;
-  box-shadow: 0 0 0 9999px rgba(2, 6, 23, 0.8), 0 0 25px rgba(85, 88, 247, 0.9);
+  /* La sombra gigante oscurece todo el exterior de la caja, dejando el centro transparente y nítido */
+  box-shadow: 0 0 0 9999px rgba(2, 6, 23, 0.85), 0 0 25px rgba(85, 88, 247, 0.9);
   border: 2px solid #6366f1;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   pointer-events: none;
