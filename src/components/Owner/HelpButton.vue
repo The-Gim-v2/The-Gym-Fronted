@@ -187,7 +187,7 @@ const tutoriales = {
       selector: '#tutorial-step-1' 
     }
   ],
-'fees-management': [
+  'fees-management': [
     { 
       title: "Estatus: Pendientes", 
       description: "Activa o desactiva la aplicación automática de recargos para usuarios con pago vencido pero que aún se mantienen activos.", 
@@ -230,16 +230,16 @@ const tutoriales = {
     }
   ],
   'revenue-log': [
-  { 
-    title: "Filtros y Resumen de Ingresos", 
-    description: "Filtra los pagos por tipo de membresía, consulta el total recaudado en tiempo real o busca a un usuario específico mediante la barra de búsqueda.", 
-    selector: '#tutorial-step-0' 
-  },
-  { 
-    title: "Tabla de Ingresos", 
-    description: "Visualiza el detalle completo de cada transacción: foto del usuario, nombre completo, correo electrónico, fecha de vencimiento, tipo de membresía adquirida y el monto pagado.", 
-    selector: '#tutorial-step-1' 
-  }
+    { 
+      title: "Filtros y Resumen de Ingresos", 
+      description: "Filtra los pagos por tipo de membresía, consulta el total recaudado en tiempo real o busca a un usuario específico mediante la barra de búsqueda.", 
+      selector: '#tutorial-step-0' 
+    },
+    { 
+      title: "Tabla de Ingresos", 
+      description: "Visualiza el detalle completo de cada transacción: foto del usuario, nombre completo, correo electrónico, fecha de vencimiento, tipo de membresía adquirida y el monto pagado.", 
+      selector: '#tutorial-step-1' 
+    }
   ],
   'debtors-list': [
     { 
@@ -388,6 +388,7 @@ const updateTargetPosition = () => {
 
   if (el) {
     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // Usamos un pequeño retraso para asegurar que el scroll termine de acomodar el elemento antes de medir
     setTimeout(() => {
       const rect = el.getBoundingClientRect();
       targetRect.value = {
@@ -396,7 +397,7 @@ const updateTargetPosition = () => {
         width: rect.width + 16,
         height: rect.height + 16
       };
-    }, 300);
+    }, 250);
   } else {
     targetRect.value = null;
   }
@@ -408,32 +409,32 @@ const popoverStyle = computed(() => {
   const rect = targetRect.value;
   const popoverHeight = 220; 
 
-  // Vista en dispositivos móviles (pantallas menores o iguales a 768px)
+  // Vista en dispositivos móviles o pantallas estrechas
   if (window.innerWidth <= 768) {
     const spaceBelow = window.innerHeight - (rect.top + rect.height);
     
-    // Si hay espacio suficiente abajo del elemento enfocado, lo colocamos abajo pero dentro de la pantalla
+    // Si hay espacio suficiente abajo, lo ubicamos debajo del spotlight
     if (spaceBelow >= popoverHeight + 20) {
       return {
-        top: Math.min(window.innerHeight - popoverHeight - 20, rect.top + rect.height + 12) + 'px',
+        top: (rect.top + rect.height + 12) + 'px',
         left: '50%',
         transform: 'translateX(-50%)',
-        width: '92%',
-        maxWidth: '360px'
+        width: 'calc(100% - 32px)',
+        maxWidth: '380px'
       };
     }
     
-    // Si no cabe abajo, lo fijamos limpiamente en la parte inferior de la pantalla flotando por encima
+    // Si no cabe abajo, lo fijamos limpiamente en la parte superior para evitar que tape el elemento iluminado
     return {
-      bottom: '24px',
+      top: '20px',
       left: '50%',
       transform: 'translateX(-50%)',
-      width: '92%',
-      maxWidth: '360px'
+      width: 'calc(100% - 32px)',
+      maxWidth: '380px'
     };
   }
 
-  // Vista de Escritorio
+  // Vista de Escritorio (Desktop)
   const spaceBelow = window.innerHeight - (rect.top + rect.height);
   if (spaceBelow > popoverHeight + 20) {
     return {
@@ -455,7 +456,9 @@ const popoverStyle = computed(() => {
 const startTutorial = () => {
   if (steps.value.length > 0) {
     activeStep.value = 0;
-    updateTargetPosition();
+    nextTick(() => {
+      updateTargetPosition();
+    });
   }
 };
 
@@ -528,7 +531,8 @@ onUnmounted(() => {
   border-radius: 12px;
   box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.75), 0 0 20px rgba(93, 91, 233, 0.8);
   border: 2px solid #5558f7;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Transición fluida optimizada para el movimiento del cuadro azul */
+  transition: top 0.3s ease, left 0.3s ease, width 0.3s ease, height 0.3s ease;
   pointer-events: none;
 }
 
@@ -536,12 +540,13 @@ onUnmounted(() => {
   position: absolute;
   background: #1b232e;
   color: #fff;
-  padding: 15px;
+  padding: 16px;
   border-radius: 12px;
-  box-shadow: 0 15px 20px rgba(0,0,0,0.6);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.6);
   border: 1px solid rgba(255, 255, 255, 0.1);
   z-index: 10000;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Transición fluida para el cuadro de texto */
+  transition: top 0.3s ease, left 0.3s ease, transform 0.3s ease;
   box-sizing: border-box;
 }
 
@@ -562,9 +567,10 @@ onUnmounted(() => {
 .close-btn {
   background: none;
   border: none;
-  font-size: 1.3rem;
+  font-size: 1.5rem;
   cursor: pointer;
   color: #aaa;
+  padding: 0 4px;
 }
 
 .close-btn:hover { color: #fff; }
@@ -573,7 +579,7 @@ onUnmounted(() => {
   font-size: 0.92rem; 
   line-height: 1.4; 
   color: #cbd5e1; 
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .modal-footer {
