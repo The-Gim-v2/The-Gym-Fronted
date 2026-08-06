@@ -21,7 +21,7 @@
         }"
       ></div>
 
-      <!-- Tarjeta de explicación flotante con diseño estilizado -->
+      <!-- Tarjeta de explicación flotante fuera del spotlight -->
       <div 
         v-if="steps[activeStep] && (!isMobile || textRevealed)" 
         class="help-popover" 
@@ -405,7 +405,7 @@ const setupStepTimer = () => {
     // Revelar texto automáticamente después de 10 segundos en móvil
     revealTimer = setTimeout(() => {
       textRevealed.value = true;
-    }, 5000);
+    }, 10000);
   } else {
     textRevealed.value = true;
   }
@@ -425,7 +425,6 @@ const updateTargetPosition = () => {
   if (el) {
     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     
-    // Usar requestAnimationFrame y un timeout seguro para garantizar que el DOM esté listo en móvil
     setTimeout(() => {
       requestAnimationFrame(() => {
         const rect = el.getBoundingClientRect();
@@ -448,20 +447,29 @@ const popoverStyle = computed(() => {
   const rect = targetRect.value;
   const popoverHeight = 220; 
 
-  // Vista en dispositivos móviles: se coloca exactamente encima del cuadro azul (spotlight-box)
+  // En dispositivos móviles, colocamos la tarjeta flotante arriba o abajo del spotlight para NO taparlo
   if (isMobile.value) {
-    return {
-      top: rect.top + 'px',
-      left: rect.left + 'px',
-      width: rect.width + 'px',
-      height: rect.height + 'px',
-      transform: 'none',
-      maxWidth: 'none',
-      borderRadius: '16px',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'space-between'
-    };
+    const spaceBelow = window.innerHeight - (rect.top + rect.height);
+    
+    // Si hay espacio suficiente abajo del elemento iluminado, la ponemos abajo
+    if (spaceBelow > popoverHeight + 20) {
+      return {
+        top: (rect.top + rect.height + 12) + 'px',
+        left: '16px',
+        right: '16px',
+        width: 'auto',
+        transform: 'none'
+      };
+    } else {
+      // Si no, la ponemos arriba del elemento iluminado
+      return {
+        top: Math.max(16, rect.top - popoverHeight - 12) + 'px',
+        left: '16px',
+        right: '16px',
+        width: 'auto',
+        transform: 'none'
+      };
+    }
   }
 
   // Vista de Escritorio
