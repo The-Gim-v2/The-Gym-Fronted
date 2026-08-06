@@ -4,7 +4,7 @@
     <main class="main-content">
       <div class="profile-card">
         <!-- Sección Perfil / Avatar (Fija o sticky en desktop) -->
-        <div class="profile-section">
+        <div class="profile-section" id="tutorial-step-0">
           <h1 class="main-title">Registra tus <br> <span class="highlight">Clientes</span></h1>
           <div class="avatar-wrapper">
             <div class="avatar-circle">
@@ -23,7 +23,7 @@
         <div class="forms-wrapper">
           
           <!-- Datos Personales -->
-          <div class="login-card">
+          <div class="login-card"id="tutorial-step-1">
             <h3 class="section-title">Datos Personales</h3>
             <div class="form-grid">
               <div class="input-group">
@@ -54,7 +54,7 @@
           </div>
 
           <!-- Registro Físico -->
-          <div class="login-card">
+          <div class="login-card" id="tutorial-step-2">
             <h3 class="section-title">Registro de Físico</h3>
             <div class="form-grid">
               <div class="input-group">
@@ -69,7 +69,7 @@
           </div>
           
           <!-- Datos de Membresía -->
-          <div class="login-card">
+          <div class="login-card" id="tutorial-step-3">
             <div class="membership-header">
               <h3 class="section-title mb-0">Datos de Membresía</h3>
               <div class="membership-actions-row">

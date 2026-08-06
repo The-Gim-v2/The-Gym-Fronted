@@ -79,7 +79,103 @@ const tutoriales = {
       description: "Configura turnos, clases y consulta el calendario activo que opera de lunes a domingo.",
       selector: '#tutorial-step-3' 
     }
+  ],
+  'register-clients': [
+    { 
+      title: "Fotografía del Cliente", 
+      description: "Sube o captura una fotografía reciente del cliente. Esto es fundamental para identificarlo rápidamente en el sistema al momento de registrar su asistencia.",
+      selector: '#tutorial-step-0' 
+    },
+    { 
+      title: "Datos Personales", 
+      description: "Ingresa la información básica de identificación del nuevo miembro, incluyendo su nombre completo, fecha de nacimiento, número celular y correo electrónico.",
+      selector: '#tutorial-step-1' 
+    },
+    { 
+      title: "Registro Físico", 
+      description: "Captura las medidas corporales iniciales del cliente como su peso en kilogramos y su altura para llevar un seguimiento de su progreso.",
+      selector: '#tutorial-step-2' 
+    },
+    { 
+      title: "Datos de Membresía y Vigencia", 
+      description: "Selecciona el esquema de cobro (por mes o semana), define las fechas de inscripción y el día de corte correspondiente para mantener sus accesos activos.",
+      selector: '#tutorial-step-3' 
+    }
+  ],
+  'register-staff': [
+    { 
+      title: "Fotografía del Empleado", 
+      description: "Sube una fotografía oficial o reciente para integrarla al expediente del colaborador dentro de la plataforma.",
+      selector: '#tutorial-step-0' 
+    },
+    { 
+      title: "Datos del Empleado", 
+      description: "Captura la información oficial y de contacto del colaborador, incluyendo su CURP, nombre completo, fecha de nacimiento, teléfono y perfiles de redes sociales.",
+      selector: '#tutorial-step-1' 
+    },
+    { 
+      title: "Credenciales y Rol", 
+      description: "Define el rol que desempeñará en el sistema (permisos de acceso) y asigna el correo electrónico con el que iniciará sesión.",
+      selector: '#tutorial-step-2' 
+    },
+    { 
+      title: "Horario de Trabajo", 
+      description: "Establece las horas de entrada y salida correspondientes para llevar el control de asistencia y turnos del personal.",
+      selector: '#tutorial-step-3' 
+    }
+  ],
+  'view-clients': [
+    { 
+      title: "Filtros y Búsqueda General", 
+      description: "Filtra la lista de usuarios por tipo de membresía, su estatus actual (Activo/Inactivo), envía notificaciones masivas o busca a un cliente por su nombre de forma rápida.",
+      selector: '#tutorial-step-0' 
+    },
+    { 
+      title: "Listado de Clientes", 
+      description: "Visualiza la información resumida de cada usuario: foto de perfil, nombre completo, correo electrónico, número de celular y su estatus vigente.",
+      selector: '#tutorial-step-1' 
+    },
+    { 
+      title: "Acciones por Usuario", 
+      description: "Realiza acciones específicas para cada cliente: enviar correos individuales, cambiar estatus, ver su código QR de acceso, editar sus datos o eliminar el registro.",
+      selector: '#tutorial-step-2' 
+    }
+  ],
+  'view-staff': [
+    { 
+      title: "Filtros y Búsqueda de Personal", 
+      description: "Filtra al personal por su rol en el sistema (Recepcionista, Entrenador), envía correos masivos o busca rápidamente a un empleado por su nombre.",
+      selector: '#tutorial-step-0' 
+    },
+    { 
+      title: "Listado de Personal", 
+      description: "Visualiza la información clave de cada empleado: foto de perfil, nombre completo, correo electrónico, número celular y el rol asignado.",
+      selector: '#tutorial-step-1' 
+    },
+    { 
+      title: "Acciones por Empleado", 
+      description: "Gestiona las acciones individuales para cada miembro del personal: enviar correo, cambiar estatus, editar su información o eliminar el registro.",
+      selector: '#tutorial-step-2' 
+    }
+  ],
+  'payments': [
+    { 
+      title: "Filtros y Búsqueda de Pagos", 
+      description: "Filtra el listado por tipo de mensualidad, su estatus actual (Activo, Pendiente, Inactivo), envía correos masivos o busca usuarios por su nombre de forma rápida.", 
+      selector: '#tutorial-step-0' 
+    },
+    { 
+      title: "Listado de Pagos", 
+      description: "Visualiza la información general de cada registro: foto de perfil, nombre completo, correo electrónico, fecha a vencer y el estatus actual de su pago.", 
+      selector: '#tutorial-step-1' 
+    },
+    { 
+      title: "Acciones de Pago", 
+      description: "Realiza acciones específicas para cada registro: registrar un pago, editar los datos del usuario o eliminar el registro.", 
+      selector: '#tutorial-step-2' 
+    }
   ]
+
 };
 
 const steps = computed(() => tutoriales[route.name] || []);
@@ -112,20 +208,34 @@ const popoverStyle = computed(() => {
   
   const rect = targetRect.value;
   const spaceBelow = window.innerHeight - (rect.top + rect.height);
+  const popoverHeight = 220; // Altura estimada del popover
   
-  if (spaceBelow > 240) {
+  // Si no cabe abajo y tampoco arriba de forma cómoda, lo centramos o adaptamos para móviles
+  if (window.innerWidth <= 768) {
     return {
-      top: (rect.top + rect.height + 15) + 'px',
-      left: Math.max(20, Math.min(rect.left, window.innerWidth - 360)) + 'px'
+      bottom: '20px',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      width: '90%',
+      maxWidth: '340px'
+    };
+  }
+
+  // Si hay suficiente espacio abajo, lo ponemos abajo; si no, lo colocamos arriba del elemento
+  if (spaceBelow > popoverHeight + 20) {
+    return {
+      top: (rect.top + rect.height + 12) + 'px',
+      left: Math.max(20, Math.min(rect.left, window.innerWidth - 360)) + 'px',
+      transform: 'none'
     };
   } else {
     return {
-      top: (rect.top - 230) + 'px',
-      left: Math.max(20, Math.min(rect.left, window.innerWidth - 360)) + 'px'
+      top: Math.max(20, rect.top - popoverHeight - 12) + 'px',
+      left: Math.max(20, Math.min(rect.left, window.innerWidth - 360)) + 'px',
+      transform: 'none'
     };
   }
 });
-
 const startTutorial = () => {
   if (steps.value.length > 0) {
     activeStep.value = 0;
@@ -201,15 +311,15 @@ onUnmounted(() => {
 .spotlight-box {
   position: absolute;
   border-radius: 12px;
-  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.75), 0 0 20px rgba(147, 51, 234, 0.8);
-  border: 2px solid #a855f7;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.75), 0 0 20px rgba(93, 91, 233, 0.8);
+  border: 2px solid #5558f7;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   pointer-events: none;
 }
 
 .help-popover {
   position: absolute;
-  background: #1e1b2e;
+  background: #1b232e;
   color: #fff;
   padding: 20px;
   border-radius: 12px;
@@ -266,7 +376,7 @@ onUnmounted(() => {
 .nav-btn {
   padding: 7px 14px;
   border: none;
-  background: #9333ea;
+  background: var(--color-botones, #1c4fd6);
   color: white;
   border-radius: 6px;
   cursor: pointer;

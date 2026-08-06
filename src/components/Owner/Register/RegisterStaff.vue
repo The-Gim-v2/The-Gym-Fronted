@@ -3,7 +3,7 @@
     <NotificationSystem ref="toastRef" />
     <main class="main-content">
       <div class="profile-card">
-        <div class="profile-section">
+        <div class="profile-section" id="tutorial-step-0">
           <h1 class="main-title">Registra a tu <br> <span class="highlight">Personal</span></h1>
           
           <div class="avatar-wrapper">
@@ -21,7 +21,7 @@
 
         <div class="forms-wrapper">
           
-          <div class="login-card">
+          <div class="login-card" id="tutorial-step-1">
             <h3 class="section-title">Credenciales y Rol</h3>
             <div class="form-grid">
               <div class="input-group">
@@ -44,7 +44,7 @@
             </div>
           </div>
 
-          <div class="login-card">
+          <div class="login-card" id="tutorial-step-2">
             <h3 class="section-title">Datos del empleado</h3>
             <div class="form-grid">
               <div class="input-group span-full">
@@ -93,7 +93,7 @@
             </div>
           </div>
 
-          <div class="login-card">
+          <div class="login-card" id="tutorial-step-3">
             <h3 class="section-title">Horario de trabajo</h3>
             <div class="form-grid">
               <div class="input-group">

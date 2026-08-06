@@ -5,10 +5,9 @@
       <header class="header-section">
         <div class="title-wrapper">
           <h1 class="main-title">Personal</h1>
-         <!-- <p class="main-subtitle">Control y administración general del equipo de trabajo</p>-->
         </div>
       
-        <div class="actions-bar">
+        <div class="actions-bar" id="tutorial-step-0">
             <select class="status-select" v-model="selectedRoleFilter">
               <option value="Todos">Todos los roles</option>
               <option value="Recepcionista">Recepcionista</option>
@@ -24,22 +23,20 @@
             <input type="text" class="search-input" placeholder="Buscar personal..." v-model="searchQuery">
         </div>
       </header>
-         
-
-      <!-- VISTA ESCRITORIO -->
-      <div class="table-container desktop-only">
+        
+      <div v-if="!isMobile" class="table-container desktop-only" id="tutorial-step-1">
         <table class="user-table">
           <thead>
             <tr><th>Foto</th><th>Nombre</th><th>Correo</th><th>Celular</th><th>Rol Sistema</th><th>Acciones</th></tr>
           </thead>
           <tbody>
-            <tr v-for="user in filteredUsers" :key="user.id">
+            <tr v-for="(user, index) in filteredUsers" :key="user.id">
               <td><div class="avatar-small"></div></td>
               <td class="text-bold">{{ user.name }}</td>
               <td>{{ user.email }}</td>
               <td>{{ user.phone }}</td>
               <td><span :class="['status-badge', getRoleClass(user.role)]">{{ user.role }}</span></td>
-              <td class="actions-cell">
+              <td class="actions-cell" :id="index === 0 ? 'tutorial-step-2' : null">
                 <button class="icon-btn" title="Email" @click="activeModal = 'enviocorreo'">
                   <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                 </button>
@@ -58,10 +55,10 @@
         </table>
       </div>
 
-      <!-- VISTA MÓVIL REESTRUCTURADA -->
-      <div class="mobile-only">
-        <div v-for="user in filteredUsers" :key="user.id" class="user-card">
-          <div class="card-top-section">
+      <!-- VISTA MÓVIL (Renderizada solo si SÍ es móvil) -->
+      <div v-else class="mobile-only">
+        <div v-for="(user, index) in filteredUsers" :key="user.id" class="user-card" :id="index === 0 ? 'tutorial-step-1' : null">
+           <div class="card-top-section">
             <div class="avatar-small"></div>
             <div class="card-user-titles">
               <div class="text-bold name-text">{{ user.name }}</div>
@@ -74,7 +71,7 @@
             <span class="phone-text">{{ user.phone }}</span>
           </div>
 
-          <div class="card-actions">
+          <div class="card-actions" :id="index === 0 ? 'tutorial-step-2' : null">
             <button class="action-chip btn-email-chip" @click="activeModal = 'enviocorreo'">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
               <span>Email</span>
@@ -110,29 +107,32 @@
       </ModalComponent>
 
     </main>
-    <!-- Modal de Eliminación con la estructura directa -->
-      <transition name="pop">
-        <div v-if="showDelete" class="modal-wrapper" @click.self="showDelete = false">
-          <div class="custom-modal-card">
-            <div class="modal-body-custom">
-              <div class="modal-icon-container danger-bg">
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-              </div>
-              <h2>¿DESEA ELIMINARLO?</h2>
-              <p>¿Deseas eliminar a <span class="highlight-name">{{ selectedUser?.name }}</span> temporalmente?</p>
-              <div class="modal-buttons">
-                <button class="btn-modal secondary" @click="showDelete = false">Cancelar</button>
-                <button class="btn-modal danger" @click="executeDelete">Confirmar</button>
-              </div>
+
+    <!-- Modal de Eliminación -->
+    <transition name="pop">
+      <div v-if="showDelete" class="modal-wrapper" @click.self="showDelete = false">
+        <div class="custom-modal-card">
+          <div class="modal-body-custom">
+            <div class="modal-icon-container danger-bg">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <h2>¿DESEA ELIMINARLO?</h2>
+            <p>¿Deseas eliminar a <span class="highlight-name">{{ selectedUser?.name }}</span> temporalmente?</p>
+            <div class="modal-buttons">
+              <button class="btn-modal secondary" @click="showDelete = false">Cancelar</button>
+              <button class="btn-modal danger" @click="executeDelete">Confirmar</button>
             </div>
           </div>
         </div>
-      </transition>
+      </div>
+    </transition>
+
     <transition name="pop">
       <div v-if="activeModal === 'enviomasivo'" class="modal-wrapper" @click.self="activeModal = null">
         <CorreoMasivo @close="activeModal = null" />
       </div>
     </transition>   
+
     <transition name="pop">
       <div v-if="activeModal === 'enviocorreo'" class="modal-wrapper" @click.self="activeModal = null">
         <EnvioCorreo @close="activeModal = null" />
@@ -197,9 +197,6 @@
   padding: 20px;
 }
 
-.desktop-only { display: block; }
-.mobile-only { display: none; }
-
 .status-badge { 
     padding: 4px 10px; 
     border-radius: 20px; 
@@ -209,15 +206,12 @@
     display: inline-block;
 }
 
-/* Colores específicos para ROLES */
 .role-recepcionista { background: rgba(16, 185, 129, 0.08); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
 .role-entrenador { background: rgba(59, 130, 246, 0.08); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
 .role-Owner { background: rgba(168, 85, 247, 0.08); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
 .role-default { background: #222; color: #ccc; border: 1px solid #444; }
 
 @media (max-width: 900px) {
-  .desktop-only { display: none; }
-  .mobile-only { display: block; }
   .main-content { padding: 20px 15px; }
   .header-section { flex-direction: column; align-items: stretch; gap: 15px; }
 
@@ -427,7 +421,7 @@
 </style>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import HeadingOwner from '../HeadingOwner.vue';
 import ModalComponent from '../../Modals/ModalComponent.vue';
@@ -445,6 +439,20 @@ const selectedUser = ref(null);
 
 const searchQuery = ref('');
 const selectedRoleFilter = ref('Todos');
+
+// Detección reactiva para saber si está en móvil (< 900px)
+const isMobile = ref(window.innerWidth <= 900);
+const handleResize = () => {
+  isMobile.value = window.innerWidth <= 900;
+};
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize);
+});
 
 const filteredUsers = computed(() => {
   let result = selectedRoleFilter.value === 'Todos' 

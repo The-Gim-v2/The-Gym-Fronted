@@ -7,7 +7,7 @@
           <h1 class="main-title">Usuarios</h1>
         </div>
       
-        <div class="actions-bar">
+        <div class="actions-bar" id="tutorial-step-0">
             <select class="status-select" v-model="selectedMembership">
                 <option value="">Mensualidad (Todas)</option>
                 <option value="Mensual">Mensual</option>
@@ -29,19 +29,19 @@
       </header>
 
       <!-- VISTA ESCRITORIO -->
-      <div class="table-container desktop-only">
+      <div class="table-container desktop-only" :id="!isMobile ? 'tutorial-step-1' : null">
         <table class="user-table">
           <thead>
             <tr><th>Foto</th><th>Nombre</th><th>Correo</th><th>Celular</th><th>Status</th><th>Acciones</th></tr>
           </thead>
           <tbody>
-            <tr v-for="user in filteredUsers" :key="user.id">
+            <tr v-for="(user, index) in filteredUsers" :key="user.id">
               <td><div class="avatar-small"></div></td>
               <td class="text-bold">{{user.name}}</td>
               <td>{{user.email}}</td>
               <td>{{user.phone}}</td>
               <td><span :class="['status-badge', getStatusClass(user.status)]">{{ user.status }}</span></td>
-              <td class="actions-cell">
+              <td class="actions-cell" :id="(!isMobile && index === 0) ? 'tutorial-step-2' : null">
                 <button class="icon-btn" title="Email" @click="activeModal = 'enviocorreo'">
                   <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                 </button>
@@ -64,8 +64,8 @@
       </div>
 
       <!-- VISTA MÓVIL -->
-      <div class="mobile-only">
-        <div v-for="user in filteredUsers" :key="user.id" class="user-card">
+      <div class="mobile-only" >
+        <div v-for="(user, index) in filteredUsers" :key="user.id" class="user-card" :id="index === 0 ? 'tutorial-step-1' : null">
           <div class="card-top-section">
             <div class="avatar-small"></div>
             <div class="card-user-titles">
@@ -79,7 +79,7 @@
             <span class="phone-text">{{ user.phone }}</span>
           </div>
 
-          <div class="card-actions">
+          <div class="card-actions" :id="(isMobile && index === 0) ? 'tutorial-step-2' : null">
             <button class="action-chip btn-email-chip" @click="activeModal = 'enviocorreo'">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
               <span>Email</span>
@@ -105,7 +105,7 @@
       </div>
 
     </main>
-    
+
       <transition name="pop">
         <div v-if="showQR" class="modal-wrapper" @click.self="showQR = false">
           <div class="custom-modal-card">
@@ -432,7 +432,7 @@
 </style>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import HeadingOwner from '../HeadingOwner.vue';
 import ModalComponent from '../../Modals/ModalComponent.vue';
@@ -451,6 +451,11 @@ const selectedUser = ref(null);
 const searchQuery = ref('');
 const selectedMembership = ref(''); 
 const selectedStatus = ref('');
+
+const isMobile = ref(window.innerWidth <= 900);
+const handleResize = () => { isMobile.value = window.innerWidth <= 900; };
+onMounted(() => window.addEventListener('resize', handleResize));
+onUnmounted(() => window.removeEventListener('resize', handleResize));
 
 const filteredUsers = computed(() => {
   return users.value.filter(user => {

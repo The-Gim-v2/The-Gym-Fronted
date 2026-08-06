@@ -8,7 +8,7 @@
           <!--<p class="main-subtitle">Control y registro de pagos, membresías y estados de cuenta</p>-->
         </div>
       
-        <div class="actions-bar">
+        <div class="actions-bar" id="tutorial-step-0">
             <select class="status-select" v-model="selectedMembership">
                 <option value="">Mensualidad (Todas)</option>
                 <option value="Mensual">Mensual</option>
@@ -32,19 +32,20 @@
       </header>
 
       <!-- VISTA ESCRITORIO -->
-      <div class="table-container desktop-only">
+      <div v-if="!isMobile" class="table-container desktop-only" id="tutorial-step-1">
         <table class="user-table">
           <thead>
             <tr><th>Foto</th><th>Nombre</th><th>Correo</th><th>Fecha a Vencer</th><th>Status</th><th>Acciones</th></tr>
           </thead>
           <tbody>
-            <tr v-for="user in filteredUsers" :key="user.id">
+            <tr v-for="(user, index) in filteredUsers" :key="user.id">
               <td><div class="avatar-small"></div></td>
               <td class="text-bold">{{user.name}}</td>
               <td>{{user.email}}</td>
               <td>{{user.expirationDate}}</td>
               <td><span :class="['status-badge', getStatusClass(user.status)]">{{ user.status }}</span></td>
-              <td class="actions-cell">
+              
+                <td class="actions-cell" :id="index === 0 ? 'tutorial-step-2' : null">
                 <button class="icon-btn" title="Pago" @click="goToPayments(user.id)">
                   <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2" ry="2"/><circle cx="12" cy="12" r="3"/><path d="M12 9v6M10.5 10.5h3M10.5 13.5h3"/><path d="M6 3h14c1.1 0 2 .9 2 2v10"/></svg>
                 </button>
@@ -62,12 +63,15 @@
 
       <!-- VISTA MÓVIL -->
       <div class="mobile-only">
-        <div v-for="user in filteredUsers" :key="user.id" class="user-card">
+       <div v-for="(user, index) in filteredUsers" :key="user.id" class="user-card" :id="index === 0 ? 'tutorial-step-1' : null">
           <div class="card-top-section">
             <div class="avatar-small"></div>
             <div class="card-user-titles">
               <div class="text-bold name-text">{{ user.name }}</div>
-              <span class="status-badge" :class="getStatusClass(user.status)">{{ user.status }}</span>
+              <div class="badges-row">
+                <span class="status-badge" :class="getStatusClass(user.status)">{{ user.status }}</span>
+                <span class="membership-badge">{{ user.mensualidad }}</span>
+              </div>
             </div>
           </div>
           
@@ -77,7 +81,7 @@
             <span class="phone-text">{{ user.phone }}</span>
           </div>
 
-          <div class="card-actions">
+          <div class="card-actions" :id="index === 0 ? 'tutorial-step-2' : null">
             <button class="action-chip btn-pay-chip" @click="goToPayments(user.id)">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2" ry="2"/><circle cx="12" cy="12" r="3"/><path d="M12 9v6M10.5 10.5h3M10.5 13.5h3"/><path d="M6 3h14c1.1 0 2 .9 2 2v10"/></svg>
               <span>Pago</span>
@@ -188,6 +192,17 @@
     display: inline-block;
 }
 
+.membership-badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  background: rgba(56, 189, 248, 0.08);
+  display: inline-block;
+}
+
 .status-green { color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.3); background: rgba(34, 197, 94, 0.08); }
 .status-red { color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.08); }
 .status-orange { color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.08); }
@@ -249,6 +264,12 @@
     gap: 6px;
     flex: 1;
     min-width: 0;
+  }
+
+  .badges-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
   }
 
   .name-text {
@@ -463,7 +484,7 @@ const confirmDelete = (user) => {
   showDelete.value = true; 
 };
 
-const ejecutarEliminacion = () => {
+const executeDelete = () => {
   if (!selectedUser.value) return;
   users.value = users.value.filter(u => u.id !== selectedUser.value.id);
   showDelete.value = false;
