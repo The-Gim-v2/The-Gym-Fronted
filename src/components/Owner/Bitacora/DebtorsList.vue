@@ -5,7 +5,7 @@
       <header class="header-section">
         <h1 class="main-title">Deudores</h1>
       
-        <div class="actions-bar">
+        <div class="actions-bar" id="tutorial-step-0">
             <select class="status-select" v-model="selectedMembership">
                 <option value="">Mensualidad (Todas)</option>
                 <option value="Mensual">Mensual</option>
@@ -27,19 +27,19 @@
       </header>
             
       <!-- VISTA ESCRITORIO -->
-      <div class="table-container desktop-only">
+      <div class="table-container desktop-only" :id="!isMobile ? 'tutorial-step-1' : undefined">
         <table class="user-table">
           <thead>
             <tr><th>Foto</th><th>Nombre</th><th>Correo</th><th>Vencimiento</th><th>Adeudo</th><th>Acciones</th></tr>
           </thead>
           <tbody>
-            <tr v-for="user in filteredUsers" :key="user.id">
+            <tr v-for="(user, index) in filteredUsers" :key="user.id">
               <td><div class="avatar-small"></div></td>
               <td class="text-bold">{{ user.name }}</td>
               <td>{{ user.email }}</td>
               <td>{{ user.expiredDate }}</td>
               <td><span class="status-badge" :class="getDebtClass(user.status)">{{ user.debt }}</span></td>
-              <td class="actions-cell">
+              <td class="actions-cell" :id="!isMobile && index === 0 ? 'tutorial-step-2' : undefined">
                 <button class="icon-btn" title="Email" @click="activeModal = 'enviocorreo'"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></button>
                 <button class="icon-btn whatsapp-icon-btn" title="WhatsApp" @click="openWhatsApp(user.phone)"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 5.6 8.5 8.5 0 0 1-7.6-5.6 8.38 8.38 0 0 1-.9-3.8A8.5 8.5 0 0 1 12 3a8.5 8.5 0 0 1 9 8.5z"/><path d="M9 12l2 2 4-4"/></svg></button>
               </td>
@@ -50,7 +50,12 @@
 
       <!-- VISTA MÓVIL -->
       <div class="mobile-only">
-        <div v-for="user in filteredUsers" :key="user.id" class="user-card">
+        <div 
+          v-for="(user, index) in filteredUsers" 
+          :key="user.id" 
+          class="user-card"
+          :id="isMobile && index === 0 ? 'tutorial-step-1' : undefined"
+        >
           <div class="card-top-section">
             <div class="avatar-small"></div>
             <div class="card-user-titles">
@@ -65,7 +70,7 @@
             <span class="phone-text">{{ user.phone }}</span>
           </div>
 
-          <div class="card-actions">
+          <div class="card-actions" :id="isMobile && index === 0 ? 'tutorial-step-2' : undefined">
             <button class="action-chip btn-email-chip" @click="activeModal = 'enviocorreo'">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
               <span>Email</span>
@@ -138,7 +143,6 @@
 .search-input { width: 220px; }
 .search-input:focus, .status-select:focus { border-color: var(--color-highlight, #3b82f6); }
 
-/* Select de días unificado */
 .status-select {
   background: var(--bg-cards, #141414); 
   border: 1.5px solid var(--border-input, #2a2a2e);
@@ -170,7 +174,6 @@
 }
 .btn-bulk:hover { background: rgba(255, 255, 255, 0.05); border-color: var(--color-highlight, #444); }
 .btn-bulk svg { color: var(--color-highlight, #3b82f6); }
-
 
 .desktop-only { display: block; }
 .mobile-only { display: none; }
@@ -385,7 +388,7 @@
 </style>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import HeadingOwner from '../HeadingOwner.vue';
 import ModalComponent from '../../Modals/ModalComponent.vue';
@@ -401,6 +404,20 @@ const selectedUser = ref(null);
 const selectedMembership = ref(''); 
 const selectedStatus = ref(''); 
 const searchQuery = ref('');
+
+// Detectar pantalla móvil de manera reactiva para los IDs del tutorial
+const isMobile = ref(window.innerWidth <= 900);
+const updateWidth = () => {
+  isMobile.value = window.innerWidth <= 900;
+};
+
+onMounted(() => {
+  window.addEventListener('resize', updateWidth);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', updateWidth);
+});
 
 const filteredUsers = computed(() => {
   return users.value.filter(user => {

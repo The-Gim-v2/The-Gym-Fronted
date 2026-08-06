@@ -5,7 +5,7 @@
       <header class="header-section">
         <h1 class="main-title">Ingresos</h1>
       
-        <div class="actions-bar">
+        <div class="actions-bar" id="tutorial-step-0">
             <select class="status-select" v-model="selectedMembership">
                 <option value="">Mensualidad (Todas)</option>
                 <option value="Mensual">Mensual</option>
@@ -27,13 +27,13 @@
         </header>
             
       <!-- VISTA ESCRITORIO -->
-      <div class="table-container desktop-only">
+      <div class="table-container desktop-only" :id="!isMobile ? 'tutorial-step-1' : undefined">
         <table class="user-table">
           <thead>
             <tr><th>Foto</th><th>Nombre</th><th>Correo</th><th>Fecha a Vencer</th><th>Membresia</th><th>Monto</th></tr>
           </thead>
           <tbody>
-            <tr v-for="user in filteredUsers" :key="user.id">
+            <tr v-for="(user, index) in filteredUsers" :key="user.id">
               <td><div class="avatar-small"></div></td>
               <td class="text-bold">{{ user.name }}</td>
               <td>{{ user.email }}</td>
@@ -48,8 +48,13 @@
 
       <!-- VISTA MÓVIL REESTRUCTURADA -->
       <div class="mobile-only">
-        <div v-for="user in filteredUsers" :key="user.id" class="user-card">
-          <div class="card-top-section">
+        <div 
+          v-for="(user, index) in filteredUsers" 
+          :key="user.id" 
+          class="user-card" 
+          :id="isMobile && index === 0 ? 'tutorial-step-1' : undefined"
+        >
+           <div class="card-top-section">
             <div class="avatar-small"></div>
             <div class="card-user-titles">
               <div class="text-bold name-text">{{ user.name }}</div>
@@ -349,7 +354,7 @@
 </style>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import HeadingOwner from '../HeadingOwner.vue';
 import ModalComponent from '../../Modals/ModalComponent.vue';
@@ -362,6 +367,20 @@ const showDelete = ref(false);
 const selectedUser = ref(null);
 const selectedMembership = ref(''); 
 const searchQuery = ref('');
+
+// Detectar pantalla móvil de manera reactiva para evitar duplicidad de IDs en el DOM
+const isMobile = ref(window.innerWidth <= 900);
+const updateWidth = () => {
+  isMobile.value = window.innerWidth <= 900;
+};
+
+onMounted(() => {
+  window.addEventListener('resize', updateWidth);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', updateWidth);
+});
 
 const filteredUsers = computed(() => {
   return users.value.filter(user => {

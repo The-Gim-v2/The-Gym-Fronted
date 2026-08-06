@@ -5,7 +5,8 @@
       <header class="header-section">
         <h1 class="main-title">Asistencia <span class="highlight">Semanal</span></h1>
       
-        <div class="actions-bar">
+        <!-- ID 0 aplicado a la barra de acciones/filtros -->
+        <div class="actions-bar" id="tutorial-step-0">
             <select class="status-select" v-model="selectedDay">
                 <option value="">Dia Semanal (Todas)</option>
                 <option value="Lunes">Lunes</option>
@@ -29,8 +30,8 @@
         </div>
       </header>
           
-      <!-- VISTA ESCRITORIO -->
-      <div class="table-container desktop-only">
+      <!-- VISTA ESCRITORIO (ID 1 aplicado solo si no es móvil) -->
+      <div class="table-container desktop-only" :id="!isMobile ? 'tutorial-step-1' : undefined">
         <table class="user-table">
           <thead>
             <tr><th>Foto</th><th>Nombre</th><th>Correo</th><th>Membresia</th><th>Fecha a Vencer</th><th>Status</th></tr>
@@ -49,9 +50,14 @@
         </table>
       </div>
 
-      <!-- VISTA MÓVIL -->
+      <!-- VISTA MÓVIL (ID 1 aplicado únicamente al primer elemento de la lista móvil) -->
       <div class="mobile-only">
-        <div v-for="user in filteredUsers" :key="user.id" class="user-card">
+        <div 
+          v-for="(user, index) in filteredUsers" 
+          :key="user.id" 
+          class="user-card"
+          :id="isMobile && index === 0 ? 'tutorial-step-1' : undefined"
+        >
           <div class="card-top-section">
             <div class="avatar-small"></div>
             <div class="card-user-titles">
@@ -91,14 +97,14 @@
       <div v-if="activeModal === 'asistencias'" class="modal-wrapper" @click.self="activeModal = null">
         <Asistencias @close="activeModal = null" />
       </div>
-    </transition>  
+    </transition>   
   </HeadingOwner>
 </template>
 
 <style scoped>
 .main-content { padding: 30px 40px; max-width: 1400px; margin: 0 auto; color: var(--color-texto-general, #e5e5e5); }
 .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 20px; }
-.main-title { font-family: 'Anton', sans-serif; font-size: 2rem; color: var(--color-titulos, #fff); margin: 0; letter-spacing: 0.5px; }
+.main-title { font-family: 'Anton', sans-serif; font-size: 2.1rem; color: var(--color-titulos, #fff); margin: 0; letter-spacing: 0.5px; }
 .highlight { color: var(--color-highlight, #3b82f6); }
 
 .modal-wrapper {
@@ -114,7 +120,6 @@
 
 .actions-bar { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
 
-/* Input de búsqueda unificado con el comportamiento de pagos */
 .search-input, .status-select { 
   background: var(--bg-cards, #141414); 
   border: 1px solid rgba(255, 255, 255, 0.09); 
@@ -128,8 +133,6 @@
 .search-input { width: 220px; }
 .search-input:focus, .status-select:focus { border-color: var(--color-highlight, #3b82f6); }
 
-
-/* Select de días unificado */
 .status-select {
   background: var(--bg-cards, #141414); 
   border: 1.5px solid var(--border-input, #2a2a2e);
@@ -205,7 +208,6 @@
 }
 .btn-bulk:hover { background: rgba(255, 255, 255, 0.05); border-color: var(--color-highlight, #444); }
 .btn-bulk svg { color: var(--color-highlight, #3b82f6); }
-
 
 @media (hover: hover) {
   .btn-bulk:hover {
@@ -367,7 +369,7 @@
 </style>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import HeadingOwner from '../HeadingOwner.vue';
 import ModalComponent from '../../Modals/ModalComponent.vue';
@@ -381,6 +383,19 @@ const showDelete = ref(false);
 const selectedUser = ref(null);
 const selectedDay = ref('');
 const searchQuery = ref('');
+
+const isMobile = ref(window.innerWidth <= 900);
+const updateWidth = () => {
+  isMobile.value = window.innerWidth <= 900;
+};
+
+onMounted(() => {
+  window.addEventListener('resize', updateWidth);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', updateWidth);
+});
 
 const filteredUsers = computed(() => {
   return users.value.filter(user => {

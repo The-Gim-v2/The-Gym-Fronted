@@ -7,25 +7,25 @@
           <p class="main-subtitle">Gestiona las membresías vencidas o próximas a vencer de los usuarios</p>
         </div>
       
-        <div class="actions-bar">
+        <div class="actions-bar" id="tutorial-step-0">
             <input type="text" class="search-input" placeholder="Buscar usuario..." v-model="searchQuery">
         </div>
       </header>
-            
+          
       <!-- VISTA ESCRITORIO -->
-      <div class="table-container desktop-only">
+      <div class="table-container desktop-only" :id="!isMobile ? 'tutorial-step-1' : undefined">
         <table class="user-table">
           <thead>
             <tr><th>Foto</th><th>Nombre</th><th>Correo</th><th>Vencimiento</th><th>Adeudo</th><th>Acciones</th></tr>
           </thead>
           <tbody>
-            <tr v-for="user in filteredUsers" :key="user.id">
-              <td><div class="avatar-small"></div></td>
+            <tr v-for="(user, index) in filteredUsers" :key="user.id">
+            <td><div class="avatar-small"></div></td>
               <td class="text-bold">{{ user.name }}</td>
               <td>{{ user.email }}</td>
               <td>{{ user.expiredDate }}</td>
               <td><span class="status-badge" :class="getDebtClass(user.status)">{{ user.debt }}</span></td>
-              <td class="actions-cell">
+              <td class="actions-cell" :id="!isMobile && index === 0 ? 'tutorial-step-2' : undefined">
                 <button class="icon-btn" title="Renovar" @click="activeModal = 'renovacion'; selectedUser = user"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.5 4a3.5 3.5 0 1 0 5 0m-5 0V3m5 6l-5-5-5 5"/></svg></button>
                 <button class="icon-btn delete-icon-btn" title="Eliminar" @click="confirmDelete(user)"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
               </td>
@@ -36,7 +36,12 @@
 
       <!-- VISTA MÓVIL -->
       <div class="mobile-only">
-        <div v-for="user in filteredUsers" :key="user.id" class="user-card">
+       <div 
+          v-for="(user, index) in filteredUsers" 
+          :key="user.id" 
+          class="user-card"
+          :id="isMobile && index === 0 ? 'tutorial-step-1' : undefined"
+        >
           <div class="card-top-section">
             <div class="avatar-small"></div>
             <div class="card-user-titles">
@@ -51,7 +56,8 @@
             <span class="phone-text">{{ user.phone }}</span>
           </div>
 
-          <div class="card-actions">
+          <!-- Asignamos el tutorial-step-2 exclusivamente en móvil para el primer usuario -->
+          <div class="card-actions" :id="isMobile && index === 0 ? 'tutorial-step-2' : undefined">
             <button class="action-chip btn-renew-chip" @click="activeModal = 'renovacion'; selectedUser = user">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.5 4a3.5 3.5 0 1 0 5 0m-5 0V3m5 6l-5-5-5 5"/></svg>
               <span>Renovar</span>
@@ -223,6 +229,7 @@
   }
 
   .card-actions {
+    position: relative;
     border-top: 1px dashed rgba(255, 255, 255, 0.12);
     padding-top: 12px;
     display: flex;
@@ -346,7 +353,7 @@
 </style>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import HeadingOwner from '../HeadingOwner.vue';
 import ModalComponent from '../../Modals/ModalComponent.vue';
 import RenovacionModal from '../Componets/Account-Recovery.vue'; 
@@ -354,8 +361,20 @@ import RenovacionModal from '../Componets/Account-Recovery.vue';
 const activeModal = ref(null);
 const showDelete = ref(false);
 const selectedUser = ref(null);
-
 const searchQuery = ref('');
+
+const isMobile = ref(window.innerWidth <= 900);
+const handleResize = () => {
+  isMobile.value = window.innerWidth <= 900;
+};
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize);
+});
 
 const users = ref([
   { id: 1, name: 'Jesus Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expiredDate: '18/03/2026', mensualidad: 'Mensual', debt: '$600.00', status: 'Inactivo', phone: '+52 481 123 4321' },

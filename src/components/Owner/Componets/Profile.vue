@@ -142,11 +142,11 @@ const handleInteractAI = () => {
 
 <template>
   <HeadingOwner>
-    <main class="main-content">
+    <main class="main-content" id="tutor-0">
       
       <!-- Notificación flotante tipo Toast -->
       <transition name="toast">
-        <div v-if="notification.show" class="floating-toast" :class="notification.type">
+        <div v-if="notification.show" class="floating-toast" :class="notification.type" id="tutor-1">
           <svg v-if="notification.type === 'success'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
           <svg v-else-if="notification.type === 'warning'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
           <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
@@ -154,71 +154,73 @@ const handleInteractAI = () => {
         </div>
       </transition>
 
-      <div class="profile-card">
+      <div class="profile-card" id="tutor-2">
         
         <!-- Sección Izquierda -->
         <div 
           class="profile-section" 
           :style="{ transform: `translateY(${profileTranslateY}px)` }"
+          id="tutor-3"
         >
-          <h1 class="main-title">PERFIL DEL <br> <span class="highlight">GIMNASIO</span></h1>
+          <h1 class="main-title" id="tutor-4">PERFIL DEL <br> <span class="highlight">GIMNASIO</span></h1>
           
-          <div class="avatar-wrapper" @click="triggerFileInput" title="Subir logotipo">
-            <div class="avatar-circle">
+          <div class="avatar-wrapper" @click="triggerFileInput" title="Subir logotipo" id="tutor-5">
+            <div class="avatar-circle" id="tutor-6">
               <img v-if="previewImage" :src="previewImage" alt="Vista previa" class="avatar-img" />
               <svg v-else viewBox="0 0 24 24" fill="white"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
             </div>
-            <button type="button" class="avatar-action btn-camera" title="Cambiar logotipo">
+            <button type="button" class="avatar-action btn-camera" title="Cambiar logotipo" id="tutor-7">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
             </button>
-            <input type="file" ref="fileInput" @change="onFileSelected" accept="image/*" style="display: none" />
+            <input type="file" ref="fileInput" @change="onFileSelected" accept="image/*" style="display: none" id="tutor-8" />
           </div>
 
-          <h3 class="gym-name-display">{{ form.nombreGimnasio || 'Gimnasio' }}</h3>
-          <p class="profile-hint">Actualiza la información de tu establecimiento y perfil.</p>
+          <h3 class="gym-name-display" id="tutor-9">{{ form.nombreGimnasio || 'Gimnasio' }}</h3>
+          <p class="profile-hint" id="tutor-10">Actualiza la información de tu establecimiento y perfil.</p>
         </div>
 
         <!-- Columna Derecha: Formularios -->
-        <div class="forms-wrapper">
-          <form @submit.prevent="handleSaveChanges">
+        <div class="forms-wrapper" id="tutor-11">
+          <form @submit.prevent="handleSaveChanges" id="tutor-12">
             
             <!-- Datos del Gimnasio y Membresía -->
-            <div class="login-card">
-              <h3 class="section-title">Información del Establecimiento</h3>
-              <div class="form-grid">
-                <div class="input-group">
+            <div class="login-card" id="tutor-13">
+              <h3 class="section-title" id="tutor-14">Información del Establecimiento</h3>
+              <div class="form-grid" id="tutor-15">
+                <div class="input-group" id="tutor-16">
                   <label for="nombreGimnasio">Nombre del gimnasio</label>
                   <input id="nombreGimnasio" type="text" v-model="form.nombreGimnasio" required />
                 </div>
-                <div class="input-group">
+                <div class="input-group" id="tutor-17">
                   <label for="curp">CURP</label>
                   <input id="curp" type="text" v-model="form.curp" disabled class="input-disabled" title="El CURP no se puede editar" />
                 </div>
               </div>
 
-              <div class="form-grid mt-3">
-                <div class="input-group">
+              <div class="form-grid mt-3" id="tutor-18">
+                <div class="input-group" id="tutor-19">
                   <label for="membresiaActual">Membresía actual del sitio</label>
-                  <div class="membership-inline-row">
+                  <div class="membership-inline-row" id="tutor-20">
                     <input id="membresiaActual" type="text" v-model="form.membresiaActual" disabled class="input-disabled" />
-                    <button type="button" class="action-btn" @click="handleUpdateMembership" title="Actualizar membresía">
+                    <button type="button" class="action-btn" @click="handleUpdateMembership" title="Actualizar membresía" id="tutor-21">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>
                     </button>
                   </div>
                   <!-- Botón para disparar el modal de cancelación -->
-                  <button type="button" class="btn-cancel-subscription" @click="handleCancelSubscription">
+                  <button type="button" class="btn-cancel-subscription" @click="handleCancelSubscription" id="tutor-22">
                     Darse de baja / Cancelar suscripción
                   </button>
                 </div>
 
-                <div class="input-group special-buttons-group">
+                <div class="input-group special-buttons-group" id="tutor-23">
                   <label>&nbsp;</label>
-                  <div class="dual-action-buttons">
+                  <div class="dual-action-buttons" id="tutor-24">
                     <button 
                       type="button" 
                       class="btn-custom-action btn-sede" 
                       :class="{ 'btn-disabled': !isProMember }"
                       @click="handleAddSede"
+                      id="tutor-25"
                     >
                       Agregar otra Sede
                     </button>
@@ -227,6 +229,7 @@ const handleInteractAI = () => {
                       class="btn-custom-action btn-ai" 
                       :class="{ 'btn-disabled': !isProMember }"
                       @click="handleInteractAI"
+                      id="tutor-26"
                     >
                       Interactuar IA
                     </button>
@@ -236,44 +239,44 @@ const handleInteractAI = () => {
             </div>
 
             <!-- Datos del Administrador -->
-            <div class="login-card">
-              <h3 class="section-title">Datos del Administrador</h3>
-              <div class="form-grid">
-                <div class="input-group">
+            <div class="login-card" id="tutor-27">
+              <h3 class="section-title" id="tutor-28">Datos del Administrador</h3>
+              <div class="form-grid" id="tutor-29">
+                <div class="input-group" id="tutor-30">
                   <label for="nombres">Nombre(s)</label>
                   <input id="nombres" type="text" v-model="form.nombres" required />
                 </div>
-                <div class="input-group">
+                <div class="input-group" id="tutor-31">
                   <label for="apellidoP">Apellido paterno</label>
                   <input id="apellidoP" type="text" v-model="form.apellidoP" required />
                 </div>
-                <div class="input-group">
+                <div class="input-group" id="tutor-32">
                   <label for="apellidoM">Apellido materno</label>
                   <input id="apellidoM" type="text" v-model="form.apellidoM" required />
                 </div>
-                <div class="input-group">
+                <div class="input-group" id="tutor-33">
                   <label for="fechaNac">Fecha de nacimiento</label>
                   <input id="fechaNac" type="date" v-model="form.fechaNac" required />
                 </div>
-                <div class="input-group">
+                <div class="input-group" id="tutor-34">
                   <label for="celular">Teléfono celular</label>
                   <input id="celular" type="tel" v-model="form.celular" required />
                 </div>
-                <div class="input-group">
+                <div class="input-group" id="tutor-35">
                   <label for="email">Correo electrónico</label>
                   <input id="email" type="email" v-model="form.email" required />
                 </div>
-                <div class="input-group">
+                <div class="input-group" id="tutor-36">
                   <label for="password">Nueva contraseña</label>
-                  <div class="input-wrapper">
+                  <div class="input-wrapper" id="tutor-37">
                     <input id="password" :type="showPassword ? 'text' : 'password'" v-model="form.password" placeholder="Dejar en blanco para mantener" />
-                    <button type="button" class="toggle-password-btn" @click="showPassword = !showPassword">
+                    <button type="button" class="toggle-password-btn" @click="showPassword = !showPassword" id="tutor-38">
                       <svg v-if="showPassword" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                       <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                     </button>
                   </div>
                 </div>
-                <div class="input-group">
+                <div class="input-group" id="tutor-39">
                   <label for="confirmPassword">Confirmar contraseña</label>
                   <input id="confirmPassword" type="password" v-model="form.confirmPassword" placeholder="Repetir contraseña" />
                 </div>
@@ -281,34 +284,34 @@ const handleInteractAI = () => {
             </div>
 
             <!-- Ubicación del Gimnasio -->
-            <div class="login-card">
-              <h3 class="section-title">Ubicación del Gimnasio</h3>
-              <div class="form-grid">
-                <div class="input-group">
+            <div class="login-card" id="tutor-40">
+              <h3 class="section-title" id="tutor-41">Ubicación del Gimnasio</h3>
+              <div class="form-grid" id="tutor-42">
+                <div class="input-group" id="tutor-43">
                   <label for="entidad">Entidad</label>
                   <input id="entidad" type="text" v-model="form.entidad" required />
                 </div>
-                <div class="input-group">
+                <div class="input-group" id="tutor-44">
                   <label for="municipio">Municipio</label>
                   <input id="municipio" type="text" v-model="form.municipio" required />
                 </div>
-                <div class="input-group">
+                <div class="input-group" id="tutor-45">
                   <label for="colonia">Colonia</label>
                   <input id="colonia" type="text" v-model="form.colonia" required />
                 </div>
-                <div class="input-group">
+                <div class="input-group" id="tutor-46">
                   <label for="cp">Código postal</label>
                   <input id="cp" type="text" v-model="form.cp" required />
                 </div>
-                <div class="input-group span-2">
+                <div class="input-group span-2" id="tutor-47">
                   <label for="calle">Calle</label>
                   <input id="calle" type="text" v-model="form.calle" required />
                 </div>
-                <div class="input-group">
+                <div class="input-group" id="tutor-48">
                   <label for="numExt">Núm. exterior</label>
                   <input id="numExt" type="text" v-model="form.numExt" required />
                 </div>
-                <div class="input-group">
+                <div class="input-group" id="tutor-49">
                   <label for="numInt">Núm. interior</label>
                   <input id="numInt" type="text" v-model="form.numInt" />
                 </div>
@@ -316,56 +319,57 @@ const handleInteractAI = () => {
             </div>
 
             <!-- Configuración de Operación -->
-            <div class="login-card">
-              <h3 class="section-title">Configuración de Operación</h3>
-              <div class="input-group mb-3">
+            <div class="login-card" id="tutor-50">
+              <h3 class="section-title" id="tutor-51">Configuración de Operación</h3>
+              <div class="input-group mb-3" id="tutor-52">
                 <label>Días de apertura</label>
-                <div class="days-container">
+                <div class="days-container" id="tutor-53">
                   <button
                     type="button"
-                    v-for="day in allDays"
+                    v-for="(day, index) in allDays"
                     :key="day"
                     class="day-chip"
                     :class="{ active: form.selectedDays.includes(day) }"
                     @click="toggleDay(day)"
+                    :id="`tutor-${54 + index}`"
                   >
                     {{ day }}
                   </button>
                 </div>
               </div>
 
-              <div class="form-grid">
-                <div class="input-group">
+              <div class="form-grid" id="tutor-61">
+                <div class="input-group" id="tutor-62">
                   <label for="precioMes">Mensualidad ($)</label>
                   <input id="precioMes" type="number" v-model="form.precioMes" required />
                 </div>
-                <div class="input-group">
+                <div class="input-group" id="tutor-63">
                   <label for="precioSem">Semanal ($)</label>
                   <input id="precioSem" type="number" v-model="form.precioSem" required />
                 </div>
               </div>
             </div>
 
-            <button type="submit" class="btn-primary">Guardar Cambios</button>
+            <button type="submit" class="btn-primary" id="tutor-64">Guardar Cambios</button>
           </form>
         </div>
       </div>
 
       <!-- Modal Personalizado de Confirmación de Baja -->
-      <div v-if="showCancelModal" class="modal-overlay" @click.self="showCancelModal = false">
-        <div class="modal-container modal-small animate-modal">
-          <div class="modal-header">
-            <h3>¿Estás seguro?</h3>
-            <button class="close-btn" @click="showCancelModal = false">&times;</button>
+      <div v-if="showCancelModal" class="modal-overlay" @click.self="showCancelModal = false" id="tutor-65">
+        <div class="modal-container modal-small animate-modal" id="tutor-66">
+          <div class="modal-header" id="tutor-67">
+            <h3 id="tutor-68">¿Estás seguro?</h3>
+            <button class="close-btn" @click="showCancelModal = false" id="tutor-69">&times;</button>
           </div>
-          <div class="modal-body text-center">
-            <div class="warning-icon-wrapper">
+          <div class="modal-body text-center" id="tutor-70">
+            <div class="warning-icon-wrapper" id="tutor-71">
               <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
             </div>
-            <p class="modal-text">¿Estás seguro de que deseas cancelar tu suscripción y dar de baja el servicio? Perderás acceso a los beneficios activos.</p>
-            <div class="modal-actions">
-              <button type="button" class="btn-secondary-modal" @click="showCancelModal = false">Conservar plan</button>
-              <button type="button" class="btn-danger-modal" @click="confirmCancelSubscription">Sí, dar de baja</button>
+            <p class="modal-text" id="tutor-72">¿Estás seguro de que deseas cancelar tu suscripción y dar de baja el servicio? Perderás acceso a los beneficios activos.</p>
+            <div class="modal-actions" id="tutor-73">
+              <button type="button" class="btn-secondary-modal" @click="showCancelModal = false" id="tutor-74">Conservar plan</button>
+              <button type="button" class="btn-danger-modal" @click="confirmCancelSubscription" id="tutor-75">Sí, dar de baja</button>
             </div>
           </div>
         </div>
@@ -376,30 +380,31 @@ const handleInteractAI = () => {
         v-if="showPaymentModal" 
         @close="showPaymentModal = false" 
         @success="handlePaymentSuccess" 
+        id="tutor-76"
       />
 
       <!-- Modal para Agregar Sede -->
-      <div v-if="showAddSedeModal" class="modal-overlay" @click.self="showAddSedeModal = false">
-        <div class="modal-container animate-modal">
-          <div class="modal-header">
-            <h3>Registro de Nueva Sede / Gimnasio</h3>
-            <button class="close-btn" @click="showAddSedeModal = false">&times;</button>
+      <div v-if="showAddSedeModal" class="modal-overlay" @click.self="showAddSedeModal = false" id="tutor-77">
+        <div class="modal-container animate-modal" id="tutor-78">
+          <div class="modal-header" id="tutor-79">
+            <h3 id="tutor-80">Registro de Nueva Sede / Gimnasio</h3>
+            <button class="close-btn" @click="showAddSedeModal = false" id="tutor-81">&times;</button>
           </div>
-          <div class="modal-body">
-            <RegisterGymModal @close="showAddSedeModal = false" />
+          <div class="modal-body" id="tutor-82">
+            <RegisterGymModal @close="showAddSedeModal = false" id="tutor-83" />
           </div>
         </div>
       </div>
 
       <!-- Modal para Interactuar con la IA -->
-      <div v-if="showAIModal" class="modal-overlay" @click.self="showAIModal = false">
-        <div class="modal-container animate-modal">
-          <div class="modal-header">
-            <h3>Asistente IA - Gestión de Gimnasio</h3>
-            <button class="close-btn" @click="showAIModal = false">&times;</button>
+      <div v-if="showAIModal" class="modal-overlay" @click.self="showAIModal = false" id="tutor-84">
+        <div class="modal-container animate-modal" id="tutor-85">
+          <div class="modal-header" id="tutor-86">
+            <h3 id="tutor-87">Asistente IA - Gestión de Gimnasio</h3>
+            <button class="close-btn" @click="showAIModal = false" id="tutor-88">&times;</button>
           </div>
-          <div class="modal-body">
-            <AIChatModal @click="showAIModal = false" />
+          <div class="modal-body" id="tutor-89">
+            <AIChatModal @click="showAIModal = false" id="tutor-90" />
           </div>
         </div>
       </div>

@@ -228,6 +228,153 @@ const tutoriales = {
       description: "Establece el tope máximo acumulable que una multa o recargo puede alcanzar en la cuenta del usuario.", 
       selector: '#tutorial-step-7' 
     }
+  ],
+  'revenue-log': [
+  { 
+    title: "Filtros y Resumen de Ingresos", 
+    description: "Filtra los pagos por tipo de membresía, consulta el total recaudado en tiempo real o busca a un usuario específico mediante la barra de búsqueda.", 
+    selector: '#tutorial-step-0' 
+  },
+  { 
+    title: "Tabla de Ingresos", 
+    description: "Visualiza el detalle completo de cada transacción: foto del usuario, nombre completo, correo electrónico, fecha de vencimiento, tipo de membresía adquirida y el monto pagado.", 
+    selector: '#tutorial-step-1' 
+  }
+  ],
+  'debtors-list': [
+    { 
+      title: "Filtros y Búsqueda", 
+      description: "Filtra los deudores por tipo de membresía o estatus, realiza búsquedas específicas y envía correos masivos de cobranza.", 
+      selector: '#tutorial-step-0' 
+    },
+    { 
+      title: "Listado de Deudores", 
+      description: "Visualiza la información clave de cada usuario con adeudo: nombre, correo, fecha de vencimiento y el monto pendiente.", 
+      selector: '#tutorial-step-1' 
+    },
+    { 
+      title: "Acciones Rápidas", 
+      description: "Comunícate de inmediato con el deudor enviándole un correo electrónico o un mensaje directo por WhatsApp.", 
+      selector: '#tutorial-step-2' 
+    }
+  ],
+  'attendance-log': [
+    { 
+      title: "Filtros y Reportes de Asistencia", 
+      description: "Filtra la asistencia por día de la semana, consulta la gráfica de reportes o busca a un usuario específico mediante la barra de búsqueda.", 
+      selector: '#tutorial-step-0' 
+    },
+    { 
+      title: "Listado de Asistencia", 
+      description: "Visualiza la información clave de cada usuario: foto, nombre completo, correo electrónico, tipo de membresía, fecha a vencer y su estatus actual.", 
+      selector: '#tutorial-step-1' 
+    }
+  ],
+  'renewals': [
+    { 
+      title: "Búsqueda de Usuarios", 
+      description: "Busca de forma específica a los usuarios que necesitan renovación mediante la barra de búsqueda.", 
+      selector: '#tutorial-step-0' 
+    },
+    { 
+      title: "Listado de Renovaciones", 
+      description: "Visualiza la información clave de cada usuario con membresía vencida o próxima a vencer: foto, nombre completo, correo, fecha de vencimiento y su adeudo.", 
+      selector: '#tutorial-step-1' 
+    },
+    { 
+      title: "Acciones Rápidas", 
+      description: "Gestiona las cuentas realizando la renovación inmediata de la membresía o eliminando el registro del usuario según sea necesario.", 
+      selector: '#tutorial-step-2' 
+    }
+  ],
+  'Owner-settings': [
+    { 
+      title: "Guardar Cambios", 
+      description: "Aplica y almacena de forma permanente todas las modificaciones realizadas en la configuración del sitio.", 
+      selector: '#btn-guardar-cambios' 
+    },
+    { 
+      title: "Temas y Combinaciones", 
+      description: "Selecciona rápidamente entre 24 estilos y combinaciones predefinidas para cambiar la apariencia visual de todo el sistema.", 
+      selector: '#panel-temas' 
+    },
+    { 
+      title: "Notificaciones", 
+      description: "Activa o desactiva la recepción y envío automático de alertas y preferencias de notificación.", 
+      selector: '#row-notificaciones' 
+    },
+    { 
+      title: "Tutorial", 
+      description: "Habilita o deshabilita la guía interactiva para aprender a utilizar todas las funcionalidades de la plataforma.", 
+      selector: '#row-tutorial' 
+    },
+    { 
+      title: "Idioma de la Interfaz", 
+      description: "Selecciona el idioma principal en el que se mostrarán los textos y menús del sistema.", 
+      selector: '#row-idioma' 
+    },
+    { 
+      title: "Paleta de Colores Detallada", 
+      description: "Personaliza de forma independiente el color de cada componente de la interfaz, tablas, botones y encabezados.", 
+      selector: '#row-paleta-colores' 
+    },
+    { 
+      title: "Densidad de la Interfaz", 
+      description: "Elige el espaciado general entre los elementos para una vista espaciosa, normal o más compacta.", 
+      selector: '#row-densidad' 
+    },
+    { 
+      title: "Estilo de Bordes", 
+      description: "Define el nivel de curvatura y redondeo visual para los paneles, botones y contenedores de la aplicación.", 
+      selector: '#row-border-radius' 
+    },
+    { 
+      title: "Exportación de Datos", 
+      description: "Descarga respaldos y bitácoras completas del sistema en formatos compatibles como Excel o YML.", 
+      selector: '#panel-exportacion' 
+    }
+  ],
+  'profile': [
+    { 
+      title: "Logotipo del Gimnasio", 
+      description: "Sube o cambia la imagen del logotipo oficial del establecimiento que se muestra en el perfil y encabezados.", 
+      selector: '#tutor-5' 
+    },
+    { 
+      title: "Información del Establecimiento", 
+      description: "Modifica el nombre oficial del gimnasio y consulta información de registro intransferible como el CURP.", 
+      selector: '#tutor-13' 
+    },
+    { 
+      title: "Membresía del Sitio", 
+      description: "Consulta el plan activo actual, actualiza tu suscripción o realiza la cancelación del servicio si lo requieres.", 
+      selector: '#tutor-20' 
+    },
+    { 
+      title: "Acciones Pro", 
+      description: "Agrega nuevas sedes de operación o interactúa con el asistente de inteligencia artificial exclusivo para cuentas Pro.", 
+      selector: '#tutor-23' 
+    },
+    { 
+      title: "Datos del Administrador", 
+      description: "Actualiza la información personal, datos de contacto, correo electrónico y credenciales de acceso del administrador.", 
+      selector: '#tutor-27' 
+    },
+    { 
+      title: "Ubicación del Gimnasio", 
+      description: "Configura la dirección física completa del establecimiento incluyendo entidad, municipio, colonia y código postal.", 
+      selector: '#tutor-40' 
+    },
+    { 
+      title: "Configuración de Operación", 
+      description: "Define los días de apertura de la semana y establece las tarifas predeterminadas para mensualidades y semanas.", 
+      selector: '#tutor-50' 
+    },
+    { 
+      title: "Guardar Cambios", 
+      description: "Aplica y almacena de forma definitiva todas las modificaciones realizadas en el perfil del gimnasio y del administrador.", 
+      selector: '#tutor-64' 
+    }
   ]
 };
 
