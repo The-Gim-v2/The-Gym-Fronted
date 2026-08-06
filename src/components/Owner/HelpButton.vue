@@ -21,7 +21,7 @@
         }"
       ></div>
 
-      <!-- Tarjeta de explicación flotante (En móvil aparece tras 10 segundos o al presionar mostrar) -->
+      <!-- Tarjeta de explicación flotante con diseño estilizado -->
       <div 
         v-if="steps[activeStep] && (!isMobile || textRevealed)" 
         class="help-popover" 
@@ -34,13 +34,13 @@
         </div>
         <p>{{ steps[activeStep].description }}</p>
         <div class="modal-footer">
-          <span>{{ activeStep + 1 }} de {{ steps.length }}</span>
+          <span class="step-badge">{{ activeStep + 1 }} de {{ steps.length }}</span>
           <div class="buttons-group">
             <button v-if="isMobile && !textRevealed" class="nav-btn secondary" @click="revealTextNow">
               Mostrar texto
             </button>
             <button v-if="activeStep > 0" class="nav-btn secondary" @click="prevStep">Anterior</button>
-            <button class="nav-btn" @click="nextStep">
+            <button class="nav-btn primary" @click="nextStep">
               {{ activeStep < steps.length - 1 ? 'Siguiente →' : 'Finalizar' }}
             </button>
           </div>
@@ -405,7 +405,7 @@ const setupStepTimer = () => {
     // Revelar texto automáticamente después de 10 segundos en móvil
     revealTimer = setTimeout(() => {
       textRevealed.value = true;
-    }, 10000);
+    }, 5000);
   } else {
     textRevealed.value = true;
   }
@@ -424,15 +424,19 @@ const updateTargetPosition = () => {
 
   if (el) {
     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    
+    // Usar requestAnimationFrame y un timeout seguro para garantizar que el DOM esté listo en móvil
     setTimeout(() => {
-      const rect = el.getBoundingClientRect();
-      targetRect.value = {
-        top: rect.top - 8,
-        left: rect.left - 8,
-        width: rect.width + 16,
-        height: rect.height + 16
-      };
-    }, 300);
+      requestAnimationFrame(() => {
+        const rect = el.getBoundingClientRect();
+        targetRect.value = {
+          top: rect.top - 8,
+          left: rect.left - 8,
+          width: rect.width + 16,
+          height: rect.height + 16
+        };
+      });
+    }, 350);
   } else {
     targetRect.value = null;
   }
@@ -453,7 +457,7 @@ const popoverStyle = computed(() => {
       height: rect.height + 'px',
       transform: 'none',
       maxWidth: 'none',
-      borderRadius: '12px',
+      borderRadius: '16px',
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'space-between'
@@ -533,48 +537,49 @@ onUnmounted(() => {
   position: fixed;
   bottom: 30px;
   right: 30px;
-  width: 40px;
-  height: 40px;
-  background: var(--color-botones, #1c4fd6);
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, var(--color-botones, #1c4fd6), #3b82f6);
   color: white;
   border-radius: 50%;
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  transition: transform 0.2s;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.btn-help:hover { transform: scale(1.1); }
+.btn-help:hover { transform: scale(1.12); }
 
 .tutorial-overlay {
   position: fixed;
   top: 0; left: 0; width: 100vw; height: 100vh;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(2, 6, 23, 0.75);
+  backdrop-filter: blur(3px);
   z-index: 9999;
   overflow: hidden;
 }
 
 .spotlight-box {
   position: absolute;
-  border-radius: 12px;
-  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.75), 0 0 20px rgba(93, 91, 233, 0.8);
-  border: 2px solid #5558f7;
+  border-radius: 14px;
+  box-shadow: 0 0 0 9999px rgba(2, 6, 23, 0.8), 0 0 25px rgba(85, 88, 247, 0.9);
+  border: 2px solid #6366f1;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   pointer-events: none;
 }
 
 .help-popover {
   position: absolute;
-  background: #1b232e;
+  background: linear-gradient(145deg, #161e29, #0f172a);
   color: #fff;
-  padding: 15px;
-  border-radius: 12px;
-  box-shadow: 0 15px 20px rgba(0,0,0,0.6);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7), 0 0 30px rgba(85, 88, 247, 0.25);
+  border: 1px solid rgba(99, 102, 241, 0.3);
   z-index: 10000;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   box-sizing: border-box;
@@ -584,31 +589,44 @@ onUnmounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .help-popover h3 { 
   margin: 0; 
-  font-size: 1.1rem; 
+  font-size: 1.2rem; 
   font-family: 'Oswald', sans-serif; 
-  color: #fff; 
+  background: linear-gradient(90deg, #ffffff, #93c5fd);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 0.5px;
 }
 
 .close-btn {
-  background: none;
+  background: rgba(255, 255, 255, 0.05);
   border: none;
-  font-size: 1.3rem;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 1.2rem;
   cursor: pointer;
-  color: #aaa;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
 }
 
-.close-btn:hover { color: #fff; }
+.close-btn:hover { 
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171; 
+}
 
 .help-popover p { 
-  font-size: 0.92rem; 
-  line-height: 1.4; 
+  font-size: 0.95rem; 
+  line-height: 1.5; 
   color: #cbd5e1; 
-  margin-bottom: 20px;
+  margin-bottom: 22px;
 }
 
 .modal-footer {
@@ -618,28 +636,50 @@ onUnmounted(() => {
   font-family: 'Oswald', sans-serif;
 }
 
+.step-badge {
+  background: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
 .buttons-group {
   display: flex;
   gap: 8px;
 }
 
 .nav-btn {
-  padding: 7px 14px;
+  padding: 8px 16px;
   border: none;
-  background: var(--color-botones, #1c4fd6);
-  color: white;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
-  font-weight: bold;
-  font-size: 0.85rem;
+  font-weight: 600;
+  font-size: 0.88rem;
+  transition: all 0.2s ease;
+}
+
+.nav-btn.primary {
+  background: linear-gradient(135deg, var(--color-botones, #1c4fd6), #4f46e5);
+  color: white;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+}
+
+.nav-btn.primary:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
 }
 
 .nav-btn.secondary {
-  background: rgba(255, 255, 255, 0.1);
-  color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.nav-btn:hover {
-  opacity: 0.9;
+.nav-btn.secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
 }
 </style>
