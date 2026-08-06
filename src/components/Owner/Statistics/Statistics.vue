@@ -122,18 +122,18 @@ const diasCalendario = ref([
               </div>
 
               <div id="tutor-18" class="contact-info-list">
-                <div id="tutor-19" class="contact-item"><span class="contact-label">Fecha de inscripción</span><span class="contact-val">{{ user.inscripcion }}</span></div>
-                <div id="tutor-20" class="contact-item"><span class="contact-label">Celular</span><span class="contact-val">{{ user.celular }}</span></div>
-                <div id="tutor-21" class="contact-item"><span class="contact-label">Correo electrónico</span><span class="contact-val email-text">{{ user.correo }}</span></div>
+                <div  class="contact-item"><span class="contact-label">Fecha de inscripción</span><span class="contact-val">{{ user.inscripcion }}</span></div>
+                <div class="contact-item"><span class="contact-label">Celular</span><span class="contact-val">{{ user.celular }}</span></div>
+                <div  class="contact-item"><span class="contact-label">Correo electrónico</span><span class="contact-val email-text">{{ user.correo }}</span></div>
               </div>
             </div>
 
             <div class="bottom-financial-grid">
-              <div id="tutor-22" class="info-card">
+              <div id="tutor-19" class="info-card">
                 <span class="card-mini-title">Próximo Corte</span>
                 <span class="card-highlight-val red">{{ user.proximoCorte }}</span>
               </div>
-              <div id="tutor-23" class="info-card">
+              <div id="tutor-20" class="info-card">
                 <span class="card-mini-title">Saldo a Pagar</span>
                 <span class="card-highlight-val green">{{ user.saldoAPagar }}</span>
               </div>
@@ -143,7 +143,7 @@ const diasCalendario = ref([
           <!-- COLUMNA DERECHA -->
           <div class="column-right">
             
-            <div id="tutor-24" class="calendar-card">
+            <div id="tutor-21" class="calendar-card">
               <div class="calendar-header">
                 <h3>Asistencia de Mayo</h3>
                 <span class="year-badge">2026</span>
@@ -164,7 +164,7 @@ const diasCalendario = ref([
             </div>
 
             <!-- TARJETA DE RACHA INTACTA (TAL COMO LA SOLICITASTE) -->
-            <div id="tutor-25" class="streak-card" :class="`theme-${etapaActual}`">
+            <div id="tutor-22" class="streak-card" :class="`theme-${etapaActual}`">
               <div class="streak-header-row">
                 <div class="streak-title-group">
                   <span class="section-subtitle-small">Mascota & Racha del Usuario</span>

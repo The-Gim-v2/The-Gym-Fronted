@@ -2,8 +2,8 @@
   <HeadingOwner>
     <main class="main-content">
       <!-- Barra de búsqueda superior alineada -->
-      <div id="tutor-0" class="search-bar-container-top">
-        <div class="input-group search-small">
+      <div  class="search-bar-container-top">
+        <div id="tutor-0" class="input-group search-small">
           <label>Buscar Cliente</label>
           <div class="search-input-wrapper">
             <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">

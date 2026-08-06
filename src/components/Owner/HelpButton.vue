@@ -504,99 +504,19 @@ const tutoriales = {
       selector: '#tutor-6' 
     },
     { 
-      title: "CURP", 
-      description: "Ingresa o actualiza la Clave Única de Registro de Población del colaborador.", 
-      selector: '#tutor-7' 
-    },
-    { 
-      title: "Nombres", 
-      description: "Establece el nombre o nombres del colaborador.", 
-      selector: '#tutor-8' 
-    },
-    { 
-      title: "Apellido Paterno", 
-      description: "Registra el apellido paterno del colaborador.", 
-      selector: '#tutor-9' 
-    },
-    { 
-      title: "Apellido Materno", 
-      description: "Registra el apellido materno del colaborador.", 
-      selector: '#tutor-10' 
-    },
-    { 
-      title: "Fecha de Nacimiento", 
-      description: "Especifica la fecha de nacimiento del colaborador.", 
-      selector: '#tutor-11' 
-    },
-    { 
-      title: "Celular", 
-      description: "Indica el número de teléfono celular de contacto.", 
-      selector: '#tutor-12' 
-    },
-    { 
-      title: "Facebook", 
-      description: "Añade el enlace o usuario de Facebook del colaborador.", 
-      selector: '#tutor-13' 
-    },
-    { 
-      title: "Instagram", 
-      description: "Añade el perfil o cuenta de Instagram del colaborador.", 
-      selector: '#tutor-14' 
-    },
-    { 
-      title: "Tiktok", 
-      description: "Añade la cuenta de TikTok del colaborador.", 
-      selector: '#tutor-15' 
-    },
-    { 
-      title: "Otras app", 
-      description: "Registra otras aplicaciones o redes sociales de contacto.", 
-      selector: '#tutor-16' 
-    },
-    { 
       title: "Credenciales", 
       description: "Administra el correo, la sede asignada, el rol en el sistema y la especialidad.", 
-      selector: '#tutor-17' 
-    },
-    { 
-      title: "Correo electrónico", 
-      description: "Establece la dirección de correo electrónico institucional o de contacto.", 
-      selector: '#tutor-18' 
-    },
-    { 
-      title: "Sede", 
-      description: "Indica la sucursal o sede asignada al colaborador.", 
-      selector: '#tutor-19' 
-    },
-    { 
-      title: "Rol en el sistema", 
-      description: "Define el rol o puesto que desempeña el colaborador en el sistema.", 
-      selector: '#tutor-20' 
-    },
-    { 
-      title: "Especialidad", 
-      description: "Especifica el área de especialización o disciplina del colaborador.", 
-      selector: '#tutor-21' 
+      selector: '#tutor-7' 
     },
     { 
       title: "Horario de trabajo", 
       description: "Configura las horas de entrada y salida de la jornada laboral.", 
-      selector: '#tutor-22' 
-    },
-    { 
-      title: "Entrada", 
-      description: "Define la hora de inicio de la jornada laboral.", 
-      selector: '#tutor-23' 
-    },
-    { 
-      title: "Salida", 
-      description: "Define la hora de finalización de la jornada laboral.", 
-      selector: '#tutor-24' 
+      selector: '#tutor-8' 
     },
     { 
       title: "Guardar Cambios", 
       description: "Aplica y almacena de forma definitiva todas las modificaciones realizadas en el perfil del personal.", 
-      selector: '#tutor-25' 
+      selector: '#tutor-9' 
     }
   ],
   'statistics': [
@@ -696,39 +616,24 @@ const tutoriales = {
       selector: '#tutor-18' 
     },
     { 
-      title: "Fecha de Inscripción", 
-      description: "Indica cuándo se registró por primera vez el usuario.", 
-      selector: '#tutor-19' 
-    },
-    { 
-      title: "Celular", 
-      description: "Número telefónico de contacto del usuario.", 
-      selector: '#tutor-20' 
-    },
-    { 
-      title: "Correo Electrónico", 
-      description: "Dirección de email registrada del usuario.", 
-      selector: '#tutor-21' 
-    },
-    { 
       title: "Próximo Corte", 
       description: "Muestra la fecha límite del siguiente pago o renovación.", 
-      selector: '#tutor-22' 
+      selector: '#tutor-19' 
     },
     { 
       title: "Saldo a Pagar", 
       description: "Indica la cantidad monetaria pendiente del usuario.", 
-      selector: '#tutor-23' 
+      selector: '#tutor-20' 
     },
     { 
       title: "Calendario de Asistencia", 
       description: "Vista detallada de los días del mes con los estados de asistencia (asistió, faltó, hoy).", 
-      selector: '#tutor-24' 
+      selector: '#tutor-21' 
     },
     { 
       title: "Mascota y Racha", 
       description: "Muestra la evolución de la mascota virtual y los días seguidos de racha del usuario.", 
-      selector: '#tutor-25' 
+      selector: '#tutor-22' 
     }
   ]
 };

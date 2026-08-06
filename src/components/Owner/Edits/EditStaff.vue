@@ -2,8 +2,8 @@
   <HeadingOwner>
     <main class="main-content">
       <!-- Barra de búsqueda superior alineada -->
-      <div id="tutor-0" class="search-bar-container-top">
-        <div class="input-group search-small">
+      <div  class="search-bar-container-top">
+        <div id="tutor-0" class="input-group search-small">
           <label>Buscar Personal</label>
           <div class="search-input-wrapper">
             <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
@@ -46,40 +46,40 @@
                 <span class="card-subtitle">Información general del personal</span>
               </div>
               <div class="form-grid-3">
-                <div id="tutor-7" class="input-group"><label>CURP</label><input type="text" v-model="form.curp"></div>
-                <div id="tutor-8" class="input-group"><label>Nombres</label><input type="text" v-model="form.nombres"></div>
-                <div id="tutor-9" class="input-group"><label>Apellido Paterno</label><input type="text" v-model="form.apellidoPaterno"></div>
-                <div id="tutor-10" class="input-group"><label>Apellido Materno</label><input type="text" v-model="form.apellidoMaterno"></div>
-                <div id="tutor-11" class="input-group"><label>Fecha de Nacimiento</label><input type="date" v-model="form.fechaNacimiento"></div>
-                <div id="tutor-12" class="input-group"><label>Celular</label><input type="text" placeholder="+52" v-model="form.celular"></div>
-                <div id="tutor-13" class="input-group"><label>Facebook</label><input type="text" v-model="form.facebook"></div>
-                <div id="tutor-14" class="input-group"><label>Instagram</label><input type="text" v-model="form.instagram"></div>
-                <div id="tutor-15" class="input-group"><label>Tiktok</label><input type="text" v-model="form.tiktok"></div>
-                <div id="tutor-16" class="input-group span-full"><label>Otras app</label><input type="text" v-model="form.otrasApp"></div>
+                <div  class="input-group"><label>CURP</label><input type="text" v-model="form.curp"></div>
+                <div  class="input-group"><label>Nombres</label><input type="text" v-model="form.nombres"></div>
+                <div  class="input-group"><label>Apellido Paterno</label><input type="text" v-model="form.apellidoPaterno"></div>
+                <div  class="input-group"><label>Apellido Materno</label><input type="text" v-model="form.apellidoMaterno"></div>
+                <div  class="input-group"><label>Fecha de Nacimiento</label><input type="date" v-model="form.fechaNacimiento"></div>
+                <div  class="input-group"><label>Celular</label><input type="text" placeholder="+52" v-model="form.celular"></div>
+                <div  class="input-group"><label>Facebook</label><input type="text" v-model="form.facebook"></div>
+                <div  class="input-group"><label>Instagram</label><input type="text" v-model="form.instagram"></div>
+                <div  class="input-group"><label>Tiktok</label><input type="text" v-model="form.tiktok"></div>
+                <div  class="input-group span-full"><label>Otras app</label><input type="text" v-model="form.otrasApp"></div>
               </div>
             </div>
 
             <!-- Tarjeta 2: Credenciales -->
-            <div id="tutor-17" class="login-card">
+            <div id="tutor-7" class="login-card">
               <div class="card-header-flex">
                 <h3 class="section-title">Credenciales</h3>
               </div>
               <div class="form-grid-1">
-                <div id="tutor-18" class="input-group"><label>Correo electrónico</label><input type="email" v-model="form.correo"></div>
-                <div id="tutor-19" class="input-group"><label>Sede</label><input type="text" v-model="form.sede"></div>
-                <div id="tutor-20" class="input-group"><label>Rol en el sistema</label><input type="text" v-model="form.rol"></div>
-                <div id="tutor-21" class="input-group"><label>Especialidad</label><input type="text" v-model="form.especialidad"></div>
+                <div  class="input-group"><label>Correo electrónico</label><input type="email" v-model="form.correo"></div>
+                <div  class="input-group"><label>Sede</label><input type="text" v-model="form.sede"></div>
+                <div  class="input-group"><label>Rol en el sistema</label><input type="text" v-model="form.rol"></div>
+                <div  class="input-group"><label>Especialidad</label><input type="text" v-model="form.especialidad"></div>
               </div>
             </div>
 
             <!-- Tarjeta 3: Horario de trabajo -->
-            <div id="tutor-22" class="login-card">
+            <div id="tutor-8" class="login-card">
               <div class="card-header-flex">
                 <h3 class="section-title">Horario de trabajo</h3>
               </div>
               <div class="form-grid-1">
-                <div id="tutor-23" class="input-group"><label>Entrada</label><input type="time" v-model="form.entrada"></div>
-                <div id="tutor-24" class="input-group"><label>Salida</label><input type="time" v-model="form.salida"></div>
+                <div  class="input-group"><label>Entrada</label><input type="time" v-model="form.entrada"></div>
+                <div  class="input-group"><label>Salida</label><input type="time" v-model="form.salida"></div>
               </div>
             </div>
 
@@ -87,7 +87,7 @@
 
           <!-- Botón de acción principal inferior alineado -->
           <div class="action-footer">
-            <button id="tutor-25" class="btn-primary" @click="saveChanges">Guardar Cambios</button>
+            <button id="tutor-9" class="btn-primary" @click="saveChanges">Guardar Cambios</button>
           </div>
         </div>
       </div>
