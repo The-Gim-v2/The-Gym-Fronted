@@ -1,0 +1,16 @@
+:root {
+  --bg-custom: #0a0a0a;
+  --bg-cards: #121212;
+  --color-heading-bg: rgba(18, 18, 18, 0.7);
+  --color-tablas: #1e293b;
+  --color-botones: #1c4fd6;
+  --color-titulos: #ffffff;
+  --color-highlight: #3b82f6;
+  --color-etiquetas: #f5f5f4;
+  --color-texto-general: #f5f5f4;
+  --color-texto-botones: #ffffff;
+  --color-svg: #f5f5f4;
+  --app-border-radius: 24px;
+  --panel-padding: 30px;
+  --row-padding: 16px 0;
+}

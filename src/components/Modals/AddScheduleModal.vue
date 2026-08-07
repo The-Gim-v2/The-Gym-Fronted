@@ -2,49 +2,49 @@
   <div class="form-wrapper">
     <div class="form-panel glass-effect">
       <div class="panel-header">
-        <h2 class="form-title">Nueva <span class="highlight">Actividad</span></h2>
-        <button class="close-x" @click="$emit('close')" title="Cerrar">&times;</button>
+        <h2 class="form-title">{{ t('newTitle') }} <span class="highlight">{{ t('newHighlight') }}</span></h2>
+        <button class="close-x" @click="$emit('close')" :title="t('closeTooltip')">&times;</button>
       </div>
       
       <form @submit.prevent="guardarActividad" class="form-body">
         <!-- Día de la Semana -->
         <div class="input-group">
-          <label>Día de la Semana</label>
+          <label>{{ t('dayOfWeekLabel') }}</label>
           <div class="select-wrapper">
             <select v-model="form.dia" class="custom-select" required>
-              <option disabled value="">Seleccionar día...</option>
-              <option v-for="day in days" :key="day" :value="day">{{ day }}</option>
+              <option disabled value="">{{ t('selectDayPlaceholder') }}</option>
+              <option v-for="(day, index) in currentDays" :key="day" :value="daysEs[index]">{{ day }}</option>
             </select>
           </div>
         </div>
         
         <!-- Nombre de la Actividad -->
         <div class="input-group">
-          <label>Nombre de Actividad</label>
-          <input type="text" v-model="form.nombre" placeholder="Ej. Crossfit" class="custom-input" required>
+          <label>{{ t('activityNameLabel') }}</label>
+          <input type="text" v-model="form.nombre" :placeholder="t('activityNamePlaceholder')" class="custom-input" required>
         </div>
 
         <!-- Horarios en lista vertical hacia abajo -->
         <div class="schedule-vertical-stack">
           <div class="input-group">
-            <label>Hora de Inicio</label>
+            <label>{{ t('startTimeLabel') }}</label>
             <input type="time" v-model="form.inicio" class="custom-input time-input" required>
           </div>
           <div class="input-group">
-            <label>Hora de Fin</label>
+            <label>{{ t('endTimeLabel') }}</label>
             <input type="time" v-model="form.fin" class="custom-input time-input" required>
           </div>
         </div>
 
         <!-- Ubicación / Aula -->
         <div class="input-group">
-          <label>Ubicación / Aula</label>
-          <input type="text" v-model="form.ubicacion" placeholder="Ej. Gimnasio Principal o Sala B" class="custom-input">
+          <label>{{ t('locationLabel') }}</label>
+          <input type="text" v-model="form.ubicacion" :placeholder="t('locationPlaceholder')" class="custom-input">
         </div>
 
         <!-- Categoría / Color -->
         <div class="input-group">
-          <label>Categoría / Color</label>
+          <label>{{ t('categoryColorLabel') }}</label>
           <div class="color-picker-container">
             <button type="button" 
                     v-for="color in colorOptions" 
@@ -52,21 +52,21 @@
                     :style="{ background: color.value }"
                     :class="['color-dot', { active: form.color === color.value }]"
                     @click="form.color = color.value"
-                    :title="color.label">
+                    :title="t(color.labelKey)">
             </button>
           </div>
         </div>
 
         <!-- Descripción / Notas -->
         <div class="input-group">
-          <label>Descripción / Notas</label>
-          <textarea v-model="form.descripcion" placeholder="Detalles adicionales de la actividad..." class="custom-textarea" rows="2"></textarea>
+          <label>{{ t('descriptionLabel') }}</label>
+          <textarea v-model="form.descripcion" :placeholder="t('descriptionPlaceholder')" class="custom-textarea" rows="2"></textarea>
         </div>
 
         <!-- Botones de Acción -->
         <div class="panel-footer-btns">
-          <button type="button" class="btn-cancel" @click="$emit('close')">Cancelar</button>
-          <button type="submit" class="btn-save">Guardar Actividad</button>
+          <button type="button" class="btn-cancel" @click="$emit('close')">{{ t('cancelBtn') }}</button>
+          <button type="submit" class="btn-save">{{ t('saveActivityBtn') }}</button>
         </div>
       </form>
     </div>
@@ -83,7 +83,7 @@
 </template>
 
 <script setup>
-import { reactive, watch } from 'vue';
+import { reactive, watch, computed, onMounted } from 'vue';
 
 const props = defineProps({
   initialData: {
@@ -94,14 +94,78 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'save']);
 
-const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+const settings = reactive({
+  idioma: localStorage.getItem('app-idioma') || 'es'
+});
+
+const translations = {
+  es: {
+    newTitle: "Nueva",
+    newHighlight: "Actividad",
+    closeTooltip: "Cerrar",
+    dayOfWeekLabel: "Día de la Semana",
+    selectDayPlaceholder: "Seleccionar día...",
+    activityNameLabel: "Nombre de Actividad",
+    activityNamePlaceholder: "Ej. Crossfit",
+    startTimeLabel: "Hora de Inicio",
+    endTimeLabel: "Hora de Fin",
+    locationLabel: "Ubicación / Aula",
+    locationPlaceholder: "Ej. Gimnasio Principal o Sala B",
+    categoryColorLabel: "Categoría / Color",
+    colorBlue: "Azul",
+    colorGreen: "Verde",
+    colorPurple: "Morado",
+    colorOrange: "Naranja",
+    colorPink: "Rosa",
+    descriptionLabel: "Descripción / Notas",
+    descriptionPlaceholder: "Detalles adicionales de la actividad...",
+    cancelBtn: "Cancelar",
+    saveActivityBtn: "Guardar Actividad",
+    toastSaved: "¡Actividad guardada correctamente!"
+  },
+  en: {
+    newTitle: "New",
+    newHighlight: "Activity",
+    closeTooltip: "Close",
+    dayOfWeekLabel: "Day of the Week",
+    selectDayPlaceholder: "Select day...",
+    activityNameLabel: "Activity Name",
+    activityNamePlaceholder: "E.g. Crossfit",
+    startTimeLabel: "Start Time",
+    endTimeLabel: "End Time",
+    locationLabel: "Location / Room",
+    locationPlaceholder: "E.g. Main Gym or Room B",
+    categoryColorLabel: "Category / Color",
+    colorBlue: "Blue",
+    colorGreen: "Green",
+    colorPurple: "Purple",
+    colorOrange: "Orange",
+    colorPink: "Pink",
+    descriptionLabel: "Description / Notes",
+    descriptionPlaceholder: "Additional activity details...",
+    cancelBtn: "Cancel",
+    saveActivityBtn: "Save Activity",
+    toastSaved: "Activity saved successfully!"
+  }
+};
+
+const t = (key) => {
+  return translations[settings.idioma]?.[key] || translations['es'][key] || key;
+};
+
+const daysEs = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+const daysEn = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+const currentDays = computed(() => {
+  return settings.idioma === 'en' ? daysEn : daysEs;
+});
 
 const colorOptions = [
-  { label: 'Azul', value: '#3b82f6' },
-  { label: 'Verde', value: '#10b981' },
-  { label: 'Morado', value: '#8b5cf6' },
-  { label: 'Naranja', value: '#f59e0b' },
-  { label: 'Rosa', value: '#ec4899' }
+  { labelKey: 'colorBlue', value: '#3b82f6' },
+  { labelKey: 'colorGreen', value: '#10b981' },
+  { labelKey: 'colorPurple', value: '#8b5cf6' },
+  { labelKey: 'colorOrange', value: '#f59e0b' },
+  { labelKey: 'colorPink', value: '#ec4899' }
 ];
 
 const form = reactive({
@@ -138,18 +202,25 @@ watch(() => props.initialData, (newData) => {
   }
 }, { immediate: true });
 
+onMounted(() => {
+  window.addEventListener('idioma-changed', (e) => {
+    if (e.detail && e.detail.idioma) {
+      settings.idioma = e.detail.idioma;
+    }
+  });
+});
+
 const guardarActividad = () => {
   console.log("Actividad guardada:", form);
   
   emit('save', { ...form });
-  mostrarToast('¡Actividad guardada correctamente!', 'success');
+  mostrarToast(t('toastSaved'), 'success');
 
   setTimeout(() => {
     emit('close');
   }, 900);
 };
 </script>
-
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&family=Oswald:wght@400;600;700&display=swap');
 

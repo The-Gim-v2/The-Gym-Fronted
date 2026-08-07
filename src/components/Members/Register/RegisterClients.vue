@@ -8,46 +8,46 @@
           <h1 class="main-title">Registra tus <br> <span class="highlight">Clientes</span></h1>
           <div class="avatar-wrapper">
             <div class="avatar-circle">
-              <img v-if="avatarPreview" :src="avatarPreview" :alt="t('altPreview')" class="avatar-img" />
+              <img v-if="avatarPreview" :src="avatarPreview" alt="Vista previa del cliente" class="avatar-img" />
               <svg v-else viewBox="0 0 24 24" fill="white"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
             </div>
-            <button type="button" class="avatar-action btn-camera" @click="$refs.fileInput.click()" :title="t('titleAvatar')">
+            <button type="button" class="avatar-action btn-camera" @click="$refs.fileInput.click()" title="Subir foto de perfil">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
             </button>
             <input type="file" ref="fileInput" @change="handleFileChange" accept="image/*" style="display: none" />
           </div>
-          <p class="profile-hint">{{ t('hintAvatar') }}</p>
+          <p class="profile-hint">Sube una fotografía reciente del cliente para identificarlo rápidamente en el sistema.</p>
         </div>
 
         <!-- Columna Derecha: Formularios -->
         <div class="forms-wrapper">
           
           <!-- Datos Personales -->
-          <div class="login-card" id="tutorial-step-1">
-            <h3 class="section-title">{{ t('personalData') }}</h3>
+          <div class="login-card"id="tutorial-step-1">
+            <h3 class="section-title">Datos Personales</h3>
             <div class="form-grid">
               <div class="input-group">
-                <label>{{ t('names') }}</label>
-                <input type="text" v-model="form.nombres" :placeholder="t('placeholderName')">
+                <label>Nombres</label>
+                <input type="text" v-model="form.nombres" placeholder="Ej. Juan">
               </div>
               <div class="input-group">
-                <label>{{ t('lastNameP') }}</label>
-                <input type="text" v-model="form.apellidoP" :placeholder="t('placeholderLastNameP')">
+                <label>Apellido Paterno</label>
+                <input type="text" v-model="form.apellidoP" placeholder="Ej. Pérez">
               </div>
               <div class="input-group">
-                <label>{{ t('lastNameM') }}</label>
-                <input type="text" v-model="form.apellidoM" :placeholder="t('placeholderLastNameM')">
+                <label>Apellido Materno</label>
+                <input type="text" v-model="form.apellidoM" placeholder="Ej. Gómez">
               </div>
               <div class="input-group">
-                <label>{{ t('birthDate') }}</label>
+                <label>Fecha de Nacimiento</label>
                 <input type="date" v-model="form.fechaNacimiento">
               </div>
               <div class="input-group">
-                <label>{{ t('cellphone') }}</label>
+                <label>Celular</label>
                 <input type="text" v-model="form.celular" placeholder="+52 000 000 0000">
               </div>
               <div class="input-group">
-                <label>{{ t('email') }}</label>
+                <label>Correo electrónico</label>
                 <input type="email" v-model="form.email" placeholder="ejemplo@correo.com">
               </div>
             </div>
@@ -55,14 +55,14 @@
 
           <!-- Registro Físico -->
           <div class="login-card" id="tutorial-step-2">
-            <h3 class="section-title">{{ t('physicalRecord') }}</h3>
+            <h3 class="section-title">Registro de Físico</h3>
             <div class="form-grid">
               <div class="input-group">
-                <label>{{ t('weight') }}</label>
+                <label>Peso (Kg)</label>
                 <input type="number" step="0.1" v-model="form.peso" placeholder="Ej. 70">
               </div>
               <div class="input-group">
-                <label>{{ t('height') }}</label>
+                <label>Altura (cm)</label>
                 <input type="number" v-model="form.altura" placeholder="Ej. 175">
               </div>
             </div>
@@ -71,14 +71,14 @@
           <!-- Datos de Membresía -->
           <div class="login-card" id="tutorial-step-3">
             <div class="membership-header">
-              <h3 class="section-title mb-0">{{ t('membershipData') }}</h3>
+              <h3 class="section-title mb-0">Datos de Membresía</h3>
               <div class="membership-actions-row">
                 <div class="toggle-group-small">
-                  <button type="button" class="btn-toggle-small" :class="{ active: form.tipoMembresia === 'mes' }" @click="form.tipoMembresia = 'mes'">{{ t('month') }}</button>
-                  <button type="button" class="btn-toggle-small" :class="{ active: form.tipoMembresia === 'semana' }" @click="form.tipoMembresia = 'semana'">{{ t('week') }}</button>
+                  <button type="button" class="btn-toggle-small" :class="{ active: form.tipoMembresia === 'mes' }" @click="form.tipoMembresia = 'mes'">Mes</button>
+                  <button type="button" class="btn-toggle-small" :class="{ active: form.tipoMembresia === 'semana' }" @click="form.tipoMembresia = 'semana'">Semana</button>
                 </div>
                 <div class="actions-group">
-                  <button type="button" class="action-btn" :title="t('titleCut')" @click="activeModal = 'corte'">
+                  <button type="button" class="action-btn" title="Documentación / Corte" @click="activeModal = 'corte'">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                       <polyline points="14 2 14 8 20 8"></polyline>
@@ -86,7 +86,7 @@
                       <line x1="16" y1="17" x2="8" y2="17"></line>
                     </svg>
                   </button>
-                  <button type="button" class="action-btn" :title="t('titleHelp')" @click="activeModal = 'help'">
+                  <button type="button" class="action-btn" title="Ayuda" @click="activeModal = 'help'">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                       <circle cx="12" cy="12" r="10"></circle>
                       <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
@@ -99,17 +99,17 @@
             
             <div class="form-grid mt-3">
               <div class="input-group">
-                <label>{{ t('enrollmentDate') }}</label>
+                <label>Inscripción</label>
                 <input type="date" v-model="form.fechaInscripcion">
               </div>
               <div class="input-group">
-                <label>{{ t('dueDate') }}</label>
+                <label>Fecha Corte</label>
                 <input type="date" v-model="form.fechaCorte">
               </div>
             </div>
           </div>
           
-          <button type="button" class="btn-primary" @click="saveRegistration">{{ t('finishButton') }}</button>
+          <button type="button" class="btn-primary" @click="saveRegistration">Finalizar Registro</button>
         </div>
       </div>
     </main>
@@ -129,40 +129,18 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onUnmounted } from 'vue';
+import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import HeadingOwner from '../HeadingOwner.vue';
 import AddCorteComponent from '../Componets/Cut.vue';
 import Help from '../Componets/Help.vue';
 import NotificationSystem from '../../Modals/NotificationSystem.vue'; 
-import { traducciones } from '../i18n.js';
 
 const router = useRouter();
 const activeModal = ref(null);
 const toastRef = ref(null);
 const fileInput = ref(null);
 const avatarPreview = ref(null);
-
-const currentLang = ref(localStorage.getItem('app-idioma') || 'es');
-
-const t = (key) => {
-  const langTable = traducciones[currentLang.value] || traducciones.es;
-  return langTable[key] || traducciones.es[key] || key;
-};
-
-const handleLangChange = (e) => {
-  if (e.detail && e.detail.idioma) {
-    currentLang.value = e.detail.idioma;
-  }
-};
-
-onMounted(() => {
-  window.addEventListener('idioma-changed', handleLangChange);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('idioma-changed', handleLangChange);
-});
 
 const form = reactive({
   nombres: '',
@@ -187,15 +165,15 @@ const handleFileChange = (e) => {
 
 const saveRegistration = () => {
   if (!form.nombres || !form.apellidoP || !form.apellidoM || !form.fechaNacimiento) {
-    toastRef.value?.notify(t('msgWarning'), 'warning');
+    toastRef.value?.notify('Por favor, completa los campos obligatorios', 'warning');
     return;
   }
   
   try {
     console.log("Datos a guardar:", form);
-    toastRef.value?.notify(t('msgSuccess'), 'success');
+    toastRef.value?.notify('Registro guardado con éxito', 'success');
   } catch (error) {
-    toastRef.value?.notify(t('msgError'), 'error');
+    toastRef.value?.notify('Error al guardar el registro', 'error');
   }
 };
 </script>

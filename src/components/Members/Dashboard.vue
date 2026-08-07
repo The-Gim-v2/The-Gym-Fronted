@@ -1,4 +1,6 @@
 <template>
+  <!-- Ya no necesitas envolverlo en HeadingAdmin aquí si el slot ya lo hace, 
+       pero lo mantenemos si así tienes tu estructura de Vue Router -->
   <HeadingAdmin :isGymOpen="isGymOpen" :billingStatus="billingStatus">
     <div class="saas-dashboard-wrapper">
       
@@ -8,12 +10,12 @@
           
           <div class="glass-card gym-identity-box" id="tutorial-step-0">
             <div class="gym-header-top">
-              <span class="gym-badge-tag">{{ t.sucursal }}</span>
+              <span class="gym-badge-tag">Sucursal Principal #01</span>
               
               <div class="header-status-controls">
                 <button class="gym-status-toggle" :class="isGymOpen ? 'status-open' : 'status-closed'" @click="toggleGymStatus">
                   <span class="toggle-dot" :class="isGymOpen ? 'dot-open' : 'dot-closed'"></span>
-                  {{ isGymOpen ? t.gymAbierto : t.gymCerrado }}
+                  {{ isGymOpen ? 'Gimnasio Abierto' : 'Gimnasio Cerrado' }}
                 </button>
 
                 <div class="billing-status-badge" :class="billingStatus">
@@ -27,31 +29,31 @@
               <h1 class="main-heading">
                 ULTRA <span class="highlight-color">FITNESS</span> CENTER
               </h1>
-              <p class="hero-desc">{{ t.panelControl }}</p>
+              <p class="hero-desc">Panel de Control General</p>
             </div>
           </div>
 
           <div class="metrics-card-group" id="tutorial-step-1">
             <div class="metric-mini-card">
               <span class="metric-number">142</span>
-              <span class="metric-label">{{ t.entradasHoy }}</span>
+              <span class="metric-label">Entradas Hoy</span>
             </div>
             <div class="metric-mini-card">
               <span class="metric-number text-highlight">28</span>
-              <span class="metric-label">{{ t.enInstalaciones }}</span>
+              <span class="metric-label">En las Instalaciones</span>
             </div>
             <div class="metric-mini-card">
               <span class="metric-number">3</span>
-              <span class="metric-label">{{ t.porVencer }}</span>
+              <span class="metric-label">Por Vencer</span>
             </div>
           </div>
 
         </section>
 
-        <div class="modules-grid-container">
+        <div class="modules-grid-container" >
           
           <div class="module-column" id="tutorial-step-2">
-            <h3 class="column-category-title">{{ t.controlAcceso }}</h3>
+            <h3 class="column-category-title">Control de Acceso</h3>
             <div class="cards-stack">
               
               <button class="action-card-modern" @click="openCamera('facial')">
@@ -59,8 +61,8 @@
                   <svg class="svg-btn" viewBox="0 0 24 24"><path d="M9 11.75c-.69 0-1.25.56-1.25 1.25s.56 1.25 1.25 1.25 1.25-.56 1.25-1.25-.56-1.25-1.25-1.25zm6 0c-.69 0-1.25.56-1.25 1.25s.56 1.25 1.25 1.25 1.25-.56 1.25-1.25-.56-1.25-1.25-1.25zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8 0-.29.02-.58.05-.86 2.36-1.05 4.23-2.98 5.21-5.37C11.07 8.33 14.05 10 17.42 10c.78 0 1.53-.09 2.25-.26.21.71.33 1.47.33 2.26 0 4.41-3.59 8-8 8z"/></svg>
                 </div>
                 <div class="card-text-content">
-                  <span class="card-title">{{ t.asistenciaFacial }}</span>
-                  <span class="card-desc">{{ t.reconocimientoBio }}</span>
+                  <span class="card-title">Asistencia Facial</span>
+                  <span class="card-desc">Reconocimiento biométrico IA</span>
                 </div>
               </button>
 
@@ -69,8 +71,8 @@
                   <svg class="svg-btn" viewBox="0 0 24 24"><path d="M4 4h7V11H4V4M13 4h7V11h-7V4M4 13h7v7H4v-7M13 13h3v2h-3v-2M18 13h2v2h-2v-2M13 15h2v2h-2v-2M15 18h2v2h-2v-2M18 18h2v2h-2v-2M13 18h2v2h-2v-2M18 15h2v2h-2v-2z"/></svg>
                 </div>
                 <div class="card-text-content">
-                  <span class="card-title">{{ t.escanerQr }}</span>
-                  <span class="card-desc">{{ t.validacionPase }}</span>
+                  <span class="card-title">Escáner QR</span>
+                  <span class="card-desc">Validación por pase digital</span>
                 </div>
               </button>
 
@@ -78,7 +80,7 @@
           </div>
 
           <div class="module-column" id="tutorial-step-3">
-            <h3 class="column-category-title">{{ t.adminTurnos }}</h3>
+            <h3 class="column-category-title">Administración y Turnos</h3>
             <div class="cards-stack">
               
               <button class="action-card-modern" @click="activeModal = 'add-schedule'">
@@ -86,8 +88,8 @@
                   <svg class="svg-btn" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
                 </div>
                 <div class="card-text-content">
-                  <span class="card-title">{{ t.anadirHorario }}</span>
-                  <span class="card-desc">{{ t.gestionTurnos }}</span>
+                  <span class="card-title">Añadir Horario</span>
+                  <span class="card-desc">Gestión de turnos y clases</span>
                 </div>
               </button>
 
@@ -96,14 +98,16 @@
                   <svg class="svg-btn" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
                 </div>
                 <div class="card-text-content">
-                  <span class="card-title">{{ t.verHorario }}</span>
-                  <span class="card-desc">{{ t.calendarioActivo }}</span>
+                  <span class="card-title">Ver Horario</span>
+                  <span class="card-desc">Calendario activo Lunes a Domingo</span>
                 </div>
               </button>
 
             </div>
           </div>
+
         </div>
+
       </main>
       
       <transition name="pop">
@@ -114,7 +118,7 @@
 
           <div v-if="activeModal === 'facial' || activeModal === 'scanner'" class="camera-panel">
             <div class="panel-header">
-              <h3>{{ activeModal === 'facial' ? t.escaneoFacialTitle : t.escaneandoQrTitle }}</h3>
+              <h3>{{ activeModal === 'facial' ? 'Escaneo Facial' : 'Escaneando QR' }}</h3>
               <button class="close-panel" @click="closeModal">&times;</button>
             </div>
             <div class="camera-container">
@@ -123,26 +127,23 @@
               <div v-if="activeModal === 'scanner'" class="qr-overlay"><div class="scanner-line"></div></div>
             </div>
             <div class="panel-footer">
-              <p>{{ activeModal === 'facial' ? t.instruccionFacial : t.instruccionQr }}</p>
-              <button class="action-btn-full outline" @click="closeModal">{{ t.cancelar }}</button>
+              <p>{{ activeModal === 'facial' ? 'Coloca tu rostro dentro del círculo' : 'Centra el código QR en el recuadro' }}</p>
+              <button class="action-btn-full outline" @click="closeModal">Cancelar</button>
             </div>
           </div>
+
         </div>
       </transition>
 
     </div>
   </HeadingAdmin>
 </template>
+
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
-import { useLang } from './useLang.js'; // Ajusta la ruta si es necesario
-import { traducciones } from './i18n.js';   // Ajusta la ruta si es necesario
 import AddScheduleModal from '../Modals/AddScheduleModal.vue';
 import ViewScheduleModal from '../Modals/ViewScheduleModal.vue';
 import HeadingAdmin from './HeadingOwner.vue';
-
-const { lang } = useLang();
-const t = computed(() => traducciones[lang.value] || traducciones.es);
 
 const activeModal = ref(null);
 const videoPlayer = ref(null);
@@ -157,9 +158,9 @@ const toggleGymStatus = () => {
 };
 
 const billingStatusText = computed(() => {
-  if (billingStatus.value === 'active') return t.value.cuentaCorriente;
-  if (billingStatus.value === 'pending') return t.value.pendientePago;
-  return t.value.bloqueadoPago;
+  if (billingStatus.value === 'active') return 'Cuenta al Corriente';
+  if (billingStatus.value === 'pending') return 'Pendiente de Pago';
+  return 'Bloqueado por Pago';
 });
 
 onMounted(() => {
@@ -196,7 +197,6 @@ const closeModal = () => {
 
 onBeforeUnmount(() => closeModal());
 </script>
-
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;700&display=swap');

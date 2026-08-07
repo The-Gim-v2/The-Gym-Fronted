@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, computed, watch } from 'vue';
+import { reactive, ref, computed, watch, onMounted } from 'vue';
 
 const props = defineProps<{
   modelValue?: string;
@@ -9,6 +9,137 @@ const emit = defineEmits(['close', 'success', 'update:modelValue']);
 
 const activeTab = ref('spei'); // 'spei' | 'card' | 'oxxo' | 'paypal'
 const isLoading = ref(false);
+
+const settings = reactive({
+  idioma: localStorage.getItem('app-idioma') || 'es'
+});
+
+const translations: Record<string, Record<string, string>> = {
+  es: {
+    trialActivationTitle: "Activación de Prueba Gratuita",
+    securePaymentTitle: "Pasarela de Pago Segura",
+    sectionNoCostLabel: "1. Activación sin costo",
+    plan7DaysBadge: "Plan de 7 Días",
+    trialDesc: "Has seleccionado la prueba gratuita de 7 días. No se requiere tarjeta de crédito ni pago inmediato para comenzar a registrar tu gimnasio.",
+    sectionSelectPaymentLabel: "1. Selecciona tu método de pago",
+    tabSpei: "SPEI",
+    tabCard: "Tarjeta",
+    tabOxxo: "OXXO",
+    tabPaypal: "PayPal",
+    speiTopBadge: "Más elegido / Depósito desde tu banco",
+    speiDesc: "Se generará una CLABE interbancaria única para realizar tu transferencia SPEI.",
+    originBankLabel: "Banco de origen",
+    selectBankPlaceholder: "Selecciona tu banco",
+    bankBbva: "BBVA México",
+    bankBanamex: "Citibanamex",
+    bankSantander: "Santander",
+    bankHsbc: "HSBC",
+    bankScotiabank: "Scotiabank",
+    bankAzteca: "Banco Azteca",
+    bankOther: "Otro banco",
+    emailLabel: "Correo electrónico",
+    cardHolderLabel: "Titular",
+    cardExpiresLabel: "Expira",
+    cardNameLabel: "Nombre en la tarjeta",
+    cardNamePlaceholder: "Ej. Juan Carlos Guzmán",
+    cardNumberLabel: "Número de la tarjeta",
+    cardExpiryLabel: "Caducidad",
+    cardCvvLabel: "CVV / CVC",
+    oxxoBadgeLg: "OXXO Pay",
+    oxxoDesc: "Se generará un voucher con código de barras para pago en efectivo.",
+    paypalDesc: "Serás redirigido de forma segura a PayPal para autorizar tu suscripción.",
+    paypalBadgeLg: "PayPal Express Checkout",
+    sectionSummaryLabel: "2. Resumen del Plan",
+    subtotalLabel: "Subtotal",
+    taxLabel: "Impuestos (IVA 16% incl.)",
+    totalLabel: "Total a Pagar hoy",
+    btnActivateGym: "Activar y Registrar Gimnasio",
+    btnConfirmPay: "Confirmar y Pagar",
+    toastTrialSuccess: "¡Prueba gratuita de 7 días activada! Ya puedes registrar tu gimnasio.",
+    toastPaySuccess: "¡Pago procesado y membresía renovada con éxito! Ya puedes registrar tu gimnasio.",
+    // Plans
+    planFreeName: "Prueba Gratuita",
+    planFreeDesc: "Acceso completo sin tarjeta.",
+    badge7Days: "7 Días",
+    planBasicName: "Básica",
+    planBasicDesc: "Funciones esenciales.",
+    planInterName: "Intermedia",
+    planInterDesc: "Capacidades ampliadas.",
+    planAdvancedName: "Avanzada",
+    planAdvancedDesc: "Herramientas robustas.",
+    planProName: "Pro",
+    planProDesc: "Acceso ilimitado e IA.",
+    badgeComplete: "Completo",
+    planPermName: "Sistema Permanente",
+    planPermDesc: "Pago único.",
+    planSysAdvName: "Sistema Avanzado",
+    planSysAdvDesc: "Pago único completo."
+  },
+  en: {
+    trialActivationTitle: "Free Trial Activation",
+    securePaymentTitle: "Secure Payment Gateway",
+    sectionNoCostLabel: "1. Free Activation",
+    plan7DaysBadge: "7-Day Plan",
+    trialDesc: "You have selected the 7-day free trial. No credit card or immediate payment is required to start registering your gym.",
+    sectionSelectPaymentLabel: "1. Select your payment method",
+    tabSpei: "SPEI",
+    tabCard: "Card",
+    tabOxxo: "OXXO",
+    tabPaypal: "PayPal",
+    speiTopBadge: "Most chosen / Direct bank deposit",
+    speiDesc: "A unique interbank CLABE will be generated for your SPEI transfer.",
+    originBankLabel: "Origin bank",
+    selectBankPlaceholder: "Select your bank",
+    bankBbva: "BBVA Mexico",
+    bankBanamex: "Citibanamex",
+    bankSantander: "Santander",
+    bankHsbc: "HSBC",
+    bankScotiabank: "Scotiabank",
+    bankAzteca: "Banco Azteca",
+    bankOther: "Other bank",
+    emailLabel: "Email address",
+    cardHolderLabel: "Cardholder",
+    cardExpiresLabel: "Expires",
+    cardNameLabel: "Cardholder name",
+    cardNamePlaceholder: "E.g. John Doe",
+    cardNumberLabel: "Card number",
+    cardExpiryLabel: "Expiry",
+    cardCvvLabel: "CVV / CVC",
+    oxxoBadgeLg: "OXXO Pay",
+    oxxoDesc: "A voucher with a barcode will be generated for cash payment.",
+    paypalDesc: "You will be securely redirected to PayPal to authorize your subscription.",
+    paypalBadgeLg: "PayPal Express Checkout",
+    sectionSummaryLabel: "2. Plan Summary",
+    subtotalLabel: "Subtotal",
+    taxLabel: "Taxes (VAT 16% incl.)",
+    totalLabel: "Total to Pay today",
+    btnActivateGym: "Activate and Register Gym",
+    btnConfirmPay: "Confirm and Pay",
+    toastTrialSuccess: "7-day free trial activated! You can now register your gym.",
+    toastPaySuccess: "Payment processed and membership renewed successfully! You can now register your gym.",
+    // Plans
+    planFreeName: "Free Trial",
+    planFreeDesc: "Full access without credit card.",
+    badge7Days: "7 Days",
+    planBasicName: "Basic",
+    planBasicDesc: "Essential features.",
+    planInterName: "Intermediate",
+    planInterDesc: "Expanded capabilities.",
+    planAdvancedName: "Advanced",
+    planAdvancedDesc: "Robust tools.",
+    planProName: "Pro",
+    planProDesc: "Unlimited access and AI.",
+    badgeComplete: "Complete",
+    planPermName: "Permanent System",
+    planPermDesc: "One-time payment.",
+    planSysAdvName: "Advanced System",
+    planSysAdvDesc: "Complete one-time payment."
+  }
+};
+
+const t = (key: string) => {
+  return translations[settings.idioma]?.[key] || translations['es']?.[key] || key;
+};
 
 const paymentForm = reactive({
   cardName: '',
@@ -20,20 +151,27 @@ const paymentForm = reactive({
   speiEmail: ''
 });
 
-// Diccionario centralizado con los 7 planes exactos y sus precios correspondientes
-const PLANS_CONFIG: Record<string, { name: string; price: number; formattedPrice: string }> = {
-  'Prueba Gratuita': { name: 'Prueba Gratuita', price: 0, formattedPrice: '$0.00' },
-  'Básica': { name: 'Básica', price: 650, formattedPrice: '$650.00' },
-  'Intermedia': { name: 'Intermedia', price: 850, formattedPrice: '$850.00' },
-  'Avanzada': { name: 'Avanzada', price: 1200, formattedPrice: '$1,200.00' },
-  'Pro': { name: 'Pro', price: 2100, formattedPrice: '$2,100.00' },
-  'Sistema Permanente': { name: 'Sistema Permanente', price: 11000, formattedPrice: '$11,000.00' },
-  'Sistema Avanzado': { name: 'Sistema Avanzado', price: 26000, formattedPrice: '$26,000.00' },
-};
+interface PlanDetail {
+  name: string;
+  desc: string;
+  price: number;
+  formattedPrice: string;
+}
+
+// Diccionario centralizado tipado con interfaz para evitar errores de TypeScript al indexar con string
+const PLANS_CONFIG = computed((): Record<string, PlanDetail> => ({
+  'Prueba Gratuita': { name: t('planFreeName'), desc: t('planFreeDesc'), price: 0, formattedPrice: '$0.00' },
+  'Básica': { name: t('planBasicName'), desc: t('planBasicDesc'), price: 650, formattedPrice: '$650.00' },
+  'Intermedia': { name: t('planInterName'), desc: t('planInterDesc'), price: 850, formattedPrice: '$850.00' },
+  'Avanzada': { name: t('planAdvancedName'), desc: t('planAdvancedDesc'), price: 1200, formattedPrice: '$1,200.00' },
+  'Pro': { name: t('planProName'), desc: t('planProDesc'), price: 2100, formattedPrice: '$2,100.00' },
+  'Sistema Permanente': { name: t('planPermName'), desc: t('planPermDesc'), price: 11000, formattedPrice: '$11,000.00' },
+  'Sistema Avanzado': { name: t('planSysAdvName'), desc: t('planSysAdvDesc'), price: 26000, formattedPrice: '$26,000.00' },
+}));
 
 // Plan actual computado de manera limpia
 const currentPlan = computed(() => {
-  return PLANS_CONFIG[paymentForm.selectedPackage] ?? PLANS_CONFIG['Prueba Gratuita'];
+  return PLANS_CONFIG.value[paymentForm.selectedPackage] ?? PLANS_CONFIG.value['Prueba Gratuita'];
 });
 
 // Sincronizar si cambia desde el componente padre
@@ -76,6 +214,15 @@ const formatCvv = (e: Event) => {
   paymentForm.cvv = value.substring(0, 4);
 };
 
+onMounted(() => {
+  window.addEventListener('idioma-changed', (e: Event) => {
+    const customEvent = e as CustomEvent;
+    if (customEvent.detail && customEvent.detail.idioma) {
+      settings.idioma = customEvent.detail.idioma;
+    }
+  });
+});
+
 const handleProcessPayment = () => {
   isLoading.value = true;
   const isFreeTrial = paymentForm.selectedPackage === 'Prueba Gratuita';
@@ -83,9 +230,9 @@ const handleProcessPayment = () => {
   setTimeout(() => {
     isLoading.value = false;
     if (isFreeTrial) {
-      emit('success', '¡Prueba gratuita de 7 días activada! Ya puedes registrar tu gimnasio.');
+      emit('success', t('toastTrialSuccess'));
     } else {
-      emit('success', '¡Pago procesado y membresía renovada con éxito! Ya puedes registrar tu gimnasio.');
+      emit('success', t('toastPaySuccess'));
     }
   }, 1500);
 };
@@ -101,7 +248,7 @@ const handleProcessPayment = () => {
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
             <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
           </svg>
-          <h3>{{ paymentForm.selectedPackage === 'Prueba Gratuita' ? 'Activación de Prueba Gratuita' : 'Pasarela de Pago Segura' }}</h3>
+          <h3>{{ paymentForm.selectedPackage === 'Prueba Gratuita' ? t('trialActivationTitle') : t('securePaymentTitle') }}</h3>
         </div>
         <button class="close-btn" @click="$emit('close')">&times;</button>
       </div>
@@ -111,55 +258,55 @@ const handleProcessPayment = () => {
           
           <div class="payment-col">
             <template v-if="paymentForm.selectedPackage === 'Prueba Gratuita'">
-              <label class="payment-section-label">1. Activación sin costo</label>
+              <label class="payment-section-label">{{ t('sectionNoCostLabel') }}</label>
               <div class="spei-container">
                 <div class="spei-box">
-                  <div class="spei-badge-top bg-trial">Plan de 7 Días</div>
-                  <p class="spei-desc">Has seleccionado la prueba gratuita de 7 días. No se requiere tarjeta de crédito ni pago inmediato para comenzar a registrar tu gimnasio.</p>
+                  <div class="spei-badge-top bg-trial">{{ t('plan7DaysBadge') }}</div>
+                  <p class="spei-desc">{{ t('trialDesc') }}</p>
                 </div>
               </div>
             </template>
 
             <template v-else>
-              <label class="payment-section-label">1. Selecciona tu método de pago</label>
+              <label class="payment-section-label">{{ t('sectionSelectPaymentLabel') }}</label>
               
               <div class="payment-tabs">
                 <button type="button" class="tab-btn" :class="{ active: activeTab === 'spei' }" @click="activeTab = 'spei'">
-                  <span>SPEI</span>
+                  <span>{{ t('tabSpei') }}</span>
                 </button>
                 <button type="button" class="tab-btn" :class="{ active: activeTab === 'card' }" @click="activeTab = 'card'">
-                  <span>Tarjeta</span>
+                  <span>{{ t('tabCard') }}</span>
                 </button>
                 <button type="button" class="tab-btn" :class="{ active: activeTab === 'oxxo' }" @click="activeTab = 'oxxo'">
-                  <span>OXXO</span>
+                  <span>{{ t('tabOxxo') }}</span>
                 </button>
                 <button type="button" class="tab-btn" :class="{ active: activeTab === 'paypal' }" @click="activeTab = 'paypal'">
-                  <span>PayPal</span>
+                  <span>{{ t('tabPaypal') }}</span>
                 </button>
               </div>
 
               <template v-if="activeTab === 'spei'">
                 <div class="spei-container">
                   <div class="spei-box">
-                    <div class="spei-badge-top">Más elegido / Depósito desde tu banco</div>
-                    <p class="spei-desc">Se generará una CLABE interbancaria única para realizar tu transferencia SPEI.</p>
+                    <div class="spei-badge-top">{{ t('speiTopBadge') }}</div>
+                    <p class="spei-desc">{{ t('speiDesc') }}</p>
                     
                     <div class="input-group mt-2">
-                      <label>Banco de origen</label>
+                      <label>{{ t('originBankLabel') }}</label>
                       <select v-model="paymentForm.speiBank" class="select-input" required>
-                        <option value="" disabled selected>Selecciona tu banco</option>
-                        <option value="bbva">BBVA México</option>
-                        <option value="banamex">Citibanamex</option>
-                        <option value="santander">Santander</option>
-                        <option value="hsbc">HSBC</option>
-                        <option value="scotiabank">Scotiabank</option>
-                        <option value="azteca">Banco Azteca</option>
-                        <option value="other">Otro banco</option>
+                        <option value="" disabled selected>{{ t('selectBankPlaceholder') }}</option>
+                        <option value="bbva">{{ t('bankBbva') }}</option>
+                        <option value="banamex">{{ t('bankBanamex') }}</option>
+                        <option value="santander">{{ t('bankSantander') }}</option>
+                        <option value="hsbc">{{ t('bankHsbc') }}</option>
+                        <option value="scotiabank">{{ t('bankScotiabank') }}</option>
+                        <option value="azteca">{{ t('bankAzteca') }}</option>
+                        <option value="other">{{ t('bankOther') }}</option>
                       </select>
                     </div>
 
                     <div class="input-group mt-2">
-                      <label>Correo electrónico</label>
+                      <label>{{ t('emailLabel') }}</label>
                       <input type="email" v-model="paymentForm.speiEmail" placeholder="tucorreo@dominio.com" required />
                     </div>
                   </div>
@@ -177,33 +324,33 @@ const handleProcessPayment = () => {
                   <div class="virtual-card-number">{{ paymentForm.cardNumber || '•••• •••• •••• ••••' }}</div>
                   <div class="virtual-card-footer">
                     <div class="v-card-holder">
-                      <small>Titular</small>
+                      <small>{{ t('cardHolderLabel') }}</small>
                       <span>{{ paymentForm.cardName || 'NOMBRE APELLIDO' }}</span>
                     </div>
                     <div class="v-card-expires">
-                      <small>Expira</small>
+                      <small>{{ t('cardExpiresLabel') }}</small>
                       <span>{{ paymentForm.expiryDate || 'MM/AA' }}</span>
                     </div>
                   </div>
                 </div>
 
                 <div class="input-group mt-3">
-                  <label>Nombre en la tarjeta</label>
-                  <input type="text" v-model="paymentForm.cardName" placeholder="Ej. Juan Carlos Guzmán" required />
+                  <label>{{ t('cardNameLabel') }}</label>
+                  <input type="text" v-model="paymentForm.cardName" :placeholder="t('cardNamePlaceholder')" required />
                 </div>
 
                 <div class="input-group mt-3">
-                  <label>Número de la tarjeta</label>
+                  <label>{{ t('cardNumberLabel') }}</label>
                   <input type="text" :value="paymentForm.cardNumber" @input="formatCardNumber" placeholder="0000 0000 0000 0000" maxlength="19" required />
                 </div>
 
                 <div class="payment-row mt-3">
                   <div class="input-group">
-                    <label>Caducidad</label>
+                    <label>{{ t('cardExpiryLabel') }}</label>
                     <input type="text" :value="paymentForm.expiryDate" @input="formatExpiry" placeholder="MM/AA" maxlength="5" required />
                   </div>
                   <div class="input-group">
-                    <label>CVV / CVC</label>
+                    <label>{{ t('cardCvvLabel') }}</label>
                     <input type="password" :value="paymentForm.cvv" @input="formatCvv" placeholder="123" maxlength="4" required />
                   </div>
                 </div>
@@ -212,8 +359,8 @@ const handleProcessPayment = () => {
               <template v-else-if="activeTab === 'oxxo'">
                 <div class="oxxo-container">
                   <div class="oxxo-box">
-                    <div class="oxxo-badge-lg">OXXO Pay</div>
-                    <p>Se generará un voucher con código de barras para pago en efectivo.</p>
+                    <div class="oxxo-badge-lg">{{ t('oxxoBadgeLg') }}</div>
+                    <p>{{ t('oxxoDesc') }}</p>
                   </div>
                 </div>
               </template>
@@ -221,8 +368,8 @@ const handleProcessPayment = () => {
               <template v-else-if="activeTab === 'paypal'">
                 <div class="paypal-container">
                   <div class="paypal-box">
-                    <p>Serás redirigido de forma segura a PayPal para autorizar tu suscripción.</p>
-                    <div class="paypal-badge-lg">PayPal Express Checkout</div>
+                    <p>{{ t('paypalDesc') }}</p>
+                    <div class="paypal-badge-lg">{{ t('paypalBadgeLg') }}</div>
                   </div>
                 </div>
               </template>
@@ -230,15 +377,15 @@ const handleProcessPayment = () => {
           </div>
 
           <div class="payment-col summary-col">
-            <label class="payment-section-label">2. Resumen del Plan</label>
+            <label class="payment-section-label">{{ t('sectionSummaryLabel') }}</label>
             
             <div class="packages-selection-list">
               <!-- 1. Prueba Gratuita -->
               <label class="package-option-card" :class="{ selected: paymentForm.selectedPackage === 'Prueba Gratuita' }">
                 <input type="radio" value="Prueba Gratuita" :checked="paymentForm.selectedPackage === 'Prueba Gratuita'" @change="updateSelectedPackage('Prueba Gratuita')" />
                 <div class="pkg-info">
-                  <span class="pkg-name">Prueba Gratuita <span class="badge-ahorro bg-trial">7 Días</span></span>
-                  <span class="pkg-desc">Acceso completo sin tarjeta.</span>
+                  <span class="pkg-name">{{ PLANS_CONFIG['Prueba Gratuita']?.name }} <span class="badge-ahorro bg-trial">{{ t('badge7Days') }}</span></span>
+                  <span class="pkg-desc">{{ PLANS_CONFIG['Prueba Gratuita']?.desc }}</span>
                 </div>
                 <span class="pkg-price">$0 <sub>MXN</sub></span>
               </label>
@@ -247,8 +394,8 @@ const handleProcessPayment = () => {
               <label class="package-option-card" :class="{ selected: paymentForm.selectedPackage === 'Básica' }">
                 <input type="radio" value="Básica" :checked="paymentForm.selectedPackage === 'Básica'" @change="updateSelectedPackage('Básica')" />
                 <div class="pkg-info">
-                  <span class="pkg-name">Básica</span>
-                  <span class="pkg-desc">Funciones esenciales.</span>
+                  <span class="pkg-name">{{ PLANS_CONFIG['Básica']?.name }}</span>
+                  <span class="pkg-desc">{{ PLANS_CONFIG['Básica']?.desc }}</span>
                 </div>
                 <span class="pkg-price">$650 <sub>MXN/mes</sub></span>
               </label>
@@ -257,8 +404,8 @@ const handleProcessPayment = () => {
               <label class="package-option-card" :class="{ selected: paymentForm.selectedPackage === 'Intermedia' }">
                 <input type="radio" value="Intermedia" :checked="paymentForm.selectedPackage === 'Intermedia'" @change="updateSelectedPackage('Intermedia')" />
                 <div class="pkg-info">
-                  <span class="pkg-name">Intermedia</span>
-                  <span class="pkg-desc">Capacidades ampliadas.</span>
+                  <span class="pkg-name">{{ PLANS_CONFIG['Intermedia']?.name }}</span>
+                  <span class="pkg-desc">{{ PLANS_CONFIG['Intermedia']?.desc }}</span>
                 </div>
                 <span class="pkg-price">$850 <sub>MXN/mes</sub></span>
               </label>
@@ -267,8 +414,8 @@ const handleProcessPayment = () => {
               <label class="package-option-card" :class="{ selected: paymentForm.selectedPackage === 'Avanzada' }">
                 <input type="radio" value="Avanzada" :checked="paymentForm.selectedPackage === 'Avanzada'" @change="updateSelectedPackage('Avanzada')" />
                 <div class="pkg-info">
-                  <span class="pkg-name">Avanzada</span>
-                  <span class="pkg-desc">Herramientas robustas.</span>
+                  <span class="pkg-name">{{ PLANS_CONFIG['Avanzada']?.name }}</span>
+                  <span class="pkg-desc">{{ PLANS_CONFIG['Avanzada']?.desc }}</span>
                 </div>
                 <span class="pkg-price">$1,200 <sub>MXN/mes</sub></span>
               </label>
@@ -277,8 +424,8 @@ const handleProcessPayment = () => {
               <label class="package-option-card" :class="{ selected: paymentForm.selectedPackage === 'Pro' }">
                 <input type="radio" value="Pro" :checked="paymentForm.selectedPackage === 'Pro'" @change="updateSelectedPackage('Pro')" />
                 <div class="pkg-info">
-                  <span class="pkg-name">Pro <span class="badge-ahorro">Completo</span></span>
-                  <span class="pkg-desc">Acceso ilimitado e IA.</span>
+                  <span class="pkg-name">{{ PLANS_CONFIG['Pro']?.name }} <span class="badge-ahorro">{{ t('badgeComplete') }}</span></span>
+                  <span class="pkg-desc">{{ PLANS_CONFIG['Pro']?.desc }}</span>
                 </div>
                 <span class="pkg-price">$2,100 <sub>MXN/mes</sub></span>
               </label>
@@ -287,8 +434,8 @@ const handleProcessPayment = () => {
               <label class="package-option-card" :class="{ selected: paymentForm.selectedPackage === 'Sistema Permanente' }">
                 <input type="radio" value="Sistema Permanente" :checked="paymentForm.selectedPackage === 'Sistema Permanente'" @change="updateSelectedPackage('Sistema Permanente')" />
                 <div class="pkg-info">
-                  <span class="pkg-name">Sistema Permanente</span>
-                  <span class="pkg-desc">Pago único.</span>
+                  <span class="pkg-name">{{ PLANS_CONFIG['Sistema Permanente']?.name }}</span>
+                  <span class="pkg-desc">{{ PLANS_CONFIG['Sistema Permanente']?.desc }}</span>
                 </div>
                 <span class="pkg-price">$11,000 <sub>MXN</sub></span>
               </label>
@@ -297,8 +444,8 @@ const handleProcessPayment = () => {
               <label class="package-option-card" :class="{ selected: paymentForm.selectedPackage === 'Sistema Avanzado' }">
                 <input type="radio" value="Sistema Avanzado" :checked="paymentForm.selectedPackage === 'Sistema Avanzado'" @change="updateSelectedPackage('Sistema Avanzado')" />
                 <div class="pkg-info">
-                  <span class="pkg-name">Sistema Avanzado</span>
-                  <span class="pkg-desc">Pago único completo.</span>
+                  <span class="pkg-name">{{ PLANS_CONFIG['Sistema Avanzado']?.name }}</span>
+                  <span class="pkg-desc">{{ PLANS_CONFIG['Sistema Avanzado']?.desc }}</span>
                 </div>
                 <span class="pkg-price">$26,000 <sub>MXN</sub></span>
               </label>
@@ -306,15 +453,15 @@ const handleProcessPayment = () => {
 
             <div class="receipt-box">
               <div class="receipt-line">
-                <span>Subtotal</span>
+                <span>{{ t('subtotalLabel') }}</span>
                 <span>{{ currentPlan?.formattedPrice }} MXN</span>
               </div>
               <div class="receipt-line">
-                <span>Impuestos (IVA 16% incl.)</span>
+                <span>{{ t('taxLabel') }}</span>
                 <span>$0.00 MXN</span>
               </div>
               <div class="receipt-line total">
-                <span>Total a Pagar hoy</span>
+                <span>{{ t('totalLabel') }}</span>
                 <span class="total-amount">{{ currentPlan?.formattedPrice }}</span>
               </div>
             </div>
@@ -322,7 +469,7 @@ const handleProcessPayment = () => {
             <div class="payment-submit-wrapper">
               <button type="submit" class="btn-primary" :disabled="isLoading">
                 <span v-if="isLoading" class="spinner"></span>
-                <span v-else>{{ paymentForm.selectedPackage === 'Prueba Gratuita' ? 'Activar y Registrar Gimnasio' : 'Confirmar y Pagar' }}</span>
+                <span v-else>{{ paymentForm.selectedPackage === 'Prueba Gratuita' ? t('btnActivateGym') : t('btnConfirmPay') }}</span>
               </button>
             </div>
           </div>
@@ -332,7 +479,6 @@ const handleProcessPayment = () => {
     </div>
   </div>
 </template>
-
 
 <style scoped>
 .animate-modal {

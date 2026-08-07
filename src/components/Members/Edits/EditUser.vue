@@ -4,12 +4,12 @@
       <!-- Barra de búsqueda superior alineada -->
       <div  class="search-bar-container-top">
         <div id="tutor-0" class="input-group search-small">
-          <label>{{ t('searchClientLabel') }}</label>
+          <label>Buscar Cliente</label>
           <div class="search-input-wrapper">
             <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
-            <input type="text" :placeholder="t('searchPlaceholder')" v-model="searchQuery" @keyup.enter="handleSearch">
+            <input type="text" placeholder="Buscar por nombre o ID..." v-model="searchQuery" @keyup.enter="handleSearch">
           </div>
         </div>
       </div>
@@ -22,21 +22,21 @@
           
           <div class="avatar-wrapper">
             <div id="tutor-2" class="avatar-circle">
-              <img :src="avatarSrc" :alt="t('avatarAlt')" class="user-avatar-img" />
+              <img :src="avatarSrc" alt="Avatar del usuario" class="user-avatar-img" />
             </div>
             
-            <button id="tutor-3" class="avatar-action btn-stats" @click="goToStatistics" :title="t('viewStatsTitle')">
+            <button id="tutor-3" class="avatar-action btn-stats" @click="goToStatistics" title="Ver Estadísticas">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
             </button>
             
-            <button id="tutor-4" class="avatar-action btn-camera" @click="triggerFileUpload" :title="t('changePhotoTitle')">
+            <button id="tutor-4" class="avatar-action btn-camera" @click="triggerFileUpload" title="Cambiar Foto">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
             </button>
             <input type="file" ref="fileInput" @change="handleFileChange" accept="image/*" style="display: none" />
           </div>
           
           <p id="tutor-5" class="user-id">ID: GymPer001</p>
-          <div id="tutor-6" class="status-badge">{{ t('statusActive') }}</div>
+          <div id="tutor-6" class="status-badge">Activo</div>
         </div>
 
         <!-- Panel Derecho: Formulario en Grid de Escritorio Avanzado -->
@@ -46,38 +46,38 @@
             <!-- Tarjeta 1: Datos Personales (Ocupa más espacio) -->
             <div id="tutor-7" class="login-card span-two">
               <div class="card-header-flex">
-                <h3 class="section-title">{{ t('personalDataTitle') }}</h3>
-                <span class="card-subtitle">{{ t('clientDataSubtitle') }}</span>
+                <h3 class="section-title">Datos Personales</h3>
+                <span class="card-subtitle">Información general del cliente</span>
               </div>
               <div class="form-grid-3">
-                <div id="tutor-8" class="input-group"><label>{{ t('namesLabel') }}</label><input type="text" v-model="form.nombres"></div>
-                <div id="tutor-9" class="input-group"><label>{{ t('lastNamePaternalLabel') }}</label><input type="text" v-model="form.apellidoPaterno"></div>
-                <div id="tutor-10" class="input-group"><label>{{ t('lastNameMaternalLabel') }}</label><input type="text" v-model="form.apellidoMaterno"></div>
-                <div id="tutor-11" class="input-group"><label>{{ t('birthDateLabel') }}</label><input type="date" v-model="form.fechaNacimiento"></div>
-                <div id="tutor-12" class="input-group"><label>{{ t('phoneLabel') }}</label><input type="text" placeholder="+52" v-model="form.celular"></div>
-                <div id="tutor-13" class="input-group"><label>{{ t('emailLabel') }}</label><input type="email" v-model="form.correo"></div>
+                <div id="tutor-8" class="input-group"><label>Nombres</label><input type="text" v-model="form.nombres"></div>
+                <div id="tutor-9" class="input-group"><label>Apellido Paterno</label><input type="text" v-model="form.apellidoPaterno"></div>
+                <div id="tutor-10" class="input-group"><label>Apellido Materno</label><input type="text" v-model="form.apellidoMaterno"></div>
+                <div id="tutor-11" class="input-group"><label>Fecha de Nacimiento</label><input type="date" v-model="form.fechaNacimiento"></div>
+                <div id="tutor-12" class="input-group"><label>Celular</label><input type="text" placeholder="+52" v-model="form.celular"></div>
+                <div id="tutor-13" class="input-group"><label>Correo electrónico</label><input type="email" v-model="form.correo"></div>
               </div>
             </div>
 
             <!-- Tarjeta 2: Seguimiento Físico -->
             <div id="tutor-14" class="login-card">
               <div class="card-header-flex">
-                <h3 class="section-title">{{ t('physicalTrackingTitle') }}</h3>
+                <h3 class="section-title">Seguimiento Físico</h3>
               </div>
               <div class="form-grid-1">
-                <div id="tutor-15" class="input-group"><label>{{ t('initialWeightLabel') }}</label><input type="number" v-model="form.peso"></div>
-                <div id="tutor-16" class="input-group"><label>{{ t('initialHeightLabel') }}</label><input type="number" v-model="form.altura"></div>
+                <div id="tutor-15" class="input-group"><label>Peso Inicial (Kg)</label><input type="number" v-model="form.peso"></div>
+                <div id="tutor-16" class="input-group"><label>Altura Inicial (cm)</label><input type="number" v-model="form.altura"></div>
               </div>
             </div>
 
             <!-- Tarjeta 3: Membresía -->
             <div id="tutor-17" class="login-card">
               <div class="card-header-flex">
-                <h3 class="section-title">{{ t('membershipTitle') }}</h3>
+                <h3 class="section-title">Membresía</h3>
               </div>
               <div class="form-grid-1">
-                <div id="tutor-18" class="input-group"><label>{{ t('locationLabel') }}</label><input type="text" v-model="form.sede"></div>
-                <div id="tutor-19" class="input-group"><label>{{ t('statusLabel') }}</label><input type="text" v-model="form.status"></div>
+                <div id="tutor-18" class="input-group"><label>Sede</label><input type="text" v-model="form.sede"></div>
+                <div id="tutor-19" class="input-group"><label>Status</label><input type="text" v-model="form.status"></div>
               </div>
             </div>
 
@@ -85,7 +85,7 @@
 
           <!-- Botón de acción principal inferior alineado -->
           <div class="action-footer">
-            <button id="tutor-20" class="btn-primary" @click="saveChanges">{{ t('saveChangesBtn') }}</button>
+            <button id="tutor-20" class="btn-primary" @click="saveChanges">Guardar Cambios</button>
           </div>
         </div>
       </div>
@@ -94,36 +94,14 @@
 </template>
 
 <script setup>
-import { reactive, ref, onMounted, onUnmounted } from 'vue';
+import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router'; 
 import HeadingOwner from '../HeadingOwner.vue';
-import { traducciones } from '../i18n.js';
 
 const router = useRouter(); 
 const fileInput = ref(null); 
 const searchQuery = ref('');
 const avatarSrc = ref('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3');
-
-const currentLang = ref(localStorage.getItem('app-idioma') || 'es');
-
-const t = (key) => {
-  const langTable = traducciones[currentLang.value] || traducciones.es;
-  return langTable[key] || traducciones.es[key] || key;
-};
-
-const handleLangChange = (e) => {
-  if (e.detail && e.detail.idioma) {
-    currentLang.value = e.detail.idioma;
-  }
-};
-
-onMounted(() => {
-  window.addEventListener('idioma-changed', handleLangChange);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('idioma-changed', handleLangChange);
-});
 
 const form = reactive({
   nombres: 'José Luis',

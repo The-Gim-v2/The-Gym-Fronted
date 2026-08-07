@@ -1,29 +1,149 @@
+<template>
+  <HeadingOwner>
+    <NotificationSystem ref="toastRef" />
+    <main class="main-content-promos">
+      
+      <!-- CUADRO IZQUIERDO: PROMOCIONES -->
+      <div class="promo-box-container" id="tutorial-step-0">
+        <div class="box-header">
+          <h2>Promociones</h2>
+        </div>
+        
+        <div class="box-content">
+          <div v-for="promo in promociones" :key="promo.id" class="item-row">
+            <div class="item-info">
+              <svg class="icon-tag" viewBox="0 0 24 24" fill="currentColor"><path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z"/></svg>
+              <div>
+                <h4>{{ promo.nombre }}</h4>
+                <p>{{ promo.meses }} meses por ${{ promo.precio }}</p>
+              </div>
+            </div>
+            <div class="item-actions">
+              <button class="icon-action-btn edit-btn" @click="abrirModalEditarPromocion(promo)" title="Editar Promoción">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+              </button>
+              <button class="icon-action-btn delete-btn" @click="confirmarEliminarPromocion(promo)" title="Eliminar Promoción">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div v-if="promociones.length === 0" class="empty-state">
+            No hay promociones registradas.
+          </div>
+        </div>
+
+        <!-- Botón para agregar promoción -->
+        <button class="floating-add-btn" @click="abrirModalAgregarPromo" title="Agregar Promoción">
+          <svg class="add-icon-svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+          <span class="add-text-mobile">Agregar Promoción</span>
+        </button>
+      </div>
+
+      <!-- CUADRO DERECHO: CAMBIOS DE PRECIOS -->
+      <div class="promo-box-container" id="tutorial-step-1">
+        <div class="box-header">
+          <h2>Cambios de <span class="highlight">Precios</span></h2>
+        </div>
+
+        <div class="box-content">
+          <div v-for="precio in preciosSistema" :key="precio.id" class="item-row">
+            <div class="item-info">
+              <svg class="icon-tag" viewBox="0 0 24 24" fill="currentColor"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+              <div>
+                <h4>{{ precio.concepto }}</h4>
+                <div class="price-details">
+                  <span class="price-val">${{ precio.monto }}</span>
+                  <span v-if="precio.duracion" class="duration-val">{{ precio.duracion }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="item-actions">
+              <button class="icon-action-btn edit-btn" @click="abrirModalEditarPrecio(precio)" title="Editar Precio">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- MODAL PARA AGREGAR / EDITAR -->
+    <transition name="pop">
+      <div v-if="modalConfig.isOpen" class="modal-wrapper" @click.self="cerrarModal">
+        <div class="custom-modal-card">
+          <h3>{{ modalConfig.title }}</h3>
+          
+          <form @submit.prevent="guardarDatos">
+            <template v-if="modalConfig.type === 'promo'">
+              <div class="input-group">
+                <label>Nombre de la Promoción</label>
+                <input type="text" v-model="modalConfig.form.nombre" placeholder="Ej. Promoción Amigos" required>
+              </div>
+              <div class="form-grid-modal">
+                <div class="input-group">
+                  <label>Meses</label>
+                  <input type="number" v-model="modalConfig.form.meses" placeholder="Ej. 3" min="1" required>
+                </div>
+                <div class="input-group">
+                  <label>Precio ($)</label>
+                  <input type="number" v-model="modalConfig.form.precio" placeholder="Ej. 1800" min="0" required>
+                </div>
+              </div>
+            </template>
+
+            <template v-if="modalConfig.type === 'precio'">
+              <div class="input-group">
+                <label>Concepto</label>
+                <input type="text" v-model="modalConfig.form.concepto" placeholder="Ej. Mensualidad Fija" required :disabled="!modalConfig.isNew">
+              </div>
+              <div class="input-group">
+                <label>Nuevo Precio ($)</label>
+                <input type="number" v-model="modalConfig.form.monto" placeholder="0.00" required>
+              </div>
+              <div class="input-group" v-if="modalConfig.form.duracion !== undefined">
+                <label>Duración (Opcional)</label>
+                <input type="text" v-model="modalConfig.form.duracion" placeholder="Ej. 1 mes">
+              </div>
+            </template>
+
+            <div class="modal-actions">
+              <button type="button" class="btn-secondary" @click="cerrarModal">Cancelar</button>
+              <button type="submit" class="btn-primary">Guardar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </transition>
+
+    <!-- MODAL DE CONFIRMACIÓN PARA ELIMINAR -->
+    <transition name="pop">
+      <div v-if="deleteModalConfig.isOpen" class="modal-wrapper" @click.self="deleteModalConfig.isOpen = false">
+        <div class="custom-modal-card text-center">
+          <div class="warning-icon-wrapper">
+            <svg viewBox="0 0 24 24" fill="currentColor" class="warning-icon">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+            </svg>
+          </div>
+          <h3>¿Desea eliminarlo?</h3>
+          <p class="delete-msg">Esta acción eliminará la promoción permanentemente.</p>
+          
+          <div class="modal-actions">
+            <button type="button" class="btn-secondary" @click="deleteModalConfig.isOpen = false">Cancelar</button>
+            <button type="button" class="btn-danger" @click="ejecutarEliminacion">Confirmar</button>
+          </div>
+        </div>
+      </div>
+    </transition>
+
+  </HeadingOwner>
+</template>
+
 <script setup>
-import { ref, reactive, onMounted, onUnmounted } from 'vue';
+import { ref, reactive } from 'vue';
 import HeadingOwner from '../HeadingOwner.vue';
 import NotificationSystem from '../../Modals/NotificationSystem.vue';
-import { traducciones } from '../i18n.js';
-
-const currentLang = ref(localStorage.getItem('app-idioma') || 'es');
-
-const t = (key) => {
-  const langTable = traducciones[currentLang.value] || traducciones.es;
-  return langTable[key] || traducciones.es[key] || key;
-};
-
-const handleLangChange = (e) => {
-  if (e.detail && e.detail.idioma) {
-    currentLang.value = e.detail.idioma;
-  }
-};
-
-onMounted(() => {
-  window.addEventListener('idioma-changed', handleLangChange);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('idioma-changed', handleLangChange);
-});
 
 const toastRef = ref(null);
 
@@ -62,7 +182,7 @@ const deleteModalConfig = reactive({
 const abrirModalAgregarPromo = () => {
   modalConfig.isOpen = true;
   modalConfig.type = 'promo';
-  modalConfig.title = t('modalAddPromoTitle');
+  modalConfig.title = 'Agregar Nueva Promoción';
   modalConfig.isNew = true;
   modalConfig.form = { id: null, nombre: '', meses: '', precio: '' };
 };
@@ -70,7 +190,7 @@ const abrirModalAgregarPromo = () => {
 const abrirModalEditarPromocion = (promo) => {
   modalConfig.isOpen = true;
   modalConfig.type = 'promo';
-  modalConfig.title = `${t('modalEditPromoTitle')}: ${promo.nombre}`;
+  modalConfig.title = `Editar Promoción: ${promo.nombre}`;
   modalConfig.isNew = false;
   modalConfig.form = { ...promo };
 };
@@ -83,13 +203,13 @@ const confirmarEliminarPromocion = (promo) => {
 const ejecutarEliminacion = () => {
   promociones.value = promociones.value.filter(p => p.id !== deleteModalConfig.idItemToDelete);
   deleteModalConfig.isOpen = false;
-  if (toastRef.value) toastRef.value.notify(t('promoDeletedToast'), 'success');
+  toastRef.value.notify('Promoción eliminada correctamente', 'success');
 };
 
 const abrirModalEditarPrecio = (precio) => {
   modalConfig.isOpen = true;
   modalConfig.type = 'precio';
-  modalConfig.title = `${t('modalEditPriceTitle')}: ${precio.concepto}`;
+  modalConfig.title = `Editar Precio: ${precio.concepto}`;
   modalConfig.isNew = false;
   modalConfig.form = { ...precio };
 };
@@ -108,166 +228,24 @@ const guardarDatos = () => {
         precio: modalConfig.form.precio
       };
       promociones.value.push(nuevaPromo);
-      if (toastRef.value) toastRef.value.notify(t('promoAddedToast'), 'success');
+      toastRef.value.notify('Promoción agregada exitosamente', 'success');
     } else {
       const index = promociones.value.findIndex(p => p.id === modalConfig.form.id);
       if (index !== -1) {
         promociones.value[index] = { ...modalConfig.form };
-        if (toastRef.value) toastRef.value.notify(t('promoUpdatedToast'), 'success');
+        toastRef.value.notify('Promoción actualizada correctamente', 'success');
       }
     }
   } else if (modalConfig.type === 'precio') {
     const index = preciosSistema.value.findIndex(p => p.id === modalConfig.form.id);
     if (index !== -1) {
       preciosSistema.value[index] = { ...modalConfig.form };
-      if (toastRef.value) toastRef.value.notify(t('priceUpdatedToast'), 'success');
+      toastRef.value.notify('Precio actualizado correctamente', 'success');
     }
   }
   cerrarModal();
 };
 </script>
-
-<template>
-  <HeadingOwner>
-    <NotificationSystem ref="toastRef" />
-    <main class="main-content-promos">
-      
-      <!-- CUADRO IZQUIERDO: PROMOCIONES -->
-      <div class="promo-box-container" id="tutorial-step-0">
-        <div class="box-header">
-          <h2>{{ t('promotionsTitle') }}</h2>
-        </div>
-        
-        <div class="box-content">
-          <div v-for="promo in promociones" :key="promo.id" class="item-row">
-            <div class="item-info">
-              <svg class="icon-tag" viewBox="0 0 24 24" fill="currentColor"><path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z"/></svg>
-              <div>
-                <h4>{{ promo.nombre }}</h4>
-                <p>{{ promo.meses }} {{ t('monthsLabel') }} ${{ promo.precio }}</p>
-              </div>
-            </div>
-            <div class="item-actions">
-              <button class="icon-action-btn edit-btn" @click="abrirModalEditarPromocion(promo)" :title="t('editPromoTooltip')">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
-              </button>
-              <button class="icon-action-btn delete-btn" @click="confirmarEliminarPromocion(promo)" :title="t('deletePromoTooltip')">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-              </button>
-            </div>
-          </div>
-
-          <div v-if="promociones.length === 0" class="empty-state">
-            {{ t('emptyPromotionsText') }}
-          </div>
-        </div>
-
-        <!-- Botón para agregar promoción -->
-        <button class="floating-add-btn" @click="abrirModalAgregarPromo" :title="t('addPromoButtonTitle')">
-          <svg class="add-icon-svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-          <span class="add-text-mobile">{{ t('addPromoButtonText') }}</span>
-        </button>
-      </div>
-
-      <!-- CUADRO DERECHO: CAMBIOS DE PRECIOS -->
-      <div class="promo-box-container" id="tutorial-step-1">
-        <div class="box-header">
-          <h2>{{ t('priceChangesTitlePart1') }} <span class="highlight">{{ t('priceChangesTitleHighlight') }}</span></h2>
-        </div>
-
-        <div class="box-content">
-          <div v-for="precio in preciosSistema" :key="precio.id" class="item-row">
-            <div class="item-info">
-              <svg class="icon-tag" viewBox="0 0 24 24" fill="currentColor"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
-              <div>
-                <h4>{{ precio.concepto }}</h4>
-                <div class="price-details">
-                  <span class="price-val">${{ precio.monto }}</span>
-                  <span v-if="precio.duracion" class="duration-val">{{ precio.duracion }}</span>
-                </div>
-              </div>
-            </div>
-            <div class="item-actions">
-              <button class="icon-action-btn edit-btn" @click="abrirModalEditarPrecio(precio)" :title="t('editPriceTooltip')">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </main>
-
-    <!-- MODAL PARA AGREGAR / EDITAR -->
-    <transition name="pop">
-      <div v-if="modalConfig.isOpen" class="modal-wrapper" @click.self="cerrarModal">
-        <div class="custom-modal-card">
-          <h3>{{ modalConfig.title }}</h3>
-          
-          <form @submit.prevent="guardarDatos">
-            <template v-if="modalConfig.type === 'promo'">
-              <div class="input-group">
-                <label>{{ t('promoNameLabel') }}</label>
-                <input type="text" v-model="modalConfig.form.nombre" :placeholder="t('promoNamePlaceholder')" required>
-              </div>
-              <div class="form-grid-modal">
-                <div class="input-group">
-                  <label>{{ t('monthsFieldLabel') }}</label>
-                  <input type="number" v-model="modalConfig.form.meses" placeholder="Ej. 3" min="1" required>
-                </div>
-                <div class="input-group">
-                  <label>{{ t('priceFieldLabel') }}</label>
-                  <input type="number" v-model="modalConfig.form.precio" placeholder="Ej. 1800" min="0" required>
-                </div>
-              </div>
-            </template>
-
-            <template v-if="modalConfig.type === 'precio'">
-              <div class="input-group">
-                <label>{{ t('conceptFieldLabel') }}</label>
-                <input type="text" v-model="modalConfig.form.concepto" :placeholder="t('conceptPlaceholder')" required :disabled="!modalConfig.isNew">
-              </div>
-              <div class="input-group">
-                <label>{{ t('newPriceFieldLabel') }}</label>
-                <input type="number" v-model="modalConfig.form.monto" placeholder="0.00" required>
-              </div>
-              <div class="input-group" v-if="modalConfig.form.duracion !== undefined">
-                <label>{{ t('durationFieldLabel') }}</label>
-                <input type="text" v-model="modalConfig.form.duracion" :placeholder="t('durationPlaceholder')">
-              </div>
-            </template>
-
-            <div class="modal-actions">
-              <button type="button" class="btn-secondary" @click="cerrarModal">{{ t('btnCancel') }}</button>
-              <button type="submit" class="btn-primary">{{ t('btnSave') }}</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </transition>
-
-    <!-- MODAL DE CONFIRMACIÓN PARA ELIMINAR -->
-    <transition name="pop">
-      <div v-if="deleteModalConfig.isOpen" class="modal-wrapper" @click.self="deleteModalConfig.isOpen = false">
-        <div class="custom-modal-card text-center">
-          <div class="warning-icon-wrapper">
-            <svg viewBox="0 0 24 24" fill="currentColor" class="warning-icon">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-            </svg>
-          </div>
-          <h3>{{ t('deleteModalTitle') }}</h3>
-          <p class="delete-msg">{{ t('deletePromoMsg') }}</p>
-          
-          <div class="modal-actions">
-            <button type="button" class="btn-secondary" @click="deleteModalConfig.isOpen = false">{{ t('btnCancel') }}</button>
-            <button type="button" class="btn-danger" @click="ejecutarEliminacion">{{ t('btnConfirm') }}</button>
-          </div>
-        </div>
-      </div>
-    </transition>
-
-  </HeadingOwner>
-</template>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;700;800&family=Oswald:wght@400;700&display=swap');
@@ -486,7 +464,7 @@ const guardarDatos = () => {
 
 /* Ajustes globales/profundos para que las notificaciones no se salgan del margen en móvil */
 :deep(.notification-container),
-
+:deep(.notification),
 :deep(.toast-container) {
   max-width: calc(100vw - 30px) !important;
   box-sizing: border-box !important;

@@ -4,12 +4,12 @@
       <!-- Barra de búsqueda superior alineada -->
       <div  class="search-bar-container-top">
         <div id="tutor-0" class="input-group search-small">
-          <label>Buscar Personal</label>
+          <label>{{ t('searchStaffLabel') }}</label>
           <div class="search-input-wrapper">
             <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
-            <input type="text" placeholder="Buscar por nombre o ID..." v-model="searchQuery" @keyup.enter="handleSearch">
+            <input type="text" :placeholder="t('searchPlaceholder')" v-model="searchQuery" @keyup.enter="handleSearch">
           </div>
         </div>
       </div>
@@ -22,17 +22,17 @@
           
           <div class="avatar-wrapper">
             <div id="tutor-2" class="avatar-circle">
-              <img :src="avatarSrc" alt="Avatar del personal" class="user-avatar-img" />
+              <img :src="avatarSrc" :alt="t('avatarAlt')" class="user-avatar-img" />
             </div>
             
-            <button id="tutor-3" class="avatar-action btn-camera" @click="triggerFileUpload" title="Cambiar Foto">
+            <button id="tutor-3" class="avatar-action btn-camera" @click="triggerFileUpload" :title="t('changePhotoTitle')">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
             </button>
             <input type="file" ref="fileInput" @change="handleFileChange" accept="image/*" style="display: none" />
           </div>
           
           <p id="tutor-4" class="user-id">ID: GymPer001</p>
-          <div id="tutor-5" class="status-badge">Activo</div>
+          <div id="tutor-5" class="status-badge">{{ t('statusActive') }}</div>
         </div>
 
         <!-- Panel Derecho: Formulario en Grid de Escritorio Avanzado -->
@@ -42,44 +42,44 @@
             <!-- Tarjeta 1: Datos Personales (Ocupa más espacio) -->
             <div id="tutor-6" class="login-card span-two">
               <div class="card-header-flex">
-                <h3 class="section-title">Datos Personales</h3>
-                <span class="card-subtitle">Información general del personal</span>
+                <h3 class="section-title">{{ t('personalDataTitle') }}</h3>
+                <span class="card-subtitle">{{ t('personalDataSubtitle') }}</span>
               </div>
               <div class="form-grid-3">
                 <div  class="input-group"><label>CURP</label><input type="text" v-model="form.curp"></div>
-                <div  class="input-group"><label>Nombres</label><input type="text" v-model="form.nombres"></div>
-                <div  class="input-group"><label>Apellido Paterno</label><input type="text" v-model="form.apellidoPaterno"></div>
-                <div  class="input-group"><label>Apellido Materno</label><input type="text" v-model="form.apellidoMaterno"></div>
-                <div  class="input-group"><label>Fecha de Nacimiento</label><input type="date" v-model="form.fechaNacimiento"></div>
-                <div  class="input-group"><label>Celular</label><input type="text" placeholder="+52" v-model="form.celular"></div>
+                <div  class="input-group"><label>{{ t('namesLabel') }}</label><input type="text" v-model="form.nombres"></div>
+                <div  class="input-group"><label>{{ t('lastNamePaternalLabel') }}</label><input type="text" v-model="form.apellidoPaterno"></div>
+                <div  class="input-group"><label>{{ t('lastNameMaternalLabel') }}</label><input type="text" v-model="form.apellidoMaterno"></div>
+                <div  class="input-group"><label>{{ t('birthDateLabel') }}</label><input type="date" v-model="form.fechaNacimiento"></div>
+                <div  class="input-group"><label>{{ t('phoneLabel') }}</label><input type="text" placeholder="+52" v-model="form.celular"></div>
                 <div  class="input-group"><label>Facebook</label><input type="text" v-model="form.facebook"></div>
                 <div  class="input-group"><label>Instagram</label><input type="text" v-model="form.instagram"></div>
                 <div  class="input-group"><label>Tiktok</label><input type="text" v-model="form.tiktok"></div>
-                <div  class="input-group span-full"><label>Otras app</label><input type="text" v-model="form.otrasApp"></div>
+                <div  class="input-group span-full"><label>{{ t('otherAppsLabel') }}</label><input type="text" v-model="form.otrasApp"></div>
               </div>
             </div>
 
             <!-- Tarjeta 2: Credenciales -->
             <div id="tutor-7" class="login-card">
               <div class="card-header-flex">
-                <h3 class="section-title">Credenciales</h3>
+                <h3 class="section-title">{{ t('credentialsTitle') }}</h3>
               </div>
               <div class="form-grid-1">
-                <div  class="input-group"><label>Correo electrónico</label><input type="email" v-model="form.correo"></div>
-                <div  class="input-group"><label>Sede</label><input type="text" v-model="form.sede"></div>
-                <div  class="input-group"><label>Rol en el sistema</label><input type="text" v-model="form.rol"></div>
-                <div  class="input-group"><label>Especialidad</label><input type="text" v-model="form.especialidad"></div>
+                <div  class="input-group"><label>{{ t('emailLabel') }}</label><input type="email" v-model="form.correo"></div>
+                <div  class="input-group"><label>{{ t('locationLabel') }}</label><input type="text" v-model="form.sede"></div>
+                <div  class="input-group"><label>{{ t('systemRoleLabel') }}</label><input type="text" v-model="form.rol"></div>
+                <div  class="input-group"><label>{{ t('specialtyLabel') }}</label><input type="text" v-model="form.especialidad"></div>
               </div>
             </div>
 
             <!-- Tarjeta 3: Horario de trabajo -->
             <div id="tutor-8" class="login-card">
               <div class="card-header-flex">
-                <h3 class="section-title">Horario de trabajo</h3>
+                <h3 class="section-title">{{ t('workScheduleTitle') }}</h3>
               </div>
               <div class="form-grid-1">
-                <div  class="input-group"><label>Entrada</label><input type="time" v-model="form.entrada"></div>
-                <div  class="input-group"><label>Salida</label><input type="time" v-model="form.salida"></div>
+                <div  class="input-group"><label>{{ t('entryTimeLabel') }}</label><input type="time" v-model="form.entrada"></div>
+                <div  class="input-group"><label>{{ t('exitTimeLabel') }}</label><input type="time" v-model="form.salida"></div>
               </div>
             </div>
 
@@ -87,7 +87,7 @@
 
           <!-- Botón de acción principal inferior alineado -->
           <div class="action-footer">
-            <button id="tutor-9" class="btn-primary" @click="saveChanges">Guardar Cambios</button>
+            <button id="tutor-9" class="btn-primary" @click="saveChanges">{{ t('saveChangesBtn') }}</button>
           </div>
         </div>
       </div>
@@ -96,14 +96,36 @@
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue';
+import { reactive, ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router'; 
 import HeadingOwner from '../HeadingOwner.vue';
+import { traducciones } from '../i18n.js';
 
 const router = useRouter(); 
 const fileInput = ref(null); 
 const searchQuery = ref('');
 const avatarSrc = ref('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3');
+
+const currentLang = ref(localStorage.getItem('app-idioma') || 'es');
+
+const t = (key) => {
+  const langTable = traducciones[currentLang.value] || traducciones.es;
+  return langTable[key] || traducciones.es[key] || key;
+};
+
+const handleLangChange = (e) => {
+  if (e.detail && e.detail.idioma) {
+    currentLang.value = e.detail.idioma;
+  }
+};
+
+onMounted(() => {
+  window.addEventListener('idioma-changed', handleLangChange);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('idioma-changed', handleLangChange);
+});
 
 const form = reactive({
   curp: '',

@@ -11,21 +11,21 @@
     <div class="main-layout-container">
       <nav class="top-nav">
         <div class="nav-left">
-          <button class="nav-action-btn glass-effect" @click="toggleSidebar" :aria-label="t.abrirMenu">
+          <button class="nav-action-btn glass-effect" @click="toggleSidebar" aria-label="Abrir menú">
             <svg viewBox="0 0 24 24" class="svg-icon">
               <path d="M4 4h4v4H4V4zm6 0h4v4h-4V4zm6 0h4v4h-4V4zM4 10h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4zM4 16h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4z"/>
             </svg>
           </button>
-          <button class="nav-action-btn glass-effect" @click="activeModal = 'website'" :title="t.irSitioWeb">
+          <button class="nav-action-btn glass-effect" @click="activeModal = 'website'" title="Ir al Sitio Web">
             <svg viewBox="0 0 24 24" class="svg-icon"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
           </button>
         </div>
 
         <div class="nav-right">
-          <button class="nav-action-btn glass-effect" @click="activeModal = 'qr'" :title="t.qrGimnasio">
+          <button class="nav-action-btn glass-effect" @click="activeModal = 'qr'" title="QR del Gimnasio">
             <svg viewBox="0 0 24 24" class="svg-icon"><path d="M3 4.5V8h2V4.5A1.5 1.5 0 0 1 6.5 3H10V1H6.5A3.5 3.5 0 0 0 3 4.5zm14.5-3.5H14v2h3.5A1.5 1.5 0 0 1 19 4.5V8h2V4.5A3.5 3.5 0 0 0 17.5 1zM3 17.5V14h2v3.5A1.5 1.5 0 0 0 6.5 19H10v2H6.5A3.5 3.5 0 0 1 3 17.5zm18 0V14h-2v3.5a1.5 1.5 0 0 1-1.5 1.5H14v2h3.5a3.5 3.5 0 0 1 3.5-3.5zM7 7h4v4H7V7zm5-1h4v4h-4V6zM7 13h4v4H7v-4zm5 0h1v1h-1v-1zm1 1h1v1h-1v-1zm-1 1h1v1h-1v-1zm3-2h1v1h-1v-1zm-1 1h1v1h-1v-1zm1 1h1v1h-1v-1z"/></svg>
           </button>
-          <button class="nav-action-btn glass-effect notification" @click="isNotificationsOpen = true" :title="t.notificaciones">
+          <button class="nav-action-btn glass-effect notification" @click="isNotificationsOpen = true" title="Notificaciones">
             <span class="dot"></span>
             <svg viewBox="0 0 24 24" class="svg-icon"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
           </button>
@@ -41,30 +41,30 @@
       <div v-if="activeModal" class="modal-wrapper" @click.self="activeModal = null">
         <div v-if="activeModal === 'qr'" class="custom-panel glass-effect">
           <div class="panel-header">
-            <h3>{{ t.codigoQrAcceso }}</h3>
+            <h3>Código QR de Acceso</h3>
             <button class="close-panel" @click="activeModal = null">&times;</button>
           </div>
           <div class="panel-body">
             <div class="qr-container">
               <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ULTRAFITNESS" alt="QR Code">
             </div>
-            <p>{{ t.muestraCodigoAsistencia }}</p>
-            <button class="action-btn-full">{{ t.descargarImprimir }}</button>
+            <p>Muestra este código en la entrada para que los socios registren su asistencia.</p>
+            <button class="action-btn-full">Descargar para Imprimir</button>
           </div>
         </div>
 
         <div v-if="activeModal === 'website'" class="custom-panel glass-effect">
           <div class="panel-header">
-            <h3>{{ t.tuSitioWeb }}</h3>
+            <h3>Tu Sitio Web</h3>
             <button class="close-panel" @click="activeModal = null">&times;</button>
           </div>
           <div class="panel-body">
             <div class="qr-preview-container">
               <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ULTRAFITNESS-WEB" alt="QR Sitio Web" class="preview-qr-img">
             </div>
-            <p>{{ t.gestionaApariencia }}</p>
-            <button class="action-btn-full outline">{{ t.visitarSitioPublico }}</button>
-            <button class="action-btn-full">{{ t.descargarQr }}</button>
+            <p>Gestiona la apariencia pública de tu gimnasio desde aquí.</p>
+            <button class="action-btn-full outline">Visitar Sitio Público</button>
+            <button class="action-btn-full">Descargar QR</button>
           </div>
         </div>
       </div>
@@ -75,7 +75,6 @@
 </template>
 
 <style scoped>
-/* (Tus estilos se quedan exactamente igual) */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Oswald&display=swap');
 
 .app-wrapper { 
@@ -143,6 +142,7 @@
   justify-content: space-between; 
   align-items: center;
   padding: 16px 24px; 
+  /* AQUÍ APLICAMOS EL COLOR DEL HEADING QUE SELECCIONES EN CONFIGURACIÓN */
   background: var(--color-heading-bg, rgba(18, 18, 18, 0.7)); 
   backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.09); 
@@ -281,47 +281,17 @@
 </style>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import Sidebar from './Sidebar.vue';
 import NotificationsPanel from './Notifications/NotificationsPanel.vue';
-import { traducciones } from './i18n.js';
-import { useLang } from './useLang.js';
-
-const { lang, setLang } = useLang();
-
-// Función que se ejecuta al hacer clic en cambiar idioma (ej: alternar español/inglés)
-const toggleIdioma = () => {
-  const nuevo = lang.value === 'es' ? 'en' : 'es';
-  setLang(nuevo); // Esto actualiza instantáneamente el Dashboard y toda la app
-};
 
 const isSidebarOpen = ref(false);
 const isNotificationsOpen = ref(false);
 const activeModal = ref(null);
 const notifications = ref([{ id: 1, title: 'Sistema', message: 'Bienvenido', time: 'ahora', read: false }]);
-
-// Ejemplo de función al cambiar idioma en HeadingOwner.vue
-const cambiarIdiomaApp = (nuevoIdioma) => {
-  localStorage.setItem('appLang', nuevoIdioma);
-  
-  // ¡Importante! Esto fuerza a que el Dashboard se entere al instante del cambio
-  window.dispatchEvent(new Event('language-changed'));
-};
-
-// Estado reactivo para el idioma actual en todo el layout
-const idiomaActual = ref(localStorage.getItem('app-idioma') || 'es');
-
-// Propiedad computada para las traducciones
-const t = computed(() => traducciones[idiomaActual.value] || traducciones.es);
-
 const toggleSidebar = () => { isSidebarOpen.value = !isSidebarOpen.value; };
 
-const handleIdiomaChanged = (event) => {
-  if (event.detail && event.detail.idioma) {
-    idiomaActual.value = event.detail.idioma;
-  }
-};
-
+// Función actualizada para sincronizar todos los estilos globales incluyendo el Heading superior
 const aplicarEstilosGlobales = () => {
   const savedColors = JSON.parse(localStorage.getItem('app-colors'));
   const savedRadius = localStorage.getItem('app-radius');
@@ -365,11 +335,9 @@ const aplicarEstilosGlobales = () => {
 onMounted(() => {
   aplicarEstilosGlobales();
   window.addEventListener('app-settings-updated', aplicarEstilosGlobales);
-  window.addEventListener('idioma-changed', handleIdiomaChanged);
 });
 
 onUnmounted(() => {
   window.removeEventListener('app-settings-updated', aplicarEstilosGlobales);
-  window.removeEventListener('idioma-changed', handleIdiomaChanged);
 });
 </script>

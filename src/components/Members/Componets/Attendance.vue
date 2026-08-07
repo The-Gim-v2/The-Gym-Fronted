@@ -2,10 +2,10 @@
   <div class="form-panel glass-effect">
     <div class="panel-header">
       <div class="title-group">
-        <h2 class="form-title">{{ t('attendanceTitle') }} <span class="highlight">{{ t('attendanceHighlight') }}</span></h2>
-        <p class="form-subtitle">{{ t('attendanceSubtitle') }}</p>
+        <h2 class="form-title">ASISTENCIA <span class="highlight">(COMPARATIVA)</span></h2>
+        <p class="form-subtitle">Comportamiento diario vs. mes anterior</p>
       </div>
-      <button class="close-x" @click="$emit('close')" :aria-label="t('close')">
+      <button class="close-x" @click="$emit('close')" aria-label="Cerrar modal">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M18 6L6 18M6 6l12 12"/>
         </svg>
@@ -19,8 +19,8 @@
         <!-- Mes anterior -->
         <div class="month-block">
           <div class="month-header-info">
-            <span class="month-label">{{ t('prevMonth') }}</span>
-            <span class="month-stat">{{ totalMesAnterior }} {{ t('totalSuffix') }}</span>
+            <span class="month-label">Mes Anterior</span>
+            <span class="month-stat">{{ totalMesAnterior }} total</span>
           </div>
           <div class="bars-wrapper">
             <div 
@@ -28,7 +28,7 @@
               :key="'prev-' + index" 
               class="day-bar" 
               :style="{ height: day.value + '%' }"
-              :title="`${t('dayLabel')} ${index + 1}: ${day.value}%`"
+              :title="`Día ${index + 1}: ${day.value}%`"
             ></div>
           </div>
         </div>
@@ -36,8 +36,8 @@
         <!-- Mes actual -->
         <div class="month-block">
           <div class="month-header-info">
-            <span class="month-label active-label">{{ t('currMonth') }}</span>
-            <span class="month-stat highlight-stat">{{ totalMesActual }} {{ t('totalSuffix') }}</span>
+            <span class="month-label active-label">Mes Actual</span>
+            <span class="month-stat highlight-stat">{{ totalMesActual }} total</span>
           </div>
           <div class="bars-wrapper active-month">
             <div 
@@ -45,7 +45,7 @@
               :key="'curr-' + index" 
               class="day-bar" 
               :style="{ height: day.value + '%' }"
-              :title="`${t('dayLabel')} ${index + 1}: ${day.value}%`"
+              :title="`Día ${index + 1}: ${day.value}%`"
             ></div>
           </div>
         </div>
@@ -54,11 +54,11 @@
 
       <div class="total-summary">
         <div class="summary-item">
-          <span>{{ t('dailyAverage') }}</span>
-          <strong>{{ promedioActual }} {{ t('attendanceSuffix') }}</strong>
+          <span>Promedio Diario</span>
+          <strong>{{ promedioActual }} asistencias</strong>
         </div>
         <div class="summary-item text-right">
-          <span>{{ t('growth') }}</span>
+          <span>Crecimiento</span>
           <strong :class="porcentajeCrecimiento >= 0 ? 'text-success' : 'text-danger'">
             {{ porcentajeCrecimiento >= 0 ? '+' : '' }}{{ porcentajeCrecimiento }}%
           </strong>
@@ -68,47 +68,8 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, computed, reactive, onMounted } from 'vue';
-
-const settings = reactive({
-  idioma: localStorage.getItem('app-idioma') || 'es'
-});
-
-const translations: Record<string, Record<string, string>> = {
-  es: {
-    attendanceTitle: "ASISTENCIA",
-    attendanceHighlight: "(COMPARATIVA)",
-    attendanceSubtitle: "Comportamiento diario vs. mes anterior",
-    close: "Cerrar modal",
-    prevMonth: "Mes Anterior",
-    currMonth: "Mes Actual",
-    totalSuffix: "total",
-    dayLabel: "Día",
-    dailyAverage: "Promedio Diario",
-    attendanceSuffix: "asistencias",
-    growth: "Crecimiento"
-  },
-  en: {
-    attendanceTitle: "ATTENDANCE",
-    attendanceHighlight: "(COMPARATIVE)",
-    attendanceSubtitle: "Daily behavior vs. previous month",
-    close: "Close modal",
-    prevMonth: "Previous Month",
-    currMonth: "Current Month",
-    totalSuffix: "total",
-    dayLabel: "Day",
-    dailyAverage: "Daily Average",
-    attendanceSuffix: "attendances",
-    growth: "Growth"
-  }
-};
-
-const t = (key: string) => {
-  return translations[settings.idioma]?.[key] || translations['es']?.[key] || key;
-};
-
-const emit = defineEmits(['close']);
+<script setup>
+import { ref, computed } from 'vue';
 
 const generarDatos = () => Array.from({ length: 30 }, () => ({ value: Math.floor(Math.random() * 80) + 20 }));
 
@@ -126,13 +87,6 @@ const porcentajeCrecimiento = computed(() => {
   const curr = totalMesActual.value;
   if (prev === 0) return 0;
   return Math.round(((curr - prev) / prev) * 100);
-});
-
-onMounted(() => {
-  window.addEventListener('idioma-changed', (e: Event) => {
-    const customEvent = e as CustomEvent;
-    if (customEvent.detail?.idioma) settings.idioma = customEvent.detail.idioma;
-  });
 });
 </script>
 

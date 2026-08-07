@@ -5,10 +5,10 @@
       
       <div class="panel-header">
         <div class="title-group">
-          <h2 class="form-title">{{ t('reactivateTitle') }} <span class="highlight">{{ t('account') }}</span></h2>
-          <p class="form-subtitle">{{ t('reactivateSubtitle') }}</p>
+          <h2 class="form-title">REACTIVAR <span class="highlight">CUENTA</span></h2>
+          <p class="form-subtitle">Desglose de adeudo, recargos y pago para reactivación</p>
         </div>
-        <button class="close-x" @click="$emit('close')" :aria-label="t('close')">
+        <button class="close-x" @click="$emit('close')" aria-label="Cerrar modal">
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 6L6 18M6 6l12 12"/>
           </svg>
@@ -17,43 +17,63 @@
       
       <form class="form-body" @submit.prevent="handleSubmit">
         <div class="input-group">
-          <label for="usuario">{{ t('accountOrEmail') }}</label>
+          <label for="usuario">Cuenta o Correo</label>
           <div class="input-wrapper">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="input-icon">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
               <circle cx="12" cy="7" r="4"></circle>
             </svg>
-            <input id="usuario" v-model="form.usuario" type="text" placeholder="usuario@correo.com" required />
+            <input 
+              id="usuario" 
+              v-model="form.usuario" 
+              type="text" 
+              placeholder="usuario@correo.com" 
+              required 
+            />
           </div>
         </div>
 
         <div class="desglose-grid">
           <div class="input-group">
-            <label for="deuda">{{ t('pendingDebt') }} ($)</label>
+            <label for="deuda">Deuda Pendiente ($)</label>
             <div class="input-wrapper">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="input-icon">
                 <line x1="12" y1="1" x2="12" y2="23"></line>
                 <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
               </svg>
-              <input id="deuda" v-model.number="form.deudaPendiente" type="number" min="0" step="0.01" required />
+              <input 
+                id="deuda" 
+                v-model.number="form.deudaPendiente" 
+                type="number" 
+                min="0" 
+                step="0.01" 
+                required 
+              />
             </div>
           </div>
 
           <div class="input-group">
-            <label for="recargo">{{ t('activationFee') }} ($)</label>
+            <label for="recargo">Recargo Activación ($)</label>
             <div class="input-wrapper">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="input-icon">
                 <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
               </svg>
-              <input id="recargo" v-model.number="form.recargoTiempo" type="number" min="0" step="0.01" required />
+              <input 
+                id="recargo" 
+                v-model.number="form.recargoTiempo" 
+                type="number" 
+                min="0" 
+                step="0.01" 
+                required 
+              />
             </div>
           </div>
         </div>
 
         <div class="total-card">
           <div class="total-info">
-            <span class="total-label">{{ t('totalToCharge') }}</span>
-            <span class="total-sub">{{ t('totalSub') }}</span>
+            <span class="total-label">TOTAL A COBRAR</span>
+            <span class="total-sub">Adeudo + recargo por baja</span>
           </div>
           <div class="total-amount">
             ${{ totalAPagar.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
@@ -62,17 +82,17 @@
 
         <div class="row-inputs">
           <div class="input-group">
-            <label for="metodo">{{ t('paymentMethod') }}</label>
+            <label for="metodo">Método de Pago</label>
             <div class="input-wrapper select-wrapper-container">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="input-icon">
                 <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
                 <line x1="1" y1="10" x2="23" y2="10"></line>
               </svg>
               <select id="metodo" v-model="form.metodoPago" required>
-                <option disabled value="">{{ t('select') }}</option>
-                <option value="Efectivo">{{ t('cash') }}</option>
-                <option value="Transferencia">{{ t('transfer') }}</option>
-                <option value="Tarjeta">{{ t('card') }}</option>
+                <option disabled value="">Seleccionar</option>
+                <option value="Efectivo">Efectivo</option>
+                <option value="Transferencia">Transferencia</option>
+                <option value="Tarjeta">Tarjeta</option>
               </select>
               <svg class="select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="6 9 12 15 18 9"></polyline>
@@ -81,20 +101,25 @@
           </div>
 
           <div class="input-group">
-            <label for="referencia">{{ t('reference') }}</label>
+            <label for="referencia">Folio / Referencia</label>
             <div class="input-wrapper">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="input-icon">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                 <polyline points="7 10 12 15 17 10"></polyline>
                 <line x1="12" y1="15" x2="12" y2="3"></line>
               </svg>
-              <input id="referencia" v-model="form.referencia" type="text" :placeholder="t('referencePlaceholder')" />
+              <input 
+                id="referencia" 
+                v-model="form.referencia" 
+                type="text" 
+                placeholder="N° de comprobante" 
+              />
             </div>
           </div>
         </div>
 
         <button type="submit" class="submit-btn">
-          <span>{{ t('btnProcess') }}</span>
+          <span>Procesar Pago y Reactivar</span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M5 12h14M12 5l7 7-7 7"/>
           </svg>
@@ -104,63 +129,12 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { reactive, computed, ref, onMounted } from 'vue';
+<script setup>
+import { reactive, computed, ref } from 'vue';
 import NotificationSystem from '../../Modals/NotificationSystem.vue';
 
 const emit = defineEmits(['close', 'reactivate']);
-const toastRef = ref<any>(null);
-
-const settings = reactive({
-  idioma: localStorage.getItem('app-idioma') || 'es'
-});
-
-const translations: Record<string, Record<string, string>> = {
-  es: {
-    reactivateTitle: "REACTIVAR",
-    account: "CUENTA",
-    reactivateSubtitle: "Desglose de adeudo, recargos y pago para reactivación",
-    close: "Cerrar modal",
-    accountOrEmail: "Cuenta o Correo",
-    pendingDebt: "Deuda Pendiente",
-    activationFee: "Recargo Activación",
-    totalToCharge: "TOTAL A COBRAR",
-    totalSub: "Adeudo + recargo por baja",
-    paymentMethod: "Método de Pago",
-    select: "Seleccionar",
-    cash: "Efectivo",
-    transfer: "Transferencia",
-    card: "Tarjeta",
-    reference: "Folio / Referencia",
-    referencePlaceholder: "N° de comprobante",
-    btnProcess: "Procesar Pago y Reactivar",
-    toastSuccess: "¡Cuenta de {user} reactivada con éxito!"
-  },
-  en: {
-    reactivateTitle: "REACTIVATE",
-    account: "ACCOUNT",
-    reactivateSubtitle: "Debt breakdown, surcharges, and payment for reactivation",
-    close: "Close modal",
-    accountOrEmail: "Account or Email",
-    pendingDebt: "Pending Debt",
-    activationFee: "Activation Fee",
-    totalToCharge: "TOTAL TO CHARGE",
-    totalSub: "Debt + reactivation surcharge",
-    paymentMethod: "Payment Method",
-    select: "Select",
-    cash: "Cash",
-    transfer: "Wire Transfer",
-    card: "Credit/Debit Card",
-    reference: "Folio / Reference",
-    referencePlaceholder: "Voucher number",
-    btnProcess: "Process Payment and Reactivate",
-    toastSuccess: "Account {user} reactivated successfully!"
-  }
-};
-
-const t = (key: string) => {
-  return translations[settings.idioma]?.[key] || translations['es']?.[key] || key;
-};
+const toastRef = ref(null);
 
 const form = reactive({
   usuario: '',
@@ -170,22 +144,18 @@ const form = reactive({
   referencia: ''
 });
 
-const totalAPagar = computed(() => (Number(form.deudaPendiente) || 0) + (Number(form.recargoTiempo) || 0));
+const totalAPagar = computed(() => {
+  const deuda = Number(form.deudaPendiente) || 0;
+  const recargo = Number(form.recargoTiempo) || 0;
+  return deuda + recargo;
+});
 
 const handleSubmit = () => {
-  if (toastRef.value?.notify) {
-    const msg = t('toastSuccess').replace('{user}', form.usuario || 'usuario');
-    toastRef.value.notify(msg, 'success');
+  if (toastRef.value) {
+    toastRef.value.notify(`¡Cuenta de ${form.usuario || 'usuario'} reactivada con éxito!`, 'success');
   }
   emit('reactivate', { ...form, total: totalAPagar.value });
 };
-
-onMounted(() => {
-  window.addEventListener('idioma-changed', (e: Event) => {
-    const customEvent = e as CustomEvent;
-    if (customEvent.detail?.idioma) settings.idioma = customEvent.detail.idioma;
-  });
-});
 </script>
 
 <style scoped>

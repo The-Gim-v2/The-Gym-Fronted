@@ -2,10 +2,10 @@
   <div class="form-panel glass-effect">
     <div class="panel-header">
       <div class="title-group">
-        <h2 class="form-title">{{ t('helpTitle') }} <span class="highlight">{{ t('helpHighlight') }}</span></h2>
-        <p class="form-subtitle">{{ t('helpSubtitle') }}</p>
+        <h2 class="form-title">AYUDA: <span class="highlight">CORTES</span></h2>
+        <p class="form-subtitle">Guía rápida de configuración</p>
       </div>
-      <button class="close-x" @click="$emit('close')" :aria-label="t('close')">
+      <button class="close-x" @click="$emit('close')" aria-label="Cerrar modal">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M18 6L6 18M6 6l12 12"/>
         </svg>
@@ -19,49 +19,13 @@
             <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
           </svg>
         </div>
-        <p class="help-text" v-html="t('helpText')"></p>
+        <p class="help-text">
+          Por defecto, el corte corresponde al <strong>día de inscripción</strong>. Utiliza el icono del calendario para crear reglas personalizadas: define un rango de días específicos y el día de corte correspondiente.
+        </p>
       </div>
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { reactive, onMounted } from 'vue';
-
-const emit = defineEmits(['close']);
-
-const settings = reactive({
-  idioma: localStorage.getItem('app-idioma') || 'es'
-});
-
-const translations: Record<string, Record<string, string>> = {
-  es: {
-    helpTitle: "AYUDA:",
-    helpHighlight: "CORTES",
-    helpSubtitle: "Guía rápida de configuración",
-    close: "Cerrar modal",
-    helpText: "Por defecto, el corte corresponde al <strong>día de inscripción</strong>. Utiliza el icono del calendario para crear reglas personalizadas: define un rango de días específicos y el día de corte correspondiente."
-  },
-  en: {
-    helpTitle: "HELP:",
-    helpHighlight: "CUTOFFS",
-    helpSubtitle: "Quick configuration guide",
-    close: "Close modal",
-    helpText: "By default, the cutoff corresponds to the <strong>registration day</strong>. Use the calendar icon to create custom rules: define a specific day range and the corresponding cutoff day."
-  }
-};
-
-const t = (key: string) => {
-  return translations[settings.idioma]?.[key] || translations['es']?.[key] || key;
-};
-
-onMounted(() => {
-  window.addEventListener('idioma-changed', (e: Event) => {
-    const customEvent = e as CustomEvent;
-    if (customEvent.detail?.idioma) settings.idioma = customEvent.detail.idioma;
-  });
-});
-</script>
 
 <style scoped>
 .form-panel { 

@@ -4,30 +4,37 @@
     <main class="main-content">
       <header class="header-section">
         <div class="title-wrapper">
-          <h1 class="main-title">Personal</h1>
+          <h1 class="main-title">{{ t('staffTitle') }}</h1>
         </div>
       
         <div class="actions-bar" id="tutorial-step-0">
             <select class="status-select" v-model="selectedRoleFilter">
-              <option value="Todos">Todos los roles</option>
-              <option value="Recepcionista">Recepcionista</option>
-              <option value="Entrenador">Entrenador</option>
-              <option value="Owner">Dueño</option>
+              <option value="Todos">{{ t('roleAll') }}</option>
+              <option value="Recepcionista">{{ t('roleReceptionist') }}</option>
+              <option value="Entrenador">{{ t('roleTrainer') }}</option>
+              <option value="Owner">{{ t('roleOwner') }}</option>
             </select>
             <button class="btn-bulk" @click="activeModal = 'enviomasivo'">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
                   <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
               </svg>
-              Correo Masivo
+              {{ t('bulkEmailBtn') }}
             </button>
-            <input type="text" class="search-input" placeholder="Buscar personal..." v-model="searchQuery">
+            <input type="text" class="search-input" :placeholder="t('searchPlaceholder')" v-model="searchQuery">
         </div>
       </header>
         
       <div v-if="!isMobile" class="table-container desktop-only" id="tutorial-step-1">
         <table class="user-table">
           <thead>
-            <tr><th>Foto</th><th>Nombre</th><th>Correo</th><th>Celular</th><th>Rol Sistema</th><th>Acciones</th></tr>
+            <tr>
+              <th>{{ t('tablePhoto') }}</th>
+              <th>{{ t('tableName') }}</th>
+              <th>{{ t('tableEmail') }}</th>
+              <th>{{ t('tablePhone') }}</th>
+              <th>{{ t('tableSystemRole') }}</th>
+              <th>{{ t('tableActions') }}</th>
+            </tr>
           </thead>
           <tbody>
             <tr v-for="(user, index) in filteredUsers" :key="user.id">
@@ -37,16 +44,16 @@
               <td>{{ user.phone }}</td>
               <td><span :class="['status-badge', getRoleClass(user.role)]">{{ user.role }}</span></td>
               <td class="actions-cell" :id="index === 0 ? 'tutorial-step-2' : null">
-                <button class="icon-btn" title="Email" @click="activeModal = 'enviocorreo'">
+                <button class="icon-btn" :title="t('actionEmail')" @click="activeModal = 'enviocorreo'">
                   <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                 </button>
-                <button class="icon-btn" title="WhatsApp" @click="openWhatsApp(user.phone)">
+                <button class="icon-btn" :title="t('actionWhatsApp')" @click="openWhatsApp(user.phone)">
                   <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 5.6 8.5 8.5 0 0 1-7.6-5.6 8.38 8.38 0 0 1-.9-3.8A8.5 8.5 0 0 1 12 3a8.5 8.5 0 0 1 9 8.5z"/><path d="M9 12l2 2 4-4"/></svg>
                 </button>
-                <button class="icon-btn" title="Editar" @click="goToEdit(user.id)">
+                <button class="icon-btn" :title="t('actionEdit')" @click="goToEdit(user.id)">
                   <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 </button>
-                <button class="icon-btn" title="Eliminar" @click="confirmDelete(user)">
+                <button class="icon-btn" :title="t('actionDelete')" @click="confirmDelete(user)">
                   <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                 </button>
               </td>
@@ -82,11 +89,11 @@
             </button>
             <button class="action-chip btn-edit-chip" @click="goToEdit(user.id)">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-              <span>Editar</span>
+              <span>{{ t('actionEdit') }}</span>
             </button>
             <button class="action-chip btn-delete-chip" @click="confirmDelete(user)">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-              <span>Eliminar</span>
+              <span>{{ t('actionDelete') }}</span>
             </button>
           </div>
         </div>
@@ -95,14 +102,14 @@
       <!-- Modal QR -->
       <ModalComponent :isOpen="showQR" @close="showQR = false">
         <div class="modal-body-custom">
-          <h2 style="color: #3b82f6; margin-bottom: 15px; font-family: 'Oswald', sans-serif; font-size: 1.3rem; text-transform: uppercase;">Código QR de Acceso</h2>
+          <h2 style="color: #3b82f6; margin-bottom: 15px; font-family: 'Oswald', sans-serif; font-size: 1.3rem; text-transform: uppercase;">{{ t('modalQrTitle') }}</h2>
           <div class="qr-wrapper">
               <img src="../../../assets/qr.png" alt="QR" class="qr-image" style="max-width: 180px; margin: 0 auto; display: block; border-radius: 8px;" />
           </div>
           <p style="color:#aaa; font-size:0.9rem; margin: 20px 0;">
-              Muestra este código en la entrada para que los socios registren su asistencia.
+              {{ t('modalQrText') }}
           </p>
-          <button class="btn-bulk" style="width:100%; display: flex; justify-content: center; align-items: center;">Descargar para Imprimir</button>
+          <button class="btn-bulk" style="width:100%; display: flex; justify-content: center; align-items: center;">{{ t('modalQrDownload') }}</button>
         </div>
       </ModalComponent>
 
@@ -116,11 +123,11 @@
             <div class="modal-icon-container danger-bg">
               <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
             </div>
-            <h2>¿DESEA ELIMINARLO?</h2>
-            <p>¿Deseas eliminar a <span class="highlight-name">{{ selectedUser?.name }}</span> temporalmente?</p>
+            <h2>{{ t('modalDeleteTitle') }}</h2>
+            <p>{{ t('modalDeleteDescPart1') }} <span class="highlight-name">{{ selectedUser?.name }}</span> {{ t('modalDeleteDescPart2') }}</p>
             <div class="modal-buttons">
-              <button class="btn-modal secondary" @click="showDelete = false">Cancelar</button>
-              <button class="btn-modal danger" @click="executeDelete">Confirmar</button>
+              <button class="btn-modal secondary" @click="showDelete = false">{{ t('modalCancel') }}</button>
+              <button class="btn-modal danger" @click="executeDelete">{{ t('modalConfirm') }}</button>
             </div>
           </div>
         </div>
@@ -140,6 +147,111 @@
     </transition>   
   </HeadingOwner>
 </template>
+
+<script setup>
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { useRouter } from 'vue-router';
+import HeadingOwner from '../HeadingOwner.vue';
+import ModalComponent from '../../Modals/ModalComponent.vue';
+import CorreoMasivo from '../Componets/Bulk-Email.vue';
+import EnvioCorreo from '../Componets/Mail.vue';
+import NotificationSystem from '../../Modals/NotificationSystem.vue'; 
+import { traducciones } from '../i18n.js';
+
+const activeModal = ref(null);
+const toastRef = ref(null);
+
+const router = useRouter();
+const showQR = ref(false);
+const showDelete = ref(false);
+const selectedUser = ref(null);
+
+const searchQuery = ref('');
+const selectedRoleFilter = ref('Todos');
+
+const currentLang = ref(localStorage.getItem('app-idioma') || 'es');
+
+const t = (key) => {
+  const langTable = traducciones[currentLang.value] || traducciones.es;
+  return langTable[key] || traducciones.es[key] || key;
+};
+
+const handleLangChange = (e) => {
+  if (e.detail && e.detail.idioma) {
+    currentLang.value = e.detail.idioma;
+  }
+};
+
+// Detección reactiva para saber si está en móvil (< 900px)
+const isMobile = ref(window.innerWidth <= 900);
+const handleResize = () => {
+  isMobile.value = window.innerWidth <= 900;
+};
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize);
+  window.addEventListener('idioma-changed', handleLangChange);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize);
+  window.removeEventListener('idioma-changed', handleLangChange);
+});
+
+const filteredUsers = computed(() => {
+  let result = selectedRoleFilter.value === 'Todos' 
+    ? users.value 
+    : users.value.filter(user => user.role === selectedRoleFilter.value);
+
+  if (searchQuery.value) {
+    const term = searchQuery.value.toLowerCase();
+    result = result.filter(user => 
+      user.name.toLowerCase().includes(term) || 
+      user.email.toLowerCase().includes(term) ||
+      user.phone.toLowerCase().includes(term) ||
+      user.role.toLowerCase().includes(term) || 
+      user.id.toString().includes(term)
+    );
+  }
+  return result;
+});
+
+const getRoleClass = (role) => {
+  const classes = {
+    'Recepcionista': 'role-recepcionista',
+    'Entrenador': 'role-entrenador',
+    'Owner': 'role-Owner'
+  };
+  return classes[role] || 'role-default';
+};
+
+const users = ref([
+  { id: 1, name: 'Armando Luis Ramires Sanchez', email: 'Armandoluis@gmail.com', phone: '+52 481 1265412', role: 'Recepcionista' },
+  { id: 2, name: 'Francisco Luis Ramires Sanchez', email: 'Francisco.luis@example.com', phone: '+52 4811 243422', role: 'Entrenador' },
+  { id: 3, name: 'Maria Luis Ramires Sanchez', email: 'Maria.luis@example.com', phone: '+52 4811 243423', role: 'Recepcionista' },
+  { id: 4, name: 'Jorge Luis Ramires Sanchez', email: 'Jorge.luis@example.com', phone: '+52 4811 243424', role: 'Entrenador' },
+  { id: 5, name: 'Mario Luis Ramires Sanchez', email: 'Mario.luis@example.com', phone: '+52 4811 243425', role: 'Recepcionista' },
+  { id: 6, name: 'Luis Ramires Sanchez', email: 'Luis.ramires@example.com', phone: '+52 4811 243426', role: 'Recepcionista' },
+]);
+
+const confirmDelete = (user) => { 
+  selectedUser.value = user; 
+  showDelete.value = true; 
+};
+
+const executeDelete = () => {
+  if (!selectedUser.value) return;
+  users.value = users.value.filter(u => u.id !== selectedUser.value.id);
+  showDelete.value = false;
+  selectedUser.value = null;
+  if (toastRef.value) {
+    toastRef.value.notify(t('msgDeleteStaffSuccess'), 'success');
+  }
+};
+
+const goToEdit = (id) => router.push(`/Owner/editar-staff/${id}`);
+const openWhatsApp = (phone) => window.open(`https://wa.me/${phone.replace(/\D/g, '')}`, '_blank');
+</script>
 
 <style scoped>
 .main-content { padding: 30px 40px; max-width: 1400px; margin: 0 auto; color: var(--color-texto-general, #e5e5e5); }
@@ -420,91 +532,3 @@
 }
 </style>
 
-<script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
-import HeadingOwner from '../HeadingOwner.vue';
-import ModalComponent from '../../Modals/ModalComponent.vue';
-import CorreoMasivo from '../Componets/Bulk-Email.vue';
-import EnvioCorreo from '../Componets/Mail.vue';
-import NotificationSystem from '../../Modals/NotificationSystem.vue'; 
-
-const activeModal = ref(null);
-const toastRef = ref(null);
-
-const router = useRouter();
-const showQR = ref(false);
-const showDelete = ref(false);
-const selectedUser = ref(null);
-
-const searchQuery = ref('');
-const selectedRoleFilter = ref('Todos');
-
-// Detección reactiva para saber si está en móvil (< 900px)
-const isMobile = ref(window.innerWidth <= 900);
-const handleResize = () => {
-  isMobile.value = window.innerWidth <= 900;
-};
-
-onMounted(() => {
-  window.addEventListener('resize', handleResize);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('resize', handleResize);
-});
-
-const filteredUsers = computed(() => {
-  let result = selectedRoleFilter.value === 'Todos' 
-    ? users.value 
-    : users.value.filter(user => user.role === selectedRoleFilter.value);
-
-  if (searchQuery.value) {
-    const term = searchQuery.value.toLowerCase();
-    result = result.filter(user => 
-      user.name.toLowerCase().includes(term) || 
-      user.email.toLowerCase().includes(term) ||
-      user.phone.toLowerCase().includes(term) ||
-      user.role.toLowerCase().includes(term) || 
-      user.id.toString().includes(term)
-    );
-  }
-  return result;
-});
-
-const getRoleClass = (role) => {
-  const classes = {
-    'Recepcionista': 'role-recepcionista',
-    'Entrenador': 'role-entrenador',
-    'Owner': 'role-Owner'
-  };
-  return classes[role] || 'role-default';
-};
-
-const users = ref([
-  { id: 1, name: 'Armando Luis Ramires Sanchez', email: 'Armandoluis@gmail.com', phone: '+52 481 1265412', role: 'Recepcionista' },
-  { id: 2, name: 'Francisco Luis Ramires Sanchez', email: 'Francisco.luis@example.com', phone: '+52 4811 243422', role: 'Entrenador' },
-  { id: 3, name: 'Maria Luis Ramires Sanchez', email: 'Maria.luis@example.com', phone: '+52 4811 243423', role: 'Recepcionista' },
-  { id: 4, name: 'Jorge Luis Ramires Sanchez', email: 'Jorge.luis@example.com', phone: '+52 4811 243424', role: 'Entrenador' },
-  { id: 5, name: 'Mario Luis Ramires Sanchez', email: 'Mario.luis@example.com', phone: '+52 4811 243425', role: 'Recepcionista' },
-  { id: 6, name: 'Luis Ramires Sanchez', email: 'Luis.ramires@example.com', phone: '+52 4811 243426', role: 'Recepcionista' },
-]);
-
-const confirmDelete = (user) => { 
-  selectedUser.value = user; 
-  showDelete.value = true; 
-};
-
-const executeDelete = () => {
-  if (!selectedUser.value) return;
-  users.value = users.value.filter(u => u.id !== selectedUser.value.id);
-  showDelete.value = false;
-  selectedUser.value = null;
-  if (toastRef.value) {
-    toastRef.value.notify('Personal eliminado correctamente', 'success');
-  }
-};
-
-const goToEdit = (id) => router.push(`/Owner/editar-staff/${id}`);
-const openWhatsApp = (phone) => window.open(`https://wa.me/${phone.replace(/\D/g, '')}`, '_blank');
-</script>

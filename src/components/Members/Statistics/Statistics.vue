@@ -1,31 +1,9 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed } from 'vue';
 import HeadingOwner from '../HeadingOwner.vue';
 import FitnessPet from '@/components/FitnessPet.vue';
-import { traducciones } from '../i18n.js';
 
 const searchQuery = ref('');
-
-const currentLang = ref(localStorage.getItem('app-idioma') || 'es');
-
-const t = (key) => {
-  const langTable = traducciones[currentLang.value] || traducciones.es;
-  return langTable[key] || traducciones.es[key] || key;
-};
-
-const handleLangChange = (e) => {
-  if (e.detail && e.detail.idioma) {
-    currentLang.value = e.detail.idioma;
-  }
-};
-
-onMounted(() => {
-  window.addEventListener('idioma-changed', handleLangChange);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('idioma-changed', handleLangChange);
-});
 
 const user = ref({
   nombre: 'Jose Luis Ramirez Sanchez',
@@ -86,13 +64,13 @@ const diasCalendario = ref([
         
         <div class="view-header-flex">
           <div class="view-header">
-            <h1 class="title">{{ t('statsTitlePrefix') }} <span class="highlight-text">{{ t('statsTitleHighlight') }}</span></h1>
-            <p class="subtitle">{{ t('statsSubtitle') }}</p>
+            <h1 class="title">Estadísticas <span class="highlight-text">del Usuario</span></h1>
+            <p class="subtitle">Monitoreo integral de composición corporal, rendimiento y asistencias</p>
           </div>
           <div id="tutor-0" class="search-bar-wrapper">
             <div class="search-input-container">
               <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-              <input type="text" v-model="searchQuery" :placeholder="t('searchPlaceholder')" class="search-input" />
+              <input type="text" v-model="searchQuery" placeholder="Buscar por nombre o ID..." class="search-input" />
             </div>
           </div>
         </div>
@@ -102,13 +80,13 @@ const diasCalendario = ref([
           <!-- COLUMNA IZQUIERDA -->
           <div class="column-left">
             <div id="tutor-1" class="user-profile-card">
-              <div class="profile-header-tag">{{ t('activeUserTag') }}</div>
+              <div class="profile-header-tag">Usuario Activo</div>
               <div class="profile-main-info">
                 <div class="avatar-wrapper">
                   <div id="tutor-2" class="avatar-circle">
                     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                   </div>
-                  <div id="tutor-3" class="attendance-badge">{{ user.asistenciaPorcentaje }}% {{ t('attendanceBadgeSuffix') }}</div>
+                  <div id="tutor-3" class="attendance-badge">{{ user.asistenciaPorcentaje }}% asistencia</div>
                 </div>
                 <div class="user-names">
                   <h2 id="tutor-4">{{ user.nombre }}</h2>
@@ -116,27 +94,27 @@ const diasCalendario = ref([
                 </div>
               </div>
 
-              <div class="section-subtitle-small">{{ t('bodyCompositionTitle') }}</div>
+              <div class="section-subtitle-small">Composición Corporal Principal</div>
               <div id="tutor-6" class="metrics-grid">
-                <div id="tutor-7" class="metric-box"><span class="metric-label">{{ t('initialWeightLabel') }}</span><span class="metric-value">{{ user.pesoInicial }}</span></div>
-                <div id="tutor-8" class="metric-box"><span class="metric-label">{{ t('currentWeightLabel') }}</span><span class="metric-value accent">{{ user.pesoActual }}</span></div>
-                <div id="tutor-9" class="metric-box"><span class="metric-label">{{ t('heightLabel') }}</span><span class="metric-value">{{ user.estatura }}</span></div>
-                <div id="tutor-10" class="metric-box"><span class="metric-label">{{ t('bodyFatLabel') }}</span><span class="metric-value warning">{{ user.grasaCorporal }}</span></div>
-                <div id="tutor-11" class="metric-box"><span class="metric-label">{{ t('muscleMassLabel') }}</span><span class="metric-value accent">{{ user.masaMuscular }}</span></div>
-                <div id="tutor-12" class="metric-box"><span class="metric-label">{{ t('avgCaloriesLabel') }}</span><span class="metric-value">{{ user.caloriasPromedio }}</span></div>
+                <div id="tutor-7" class="metric-box"><span class="metric-label">Peso Inicial</span><span class="metric-value">{{ user.pesoInicial }}</span></div>
+                <div id="tutor-8" class="metric-box"><span class="metric-label">Peso Actual</span><span class="metric-value accent">{{ user.pesoActual }}</span></div>
+                <div id="tutor-9" class="metric-box"><span class="metric-label">Estatura</span><span class="metric-value">{{ user.estatura }}</span></div>
+                <div id="tutor-10" class="metric-box"><span class="metric-label">% Grasa</span><span class="metric-value warning">{{ user.grasaCorporal }}</span></div>
+                <div id="tutor-11" class="metric-box"><span class="metric-label">Masa Muscular</span><span class="metric-value accent">{{ user.masaMuscular }}</span></div>
+                <div id="tutor-12" class="metric-box"><span class="metric-label">Calorías Q/d</span><span class="metric-value">{{ user.caloriasPromedio }}</span></div>
               </div>
 
-              <div class="section-subtitle-small">{{ t('advancedMetricsTitle') }}</div>
+              <div class="section-subtitle-small">Indicadores Avanzados & Rendimiento</div>
               <div id="tutor-13" class="metrics-grid advanced-metrics">
-                <div id="tutor-14" class="metric-box"><span class="metric-label">{{ t('bodyWaterLabel') }}</span><span class="metric-value info">{{ user.aguaCorporal }}</span></div>
-                <div id="tutor-15" class="metric-box"><span class="metric-label">{{ t('bmiLabel') }}</span><span class="metric-value">{{ user.imc }}</span></div>
-                <div id="tutor-16" class="metric-box"><span class="metric-label">{{ t('strengthGainLabel') }}</span><span class="metric-value accent">{{ user.aumentoFuerza }}</span></div>
+                <div id="tutor-14" class="metric-box"><span class="metric-label">Agua Corporal</span><span class="metric-value info">{{ user.aguaCorporal }}</span></div>
+                <div id="tutor-15" class="metric-box"><span class="metric-label">Índice IMC</span><span class="metric-value">{{ user.imc }}</span></div>
+                <div id="tutor-16" class="metric-box"><span class="metric-label">Aumento Fuerza</span><span class="metric-value accent">{{ user.aumentoFuerza }}</span></div>
               </div>
 
               <div id="tutor-17" class="performance-chart-box">
                 <div class="chart-header">
-                  <span class="chart-title">{{ t('muscleEfficiencyTitle') }}</span>
-                  <span class="chart-percentage">{{ t('muscleEfficiencyPercentage') }}</span>
+                  <span class="chart-title">Eficiencia de Ganancia Muscular</span>
+                  <span class="chart-percentage">+18.4% este mes</span>
                 </div>
                 <div class="progress-bar-bg">
                   <div class="progress-bar-fill"></div>
@@ -144,19 +122,19 @@ const diasCalendario = ref([
               </div>
 
               <div id="tutor-18" class="contact-info-list">
-                <div class="contact-item"><span class="contact-label">{{ t('enrollmentDateLabel') }}</span><span class="contact-val">{{ user.inscripcion }}</span></div>
-                <div class="contact-item"><span class="contact-label">{{ t('phoneLabel') }}</span><span class="contact-val">{{ user.celular }}</span></div>
-                <div class="contact-item"><span class="contact-label">{{ t('emailLabel') }}</span><span class="contact-val email-text">{{ user.correo }}</span></div>
+                <div  class="contact-item"><span class="contact-label">Fecha de inscripción</span><span class="contact-val">{{ user.inscripcion }}</span></div>
+                <div class="contact-item"><span class="contact-label">Celular</span><span class="contact-val">{{ user.celular }}</span></div>
+                <div  class="contact-item"><span class="contact-label">Correo electrónico</span><span class="contact-val email-text">{{ user.correo }}</span></div>
               </div>
             </div>
 
             <div class="bottom-financial-grid">
               <div id="tutor-19" class="info-card">
-                <span class="card-mini-title">{{ t('nextCutTitle') }}</span>
+                <span class="card-mini-title">Próximo Corte</span>
                 <span class="card-highlight-val red">{{ user.proximoCorte }}</span>
               </div>
               <div id="tutor-20" class="info-card">
-                <span class="card-mini-title">{{ t('balanceDueTitle') }}</span>
+                <span class="card-mini-title">Saldo a Pagar</span>
                 <span class="card-highlight-val green">{{ user.saldoAPagar }}</span>
               </div>
             </div>
@@ -167,7 +145,7 @@ const diasCalendario = ref([
             
             <div id="tutor-21" class="calendar-card">
               <div class="calendar-header">
-                <h3>{{ t('calendarHeaderTitle') }}</h3>
+                <h3>Asistencia de Mayo</h3>
                 <span class="year-badge">2026</span>
               </div>
               <div class="weekdays-row">
@@ -179,9 +157,9 @@ const diasCalendario = ref([
                 </div>
               </div>
               <div class="calendar-legend">
-                <div class="legend-item"><span class="dot asistio"></span> {{ t('legendAttended') }}</div>
-                <div class="legend-item"><span class="dot falto"></span> {{ t('legendMissed') }}</div>
-                <div class="legend-item"><span class="dot hoy"></span> {{ t('legendToday') }}</div>
+                <div class="legend-item"><span class="dot asistio"></span> Asistió</div>
+                <div class="legend-item"><span class="dot falto"></span> Falto</div>
+                <div class="legend-item"><span class="dot hoy"></span> Hoy</div>
               </div>
             </div>
 
@@ -189,8 +167,8 @@ const diasCalendario = ref([
             <div id="tutor-22" class="streak-card" :class="`theme-${etapaActual}`">
               <div class="streak-header-row">
                 <div class="streak-title-group">
-                  <span class="section-subtitle-small">{{ t('petAndStreakTitle') }}</span>
-                  <span class="streak-sub">{{ t('streakSub') }}</span>
+                  <span class="section-subtitle-small">Mascota & Racha del Usuario</span>
+                  <span class="streak-sub">Evolución automática por constancia</span>
                 </div>
                 <span class="pet-level-badge">{{ rachaInfo.nivelMascota }}</span>
               </div>
@@ -210,7 +188,7 @@ const diasCalendario = ref([
                     <span class="streak-number animate-bounce">{{ rachaInfo.dias }}</span>
                     <span class="fire-icon animate-pulse">🔥</span>
                   </div>
-                  <span class="streak-footer-text">{{ t('streakFooterText') }}</span>
+                  <span class="streak-footer-text">Días Seguidos de Racha</span>
                 </div>
               </div>
             </div>

@@ -1,32 +1,138 @@
+<script setup>
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { useRouter } from 'vue-router';
+import HeadingOwner from './HeadingOwner.vue';
+import CorreoMasivo from './Componets/Bulk-Email.vue';
+import NotificationSystem from '../Modals/NotificationSystem.vue'; 
+import ModalComponent from '../Modals/ModalComponent.vue';
+import { traducciones } from './i18n.js';
+
+const currentLang = ref(localStorage.getItem('app-idioma') || 'es');
+
+const t = (key) => {
+  const langTable = traducciones[currentLang.value] || traducciones.es;
+  return langTable[key] || traducciones.es[key] || key;
+};
+
+const handleLangChange = (e) => {
+  if (e.detail && e.detail.idioma) {
+    currentLang.value = e.detail.idioma;
+  }
+};
+
+const windowWidth = ref(window.innerWidth);
+const handleResize = () => {
+  windowWidth.value = window.innerWidth;
+};
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize);
+  window.addEventListener('idioma-changed', handleLangChange);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize);
+  window.removeEventListener('idioma-changed', handleLangChange);
+});
+
+const isMobile = computed(() => windowWidth.value <= 900);
+
+const activeModal = ref(null);
+const toastRef = ref(null);
+
+const router = useRouter();
+const showDelete = ref(false);
+const selectedUser = ref(null);
+
+const searchQuery = ref('');
+const selectedMembership = ref(''); 
+const selectedStatus = ref('');
+
+const filteredUsers = computed(() => {
+  return users.value.filter(user => {
+    const matchMembership = selectedMembership.value ? user.mensualidad === selectedMembership.value : true;
+    const matchStatus = selectedStatus.value ? user.status === selectedStatus.value : true;
+    
+    const term = searchQuery.value.toLowerCase();
+    const matchSearch = user.name.toLowerCase().includes(term) || 
+                        user.email.toLowerCase().includes(term) ||
+                        user.phone.toLowerCase().includes(term) ||
+                        user.mensualidad.toLowerCase().includes(term) ||
+                        user.status.toLowerCase().includes(term) || 
+                        user.expirationDate.toLowerCase().includes(term) ||
+                        user.id.toString().includes(term);
+    
+    return matchMembership && matchStatus && matchSearch;
+  });
+});
+
+const getStatusClass = (status) => {
+  const classes = {
+    'Activo': 'status-green',
+    'Inactivo': 'status-red',
+    'Pendiente': 'status-orange',
+    'Próximo a vencer': 'status-yellow'
+  };
+  return classes[status] || 'status-default';
+};
+
+const users = ref([
+  { id: 1, name: 'Maria Luis Ramires Sanchez', email: 'Maria.luis@example.com', expirationDate: '18/03/2026', status: 'Activo', phone: '+52 481 123 4321' , mensualidad: 'Mensual' },
+  { id: 2, name: 'Francisco Luis Ramires Sanchez', email: 'Francisco.luis@example.com', expirationDate: '18/03/2026', status: 'Pendiente', phone: '+52 481 123 4321' , mensualidad: 'Quincenal' },
+  { id: 3, name: 'Luis Ramires Sanchez', email: 'Luis.luis@example.com', expirationDate: '18/03/2026', status: 'Activo', phone: '+52 481 123 4321' , mensualidad: 'Mensual' },
+  { id: 4, name: 'Jose Luis Ramires Sanchez', email: 'Jose.luis@example.com', expirationDate: '18/03/2026', status: 'Inactivo', phone: '+52 481 123 4321' , mensualidad: 'Quincenal' },
+  { id: 5, name: 'Mario Luis Ramires Sanchez', email: 'Mario.luis@example.com', expirationDate: '18/03/2026', status: 'Pendiente', phone: '+52 481 123 4321' , mensualidad: 'Mensual' },
+  { id: 6, name: 'Jesus Luis Ramires Sanchez', email: 'Jesus.luis@example.com', expirationDate: '18/03/2026', status: 'Inactivo', phone: '+52 481 123 4321' , mensualidad: 'Quincenal' },
+  { id: 7, name: 'Ana Luis Ramires Sanchez', email: 'Ana.luis@example.com', expirationDate: '18/03/2026', status: 'Activo', phone: '+52 481 123 4321' , mensualidad: 'Mensual' },
+  { id: 8, name: 'Carlos Luis Ramires Sanchez', email: 'Carlos.luis@example.com', expirationDate: '18/03/2026', status: 'Pendiente', phone: '+52 481 123 4321' , mensualidad: 'Quincenal' },
+]);
+
+const confirmDelete = (user) => { 
+  selectedUser.value = user; 
+  showDelete.value = true; 
+};
+
+const executeDelete = () => {
+  if (!selectedUser.value) return;
+  users.value = users.value.filter(u => u.id !== selectedUser.value.id);
+  showDelete.value = false;
+  selectedUser.value = null;
+  toastRef.value.notify(t('userDeletedToast'), 'success');
+};
+
+const goToPayments = (id) => router.push(`/Owner/pay/${id}`);
+const goToEdit = (id) => router.push(`/Owner/editar-usuario/${id}`);
+</script>
+
 <template>
   <HeadingOwner>
     <NotificationSystem ref="toastRef" />
     <main class="main-content">
       <header class="header-section">
         <div class="title-wrapper">
-          <h1 class="main-title">Pagos</h1>
+          <h1 class="main-title">{{ t('paymentsTitle') }}</h1>
         </div>
       
         <div class="actions-bar" id="tutorial-step-0">
             <select class="status-select" v-model="selectedMembership">
-                <option value="">Mensualidad (Todas)</option>
-                <option value="Mensual">Mensual</option>
-                <option value="Quincenal">Quincenal</option>
+                <option value="">{{ t('allMembershipsOption') }}</option>
+                <option value="Mensual">{{ t('monthlyOption') }}</option>
+                <option value="Quincenal">{{ t('biweeklyOption') }}</option>
             </select>
             <select class="status-select" v-model="selectedStatus">
-                <option value="">Status (Todos)</option>
-                <option value="Activo">Activo</option>
-                <option value="Inactivo">Inactivo</option>
-                <option value="Pendiente">Pendiente</option>
-                <option value="Próximo a vencer">Próximo a vencer</option>
+                <option value="">{{ t('allStatusesOption') }}</option>
+                <option value="Activo">{{ t('statusActive') }}</option>
+                <option value="Inactivo">{{ t('statusInactive') }}</option>
+                <option value="Pendiente">{{ t('statusPending') }}</option>
+                <option value="Próximo a vencer">{{ t('statusExpiringSoon') }}</option>
             </select>
             <button class="btn-bulk" @click="activeModal = 'enviomasivo'">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
                   <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
               </svg>
-              Correo Masivo
+              {{ t('bulkEmailBtn') }}
             </button>
-            <input type="text" class="search-input" placeholder="Buscar usuario..." v-model="searchQuery">
+            <input type="text" class="search-input" :placeholder="t('searchUserPlaceholder')" v-model="searchQuery">
         </div>
       </header>
 
@@ -34,7 +140,7 @@
       <div v-if="!isMobile" class="table-container desktop-only" id="tutorial-step-1">
         <table class="user-table">
           <thead>
-            <tr><th>Foto</th><th>Nombre</th><th>Correo</th><th>Fecha a Vencer</th><th>Status</th><th>Acciones</th></tr>
+            <tr><th>{{ t('tablePhoto') }}</th><th>{{ t('tableName') }}</th><th>{{ t('tableEmail') }}</th><th>{{ t('tableExpiration') }}</th><th>{{ t('tableStatus') }}</th><th>{{ t('tableActions') }}</th></tr>
           </thead>
           <tbody>
             <tr v-for="(user, index) in filteredUsers" :key="user.id">
@@ -45,13 +151,13 @@
               <td><span :class="['status-badge', getStatusClass(user.status)]">{{ user.status }}</span></td>
               
               <td class="actions-cell" :id="!isMobile && index === 0 ? 'tutorial-step-2' : null">
-                <button class="icon-btn" title="Pago" @click="goToPayments(user.id)">
+                <button class="icon-btn" :title="t('tooltipPayment')" @click="goToPayments(user.id)">
                   <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2" ry="2"/><circle cx="12" cy="12" r="3"/><path d="M12 9v6M10.5 10.5h3M10.5 13.5h3"/><path d="M6 3h14c1.1 0 2 .9 2 2v10"/></svg>
                 </button>
-                <button class="icon-btn" title="Editar" @click="goToEdit(user.id)">
+                <button class="icon-btn" :title="t('tooltipEdit')" @click="goToEdit(user.id)">
                   <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 </button>
-                <button class="icon-btn" title="Eliminar" @click="confirmDelete(user)">
+                <button class="icon-btn" :title="t('tooltipDelete')" @click="confirmDelete(user)">
                   <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                 </button>
               </td>
@@ -76,22 +182,22 @@
           
           <div class="card-meta">
             <span class="email-text">{{ user.email }}</span>
-            <span class="expiration-warning"><span class="vence-label">Vence:</span> {{ user.expirationDate }}</span>
+            <span class="expiration-warning"><span class="vence-label">{{ t('expiresLabel') }}:</span> {{ user.expirationDate }}</span>
             <span class="phone-text">{{ user.phone }}</span>
           </div>
 
           <div class="card-actions" :id="isMobile && index === 0 ? 'tutorial-step-2' : null">
             <button class="action-chip btn-pay-chip" @click="goToPayments(user.id)">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2" ry="2"/><circle cx="12" cy="12" r="3"/><path d="M12 9v6M10.5 10.5h3M10.5 13.5h3"/><path d="M6 3h14c1.1 0 2 .9 2 2v10"/></svg>
-              <span>Pago</span>
+              <span>{{ t('actionPayment') }}</span>
             </button>
             <button class="action-chip btn-edit-chip" @click="goToEdit(user.id)">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-              <span>Editar</span>
+              <span>{{ t('actionEdit') }}</span>
             </button>
             <button class="action-chip btn-delete-chip" @click="confirmDelete(user)">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-              <span>Eliminar</span>
+              <span>{{ t('actionDelete') }}</span>
             </button>
           </div>
         </div>
@@ -105,11 +211,11 @@
               <div class="modal-icon-container danger-bg">
                 <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
               </div>
-              <h2>¿DESEA ELIMINARLO?</h2>
-              <p>¿Deseas eliminar a <span class="highlight-name">{{ selectedUser?.name }}</span> temporalmente?</p>
+              <h2>{{ t('deleteModalTitle') }}</h2>
+              <p>{{ t('deleteModalTextPart1') }} <span class="highlight-name">{{ selectedUser?.name }}</span> {{ t('deleteModalTextPart2') }}</p>
               <div class="modal-buttons">
-                <button class="btn-modal secondary" @click="showDelete = false">Cancelar</button>
-                <button class="btn-modal danger" @click="executeDelete">Confirmar</button>
+                <button class="btn-modal secondary" @click="showDelete = false">{{ t('btnCancel') }}</button>
+                <button class="btn-modal danger" @click="executeDelete">{{ t('btnConfirm') }}</button>
               </div>
             </div>
           </div>
@@ -418,87 +524,3 @@
   transform: scale(0.95);
 }
 </style>
-
-<script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
-import HeadingOwner from './HeadingOwner.vue';
-import CorreoMasivo from './Componets/Bulk-Email.vue';
-import NotificationSystem from '../Modals/NotificationSystem.vue'; 
-import ModalComponent from '../Modals/ModalComponent.vue';
-
-const windowWidth = ref(window.innerWidth);
-const handleResize = () => {
-  windowWidth.value = window.innerWidth;
-};
-onMounted(() => window.addEventListener('resize', handleResize));
-onUnmounted(() => window.removeEventListener('resize', handleResize));
-
-const isMobile = computed(() => windowWidth.value <= 900);
-
-const activeModal = ref(null);
-const toastRef = ref(null);
-
-const router = useRouter();
-const showDelete = ref(false);
-const selectedUser = ref(null);
-
-const searchQuery = ref('');
-const selectedMembership = ref(''); 
-const selectedStatus = ref('');
-
-const filteredUsers = computed(() => {
-  return users.value.filter(user => {
-    const matchMembership = selectedMembership.value ? user.mensualidad === selectedMembership.value : true;
-    const matchStatus = selectedStatus.value ? user.status === selectedStatus.value : true;
-    
-    const term = searchQuery.value.toLowerCase();
-    const matchSearch = user.name.toLowerCase().includes(term) || 
-                        user.email.toLowerCase().includes(term) ||
-                        user.phone.toLowerCase().includes(term) ||
-                        user.mensualidad.toLowerCase().includes(term) ||
-                        user.status.toLowerCase().includes(term) || 
-                        user.expirationDate.toLowerCase().includes(term) ||
-                        user.id.toString().includes(term);
-    
-    return matchMembership && matchStatus && matchSearch;
-  });
-});
-
-const getStatusClass = (status) => {
-  const classes = {
-    'Activo': 'status-green',
-    'Inactivo': 'status-red',
-    'Pendiente': 'status-orange',
-    'Próximo a vencer': 'status-yellow'
-  };
-  return classes[status] || 'status-default';
-};
-
-const users = ref([
-  { id: 1, name: 'Maria Luis Ramires Sanchez', email: 'Maria.luis@example.com', expirationDate: '18/03/2026', status: 'Activo', phone: '+52 481 123 4321' , mensualidad: 'Mensual' },
-  { id: 2, name: 'Francisco Luis Ramires Sanchez', email: 'Francisco.luis@example.com', expirationDate: '18/03/2026', status: 'Pendiente', phone: '+52 481 123 4321' , mensualidad: 'Quincenal' },
-  { id: 3, name: 'Luis Ramires Sanchez', email: 'Luis.luis@example.com', expirationDate: '18/03/2026', status: 'Activo', phone: '+52 481 123 4321' , mensualidad: 'Mensual' },
-  { id: 4, name: 'Jose Luis Ramires Sanchez', email: 'Jose.luis@example.com', expirationDate: '18/03/2026', status: 'Inactivo', phone: '+52 481 123 4321' , mensualidad: 'Quincenal' },
-  { id: 5, name: 'Mario Luis Ramires Sanchez', email: 'Mario.luis@example.com', expirationDate: '18/03/2026', status: 'Pendiente', phone: '+52 481 123 4321' , mensualidad: 'Mensual' },
-  { id: 6, name: 'Jesus Luis Ramires Sanchez', email: 'Jesus.luis@example.com', expirationDate: '18/03/2026', status: 'Inactivo', phone: '+52 481 123 4321' , mensualidad: 'Quincenal' },
-  { id: 7, name: 'Ana Luis Ramires Sanchez', email: 'Ana.luis@example.com', expirationDate: '18/03/2026', status: 'Activo', phone: '+52 481 123 4321' , mensualidad: 'Mensual' },
-  { id: 8, name: 'Carlos Luis Ramires Sanchez', email: 'Carlos.luis@example.com', expirationDate: '18/03/2026', status: 'Pendiente', phone: '+52 481 123 4321' , mensualidad: 'Quincenal' },
-]);
-
-const confirmDelete = (user) => { 
-  selectedUser.value = user; 
-  showDelete.value = true; 
-};
-
-const executeDelete = () => {
-  if (!selectedUser.value) return;
-  users.value = users.value.filter(u => u.id !== selectedUser.value.id);
-  showDelete.value = false;
-  selectedUser.value = null;
-  toastRef.value.notify('Usuario eliminado correctamente', 'success');
-};
-
-const goToPayments = (id) => router.push(`/Owner/pay/${id}`);
-const goToEdit = (id) => router.push(`/Owner/editar-usuario/${id}`);
-</script>

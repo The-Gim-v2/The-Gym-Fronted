@@ -13,36 +13,36 @@
       <!-- Header -->
       <div class="panel-header">
         <div class="title-container">
-          <h3 class="title">Horario Semanal</h3>
-          <span class="subtitle-mobile">Selecciona un horario disponible</span>
+          <h3 class="title">{{ t('scheduleTitle') }}</h3>
+          <span class="subtitle-mobile">{{ t('scheduleSubtitle') }}</span>
         </div>
-        <button class="close-btn" @click="$emit('close')" title="Cerrar">✕</button>
+        <button class="close-btn" @click="$emit('close')" :title="t('closeTitle')">✕</button>
       </div>
 
       <!-- Vista Móvil Optimizada -->
       <div class="mobile-only">
         <div class="mobile-nav">
           <div class="tabs-container">
-            <button v-for="(day, index) in days" :key="index"
+            <button v-for="(dayKey, index) in dayKeys" :key="index"
                     :class="['tab', { active: activeDay === index }]"
                     @click="activeDay = index">
-              {{ day }}
+              {{ t(dayKey) }}
             </button>
           </div>
         </div>
         
         <div class="schedule-content">
-          <div class="day-active-title">{{ days[activeDay] }}</div>
+          <div class="day-active-title">{{ t(dayKeys[activeDay]!) }}</div>
           <div class="slots-list">
             <div v-for="hour in hours" :key="hour" class="mobile-slot-card">
               <div class="slot-time-info">
                 <span class="time-badge">{{ hour }} hrs</span>
                 <div class="slot-status-info">
-                  <span class="status">Disponible</span>
-                  <span class="sub-text">Libre para agendar</span>
+                  <span class="status">{{ t('statusAvailable') }}</span>
+                  <span class="sub-text">{{ t('subtextFree') }}</span>
                 </div>
               </div>
-              <button class="action-btn" @click="selectSlot(days[activeDay], hour)">Reservar</button>
+              <button class="action-btn" @click="selectSlot(dayKeys[activeDay]!, hour)">{{ t('btnReserve') }}</button>
             </div>
           </div>
         </div>
@@ -54,14 +54,14 @@
           <thead>
             <tr>
               <th></th>
-              <th v-for="day in days" :key="day">{{ day }}</th>
+              <th v-for="dayKey in dayKeys" :key="dayKey">{{ t(dayKey) }}</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="hour in hours" :key="hour">
               <td class="hour-cell">{{ hour }}</td>
-              <td v-for="day in days" :key="day">
-                <div class="slot-desktop" @click="selectSlot(day, hour)">Disponible</div>
+              <td v-for="dayKey in dayKeys" :key="dayKey">
+                <div class="slot-desktop" @click="selectSlot(dayKey, hour)">{{ t('statusAvailable') }}</div>
               </td>
             </tr>
           </tbody>
@@ -71,10 +71,53 @@
   </div>
 </template>
 
-<script setup>
-import { ref, reactive } from 'vue';
+<script setup lang="ts">
+import { ref, reactive, onMounted } from 'vue';
 
-const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+const settings = reactive({
+  idioma: localStorage.getItem('app-idioma') || 'es'
+});
+
+const translations: Record<string, Record<string, string>> = {
+  es: {
+    scheduleTitle: "Horario Semanal",
+    scheduleSubtitle: "Selecciona un horario disponible",
+    closeTitle: "Cerrar",
+    monday: "Lunes",
+    tuesday: "Martes",
+    wednesday: "Miércoles",
+    thursday: "Jueves",
+    friday: "Viernes",
+    saturday: "Sábado",
+    sunday: "Domingo",
+    statusAvailable: "Disponible",
+    subtextFree: "Libre para agendar",
+    btnReserve: "Reservar",
+    toastReserved: "¡Reservado!"
+  },
+  en: {
+    scheduleTitle: "Weekly Schedule",
+    scheduleSubtitle: "Select an available time slot",
+    closeTitle: "Close",
+    monday: "Monday",
+    tuesday: "Tuesday",
+    wednesday: "Wednesday",
+    thursday: "Thursday",
+    friday: "Friday",
+    saturday: "Saturday",
+    sunday: "Sunday",
+    statusAvailable: "Available",
+    subtextFree: "Free to book",
+    btnReserve: "Reserve",
+    toastReserved: "Reserved!"
+  }
+};
+
+const t = (key: string) => {
+  return translations[settings.idioma]?.[key] || translations['es']?.[key] || key;
+};
+
+const dayKeys = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 const hours = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00'];
 const activeDay = ref(0);
 
@@ -87,7 +130,7 @@ const toast = reactive({
   type: 'success'
 });
 
-const mostrarToast = (mensaje, tipo = 'success') => {
+const mostrarToast = (mensaje: string, tipo = 'success') => {
   toast.message = mensaje;
   toast.type = tipo;
   toast.show = true;
@@ -96,11 +139,20 @@ const mostrarToast = (mensaje, tipo = 'success') => {
   }, 2200);
 };
 
-const selectSlot = (day, hour) => {
-  emit('select-slot', { day, hour });
-  // Mensaje conciso para que quepa perfectamente en pantallas móviles
-  mostrarToast(`¡Reservado (${day} ${hour})!`, 'success');
+const selectSlot = (dayKey: string, hour: string) => {
+  const dayName = t(dayKey);
+  emit('select-slot', { day: dayName, hour });
+  mostrarToast(`${t('toastReserved')} (${dayName} ${hour})`, 'success');
 };
+
+onMounted(() => {
+  window.addEventListener('idioma-changed', (e: Event) => {
+    const customEvent = e as CustomEvent;
+    if (customEvent.detail && customEvent.detail.idioma) {
+      settings.idioma = customEvent.detail.idioma;
+    }
+  });
+});
 </script>
 
 <style scoped>

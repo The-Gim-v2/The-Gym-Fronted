@@ -4,115 +4,110 @@
     <main class="main-content">
       <div class="profile-card">
         <div class="profile-section" id="tutorial-step-0">
-          <h1 class="main-title">
-            <template v-if="currentLang === 'es'">Registra a tu <br> <span class="highlight">Personal</span></template>
-            <template v-else-if="currentLang === 'en'">Register your <br> <span class="highlight">Staff</span></template>
-            <template v-else-if="currentLang === 'fr'">Enregistrez votre <br> <span class="highlight">Personnel</span></template>
-            <template v-else-if="currentLang === 'pt'">Registre sua <br> <span class="highlight">Equipe</span></template>
-          </h1>
+          <h1 class="main-title">Registra a tu <br> <span class="highlight">Personal</span></h1>
           
           <div class="avatar-wrapper">
-            <div class="avatar-circle" @click="$refs.fileInput.click()" :title="t('titleAvatarClick')">
-              <img v-if="avatarPreview" :src="avatarPreview" :alt="t('altEmployeePreview')" class="avatar-img" />
+            <div class="avatar-circle" @click="$refs.fileInput.click()" title="Hacer clic para subir foto">
+              <img v-if="avatarPreview" :src="avatarPreview" alt="Vista previa del empleado" class="avatar-img" />
               <svg v-else viewBox="0 0 24 24" fill="white"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
             </div>
-            <button type="button" class="avatar-action btn-camera" @click="$refs.fileInput.click()" :title="t('titleUploadPhoto')">
+            <button type="button" class="avatar-action btn-camera" @click="$refs.fileInput.click()" title="Subir fotografía">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
             </button>
             <input type="file" ref="fileInput" accept="image/*" style="display: none" @change="handleFileChange" />
           </div>
-          <p class="profile-hint">{{ t('hintEmployeePhoto') }}</p>
+          <p class="profile-hint">Sube una fotografía oficial o reciente para el expediente del empleado.</p>
         </div>
 
         <div class="forms-wrapper">
           
           <div class="login-card" id="tutorial-step-1">
-            <h3 class="section-title">{{ t('credentialsAndRole') }}</h3>
+            <h3 class="section-title">Credenciales y Rol</h3>
             <div class="form-grid">
               <div class="input-group">
-                <label>{{ t('systemRole') }}</label>
+                <label>Rol en el sistema</label>
                 <select v-model="form.rol" class="custom-select">
-                  <option value="" disabled>{{ t('selectRole') }}</option>
-                  <option value="Owner">{{ t('roleOwner') }}</option>
-                  <option value="entrenador">{{ t('roleTrainer') }}</option>
-                  <option value="recepcion">{{ t('roleReception') }}</option>
+                  <option value="" disabled>Seleccionar rol</option>
+                  <option value="Owner">Dueño</option>
+                  <option value="entrenador">Entrenador</option>
+                  <option value="recepcion">Recepción</option>
                 </select>
               </div>
               <div class="input-group">
-                <label>{{ t('email') }}</label>
+                <label>Correo electrónico</label>
                 <input type="email" v-model="form.email" placeholder="correo@ejemplo.com">
               </div>
               <div class="input-group span-full" v-if="form.rol === 'entrenador'">
-                <label>{{ t('specialty') }}</label>
-                <input type="text" v-model="form.especialidad" :placeholder="t('placeholderSpecialty')">
+                <label>Especialidad</label>
+                <input type="text" v-model="form.especialidad" placeholder="Ej. Musculación, Funcional, Yoga">
               </div>
             </div>
           </div>
 
           <div class="login-card" id="tutorial-step-2">
-            <h3 class="section-title">{{ t('employeeData') }}</h3>
+            <h3 class="section-title">Datos del empleado</h3>
             <div class="form-grid">
               <div class="input-group span-full">
-                <label>{{ t('curp') }}</label>
+                <label>CURP</label>
                 <input type="text" v-model="form.curp" placeholder="Ej. ABCD010101HDF000">
               </div>
               <div class="input-group">
-                <label>{{ t('names') }}</label>
-                <input type="text" v-model="form.nombres" :placeholder="t('placeholderName')">
+                <label>Nombres</label>
+                <input type="text" v-model="form.nombres" placeholder="Ej. Juan">
               </div>
               <div class="input-group">
-                <label>{{ t('lastNameP') }}</label>
-                <input type="text" v-model="form.apellidoP" :placeholder="t('placeholderLastNameP')">
+                <label>Apellido Paterno</label>
+                <input type="text" v-model="form.apellidoP" placeholder="Ej. Pérez">
               </div>
               <div class="input-group">
-                <label>{{ t('lastNameM') }}</label>
-                <input type="text" v-model="form.apellidoM" :placeholder="t('placeholderLastNameM')">
+                <label>Apellido Materno</label>
+                <input type="text" v-model="form.apellidoM" placeholder="Ej. Gómez">
               </div>
               <div class="input-group">
-                <label>{{ t('birthDate') }}</label>
+                <label>Fecha de Nacimiento</label>
                 <input type="date" v-model="form.fechaNacimiento">
               </div>
               <div class="input-group">
-                <label>{{ t('cellphone') }}</label>
+                <label>Celular</label>
                 <input type="text" v-model="form.celular" placeholder="+52 000 000 0000">
               </div>
 
               <template v-if="form.rol !== 'recepcion' && form.rol !== 'Owner'">
                 <div class="input-group">
-                  <label>{{ t('facebook') }}</label>
+                  <label>Facebook</label>
                   <input type="text" v-model="form.facebook" placeholder="usuario_fb">
                 </div>
                 <div class="input-group">
-                  <label>{{ t('instagram') }}</label>
+                  <label>Instagram</label>
                   <input type="text" v-model="form.instagram" placeholder="@usuario_ig">
                 </div>
                 <div class="input-group">
-                  <label>{{ t('tiktok') }}</label>
+                  <label>TikTok</label>
                   <input type="text" v-model="form.tiktok" placeholder="@usuario_tt">
                 </div>
                 <div class="input-group">
-                  <label>{{ t('otherApps') }}</label>
-                  <input type="text" v-model="form.otrasApps" :placeholder="t('placeholderOtherApps')">
+                  <label>Otras app</label>
+                  <input type="text" v-model="form.otrasApps" placeholder="Ej. X, LinkedIn">
                 </div>
               </template>
             </div>
           </div>
 
           <div class="login-card" id="tutorial-step-3">
-            <h3 class="section-title">{{ t('workSchedule') }}</h3>
+            <h3 class="section-title">Horario de trabajo</h3>
             <div class="form-grid">
               <div class="input-group">
-                <label>{{ t('entryTime') }}</label>
+                <label>Entrada</label>
                 <input type="time" v-model="form.horaEntrada">
               </div>
               <div class="input-group">
-                <label>{{ t('exitTime') }}</label>
+                <label>Salida</label>
                 <input type="time" v-model="form.horaSalida">
               </div>
             </div>
           </div>
 
-          <button type="button" class="btn-primary" @click="saveRegistration">{{ t('finishButtonStaff') }}</button>
+          <button type="button" class="btn-primary" @click="saveRegistration">Finalizar Registro</button>
         </div>
       </div>
     </main>
@@ -120,37 +115,15 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onUnmounted } from 'vue';
+import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import HeadingOwner from '../HeadingOwner.vue';
 import NotificationSystem from '../../Modals/NotificationSystem.vue'; 
-import { traducciones } from '../i18n.js';
 
 const router = useRouter();
 const toastRef = ref(null);
 const fileInput = ref(null);
 const avatarPreview = ref(null);
-
-const currentLang = ref(localStorage.getItem('app-idioma') || 'es');
-
-const t = (key) => {
-  const langTable = traducciones[currentLang.value] || traducciones.es;
-  return langTable[key] || traducciones.es[key] || key;
-};
-
-const handleLangChange = (e) => {
-  if (e.detail && e.detail.idioma) {
-    currentLang.value = e.detail.idioma;
-  }
-};
-
-onMounted(() => {
-  window.addEventListener('idioma-changed', handleLangChange);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('idioma-changed', handleLangChange);
-});
 
 const form = reactive({
   curp: '',
@@ -179,15 +152,15 @@ const handleFileChange = (e) => {
 
 const saveRegistration = () => {
   if (!form.nombres || !form.apellidoP) {
-    toastRef.value?.notify(t('msgWarningStaff'), 'warning');
+    toastRef.value?.notify('Por favor, completa los campos obligatorios (Nombres y Apellido Paterno)', 'warning');
     return;
   }
   
   try {
     console.log("Datos del personal a guardar:", form);
-    toastRef.value?.notify(t('msgSuccess'), 'success');
+    toastRef.value?.notify('Registro guardado con éxito', 'success');
   } catch (error) {
-    toastRef.value?.notify(t('msgError'), 'error');
+    toastRef.value?.notify('Error al guardar el registro', 'error');
   }
 };
 </script>

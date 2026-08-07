@@ -1,31 +1,144 @@
+<template>
+  <HeadingOwner>
+    <NotificationSystem ref="toastRef" />
+    <main class="main-content">
+      <!-- Columna Izquierda: Tarjeta de Perfil con Animación de Flotación -->
+      <div class="profile-card-container">
+        <div class="profile-card glass-effect floating-animation">
+          <h1 class="main-title">JOSÉ LUIS <br> <span class="highlight">RAMÍREZ</span></h1>
+          
+          <div class="avatar-wrapper">
+            <div class="avatar-circle">
+              <img src="../../../assets/humano.jpg" alt="Avatar del usuario" class="user-avatar-img" />
+            </div>
+          </div>
+
+          <p class="user-id">ID: GymPer001</p>
+          
+          <div class="status-badge">ACTIVO</div>
+        </div>
+      </div>
+
+      <!-- Columna Derecha: Panel de Operaciones / Pago -->
+      <div class="right-column">
+        <div id="tutorial-step-0" class="input-group search-bar-half">
+          <label>Buscar Cliente</label>
+          <div class="search-input-wrapper">
+            <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" placeholder="Buscar por nombre o ID...">
+          </div>
+        </div>
+
+        <div id="tutorial-step-1" class="login-card glass-effect">
+          <div class="form-grid">
+            <div class="input-group">
+              <label>Próximo Corte</label>
+              <input type="date" class="custom-input">
+            </div>
+            <div class="input-group">
+              <label>Nuevo Corte</label>
+              <input type="date" class="custom-input">
+            </div>
+          </div>
+
+          <div class="header-row">
+            <div class="input-group-label">Estado de Cuenta</div>
+            <button class="btn-promos" type="button" @click="activeModal = 'promo'">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+                <path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z"/>
+              </svg>
+              Promos
+            </button>
+          </div>
+          
+          <div class="styled-box">
+            <div class="amount-info">
+              <span class="amount-label">Total a pagar</span>
+              <div class="amount-row">
+                <span class="currency">$</span>
+                <span class="amount-val">{{ montoRecibir ? montoRecibir.toFixed(2) : '450.00' }}</span>
+              </div>
+            </div>
+            <div class="recargo-container">
+              <span class="red">+ $50 Recargo</span>
+              <span class="mensual-text">{{ ofertaSeleccionada ? ofertaSeleccionada.nombre : 'Mensual' }}</span>
+            </div>
+          </div>
+
+          <!-- Sección Tipo de Pago y Folio -->
+          <div class="payment-details-grid">
+            <div class="input-group">
+              <label>Tipo de Pago</label>
+              <div class="input-wrapper select-wrapper-container">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="input-icon">
+                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                  <line x1="1" y1="10" x2="23" y2="10"></line>
+                </svg>
+                <select v-model="tipoPago" class="custom-select">
+                  <option disabled value="">Seleccionar</option>
+                  <option value="Efectivo">Efectivo</option>
+                  <option value="Transferencia">Transferencia</option>
+                  <option value="Tarjeta">Tarjeta</option>
+                </select>
+                <svg class="select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label>Folio / Referencia</label>
+              <div class="input-wrapper input-with-icon-simple">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="input-icon">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <input type="text" v-model="folioReferencia" placeholder="N° de comprobante">
+              </div>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>Monto a Recibir</label>
+            <div class="input-with-symbol">
+              <span class="symbol">$</span>
+              <input type="number" v-model="montoRecibir" placeholder="0.00">
+            </div>
+          </div>
+          
+          <div id="tutorial-step-2" class="action-buttons">
+            <button class="btn-primary" :disabled="isButtonDisabled" :class="{ 'disabled': isButtonDisabled }" @click="confirmPayment">
+              Confirmar Pago
+            </button>
+            
+            <button class="btn-secondary" @click="downloadReceipt">
+              <svg viewBox="0 0 24 24" fill="currentColor" class="btn-icon" width="16" height="16">
+                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+              </svg>
+              Descargar Recibo
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <transition name="pop">
+      <div v-if="activeModal === 'promo'" class="modal-wrapper" @click.self="activeModal = null">
+        <Promo @select-oferta="handleSelectOferta" @close="activeModal = null" />
+      </div>
+    </transition>  
+  </HeadingOwner>
+</template>
+
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router'; 
 import HeadingOwner from '../HeadingOwner.vue';
 import Promo from './Promos.vue';
 import NotificationSystem from '../../Modals/NotificationSystem.vue'; 
-import { traducciones } from '../i18n.js';
-
-const currentLang = ref(localStorage.getItem('app-idioma') || 'es');
-
-const t = (key) => {
-  const langTable = traducciones[currentLang.value] || traducciones.es;
-  return langTable[key] || traducciones.es[key] || key;
-};
-
-const handleLangChange = (e) => {
-  if (e.detail && e.detail.idioma) {
-    currentLang.value = e.detail.idioma;
-  }
-};
-
-onMounted(() => {
-  window.addEventListener('idioma-changed', handleLangChange);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('idioma-changed', handleLangChange);
-});
 
 const router = useRouter();
 const activeModal = ref(null);
@@ -43,161 +156,26 @@ const handleSelectOferta = (oferta) => {
   montoRecibir.value = oferta.precio;
   activeModal.value = null; 
   if (toastRef.value) {
-    toastRef.value.notify(`${t('offerAppliedToast')} ${oferta.nombre}`, 'success');
+    toastRef.value.notify(`Oferta aplicada: ${oferta.nombre}`, 'success');
   }
 };
 
 const confirmPayment = () => {
   if (!tipoPago.value) {
-    if (toastRef.value) toastRef.value.notify(t('selectPaymentTypeError'), 'error');
+    if (toastRef.value) toastRef.value.notify('Selecciona el tipo de pago', 'error');
     return;
   }
   if (isButtonDisabled.value) {
-    if (toastRef.value) toastRef.value.notify(t('amountGreaterThanError'), 'error');
+    if (toastRef.value) toastRef.value.notify('El monto debe ser mayor a 100', 'error');
     return;
   }
-  if (toastRef.value) toastRef.value.notify(t('paymentConfirmedToast'), 'success');
+  if (toastRef.value) toastRef.value.notify('Pago confirmado correctamente', 'success');
 };
 
 const downloadReceipt = () => {
-  if (toastRef.value) toastRef.value.notify(t('downloadingReceiptToast'), 'success');
+  if (toastRef.value) toastRef.value.notify('Descargando recibo...', 'success');
 };
 </script>
-
-<template>
-  <HeadingOwner>
-    <NotificationSystem ref="toastRef" />
-    <main class="main-content">
-      <!-- Columna Izquierda: Tarjeta de Perfil con Animación de Flotación -->
-      <div class="profile-card-container">
-        <div class="profile-card glass-effect floating-animation">
-          <h1 class="main-title">JOSÉ LUIS <br> <span class="highlight">RAMÍREZ</span></h1>
-          
-          <div class="avatar-wrapper">
-            <div class="avatar-circle">
-              <img src="../../../assets/humano.jpg" :alt="t('userAvatarAlt')" class="user-avatar-img" />
-            </div>
-          </div>
-
-          <p class="user-id">ID: GymPer001</p>
-          
-          <div class="status-badge">{{ t('statusActive') }}</div>
-        </div>
-      </div>
-
-      <!-- Columna Derecha: Panel de Operaciones / Pago -->
-      <div class="right-column">
-        <div id="tutorial-step-0" class="input-group search-bar-half">
-          <label>{{ t('searchClientLabel') }}</label>
-          <div class="search-input-wrapper">
-            <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
-            <input type="text" :placeholder="t('searchClientPlaceholder')">
-          </div>
-        </div>
-
-        <div id="tutorial-step-1" class="login-card glass-effect">
-          <div class="form-grid">
-            <div class="input-group">
-              <label>{{ t('nextCutLabel') }}</label>
-              <input type="date" class="custom-input">
-            </div>
-            <div class="input-group">
-              <label>{{ t('newCutLabel') }}</label>
-              <input type="date" class="custom-input">
-            </div>
-          </div>
-
-          <div class="header-row">
-            <div class="input-group-label">{{ t('accountStatusLabel') }}</div>
-            <button class="btn-promos" type="button" @click="activeModal = 'promo'">
-              <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
-                <path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z"/>
-              </svg>
-              {{ t('promosBtn') }}
-            </button>
-          </div>
-          
-          <div class="styled-box">
-            <div class="amount-info">
-              <span class="amount-label">{{ t('totalToPayLabel') }}</span>
-              <div class="amount-row">
-                <span class="currency">$</span>
-                <span class="amount-val">{{ montoRecibir ? montoRecibir.toFixed(2) : '450.00' }}</span>
-              </div>
-            </div>
-            <div class="recargo-container">
-              <span class="red">+ $50 {{ t('surchargeLabel') }}</span>
-              <span class="mensual-text">{{ ofertaSeleccionada ? ofertaSeleccionada.nombre : t('monthlyOption') }}</span>
-            </div>
-          </div>
-
-          <!-- Sección Tipo de Pago y Folio -->
-          <div class="payment-details-grid">
-            <div class="input-group">
-              <label>{{ t('paymentTypeLabel') }}</label>
-              <div class="input-wrapper select-wrapper-container">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="input-icon">
-                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
-                  <line x1="1" y1="10" x2="23" y2="10"></line>
-                </svg>
-                <select v-model="tipoPago" class="custom-select">
-                  <option disabled value="">{{ t('selectOption') }}</option>
-                  <option value="Efectivo">{{ t('cashOption') }}</option>
-                  <option value="Transferencia">{{ t('transferOption') }}</option>
-                  <option value="Tarjeta">{{ t('cardOption') }}</option>
-                </select>
-                <svg class="select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="6 9 12 15 18 9"></polyline>
-                </svg>
-              </div>
-            </div>
-
-            <div class="input-group">
-              <label>{{ t('folioReferenceLabel') }}</label>
-              <div class="input-wrapper input-with-icon-simple">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="input-icon">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                  <polyline points="7 10 12 15 17 10"></polyline>
-                  <line x1="12" y1="15" x2="12" y2="3"></line>
-                </svg>
-                <input type="text" v-model="folioReferencia" :placeholder="t('voucherPlaceholder')">
-              </div>
-            </div>
-          </div>
-
-          <div class="input-group">
-            <label>{{ t('amountToReceiveLabel') }}</label>
-            <div class="input-with-symbol">
-              <span class="symbol">$</span>
-              <input type="number" v-model="montoRecibir" placeholder="0.00">
-            </div>
-          </div>
-          
-          <div id="tutorial-step-2" class="action-buttons">
-            <button class="btn-primary" :disabled="isButtonDisabled" :class="{ 'disabled': isButtonDisabled }" @click="confirmPayment">
-              {{ t('confirmPaymentBtn') }}
-            </button>
-            
-            <button class="btn-secondary" @click="downloadReceipt">
-              <svg viewBox="0 0 24 24" fill="currentColor" class="btn-icon" width="16" height="16">
-                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-              </svg>
-              {{ t('downloadReceiptBtn') }}
-            </button>
-          </div>
-        </div>
-      </div>
-    </main>
-
-    <transition name="pop">
-      <div v-if="activeModal === 'promo'" class="modal-wrapper" @click.self="activeModal = null">
-        <Promo @select-oferta="handleSelectOferta" @close="activeModal = null" />
-      </div>
-    </transition>  
-  </HeadingOwner>
-</template>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;600;700&display=swap');

@@ -1,67 +1,57 @@
 <template>
   <HeadingOwner>
-    <NotificationSystem ref="toastRef"/>
+    <NotificationSystem ref="toastRef" />
     <main class="main-content">
       <header class="header-section">
         <div class="title-wrapper">
-          <h1 class="main-title">{{ t('usersTitle') }}</h1>
+          <h1 class="main-title">Pagos</h1>
         </div>
       
         <div class="actions-bar" id="tutorial-step-0">
             <select class="status-select" v-model="selectedMembership">
-                <option value="">{{ t('membershipAll') }}</option>
-                <option value="Mensual">{{ t('membershipMonthly') }}</option>
-                <option value="Quincenal">{{ t('membershipBiweekly') }}</option>
+                <option value="">Mensualidad (Todas)</option>
+                <option value="Mensual">Mensual</option>
+                <option value="Quincenal">Quincenal</option>
             </select>
             <select class="status-select" v-model="selectedStatus">
-                <option value="">{{ t('statusAll') }}</option>
-                <option value="Activo">{{ t('statusActive') }}</option>
-                <option value="Inactivo">{{ t('statusInactive') }}</option>
+                <option value="">Status (Todos)</option>
+                <option value="Activo">Activo</option>
+                <option value="Inactivo">Inactivo</option>
+                <option value="Pendiente">Pendiente</option>
+                <option value="Próximo a vencer">Próximo a vencer</option>
             </select>
             <button class="btn-bulk" @click="activeModal = 'enviomasivo'">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
                   <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
               </svg>
-              {{ t('bulkEmailBtn') }}
+              Correo Masivo
             </button>
-            <input type="text" class="search-input" :placeholder="t('searchPlaceholder')" v-model="searchQuery">
+            <input type="text" class="search-input" placeholder="Buscar usuario..." v-model="searchQuery">
         </div>
       </header>
 
       <!-- VISTA ESCRITORIO -->
-      <div class="table-container desktop-only" :id="!isMobile ? 'tutorial-step-1' : null">
+      <div v-if="!isMobile" class="table-container desktop-only" id="tutorial-step-1">
         <table class="user-table">
           <thead>
-            <tr>
-              <th>{{ t('tablePhoto') }}</th>
-              <th>{{ t('tableName') }}</th>
-              <th>{{ t('tableEmail') }}</th>
-              <th>{{ t('tablePhone') }}</th>
-              <th>{{ t('tableStatus') }}</th>
-              <th>{{ t('tableActions') }}</th>
-            </tr>
+            <tr><th>Foto</th><th>Nombre</th><th>Correo</th><th>Fecha a Vencer</th><th>Status</th><th>Acciones</th></tr>
           </thead>
           <tbody>
             <tr v-for="(user, index) in filteredUsers" :key="user.id">
               <td><div class="avatar-small"></div></td>
               <td class="text-bold">{{user.name}}</td>
               <td>{{user.email}}</td>
-              <td>{{user.phone}}</td>
+              <td>{{user.expirationDate}}</td>
               <td><span :class="['status-badge', getStatusClass(user.status)]">{{ user.status }}</span></td>
-              <td class="actions-cell" :id="(!isMobile && index === 0) ? 'tutorial-step-2' : null">
-                <button class="icon-btn" :title="t('actionEmail')" @click="activeModal = 'enviocorreo'">
-                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              
+              <td class="actions-cell" :id="!isMobile && index === 0 ? 'tutorial-step-2' : null">
+                <button class="icon-btn" title="Pago" @click="goToPayments(user.id)">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2" ry="2"/><circle cx="12" cy="12" r="3"/><path d="M12 9v6M10.5 10.5h3M10.5 13.5h3"/><path d="M6 3h14c1.1 0 2 .9 2 2v10"/></svg>
                 </button>
-                <button class="icon-btn" :title="t('actionWhatsApp')" @click="openWhatsApp(user.phone)">
-                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 5.6 8.5 8.5 0 0 1-7.6-5.6 8.38 8.38 0 0 1-.9-3.8A8.5 8.5 0 0 1 12 3a8.5 8.5 0 0 1 9 8.5z"/><path d="M9 12l2 2 4-4"/></svg>
-                </button>
-                <button class="icon-btn" :title="t('actionQR')" @click="openQR(user)">
-                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h6v6H3V3zm0 12h6v6H3v-6zM15 3h6v6h-6V3z"/><path d="M15 15h2v2h-2zm2 2h2v2h-2zm-2 2h2v2h-2zm4 0h2v2h-2zm0-4h2v2h-2zm-2-2h2v2h-2zm0 4h2v2h-2zm-4-4h2v2h-2z"/></svg>
-                </button>
-                <button class="icon-btn" :title="t('actionEdit')" @click="goToEdit(user.id)">
+                <button class="icon-btn" title="Editar" @click="goToEdit(user.id)">
                   <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 </button>
-                <button class="icon-btn" :title="t('actionDelete')" @click="confirmDelete(user)">
+                <button class="icon-btn" title="Eliminar" @click="confirmDelete(user)">
                   <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                 </button>
               </td>
@@ -71,64 +61,43 @@
       </div>
 
       <!-- VISTA MÓVIL -->
-      <div class="mobile-only" >
-        <div v-for="(user, index) in filteredUsers" :key="user.id" class="user-card" :id="index === 0 ? 'tutorial-step-1' : null">
+      <div class="mobile-only">
+       <div v-for="(user, index) in filteredUsers" :key="user.id" class="user-card" :id="isMobile && index === 0 ? 'tutorial-step-1' : null">
           <div class="card-top-section">
             <div class="avatar-small"></div>
             <div class="card-user-titles">
               <div class="text-bold name-text">{{ user.name }}</div>
-              <span class="status-badge" :class="getStatusClass(user.status)">{{ user.status }}</span>
+              <div class="badges-row">
+                <span class="status-badge" :class="getStatusClass(user.status)">{{ user.status }}</span>
+                <span class="membership-badge">{{ user.mensualidad }}</span>
+              </div>
             </div>
           </div>
           
           <div class="card-meta">
             <span class="email-text">{{ user.email }}</span>
+            <span class="expiration-warning"><span class="vence-label">Vence:</span> {{ user.expirationDate }}</span>
             <span class="phone-text">{{ user.phone }}</span>
           </div>
 
-          <div class="card-actions" :id="(isMobile && index === 0) ? 'tutorial-step-2' : null">
-            <button class="action-chip btn-email-chip" @click="activeModal = 'enviocorreo'">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-              <span>Email</span>
-            </button>
-            <button class="action-chip btn-wa-chip" @click="openWhatsApp(user.phone)">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 5.6 8.5 8.5 0 0 1-7.6-5.6 8.38 8.38 0 0 1-.9-3.8A8.5 8.5 0 0 1 12 3a8.5 8.5 0 0 1 9 8.5z"/><path d="M9 12l2 2 4-4"/></svg>
-              <span>WApp</span>
-            </button>
-            <button class="action-chip btn-qr-chip" @click="openQR(user)">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h6v6H3V3zm0 12h6v6H3v-6zM15 3h6v6h-6V3z"/><path d="M15 15h2v2h-2zm2 2h2v2h-2zm-2 2h2v2h-2zm4 0h2v2h-2zm0-4h2v2h-2zm-2-2h2v2h-2zm0 4h2v2h-2zm-4-4h2v2h-2z"/></svg>
-              <span>QR</span>
+          <div class="card-actions" :id="isMobile && index === 0 ? 'tutorial-step-2' : null">
+            <button class="action-chip btn-pay-chip" @click="goToPayments(user.id)">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2" ry="2"/><circle cx="12" cy="12" r="3"/><path d="M12 9v6M10.5 10.5h3M10.5 13.5h3"/><path d="M6 3h14c1.1 0 2 .9 2 2v10"/></svg>
+              <span>Pago</span>
             </button>
             <button class="action-chip btn-edit-chip" @click="goToEdit(user.id)">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-              <span>{{ t('actionEdit') }}</span>
+              <span>Editar</span>
             </button>
             <button class="action-chip btn-delete-chip" @click="confirmDelete(user)">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-              <span>{{ t('actionDelete') }}</span>
+              <span>Eliminar</span>
             </button>
           </div>
         </div>
       </div>
 
     </main>
-
-      <transition name="pop">
-        <div v-if="showQR" class="modal-wrapper" @click.self="showQR = false">
-          <div class="custom-modal-card">
-            <div class="modal-body-custom">
-              <h2 style="color: #3b82f6; margin-bottom: 15px; font-family: 'Oswald', sans-serif; font-size: 1.3rem; text-transform: uppercase;">{{ t('modalQrTitle') }}</h2>
-              <div class="qr-wrapper">
-                  <img src="../../../assets/qr.png" alt="QR" class="qr-image" style="max-width: 180px; margin: 0 auto; display: block; border-radius: 8px;" />
-              </div>
-              <p style="color:#aaa; font-size:0.9rem; margin: 20px 0;">
-                  {{ t('modalQrText') }}
-              </p>
-              <button class="btn-bulk" style="width:100%; display: flex; justify-content: center; align-items: center;" @click="showQR = false">{{ t('modalQrDownload') }}</button>
-            </div>
-          </div>
-        </div>
-      </transition>
       <transition name="pop">
         <div v-if="showDelete" class="modal-wrapper" @click.self="showDelete = false">
           <div class="custom-modal-card">
@@ -136,11 +105,11 @@
               <div class="modal-icon-container danger-bg">
                 <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
               </div>
-              <h2>{{ t('modalDeleteTitle') }}</h2>
-              <p>{{ t('modalDeleteDescPart1') }} <span class="highlight-name">{{ selectedUser?.name }}</span> {{ t('modalDeleteDescPart2') }}</p>
+              <h2>¿DESEA ELIMINARLO?</h2>
+              <p>¿Deseas eliminar a <span class="highlight-name">{{ selectedUser?.name }}</span> temporalmente?</p>
               <div class="modal-buttons">
-                <button class="btn-modal secondary" @click="showDelete = false">{{ t('modalCancel') }}</button>
-                <button class="btn-modal danger" @click="executeDelete">{{ t('modalConfirm') }}</button>
+                <button class="btn-modal secondary" @click="showDelete = false">Cancelar</button>
+                <button class="btn-modal danger" @click="executeDelete">Confirmar</button>
               </div>
             </div>
           </div>
@@ -148,123 +117,11 @@
       </transition>
     <transition name="pop">
       <div v-if="activeModal === 'enviomasivo'" class="modal-wrapper" @click.self="activeModal = null">
-        <CorreoMasivo @close="activeModal = null"/>
-      </div>
-    </transition>   
-    <transition name="pop">
-      <div v-if="activeModal === 'enviocorreo'" class="modal-wrapper" @click.self="activeModal = null">
-        <EnvioCorreo @close="activeModal = null"/>
+        <CorreoMasivo @close="activeModal = null" />
       </div>
     </transition>   
   </HeadingOwner>
 </template>
-<script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
-import HeadingOwner from '../HeadingOwner.vue';
-import ModalComponent from '../../Modals/ModalComponent.vue';
-import CorreoMasivo from '../Componets/Bulk-Email.vue';
-import EnvioCorreo from '../Componets/Mail.vue';
-import NotificationSystem from '../../Modals/NotificationSystem.vue'; 
-import { traducciones } from '../i18n.js';
-
-const activeModal = ref(null);
-const toastRef = ref(null);
-
-const router = useRouter();
-const showQR = ref(false);
-const showDelete = ref(false);
-const selectedUser = ref(null);
-
-const searchQuery = ref('');
-const selectedMembership = ref(''); 
-const selectedStatus = ref('');
-
-const currentLang = ref(localStorage.getItem('app-idioma') || 'es');
-
-const t = (key) => {
-  const langTable = traducciones[currentLang.value] || traducciones.es;
-  return langTable[key] || traducciones.es[key] || key;
-};
-
-const handleLangChange = (e) => {
-  if (e.detail && e.detail.idioma) {
-    currentLang.value = e.detail.idioma;
-  }
-};
-
-const isMobile = ref(window.innerWidth <= 900);
-const handleResize = () => { isMobile.value = window.innerWidth <= 900; };
-onMounted(() => {
-  window.addEventListener('resize', handleResize);
-  window.addEventListener('idioma-changed', handleLangChange);
-});
-onUnmounted(() => {
-  window.removeEventListener('resize', handleResize);
-  window.removeEventListener('idioma-changed', handleLangChange);
-});
-
-const filteredUsers = computed(() => {
-  return users.value.filter(user => {
-    const matchMembership = selectedMembership.value ? user.mensualidad === selectedMembership.value : true;
-    const matchStatus = selectedStatus.value ? user.status === selectedStatus.value : true;
-    
-    const term = searchQuery.value.toLowerCase();
-    const matchSearch = user.name.toLowerCase().includes(term) || 
-                        user.email.toLowerCase().includes(term) ||
-                        user.phone.toLowerCase().includes(term) ||
-                        user.mensualidad.toLowerCase().includes(term) ||
-                        user.status.toLowerCase().includes(term) || 
-                        user.id.toString().includes(term);
-    
-    return matchMembership && matchStatus && matchSearch;
-  });
-});
-
-const getStatusClass = (status) => {
-  const classes = {
-    'Activo': 'status-green',
-    'Inactivo': 'status-red',
-    'Pendiente': 'status-orange',
-    'Próximo a vencer': 'status-yellow'
-  };
-  return classes[status] || 'status-default';
-};
-
-const users = ref([
-  { id: 1, name: 'Maria Luis Ramires Sanchez', email: 'Maria.luis@example.com', expirationDate: '18/03/2026', status: 'Activo', phone: '+52 481 123 4321' , mensualidad: 'Mensual' },
-  { id: 2, name: 'Francisco Luis Ramires Sanchez', email: 'Francisco.luis@example.com', expirationDate: '18/03/2026', status: 'Inactivo', phone: '+52 481 123 4321' , mensualidad: 'Quincenal' },
-  { id: 3, name: 'Luis Ramires Sanchez', email: 'Luis.luis@example.com', expirationDate: '18/03/2026', status: 'Activo', phone: '+52 481 123 4321' , mensualidad: 'Mensual' },
-  { id: 4, name: 'Jose Luis Ramires Sanchez', email: 'Jose.luis@example.com', expirationDate: '18/03/2026', status: 'Inactivo', phone: '+52 481 123 4321' , mensualidad: 'Quincenal' },
-  { id: 5, name: 'Mario Luis Ramires Sanchez', email: 'Mario.luis@example.com', expirationDate: '18/03/2026', status: 'Activo', phone: '+52 481 123 4321' , mensualidad: 'Mensual' },
-  { id: 6, name: 'Jesus Luis Ramires Sanchez', email: 'Jesus.luis@example.com', expirationDate: '18/03/2026', status: 'Inactivo', phone: '+52 481 123 4321' , mensualidad: 'Quincenal' },
-  { id: 7, name: 'Ana Luis Ramires Sanchez', email: 'Ana.luis@example.com', expirationDate: '18/03/2026', status: 'Activo', phone: '+52 481 123 4321' , mensualidad: 'Mensual' },
-  { id: 8, name: 'Carlos Luis Ramires Sanchez', email: 'Carlos.luis@example.com', expirationDate: '18/03/2026', status: 'Activo', phone: '+52 481 123 4321' , mensualidad: 'Quincenal' },
-]);
-
-const openQR = (user) => { 
-  selectedUser.value = user; 
-  showQR.value = true; 
-};
-
-const confirmDelete = (user) => { 
-  selectedUser.value = user; 
-  showDelete.value = true; 
-};
-
-const executeDelete = () => {
-  if (!selectedUser.value) return;
-  users.value = users.value.filter(u => u.id !== selectedUser.value.id);
-  showDelete.value = false;
-  selectedUser.value = null;
-  if (toastRef.value) {
-    toastRef.value.notify(t('msgDeleteSuccess'), 'success');
-  }
-};
-
-const goToEdit = (id) => router.push(`/Owner/editar-usuario/${id}`);
-const openWhatsApp = (phone) => window.open(`https://wa.me/${phone.replace(/\D/g, '')}`, '_blank');
-</script>
 
 <style scoped>
 .main-content { padding: 30px 40px; max-width: 1400px; margin: 0 auto; color: var(--color-texto-general, #e5e5e5); }
@@ -333,6 +190,17 @@ const openWhatsApp = (phone) => window.open(`https://wa.me/${phone.replace(/\D/g
     display: inline-block;
 }
 
+.membership-badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  background: rgba(56, 189, 248, 0.08);
+  display: inline-block;
+}
+
 .status-green { color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.3); background: rgba(34, 197, 94, 0.08); }
 .status-red { color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.08); }
 .status-orange { color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.08); }
@@ -396,6 +264,12 @@ const openWhatsApp = (phone) => window.open(`https://wa.me/${phone.replace(/\D/g
     min-width: 0;
   }
 
+  .badges-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
   .name-text {
     font-size: 0.95rem;
     line-height: 1.25;
@@ -417,6 +291,15 @@ const openWhatsApp = (phone) => window.open(`https://wa.me/${phone.replace(/\D/g
     opacity: 0.8;
   }
 
+  .expiration-warning {
+    color: #fb923c;
+    font-weight: 500;
+  }
+  
+  .vence-label {
+    color: #fb923c;
+  }
+
   .phone-text {
     color: var(--color-texto-general, #888);
     opacity: 0.7;
@@ -426,26 +309,23 @@ const openWhatsApp = (phone) => window.open(`https://wa.me/${phone.replace(/\D/g
     border-top: 1px dashed rgba(255, 255, 255, 0.12);
     padding-top: 12px;
     display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
+    gap: 8px;
   }
 
   .action-chip {
     flex: 1;
-    min-width: 55px;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: var(--app-border-radius, 8px);
-    padding: 8px 4px;
+    padding: 10px 6px;
     color: #e2e8f0;
-    font-size: 0.72rem;
+    font-size: 0.8rem;
     font-weight: 500;
     font-family: inherit;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: 6px;
     cursor: pointer;
     transition: background 0.2s, border-color 0.2s;
   }
@@ -455,14 +335,8 @@ const openWhatsApp = (phone) => window.open(`https://wa.me/${phone.replace(/\D/g
     color: #fff;
   }
 
-  .btn-email-chip { color: #38bdf8; }
-  .btn-email-chip:hover { background: rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.3); }
-
-  .btn-wa-chip { color: #22c55e; }
-  .btn-wa-chip:hover { background: rgba(34, 197, 94, 0.1); border-color: rgba(34, 197, 94, 0.3); }
-
-  .btn-qr-chip { color: #a855f7; }
-  .btn-qr-chip:hover { background: rgba(168, 85, 247, 0.1); border-color: rgba(168, 85, 247, 0.3); }
+  .btn-pay-chip { color: #38bdf8; }
+  .btn-pay-chip:hover { background: rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.3); }
 
   .btn-edit-chip { color: #fbbf24; }
   .btn-edit-chip:hover { background: rgba(251, 191, 36, 0.1); border-color: rgba(251, 191, 36, 0.3); }
@@ -545,3 +419,86 @@ const openWhatsApp = (phone) => window.open(`https://wa.me/${phone.replace(/\D/g
 }
 </style>
 
+<script setup>
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { useRouter } from 'vue-router';
+import HeadingOwner from './HeadingOwner.vue';
+import CorreoMasivo from './Componets/Bulk-Email.vue';
+import NotificationSystem from '../Modals/NotificationSystem.vue'; 
+import ModalComponent from '../Modals/ModalComponent.vue';
+
+const windowWidth = ref(window.innerWidth);
+const handleResize = () => {
+  windowWidth.value = window.innerWidth;
+};
+onMounted(() => window.addEventListener('resize', handleResize));
+onUnmounted(() => window.removeEventListener('resize', handleResize));
+
+const isMobile = computed(() => windowWidth.value <= 900);
+
+const activeModal = ref(null);
+const toastRef = ref(null);
+
+const router = useRouter();
+const showDelete = ref(false);
+const selectedUser = ref(null);
+
+const searchQuery = ref('');
+const selectedMembership = ref(''); 
+const selectedStatus = ref('');
+
+const filteredUsers = computed(() => {
+  return users.value.filter(user => {
+    const matchMembership = selectedMembership.value ? user.mensualidad === selectedMembership.value : true;
+    const matchStatus = selectedStatus.value ? user.status === selectedStatus.value : true;
+    
+    const term = searchQuery.value.toLowerCase();
+    const matchSearch = user.name.toLowerCase().includes(term) || 
+                        user.email.toLowerCase().includes(term) ||
+                        user.phone.toLowerCase().includes(term) ||
+                        user.mensualidad.toLowerCase().includes(term) ||
+                        user.status.toLowerCase().includes(term) || 
+                        user.expirationDate.toLowerCase().includes(term) ||
+                        user.id.toString().includes(term);
+    
+    return matchMembership && matchStatus && matchSearch;
+  });
+});
+
+const getStatusClass = (status) => {
+  const classes = {
+    'Activo': 'status-green',
+    'Inactivo': 'status-red',
+    'Pendiente': 'status-orange',
+    'Próximo a vencer': 'status-yellow'
+  };
+  return classes[status] || 'status-default';
+};
+
+const users = ref([
+  { id: 1, name: 'Maria Luis Ramires Sanchez', email: 'Maria.luis@example.com', expirationDate: '18/03/2026', status: 'Activo', phone: '+52 481 123 4321' , mensualidad: 'Mensual' },
+  { id: 2, name: 'Francisco Luis Ramires Sanchez', email: 'Francisco.luis@example.com', expirationDate: '18/03/2026', status: 'Pendiente', phone: '+52 481 123 4321' , mensualidad: 'Quincenal' },
+  { id: 3, name: 'Luis Ramires Sanchez', email: 'Luis.luis@example.com', expirationDate: '18/03/2026', status: 'Activo', phone: '+52 481 123 4321' , mensualidad: 'Mensual' },
+  { id: 4, name: 'Jose Luis Ramires Sanchez', email: 'Jose.luis@example.com', expirationDate: '18/03/2026', status: 'Inactivo', phone: '+52 481 123 4321' , mensualidad: 'Quincenal' },
+  { id: 5, name: 'Mario Luis Ramires Sanchez', email: 'Mario.luis@example.com', expirationDate: '18/03/2026', status: 'Pendiente', phone: '+52 481 123 4321' , mensualidad: 'Mensual' },
+  { id: 6, name: 'Jesus Luis Ramires Sanchez', email: 'Jesus.luis@example.com', expirationDate: '18/03/2026', status: 'Inactivo', phone: '+52 481 123 4321' , mensualidad: 'Quincenal' },
+  { id: 7, name: 'Ana Luis Ramires Sanchez', email: 'Ana.luis@example.com', expirationDate: '18/03/2026', status: 'Activo', phone: '+52 481 123 4321' , mensualidad: 'Mensual' },
+  { id: 8, name: 'Carlos Luis Ramires Sanchez', email: 'Carlos.luis@example.com', expirationDate: '18/03/2026', status: 'Pendiente', phone: '+52 481 123 4321' , mensualidad: 'Quincenal' },
+]);
+
+const confirmDelete = (user) => { 
+  selectedUser.value = user; 
+  showDelete.value = true; 
+};
+
+const executeDelete = () => {
+  if (!selectedUser.value) return;
+  users.value = users.value.filter(u => u.id !== selectedUser.value.id);
+  showDelete.value = false;
+  selectedUser.value = null;
+  toastRef.value.notify('Usuario eliminado correctamente', 'success');
+};
+
+const goToPayments = (id) => router.push(`/Owner/pay/${id}`);
+const goToEdit = (id) => router.push(`/Owner/editar-usuario/${id}`);
+</script>

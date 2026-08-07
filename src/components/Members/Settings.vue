@@ -3,17 +3,17 @@
     <main class="main-content">
       <div class="header-section">
         <div>
-          <h1 class="main-title">{{ t('configPageTitle') }} <span class="highlight">{{ t('configPageHighlight') }}</span></h1>
-          <p class="subtitle">{{ t('configPageSubtitle') }}</p>
+          <h1 class="main-title">Configuración <span class="highlight">de la Página</span></h1>
+          <p class="subtitle">Personaliza tu sitio web a tu manera.</p>
         </div>
-        <button id="btn-guardar-cambios" class="btn-primary" @click="guardarCambios">{{ t('saveChangesBtn') }}</button>
+        <button id="btn-guardar-cambios" class="btn-primary" @click="guardarCambios">Guardar Cambios</button>
       </div>
 
       <section class="form-panel" id="panel-temas">
         <div class="panel-header">
-          <h2>{{ t('themesTitle') }}</h2>
-          <button id="btn-reset-colores" class="btn-reset-colors" @click="restaurarColoresPorDefecto" :title="t('resetColorsTooltip')">
-            {{ t('resetColorsBtn') }}
+          <h2>Temas y Combinaciones Rápidas (30 Estilos)</h2>
+          <button id="btn-reset-colores" class="btn-reset-colors" @click="restaurarColoresPorDefecto" title="Volver a los colores iniciales">
+            Restaurar Originales
           </button>
         </div>
         <div class="presets-grid">
@@ -24,14 +24,14 @@
       </section>
 
       <section class="form-panel" id="panel-general">
-        <div class="panel-header"><h2>{{ t('generalSectionTitle') }}</h2></div>
+        <div class="panel-header"><h2>General</h2></div>
         
         <div class="config-row" id="row-notificaciones">
           <div class="config-info">
-            <label for="input-notificaciones">{{ t('notificationsLabel') }}</label>
-            <p>{{ t('notificationsDesc') }}</p>
+            <label for="input-notificaciones">Notificaciones</label>
+            <p>Configura tus preferencias de notificación.</p>
           </div>
-          <label class="switch-container" :title="t('notificationsToggleTitle')" for="input-notificaciones">
+          <label class="switch-container" title="Activar/Desactivar notificaciones" for="input-notificaciones">
             <input type="checkbox" id="input-notificaciones" v-model="settings.notificaciones" class="toggle-input">
             <span class="toggle-slider"></span>
           </label>
@@ -39,10 +39,10 @@
 
         <div class="config-row" id="row-tutorial">
           <div class="config-info">
-            <label for="input-tutorial">{{ t('tutorialLabel') }}</label>
-            <p>{{ t('tutorialDesc') }}</p>
+            <label for="input-tutorial">Tutorial</label>
+            <p>Aprende a utilizar todas las funcionalidades.</p>
           </div>
-          <label class="switch-container" :title="t('tutorialToggleTitle')" for="input-tutorial">
+          <label class="switch-container" title="Activar/Desactivar tutorial" for="input-tutorial">
             <input type="checkbox" id="input-tutorial" v-model="settings.tutorial" class="toggle-input">
             <span class="toggle-slider"></span>
           </label>
@@ -50,13 +50,15 @@
 
         <div class="config-row" id="row-idioma">
           <div class="config-info">
-            <label for="select-idioma">{{ t('interfaceLanguageLabel') }}</label>
-            <p>{{ t('interfaceLanguageDesc') }}</p>
+            <label for="select-idioma">Idioma de la Interfaz</label>
+            <p>Selecciona el idioma principal del sistema.</p>
           </div>
           <div class="select-wrapper">
-            <select id="select-idioma" v-model="settings.idioma" @change="cambiarIdioma" class="font-select">
-              <option value="es">{{ t('spanishOption') }}</option>
-              <option value="en">{{ t('englishOption') }}</option>
+            <select id="select-idioma" v-model="settings.idioma" class="font-select">
+              <option value="es">Español</option>
+              <option value="en">English (Inglés)</option>
+              <option value="fr">Français (Francés)</option>
+              <option value="pt">Português (Portugués)</option>
             </select>
           </div>
         </div>
@@ -64,18 +66,18 @@
 
       <section class="form-panel" id="panel-apariencia-avanzada">
         <div class="panel-header">
-          <h2>{{ t('advancedAppearanceTitle') }}</h2>
+          <h2>Apariencia Avanzada</h2>
         </div>
         
         <div class="config-row column-mobile" id="row-paleta-colores">
           <div class="config-info">
-            <label>{{ t('detailedPaletteLabel') }}</label>
-            <p>{{ t('detailedPaletteDesc') }}</p>
+            <label>Paleta de Colores Detallada</label>
+            <p>Personaliza cada componente de la interfaz y el Heading de forma independiente.</p>
           </div>
           
           <div class="color-grid">
             <div class="color-card" id="container-color-headingBg">
-              <span class="color-label">{{ t('colorHeadingSup') }}</span>
+              <span class="color-label">Heading Sup.</span>
               <div class="color-picker-wrapper">
                 <input type="color" id="color-headingBg" v-model="settings.colors.headingBg">
                 <div class="color-preview" :style="{ backgroundColor: settings.colors.headingBg }"></div>
@@ -83,7 +85,7 @@
             </div>
 
             <div class="color-card" id="container-color-tablas">
-              <span class="color-label">{{ t('colorTablas') }}</span>
+              <span class="color-label">Tablas</span>
               <div class="color-picker-wrapper">
                 <input type="color" id="color-tablas" v-model="settings.colors.tablas">
                 <div class="color-preview" :style="{ backgroundColor: settings.colors.tablas }"></div>
@@ -91,7 +93,7 @@
             </div>
 
             <div class="color-card" id="container-color-interfaz">
-              <span class="color-label">{{ t('colorInterfaz') }}</span>
+              <span class="color-label">Interfaz</span>
               <div class="color-picker-wrapper">
                 <input type="color" id="color-interfaz" v-model="settings.colors.interfaz">
                 <div class="color-preview" :style="{ backgroundColor: settings.colors.interfaz }"></div>
@@ -99,7 +101,7 @@
             </div>
 
             <div class="color-card" id="container-color-botones">
-              <span class="color-label">{{ t('colorBotones') }}</span>
+              <span class="color-label">Botones Fondo</span>
               <div class="color-picker-wrapper">
                 <input type="color" id="color-botones" v-model="settings.colors.botones">
                 <div class="color-preview" :style="{ backgroundColor: settings.colors.botones }"></div>
@@ -107,7 +109,7 @@
             </div>
 
             <div class="color-card" id="container-color-tarjetas">
-              <span class="color-label">{{ t('colorTarjetas') }}</span>
+              <span class="color-label">Tarjetas</span>
               <div class="color-picker-wrapper">
                 <input type="color" id="color-tarjetas" v-model="settings.colors.tarjetas">
                 <div class="color-preview" :style="{ backgroundColor: settings.colors.tarjetas }"></div>
@@ -115,7 +117,7 @@
             </div>
 
             <div class="color-card" id="container-color-titulos">
-              <span class="color-label">{{ t('colorTitulares') }}</span>
+              <span class="color-label">Titulares</span>
               <div class="color-picker-wrapper">
                 <input type="color" id="color-titulos" v-model="settings.colors.titulos">
                 <div class="color-preview" :style="{ backgroundColor: settings.colors.titulos }"></div>
@@ -123,7 +125,7 @@
             </div>
 
             <div class="color-card" id="container-color-highlight">
-              <span class="color-label">{{ t('colorHighlight') }}</span>
+              <span class="color-label">Highlight</span>
               <div class="color-picker-wrapper">
                 <input type="color" id="color-highlight" v-model="settings.colors.highlight">
                 <div class="color-preview" :style="{ backgroundColor: settings.colors.highlight }"></div>
@@ -131,7 +133,7 @@
             </div>
 
             <div class="color-card" id="container-color-etiquetas">
-              <span class="color-label">{{ t('colorEtiquetas') }}</span>
+              <span class="color-label">Etiquetas</span>
               <div class="color-picker-wrapper">
                 <input type="color" id="color-etiquetas" v-model="settings.colors.etiquetas">
                 <div class="color-preview" :style="{ backgroundColor: settings.colors.etiquetas }"></div>
@@ -139,7 +141,7 @@
             </div>
 
             <div class="color-card" id="container-color-textoGeneral">
-              <span class="color-label">{{ t('colorTextoGeneral') }}</span>
+              <span class="color-label">Textos Gr.</span>
               <div class="color-picker-wrapper">
                 <input type="color" id="color-textoGeneral" v-model="settings.colors.textoGeneral">
                 <div class="color-preview" :style="{ backgroundColor: settings.colors.textoGeneral }"></div>
@@ -147,7 +149,7 @@
             </div>
 
             <div class="color-card" id="container-color-textoBotones">
-              <span class="color-label">{{ t('colorTextoBotones') }}</span>
+              <span class="color-label">Txt Botones</span>
               <div class="color-picker-wrapper">
                 <input type="color" id="color-textoBotones" v-model="settings.colors.textoBotones">
                 <div class="color-preview" :style="{ backgroundColor: settings.colors.textoBotones }"></div>
@@ -155,7 +157,7 @@
             </div>
 
             <div class="color-card" id="container-color-svgColor">
-              <span class="color-label">{{ t('colorSvgIcons') }}</span>
+              <span class="color-label">Iconos SVG</span>
               <div class="color-picker-wrapper">
                 <input type="color" id="color-svgColor" v-model="settings.colors.svgColor">
                 <div class="color-preview" :style="{ backgroundColor: settings.colors.svgColor }"></div>
@@ -166,39 +168,39 @@
 
         <div class="config-row" id="row-densidad">
           <div class="config-info">
-            <label for="select-densidad">{{ t('interfaceDensityLabel') }}</label>
-            <p>{{ t('interfaceDensityDesc') }}</p>
+            <label for="select-densidad">Densidad de la Interfaz</label>
+            <p>Elige el espaciado general de los elementos.</p>
           </div>
           <div class="select-wrapper">
             <select id="select-densidad" v-model="settings.densidad" class="font-select">
-              <option value="espacioso">{{ t('densitySpacious') }}</option>
-              <option value="normal">{{ t('densityNormal') }}</option>
-              <option value="compacto">{{ t('densityCompact') }}</option>
+              <option value="espacioso">Espacioso (Cómodo)</option>
+              <option value="normal">Normal (Estándar)</option>
+              <option value="compacto">Compacto (Más datos)</option>
             </select>
           </div>
         </div>
 
         <div class="config-row" id="row-border-radius">
           <div class="config-info">
-            <label for="select-border-radius">{{ t('borderStyleLabel') }}</label>
-            <p>{{ t('borderStyleDesc') }}</p>
+            <label for="select-border-radius">Estilo de Bordes</label>
+            <p>Define la curvatura de los paneles y botones.</p>
           </div>
           <div class="select-wrapper">
             <select id="select-border-radius" v-model="settings.borderRadius" class="font-select">
-              <option value="8px">{{ t('borderSquare') }}</option>
-              <option value="16px">{{ t('borderSmooth') }}</option>
-              <option value="24px">{{ t('borderRounded') }}</option>
+              <option value="8px">Cuadrado (Moderno)</option>
+              <option value="16px">Suave (Estándar)</option>
+              <option value="24px">Muy Redondeado</option>
             </select>
           </div>
         </div>
       </section>
 
       <section class="form-panel" id="panel-exportacion">
-        <div class="panel-header"><h2>{{ t('exportSectionTitle') }}</h2></div>
+        <div class="panel-header"><h2>Exportación de datos</h2></div>
         <div class="config-row">
           <div class="config-info">
-            <label>{{ t('exportFormatLabel') }}</label>
-            <p>{{ t('exportFormatDesc') }}</p>
+            <label>Formato de exportación</label>
+            <p>Formato al descargar bitácoras y respaldos.</p>
           </div>
           <div class="export-actions">
             <button id="btn-export-excel" class="btn-export excel" @click="exportar('excel')">
@@ -225,137 +227,6 @@
 <script setup>
 import { reactive, onMounted } from 'vue';
 import HeadingOwner from './HeadingOwner.vue';
-import { useLang } from './useLang.js';
-
-const { setLang } = useLang();
-
-const translations = {
-  es: {
-    configPageTitle: "Configuración",
-    configPageHighlight: "de la Página",
-    configPageSubtitle: "Personaliza tu sitio web a tu manera.",
-    saveChangesBtn: "Guardar Cambios",
-    themesTitle: "Temas y Combinaciones Rápidas (30 Estilos)",
-    resetColorsBtn: "Restaurar Originales",
-    resetColorsTooltip: "Volver a los colores iniciales",
-    generalSectionTitle: "General",
-    notificationsLabel: "Notificaciones",
-    notificationsDesc: "Configura tus preferencias de notificación.",
-    notificationsToggleTitle: "Activar/Desactivar notificaciones",
-    tutorialLabel: "Tutorial",
-    tutorialDesc: "Aprende a utilizar todas las funcionalidades.",
-    tutorialToggleTitle: "Activar/Desactivar tutorial",
-    interfaceLanguageLabel: "Idioma de la Interfaz",
-    interfaceLanguageDesc: "Selecciona el idioma principal del sistema.",
-    spanishOption: "Español",
-    englishOption: "English (Inglés)",
-    advancedAppearanceTitle: "Apariencia Avanzada",
-    detailedPaletteLabel: "Paleta de Colores Detallada",
-    detailedPaletteDesc: "Personaliza cada componente de la interfaz y el Heading de forma independiente.",
-    colorHeadingSup: "Heading Sup.",
-    colorTablas: "Tablas",
-    colorInterfaz: "Interfaz",
-    colorBotones: "Botones Fondo",
-    colorTarjetas: "Tarjetas",
-    colorTitulares: "Titulares",
-    colorHighlight: "Highlight",
-    colorEtiquetas: "Etiquetas",
-    colorTextoGeneral: "Textos Gr.",
-    colorTextoBotones: "Txt Botones",
-    colorSvgIcons: "Iconos SVG",
-    interfaceDensityLabel: "Densidad de la Interfaz",
-    interfaceDensityDesc: "Elige el espaciado general de los elementos.",
-    densitySpacious: "Espacioso (Cómodo)",
-    densityNormal: "Normal (Estándar)",
-    densityCompact: "Compacto (Más datos)",
-    borderStyleLabel: "Estilo de Bordes",
-    borderStyleDesc: "Define la curvatura de los paneles y botones.",
-    borderSquare: "Cuadrado (Moderno)",
-    borderSmooth: "Suave (Estándar)",
-    borderRounded: "Muy Redondeado",
-    exportSectionTitle: "Exportación de datos",
-    exportFormatLabel: "Formato de exportación",
-    exportFormatDesc: "Formato al descargar bitácoras y respaldos.",
-    toastColorsRestored: "Colores restaurados y guardados.",
-    toastPresetApplied: "Tema combinado '{label}' aplicado y guardado.",
-    toastOwnerSaved: "Configuración de Owner guardada globalmente.",
-    toastLocalSaved: "Configuración guardada localmente.",
-    toastSaveError: "Error al guardar la configuración.",
-    toastDownloading: "Descargando archivo {tipo}..."
-  },
-  en: {
-    configPageTitle: "Page",
-    configPageHighlight: "Configuration",
-    configPageSubtitle: "Customize your website your way.",
-    saveChangesBtn: "Save Changes",
-    themesTitle: "Themes and Quick Combinations (30 Styles)",
-    resetColorsBtn: "Restore Originals",
-    resetColorsTooltip: "Return to initial colors",
-    generalSectionTitle: "General",
-    notificationsLabel: "Notifications",
-    notificationsDesc: "Configure your notification preferences.",
-    notificationsToggleTitle: "Enable/Disable notifications",
-    tutorialLabel: "Tutorial",
-    tutorialDesc: "Learn how to use all functionalities.",
-    tutorialToggleTitle: "Enable/Disable tutorial",
-    interfaceLanguageLabel: "Interface Language",
-    interfaceLanguageDesc: "Select the main system language.",
-    spanishOption: "Spanish",
-    englishOption: "English",
-    advancedAppearanceTitle: "Advanced Appearance",
-    detailedPaletteLabel: "Detailed Color Palette",
-    detailedPaletteDesc: "Customize each interface component and the Heading independently.",
-    colorHeadingSup: "Heading Sup.",
-    colorTablas: "Tables",
-    colorInterfaz: "Interface",
-    colorBotones: "Buttons Bg",
-    colorTarjetas: "Cards",
-    colorTitulares: "Headlines",
-    colorHighlight: "Highlight",
-    colorEtiquetas: "Tags",
-    colorTextoGeneral: "Gen. Text",
-    colorTextoBotones: "Btn Text",
-    colorSvgIcons: "SVG Icons",
-    interfaceDensityLabel: "Interface Density",
-    interfaceDensityDesc: "Choose the general spacing of elements.",
-    densitySpacious: "Spacious (Comfortable)",
-    densityNormal: "Normal (Standard)",
-    densityCompact: "Compact (More data)",
-    borderStyleLabel: "Border Style",
-    borderStyleDesc: "Define the curvature of panels and buttons.",
-    borderSquare: "Square (Modern)",
-    borderSmooth: "Smooth (Standard)",
-    borderRounded: "Fully Rounded",
-    exportSectionTitle: "Data Export",
-    exportFormatLabel: "Export Format",
-    exportFormatDesc: "Format when downloading logs and backups.",
-    toastColorsRestored: "Colors restored and saved.",
-    toastPresetApplied: "Combined theme '{label}' applied and saved.",
-    toastOwnerSaved: "Owner configuration saved globally.",
-    toastLocalSaved: "Configuration saved locally.",
-    toastSaveError: "Error saving configuration.",
-    toastDownloading: "Downloading {tipo} file..."
-  }
-};
-
-const t = (key) => {
-  return translations[settings.idioma]?.[key] || translations['es'][key] || key;
-};
-
-const settings = reactive({
-  notificaciones: false,
-  tutorial: localStorage.getItem('tutorialActivo') === 'true', 
-  idioma: localStorage.getItem('app-idioma') || 'es',
-  densidad: localStorage.getItem('app-densidad') || 'normal',
-  borderRadius: localStorage.getItem('app-radius') || '16px',
-  colors: JSON.parse(localStorage.getItem('app-colors')) || { ...defaultColors }
-});
-
-const cambiarIdioma = (event) => {
-  const nuevoIdioma = event.target.value;
-  settings.idioma = nuevoIdioma;
-  setLang(nuevoIdioma);
-};
 
 const toast = reactive({ visible: false, message: '' });
 
@@ -374,6 +245,7 @@ const defaultColors = {
 };
 
 const colorPresets = {
+  // Temas Femeninos / Suaves / Estéticos
   gymFemenino: { label: '🌸 Fit Femme (Gym)', colors: { headingBg: '#1f0d14', tablas: '#2a121b', interfaz: '#16080e', botones: '#db2777', tarjetas: '#200b12', titulos: '#fff1f2', highlight: '#f472b6', etiquetas: '#fbcfe8', textoGeneral: '#f472b6', textoBotones: '#ffffff', svgColor: '#f472b6' } },
   barbieVibe: { label: '💖 Barbie Power', colors: { headingBg: '#240615', tablas: '#3b0a22', interfaz: '#1c030f', botones: '#ec4899', tarjetas: '#2c071a', titulos: '#fdf2f8', highlight: '#f472b6', etiquetas: '#fbcfe8', textoGeneral: '#f472b6', textoBotones: '#ffffff', svgColor: '#f472b6' } },
   lavenderChic: { label: '💜 Lavender Chic', colors: { headingBg: '#190e24', tablas: '#281738', interfaz: '#12091a', botones: '#9333ea', tarjetas: '#1e112b', titulos: '#faf5ff', highlight: '#c084fc', etiquetas: '#e9d5ff', textoGeneral: '#d8b4fe', textoBotones: '#ffffff', svgColor: '#c084fc' } },
@@ -384,6 +256,8 @@ const colorPresets = {
   cherryBlossom: { label: '🌸 Cherry Blossom', colors: { headingBg: '#260c17', tablas: '#3d1425', interfaz: '#19070f', botones: '#e11d48', tarjetas: '#2b0e1b', titulos: '#fff1f2', highlight: '#fb7185', etiquetas: '#ffe4e6', textoGeneral: '#fda4af', textoBotones: '#ffffff', svgColor: '#fb7185' } },
   neonVibe: { label: '💎 Neon Violet', colors: { headingBg: '#16072b', tablas: '#271047', interfaz: '#0f0420', botones: '#a855f7', tarjetas: '#1c0a36', titulos: '#faf5ff', highlight: '#c084fc', etiquetas: '#f3e8ff', textoGeneral: '#d8b4fe', textoBotones: '#ffffff', svgColor: '#c084fc' } },
   sunset: { label: '🌅 Sunset Orange', colors: { headingBg: '#3b160b', tablas: '#5c2211', interfaz: '#260e07', botones: '#ea580c', tarjetas: '#42190d', titulos: '#fff7ed', highlight: '#fb923c', etiquetas: '#ffedd5', textoGeneral: '#fdba74', textoBotones: '#ffffff', svgColor: '#fb923c' } },
+
+  // Temas Masculinos / Sobrios / Industriales / Gym
   gymMasculino: { label: '🏋️‍♂️ Iron Masculino', colors: { headingBg: '#0d0d12', tablas: '#181822', interfaz: '#09090e', botones: '#2563eb', tarjetas: '#13131c', titulos: '#ffffff', highlight: '#3b82f6', etiquetas: '#f4f4f5', textoGeneral: '#a1a1aa', textoBotones: '#ffffff', svgColor: '#3b82f6' } },
   steelIndustrial: { label: '⚙️ Steel Industrial', colors: { headingBg: '#111827', tablas: '#1f2937', interfaz: '#0b0f19', botones: '#475569', tarjetas: '#141c2e', titulos: '#f8fafc', highlight: '#94a3b8', etiquetas: '#cbd5e1', textoGeneral: '#94a3b8', textoBotones: '#ffffff', svgColor: '#94a3b8' } },
   tacticalArmy: { label: '🪖 Tactical Army', colors: { headingBg: '#12170f', tablas: '#222b1c', interfaz: '#0c0f0a', botones: '#4d7c0f', tarjetas: '#171f13', titulos: '#f7fee7', highlight: '#84cc16', etiquetas: '#ecfccb', textoGeneral: '#a3e635', textoBotones: '#ffffff', svgColor: '#84cc16' } },
@@ -394,6 +268,8 @@ const colorPresets = {
   cyberpunk: { label: '⚡ Cyberpunk Blue', colors: { headingBg: '#0a0a14', tablas: '#16162b', interfaz: '#05050d', botones: '#f43f5e', tarjetas: '#0f0f1f', titulos: '#ffffff', highlight: '#f43f5e', etiquetas: '#e2e8f0', textoGeneral: '#94a3b8', textoBotones: '#ffffff', svgColor: '#f43f5e' } },
   esmeralda: { label: '🟢 Esmeralda Pro', colors: { headingBg: '#04241d', tablas: '#063b30', interfaz: '#021712', botones: '#059669', tarjetas: '#052b22', titulos: '#ecfdf5', highlight: '#34d399', etiquetas: '#d1fae5', textoGeneral: '#a7f3d0', textoBotones: '#ffffff', svgColor: '#34d399' } },
   minimal: { label: '⚪ Minimal Clean', colors: { headingBg: '#1c1c21', tablas: '#2a2a33', interfaz: '#121215', botones: '#e4e4e7', tarjetas: '#202026', titulos: '#f4f4f5', highlight: '#a1a1aa', etiquetas: '#fafafa', textoGeneral: '#a1a1aa', textoBotones: '#18181b', svgColor: '#e4e4e7' } },
+
+  // Otros temas balanceados profesionales
   deepMidnight: { label: '🌙 Deep Midnight', colors: { headingBg: '#111827', tablas: '#1e1b4b', interfaz: '#0b0f19', botones: '#6366f1', tarjetas: '#172033', titulos: '#f8fafc', highlight: '#818cf8', etiquetas: '#e2e8f0', textoGeneral: '#94a3b8', textoBotones: '#ffffff', svgColor: '#818cf8' } },
   coffeeWarm: { label: '☕ Warm Mocha', colors: { headingBg: '#19110e', tablas: '#2e1e19', interfaz: '#0f0a08', botones: '#b45309', tarjetas: '#211613', titulos: '#fefae0', highlight: '#d97706', etiquetas: '#fef08a', textoGeneral: '#d4d4d4', textoBotones: '#ffffff', svgColor: '#d97706' } },
   royalGold: { label: '👑 Royal Gold', colors: { headingBg: '#171508', tablas: '#2e290f', interfaz: '#0f0d04', botones: '#ca8a04', tarjetas: '#211d0a', titulos: '#fefce8', highlight: '#eab308', etiquetas: '#fef08a', textoGeneral: '#d4d4d4', textoBotones: '#ffffff', svgColor: '#eab308' } },
@@ -406,6 +282,15 @@ const colorPresets = {
   zenithBlue: { label: '🌐 Zenith Blue', colors: { headingBg: '#0d132e', tablas: '#182452', interfaz: '#070a1a', botones: '#3b82f6', tarjetas: '#131b3b', titulos: '#eff6ff', highlight: '#60a5fa', etiquetas: '#dbeafe', textoGeneral: '#93c5fd', textoBotones: '#ffffff', svgColor: '#60a5fa' } }
 };
 
+const settings = reactive({
+  notificaciones: false,
+  tutorial: localStorage.getItem('tutorialActivo') === 'true', 
+  idioma: localStorage.getItem('app-idioma') || 'es',
+  densidad: localStorage.getItem('app-densidad') || 'normal',
+  borderRadius: localStorage.getItem('app-radius') || '16px',
+  colors: JSON.parse(localStorage.getItem('app-colors')) || { ...defaultColors }
+});
+
 const showToast = (msg) => {
   toast.message = msg;
   toast.visible = true;
@@ -415,7 +300,7 @@ const showToast = (msg) => {
 const restaurarColoresPorDefecto = () => {
   settings.colors = { ...defaultColors };
   guardarCambios(); 
-  showToast(t('toastColorsRestored'));
+  showToast("Colores restaurados y guardados.");
 };
 
 const aplicarPreset = (tipoPreset) => {
@@ -424,14 +309,12 @@ const aplicarPreset = (tipoPreset) => {
     localStorage.setItem('app-colors', JSON.stringify(settings.colors));
     aplicarEstilos();
     window.dispatchEvent(new CustomEvent('app-settings-updated', { detail: settings }));
-    showToast(t('toastPresetApplied').replace('{label}', colorPresets[tipoPreset].label));
+    showToast(`Tema combinado '${colorPresets[tipoPreset].label}' aplicado y guardado.`);
   }
 };
 
 const guardarCambios = async () => {
   try {
-    const userRole = localStorage.getItem('userRole') || 'owner';
-
     localStorage.setItem('tutorialActivo', settings.tutorial);
     localStorage.setItem('app-idioma', settings.idioma);
     localStorage.setItem('app-colors', JSON.stringify(settings.colors));
@@ -442,38 +325,14 @@ const guardarCambios = async () => {
     
     window.dispatchEvent(new Event('tutorial-updated'));
     window.dispatchEvent(new CustomEvent('app-settings-updated', { detail: settings }));
-    window.dispatchEvent(new CustomEvent('idioma-changed', { detail: { idioma: settings.idioma } }));
 
     if (settings.notificaciones) {
       await fetch('/api/notificaciones/activar', { method: 'POST' }).catch(() => {});
     }
-
-    if (userRole === 'owner') {
-      try {
-        await fetch('/api/owner/configuracion', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
-          },
-          body: JSON.stringify({
-            idioma: settings.idioma,
-            densidad: settings.densidad,
-            borderRadius: settings.borderRadius,
-            colors: settings.colors,
-            tutorial: settings.tutorial
-          })
-        });
-      } catch (backendError) {
-        console.warn("Sincronización en la nube omitida temporalmente:", backendError);
-      }
-      showToast(t('toastOwnerSaved'));
-    } else {
-      showToast(t('toastLocalSaved'));
-    }
+    showToast("Configuración guardada exitosamente.");
   } catch (error) {
     console.error("Error al guardar:", error);
-    showToast(t('toastSaveError'));
+    showToast("Error al guardar la configuración.");
   }
 };
 
@@ -506,32 +365,8 @@ const aplicarEstilos = () => {
   }
 };
 
-onMounted(async () => {
+onMounted(() => {
   aplicarEstilos();
-
-  window.addEventListener('idioma-changed', (e) => {
-    if (e.detail && e.detail.idioma) {
-      settings.idioma = e.detail.idioma;
-    }
-  });
-
-  const userRole = localStorage.getItem('userRole') || 'owner';
-  if (userRole === 'owner') {
-    try {
-      const res = await fetch('/api/owner/configuracion', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token') || ''}` }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data && data.idioma) {
-          settings.idioma = data.idioma;
-          localStorage.setItem('app-idioma', data.idioma);
-        }
-      }
-    } catch (e) {
-      // Ignorar si no hay red
-    }
-  }
 });
 
 const exportar = async (tipo) => {
@@ -546,10 +381,10 @@ const exportar = async (tipo) => {
     document.body.appendChild(a);
     a.click();
     a.remove();
-    showToast(t('toastDownloading').replace('{tipo}', tipo.toUpperCase()));
+    showToast(`Descargando archivo ${tipo.toUpperCase()}...`);
   } catch (error) {
     console.error(`Error al descargar ${tipo}:`, error);
-    showToast(t('toastDownloading').replace('{tipo}', tipo.toUpperCase()) + " (Simulado)");
+    showToast(`Descargando archivo ${tipo.toUpperCase()} (Simulado)...`);
   }
 };
 </script>
@@ -913,7 +748,7 @@ const exportar = async (tipo) => {
 @media (max-width: 768px) {
   .main-content { padding: 16px; }
   .header-section { flex-direction: column; align-items: flex-start; gap: 16px; }
-  .btn-primary {  width: 100%; }
+  .btn-primary { width: 100%; }
   .config-row { flex-direction: column; align-items: flex-start; gap: 14px; padding: 16px 0; }
   .config-row .switch-container { align-self: flex-end; margin-top: -35px; }
   .column-mobile { align-items: flex-start; }
@@ -921,10 +756,6 @@ const exportar = async (tipo) => {
   .btn-export { flex: 1; justify-content: center; } 
   .select-wrapper { width: 100%; }
   .preset-btn { flex: 1 1 100%; }
-  .main-title { 
-  font-family: 'Anton', sans-serif; 
-  font-size: 1.8rem; }
- 
 }
 
 @media (max-width: 480px) {

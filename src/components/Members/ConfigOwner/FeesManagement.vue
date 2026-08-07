@@ -1,29 +1,144 @@
+<template>
+  <HeadingOwner>
+    <NotificationSystem ref="toastRef" />
+    <main class="main-content-promos">
+      
+      <!-- CUADRO IZQUIERDO: REGLAS DE MOROSIDAD -->
+      <div class="promo-box-container">
+        <div class="box-header">
+          <h2>Reglas de <span class="highlight">Morosidad</span></h2>
+          <p class="box-subtitle">Define las políticas automáticas para pagos vencidos</p>
+        </div>
+        
+        <div class="box-content">
+          <!-- Aplicar recargos a: Pendientes -->
+          <div class="item-row" id="tutorial-step-0">
+            <div class="item-info">
+              <div class="icon-wrapper">
+                <svg class="icon-tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              </div>
+              <div>
+                <h4>Estatus: Pendientes</h4>
+                <p>Usuarios con pago vencido pero aún activos.</p>
+              </div>
+            </div>
+            <input type="checkbox" class="toggle-switch" v-model="settings.pendingStatus" @change="guardarCambiosRapidos" />
+          </div>
+
+          <!-- Aplicar recargos a: Inactivos -->
+          <div class="item-row" id="tutorial-step-1">
+            <div class="item-info">
+              <div class="icon-wrapper">
+                <svg class="icon-tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              </div>
+              <div>
+                <h4>Estatus: Inactivos</h4>
+                <p>Usuarios con cuenta suspendida por falta de pago.</p>
+              </div>
+            </div>
+            <input type="checkbox" class="toggle-switch" v-model="settings.inactiveStatus" @change="guardarCambiosRapidos" />
+          </div>
+
+          <!-- Bloqueo automático de acceso en torniquete -->
+          <div class="item-row" id="tutorial-step-2">
+            <div class="item-info">
+              <div class="icon-wrapper">
+                <svg class="icon-tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              </div>
+              <div>
+                <h4>Bloqueo en Torniquete</h4>
+                <p>Denegar acceso al gimnasio automáticamente por morosidad.</p>
+              </div>
+            </div>
+            <input type="checkbox" class="toggle-switch" v-model="settings.blockTurnstile" @change="guardarCambiosRapidos" />
+          </div>
+
+          <!-- Periodo de Gracia -->
+          <div class="item-row vertical-layout" id="tutorial-step-3">
+            <div class="item-info full-width">
+              <div class="icon-wrapper">
+                <svg class="icon-tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              </div>
+              <div class="text-grow">
+                <h4>Periodo de Gracia</h4>
+                <p>Días de tolerancia después del vencimiento antes de aplicar la multa:</p>
+              </div>
+            </div>
+            <div class="grace-period-control">
+              <button class="btn-counter" @click="decrementDays" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </button>
+              <span class="days-display">{{ graceDays }} Días</span>
+              <button class="btn-counter" @click="incrementDays" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CUADRO DERECHO: COSTO Y FRECUENCIA -->
+      <div class="promo-box-container">
+        <div class="box-header">
+          <h2>Costo y <span class="highlight">Frecuencia</span></h2>
+          <p class="box-subtitle">Configura montos, multas y recargos aplicables</p>
+        </div>
+
+        <div class="box-content">
+          <div class="form-column-layout">
+            <div class="input-group" id="tutorial-step-4">
+              <label>Tipo de membresía o servicio afectado:</label>
+              <select v-model="settings.paymentType" class="custom-select">
+                <option value="membresia">Membresía General / Anualidad</option>
+                <option value="clases">Paquete de Clases / Entrenador</option>
+                <option value="taquilla">Renta de Casillero / Taquilla</option>
+                <option value="todos">Todos los conceptos del gimnasio</option>
+              </select>
+            </div>
+
+            <div class="input-group" id="tutorial-step-5">
+              <label>Monto de la multa por retraso ($):</label>
+              <div class="input-money-wrapper">
+                <span class="currency-symbol">$</span>
+                <input type="number" v-model="settings.fineAmount" class="custom-input" min="0">
+              </div>
+            </div>
+
+            <div class="input-group" id="tutorial-step-6">
+              <label>Frecuencia del recargo en cuenta:</label>
+              <select v-model="settings.recurrence" class="custom-select">
+                <option value="unica">Cargo único por vencimiento</option>
+                <option value="diaria">Acumulativo diario</option>
+                <option value="semanal">Recargo semanal</option>
+                <option value="mensual">Recargo mensual acumulado</option>
+              </select>
+            </div>
+
+            <div class="input-group" id="tutorial-step-7">
+              <label>Límite máximo de acumulación de multas ($):</label>
+              <div class="input-money-wrapper">
+                <span class="currency-symbol">$</span>
+                <input type="number" v-model="settings.maxFineLimit" class="custom-input" min="0">
+              </div>
+            </div>
+
+            <div class="button-container">
+              <button class="btn-primary-action" @click="guardarConfiguracionGeneral">
+                Guardar Configuración
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </HeadingOwner>
+</template>
+
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref } from 'vue';
 import HeadingOwner from '../HeadingOwner.vue';
 import NotificationSystem from '../../Modals/NotificationSystem.vue';
-import { traducciones } from '../i18n.js';
-
-const currentLang = ref(localStorage.getItem('app-idioma') || 'es');
-
-const t = (key) => {
-  const langTable = traducciones[currentLang.value] || traducciones.es;
-  return langTable[key] || traducciones.es[key] || key;
-};
-
-const handleLangChange = (e) => {
-  if (e.detail && e.detail.idioma) {
-    currentLang.value = e.detail.idioma;
-  }
-};
-
-onMounted(() => {
-  window.addEventListener('idioma-changed', handleLangChange);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('idioma-changed', handleLangChange);
-});
 
 const toastRef = ref(null);
 const graceDays = ref(3);
@@ -51,150 +166,13 @@ const decrementDays = () => {
 };
 
 const guardarCambiosRapidos = () => {
-  if (toastRef.value) toastRef.value.notify(t('quickSettingsUpdatedToast'), 'success');
+  toastRef.value.notify('Configuración actualizada automáticamente', 'success');
 };
 
 const guardarConfiguracionGeneral = () => {
-  if (toastRef.value) toastRef.value.notify(t('generalSettingsSavedToast'), 'success');
+  toastRef.value.notify('Configuración general guardada con éxito', 'success');
 };
 </script>
-
-<template>
-  <HeadingOwner>
-    <NotificationSystem ref="toastRef" />
-    <main class="main-content-promos">
-      
-      <!-- CUADRO IZQUIERDO: REGLAS DE MOROSIDAD -->
-      <div class="promo-box-container">
-        <div class="box-header">
-          <h2>{{ t('delinquencyRulesTitlePart1') }} <span class="highlight">{{ t('delinquencyRulesTitleHighlight') }}</span></h2>
-          <p class="box-subtitle">{{ t('delinquencyRulesSubtitle') }}</p>
-        </div>
-        
-        <div class="box-content">
-          <!-- Aplicar recargos a: Pendientes -->
-          <div class="item-row" id="tutorial-step-0">
-            <div class="item-info">
-              <div class="icon-wrapper">
-                <svg class="icon-tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-              </div>
-              <div>
-                <h4>{{ t('statusPendingTitle') }}</h4>
-                <p>{{ t('statusPendingDesc') }}</p>
-              </div>
-            </div>
-            <input type="checkbox" class="toggle-switch" v-model="settings.pendingStatus" @change="guardarCambiosRapidos" />
-          </div>
-
-          <!-- Aplicar recargos a: Inactivos -->
-          <div class="item-row" id="tutorial-step-1">
-            <div class="item-info">
-              <div class="icon-wrapper">
-                <svg class="icon-tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-              </div>
-              <div>
-                <h4>{{ t('statusInactiveTitle') }}</h4>
-                <p>{{ t('statusInactiveDesc') }}</p>
-              </div>
-            </div>
-            <input type="checkbox" class="toggle-switch" v-model="settings.inactiveStatus" @change="guardarCambiosRapidos" />
-          </div>
-
-          <!-- Bloqueo automático de acceso en torniquete -->
-          <div class="item-row" id="tutorial-step-2">
-            <div class="item-info">
-              <div class="icon-wrapper">
-                <svg class="icon-tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-              </div>
-              <div>
-                <h4>{{ t('turnstileBlockTitle') }}</h4>
-                <p>{{ t('turnstileBlockDesc') }}</p>
-              </div>
-            </div>
-            <input type="checkbox" class="toggle-switch" v-model="settings.blockTurnstile" @change="guardarCambiosRapidos" />
-          </div>
-
-          <!-- Periodo de Gracia -->
-          <div class="item-row vertical-layout" id="tutorial-step-3">
-            <div class="item-info full-width">
-              <div class="icon-wrapper">
-                <svg class="icon-tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-              </div>
-              <div class="text-grow">
-                <h4>{{ t('gracePeriodTitle') }}</h4>
-                <p>{{ t('gracePeriodDesc') }}</p>
-              </div>
-            </div>
-            <div class="grace-period-control">
-              <button class="btn-counter" @click="decrementDays" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-              </button>
-              <span class="days-display">{{ graceDays }} {{ t('daysDisplayLabel') }}</span>
-              <button class="btn-counter" @click="incrementDays" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- CUADRO DERECHO: COSTO Y FRECUENCIA -->
-      <div class="promo-box-container">
-        <div class="box-header">
-          <h2>{{ t('costFrequencyTitlePart1') }} <span class="highlight">{{ t('costFrequencyTitleHighlight') }}</span></h2>
-          <p class="box-subtitle">{{ t('costFrequencySubtitle') }}</p>
-        </div>
-
-        <div class="box-content">
-          <div class="form-column-layout">
-            <div class="input-group" id="tutorial-step-4">
-              <label>{{ t('affectedServiceLabel') }}</label>
-              <select v-model="settings.paymentType" class="custom-select">
-                <option value="membresia">{{ t('serviceMembershipOption') }}</option>
-                <option value="clases">{{ t('serviceClassesOption') }}</option>
-                <option value="taquilla">{{ t('serviceLockerOption') }}</option>
-                <option value="todos">{{ t('serviceAllOption') }}</option>
-              </select>
-            </div>
-
-            <div class="input-group" id="tutorial-step-5">
-              <label>{{ t('fineAmountLabel') }}</label>
-              <div class="input-money-wrapper">
-                <span class="currency-symbol">$</span>
-                <input type="number" v-model="settings.fineAmount" class="custom-input" min="0">
-              </div>
-            </div>
-
-            <div class="input-group" id="tutorial-step-6">
-              <label>{{ t('recurrenceLabel') }}</label>
-              <select v-model="settings.recurrence" class="custom-select">
-                <option value="unica">{{ t('recurrenceSingleOption') }}</option>
-                <option value="diaria">{{ t('recurrenceDailyOption') }}</option>
-                <option value="semanal">{{ t('recurrenceWeeklyOption') }}</option>
-                <option value="mensual">{{ t('recurrenceMonthlyOption') }}</option>
-              </select>
-            </div>
-
-            <div class="input-group" id="tutorial-step-7">
-              <label>{{ t('maxFineLimitLabel') }}</label>
-              <div class="input-money-wrapper">
-                <span class="currency-symbol">$</span>
-                <input type="number" v-model="settings.maxFineLimit" class="custom-input" min="0">
-              </div>
-            </div>
-
-            <div class="button-container">
-              <button class="btn-primary-action" @click="guardarConfiguracionGeneral">
-                {{ t('saveConfigurationBtn') }}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </main>
-  </HeadingOwner>
-</template>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&family=Oswald:wght@400;600;700&display=swap');
