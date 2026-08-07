@@ -1,3 +1,4 @@
 declare module './i18n.js' {
-  export const traducciones: Record<string, Record<string, string>>;
+  // src/components/Owner/i18n.d.ts
+export const traducciones: Record<string, Record<string, string>>;
 }
