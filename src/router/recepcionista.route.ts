@@ -51,6 +51,12 @@ export const recepcionRoutes = [
         component: () => import('@/components/Recepcion/Componets/Profile.vue'),
         meta: { allowedRole: 'recepcion' }
       },
+      {
+        path: 'settings',
+        name: 'recepcion-settings',
+        component: () => import('@/components/Recepcion/Settings.vue'),
+         meta: { allowedRole: 'recepcion' }
+      },
     ]
   }
 ]

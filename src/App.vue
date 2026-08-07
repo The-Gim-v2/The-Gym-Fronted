@@ -3,7 +3,7 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { RouterView } from 'vue-router';
 import HelpButton from './components/Owner/HelpButton.vue';
-
+import HelpButton2 from './components/Recepcion/HelpButton.vue';
 const router = useRouter();
 
 // --- CONTROL DE INACTIVIDAD Y ADVERTENCIA ---
@@ -122,7 +122,7 @@ onUnmounted(() => {
 <template>
   <RouterView />
   <HelpButton />
-
+  <HelpButton2 />
   <!-- MODAL DE ADVERTENCIA POR INACTIVIDAD -->
   <transition name="fade">
     <div v-if="mostrarAvisoInactividad" class="inactivity-overlay">

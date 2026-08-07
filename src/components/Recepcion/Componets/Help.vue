@@ -2,10 +2,10 @@
   <div class="form-panel glass-effect">
     <div class="panel-header">
       <div class="title-group">
-        <h2 class="form-title">AYUDA: <span class="highlight">CORTES</span></h2>
-        <p class="form-subtitle">Guía rápida de configuración</p>
+        <h2 class="form-title">{{ t('helpTitle') }} <span class="highlight">{{ t('helpHighlight') }}</span></h2>
+        <p class="form-subtitle">{{ t('helpSubtitle') }}</p>
       </div>
-      <button class="close-x" @click="$emit('close')" aria-label="Cerrar modal">
+      <button class="close-x" @click="$emit('close')" :aria-label="t('close')">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M18 6L6 18M6 6l12 12"/>
         </svg>
@@ -19,20 +19,56 @@
             <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
           </svg>
         </div>
-        <p class="help-text">
-          Por defecto, el corte corresponde al <strong>día de inscripción</strong>. Utiliza el icono del calendario para crear reglas personalizadas: define un rango de días específicos y el día de corte correspondiente.
-        </p>
+        <p class="help-text" v-html="t('helpText')"></p>
       </div>
     </div>
   </div>
 </template>
 
+<script setup lang="ts">
+import { reactive, onMounted } from 'vue';
+
+const emit = defineEmits(['close']);
+
+const settings = reactive({
+  idioma: localStorage.getItem('app-idioma') || 'es'
+});
+
+const translations: Record<string, Record<string, string>> = {
+  es: {
+    helpTitle: "AYUDA:",
+    helpHighlight: "CORTES",
+    helpSubtitle: "Guía rápida de configuración",
+    close: "Cerrar modal",
+    helpText: "Por defecto, el corte corresponde al <strong>día de inscripción</strong>. Utiliza el icono del calendario para crear reglas personalizadas: define un rango de días específicos y el día de corte correspondiente."
+  },
+  en: {
+    helpTitle: "HELP:",
+    helpHighlight: "CUTOFFS",
+    helpSubtitle: "Quick configuration guide",
+    close: "Close modal",
+    helpText: "By default, the cutoff corresponds to the <strong>registration day</strong>. Use the calendar icon to create custom rules: define a specific day range and the corresponding cutoff day."
+  }
+};
+
+const t = (key: string) => {
+  return translations[settings.idioma]?.[key] || translations['es']?.[key] || key;
+};
+
+onMounted(() => {
+  window.addEventListener('idioma-changed', (e: Event) => {
+    const customEvent = e as CustomEvent;
+    if (customEvent.detail?.idioma) settings.idioma = customEvent.detail.idioma;
+  });
+});
+</script>
+
 <style scoped>
 .form-panel { 
-  background: #121214; 
-  border: 1px solid rgba(255, 255, 255, 0.08); 
-  color: #f5f5f4; 
-  border-radius: 20px; 
+  background: var(--bg-cards, #121214); 
+  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.08)); 
+  color: var(--color-texto-general, #f5f5f4); 
+  border-radius: var(--app-border-radius, 20px); 
   padding: 24px; 
   width: 95%; 
   max-width: 440px; 
@@ -56,25 +92,25 @@
 .form-title { 
   font-family: 'Oswald', sans-serif; 
   font-size: 1.15rem; 
-  color: #fff; 
+  color: var(--color-titulos, #fff); 
   letter-spacing: 0.8px;
   margin: 0;
 }
 
 .form-subtitle {
   font-size: 0.78rem;
-  color: #888;
+  color: var(--color-texto-secundario, #888);
   margin: 0;
 }
 
 .highlight { 
-  color: #3b82f6; 
+  color: var(--color-highlight, #3b82f6); 
 }
 
 .help-card {
-  background: #09090b;
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  border-radius: 12px;
+  background: var(--bg-input, #09090b);
+  border: 1px solid var(--border-input, rgba(255, 255, 255, 0.04));
+  border-radius: var(--app-border-radius, 12px);
   padding: 16px;
   display: flex;
   gap: 14px;
@@ -97,12 +133,12 @@
   font-family: 'Inter', sans-serif; 
   font-size: 0.88rem; 
   line-height: 1.5; 
-  color: #d1d5db; 
+  color: var(--color-texto-secundario, #d1d5db); 
   margin: 0; 
 }
 
 .help-text strong {
-  color: #fff;
+  color: var(--color-titulos, #fff);
   font-weight: 600;
 }
 
@@ -115,7 +151,7 @@
 .close-x { 
   background: rgba(255, 255, 255, 0.05); 
   border: 1px solid rgba(255, 255, 255, 0.08); 
-  color: #aaa; 
+  color: var(--color-texto-secundario, #aaa); 
   cursor: pointer; 
   width: 32px;
   height: 32px;
@@ -128,6 +164,6 @@
 
 .close-x:hover {
   background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  color: var(--color-titulos, #fff);
 }
 </style>

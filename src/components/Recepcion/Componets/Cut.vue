@@ -4,10 +4,10 @@
     
     <div class="panel-header">
       <div class="title-group">
-        <h2 class="form-title">AGREGAR <span class="highlight">CORTE</span></h2>
-        <p class="form-subtitle">Configuración de periodos y pagos</p>
+        <h2 class="form-title">{{ t('addTitle') }} <span class="highlight">{{ t('addHighlight') }}</span></h2>
+        <p class="form-subtitle">{{ t('addSubtitle') }}</p>
       </div>
-      <button class="close-x" @click="$emit('close')" aria-label="Cerrar modal">
+      <button class="close-x" @click="$emit('close')" :aria-label="t('close')">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M18 6L6 18M6 6l12 12"/>
         </svg>
@@ -18,19 +18,19 @@
       <!-- Selectores de tiempo -->
       <div class="time-row">
         <div class="input-group">
-          <label>Inicio</label>
+          <label>{{ t('start') }}</label>
           <select v-model.number="form.inicio" class="custom-select">
             <option v-for="n in 31" :key="'in-' + n" :value="n">{{ n }}</option>
           </select>
         </div>
         <div class="input-group">
-          <label>Término</label>
+          <label>{{ t('end') }}</label>
           <select v-model.number="form.termino" class="custom-select">
             <option v-for="n in 31" :key="'ter-' + n" :value="n">{{ n }}</option>
           </select>
         </div>
         <div class="input-group">
-          <label>Corte</label>
+          <label>{{ t('cutoff') }}</label>
           <select v-model.number="form.corte" class="custom-select">
             <option v-for="n in 31" :key="'cor-' + n" :value="n">{{ n }}</option>
           </select>
@@ -40,25 +40,27 @@
       <!-- Fila de Tipo de Pago y Acción -->
       <div class="payment-row">
         <div class="input-group" style="flex: 1">
-          <label>Tipo de Pago</label>
+          <label>{{ t('paymentType') }}</label>
           <select v-model="form.tipo" class="custom-select">
-            <option>Mensual</option>
-            <option>Quincenal</option>
+            <option value="Mensual">{{ t('monthly') }}</option>
+            <option value="Quincenal">{{ t('biweekly') }}</option>
           </select>
         </div>
-        <button class="btn-save" @click="addCorte" title="Agregar corte">+</button>
+        <button class="btn-save" @click="addCorte" :title="t('addBtnTitle')">+</button>
       </div>
 
       <!-- Lista de elementos guardados -->
       <div v-if="cortes.length > 0" class="saved-box">
-        <div class="saved-header">Configuraciones activas</div>
+        <div class="saved-header">{{ t('activeConfigs') }}</div>
         <div v-for="(item, index) in cortes" :key="index" class="saved-item">
           <div class="item-info">
             <span class="range-badge">{{ item.inicio }} - {{ item.termino }}</span>
-            <span class="type-badge" :class="item.tipo === 'Mensual' ? 'badge-mes' : 'badge-quin'">{{ item.tipo }}</span>
-            <span class="corte-badge">Corte: <strong>{{ item.corte }}</strong></span>
+            <span class="type-badge" :class="item.tipo === 'Mensual' ? 'badge-mes' : 'badge-quin'">
+              {{ item.tipo === 'Mensual' ? t('monthly') : t('biweekly') }}
+            </span>
+            <span class="corte-badge">{{ t('cutoffLabel') }}: <strong>{{ item.corte }}</strong></span>
           </div>
-          <button class="icon-del" @click="removeCorte(index)" title="Eliminar">
+          <button class="icon-del" @click="removeCorte(index)" :title="t('delete')">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M18 6L6 18M6 6l12 12"/>
             </svg>
@@ -69,11 +71,11 @@
       <!-- Calendario visualizador -->
       <div class="calendar-section">
         <div class="calendar-header-info">
-          <span>Vista previa del mes</span>
+          <span>{{ t('previewMonth') }}</span>
           <div class="calendar-legend">
-            <span class="legend-item"><span class="dot dot-corte"></span> Corte</span>
-            <span class="legend-item"><span class="dot dot-mes"></span> Mensual</span>
-            <span class="legend-item"><span class="dot dot-quin"></span> Quincenal</span>
+            <span class="legend-item"><span class="dot dot-corte"></span> {{ t('cutoff') }}</span>
+            <span class="legend-item"><span class="dot dot-mes"></span> {{ t('monthly') }}</span>
+            <span class="legend-item"><span class="dot dot-quin"></span> {{ t('biweekly') }}</span>
           </div>
         </div>
         <div class="calendar-grid">
@@ -81,7 +83,7 @@
             v-for="n in 31" 
             :key="n" 
             :class="['cal-day', getDayClass(n)]"
-            :title="`Día ${n}`"
+            :title="`${t('dayLabel')} ${n}`"
           >
             {{ n }}
           </div>
@@ -91,16 +93,75 @@
   </div>
 </template>
 
-<script setup>
-import { ref, reactive } from 'vue';
+<script setup lang="ts">
+import { ref, reactive, onMounted } from 'vue';
 import NotificationSystem from '../../Modals/NotificationSystem.vue';
 
-const form = reactive({ inicio: 1, termino: 15, corte: 2, tipo: 'Mensual' });
-const cortes = ref([]);
-const toastRef = ref(null);
+interface CorteItem {
+  inicio: number;
+  termino: number;
+  corte: number;
+  tipo: string;
+}
+
+const settings = reactive({
+  idioma: localStorage.getItem('app-idioma') || 'es'
+});
+
+const translations: Record<string, Record<string, string>> = {
+  es: {
+    addTitle: "AGREGAR",
+    addHighlight: "CORTE",
+    addSubtitle: "Configuración de periodos y pagos",
+    close: "Cerrar modal",
+    start: "Inicio",
+    end: "Término",
+    cutoff: "Corte",
+    paymentType: "Tipo de Pago",
+    monthly: "Mensual",
+    biweekly: "Quincenal",
+    addBtnTitle: "Agregar corte",
+    activeConfigs: "Configuraciones activas",
+    cutoffLabel: "Corte",
+    delete: "Eliminar",
+    previewMonth: "Vista previa del mes",
+    dayLabel: "Día",
+    duplicateError: "Error: Configuración ya existente",
+    successMsg: "Corte guardado con éxito",
+    deleteMsg: "Corte eliminado"
+  },
+  en: {
+    addTitle: "ADD",
+    addHighlight: "CUTOFF",
+    addSubtitle: "Periods and payments configuration",
+    close: "Close modal",
+    start: "Start",
+    end: "End",
+    cutoff: "Cutoff",
+    paymentType: "Payment Type",
+    monthly: "Monthly",
+    biweekly: "Biweekly",
+    addBtnTitle: "Add cutoff",
+    activeConfigs: "Active configurations",
+    cutoffLabel: "Cutoff",
+    delete: "Delete",
+    previewMonth: "Month preview",
+    dayLabel: "Day",
+    duplicateError: "Error: Configuration already exists",
+    successMsg: "Cutoff saved successfully",
+    deleteMsg: "Cutoff deleted"
+  }
+};
+
+const t = (key: string) => {
+  return translations[settings.idioma]?.[key] || translations['es']?.[key] || key;
+};
+
+const form = reactive<CorteItem>({ inicio: 1, termino: 15, corte: 2, tipo: 'Mensual' });
+const cortes = ref<CorteItem[]>([]);
+const toastRef = ref<any>(null);
 
 const addCorte = () => {
-  // Validación básica de rango lógicamente coherente opcional, manteniendo la validación de duplicados original
   const isDuplicate = cortes.value.some(c => 
     c.tipo === form.tipo || 
     c.inicio === form.inicio || 
@@ -109,44 +170,49 @@ const addCorte = () => {
   );
 
   if (isDuplicate) {
-    if (toastRef.value) {
-      toastRef.value.notify('Error: Configuración ya existente', 'error');
+    if (toastRef.value?.notify) {
+      toastRef.value.notify(t('duplicateError'), 'error');
     }
     return;
   }
   
   cortes.value.push({ ...form });
-  if (toastRef.value) {
-    toastRef.value.notify('Corte guardado con éxito', 'success');
+  if (toastRef.value?.notify) {
+    toastRef.value.notify(t('successMsg'), 'success');
   }
 };
 
-const removeCorte = (index) => {
+const removeCorte = (index: number) => {
   cortes.value.splice(index, 1);
-  if (toastRef.value) {
-    toastRef.value.notify('Corte eliminado', 'info');
+  if (toastRef.value?.notify) {
+    toastRef.value.notify(t('deleteMsg'), 'info');
   }
 };
 
-const getDayClass = (n) => {
-  // 1. Prioridad: Día de corte
-  const corteMatch = cortes.value.find(c => parseInt(c.corte) === n);
+const getDayClass = (n: number) => {
+  const corteMatch = cortes.value.find(c => Number(c.corte) === n);
   if (corteMatch) return 'is-corte';
   
-  // 2. Rango de pago
   const rangeMatch = cortes.value.find(c => n >= c.inicio && n <= c.termino);
   if (!rangeMatch) return 'default-bg';
   
   return rangeMatch.tipo === 'Mensual' ? 'mes' : 'quin';
 };
+
+onMounted(() => {
+  window.addEventListener('idioma-changed', (e: Event) => {
+    const customEvent = e as CustomEvent;
+    if (customEvent.detail?.idioma) settings.idioma = customEvent.detail.idioma;
+  });
+});
 </script>
 
 <style scoped>
 .form-panel { 
-  background: #121214; 
-  border: 1px solid rgba(255, 255, 255, 0.08); 
-  color: #f5f5f4; 
-  border-radius: 20px; 
+  background: var(--bg-cards, #121214); 
+  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.08)); 
+  color: var(--color-texto-general, #f5f5f4); 
+  border-radius: var(--app-border-radius, 20px); 
   padding: 24px; 
   width: 95%; 
   max-width: 460px; 
@@ -172,19 +238,19 @@ const getDayClass = (n) => {
 .form-title { 
   font-family: 'Oswald', sans-serif; 
   font-size: 1.15rem; 
-  color: #fff; 
+  color: var(--color-titulos, #fff); 
   letter-spacing: 0.8px;
   margin: 0;
 }
 
 .form-subtitle {
   font-size: 0.78rem;
-  color: #888;
+  color: var(--color-texto-secundario, #888);
   margin: 0;
 }
 
 .highlight { 
-  color: #3b82f6; 
+  color: var(--color-highlight, #3b82f6); 
 }
 
 .time-row { 
@@ -207,40 +273,43 @@ const getDayClass = (n) => {
   text-transform: uppercase; 
   display: block; 
   margin-bottom: 5px; 
-  color: #888;
+  color: var(--color-texto-secundario, #888);
   letter-spacing: 0.5px;
   font-weight: 600;
 }
 
 .custom-select { 
-  background: #09090b; 
-  border: 1px solid rgba(255, 255, 255, 0.08); 
-  color: white; 
+  background: var(--bg-input, #09090b); 
+  border: 1.5px solid var(--border-input, rgba(255, 255, 255, 0.08)); 
+  color: var(--color-texto-input, var(--color-texto-general, white)); 
   padding: 10px 8px; 
-  border-radius: 10px; 
+  border-radius: var(--app-border-radius, 10px); 
   width: 100%; 
   font-size: 0.85rem; 
   outline: none;
-  transition: border-color 0.2s;
+  transition: all 0.2s ease;
   box-sizing: border-box;
+  cursor: pointer;
 }
 
 .custom-select:focus {
-  border-color: rgba(59, 130, 246, 0.5);
+  border-color: var(--color-highlight, rgba(59, 130, 246, 0.5));
+  background: var(--bg-cards, rgba(255, 255, 255, 0.02));
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .saved-box { 
-  background: #09090b; 
+  background: var(--bg-input, #09090b); 
   padding: 12px 14px; 
-  border-radius: 12px; 
-  border: 1px solid rgba(255, 255, 255, 0.04); 
+  border-radius: var(--app-border-radius, 12px); 
+  border: 1px solid var(--border-input, rgba(255, 255, 255, 0.04)); 
   margin-bottom: 16px; 
 }
 
 .saved-header {
   font-size: 0.72rem;
   text-transform: uppercase;
-  color: #888;
+  color: var(--color-texto-secundario, #888);
   font-family: 'Oswald', sans-serif;
   letter-spacing: 0.5px;
   margin-bottom: 8px;
@@ -289,10 +358,10 @@ const getDayClass = (n) => {
 }
 
 .btn-save { 
-  background: linear-gradient(135deg, #2563eb, #1d4ed8); 
+  background: var(--color-highlight, linear-gradient(135deg, #2563eb, #1d4ed8)); 
   color: white; 
   border: none; 
-  border-radius: 10px; 
+  border-radius: var(--app-border-radius, 10px); 
   cursor: pointer; 
   height: 41px; 
   width: 46px; 
@@ -311,10 +380,10 @@ const getDayClass = (n) => {
 
 /* Calendario Estilos */
 .calendar-section {
-  background: #09090b;
+  background: var(--bg-input, #09090b);
   padding: 12px 14px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: var(--app-border-radius, 12px);
+  border: 1px solid var(--border-input, rgba(255, 255, 255, 0.04));
 }
 
 .calendar-header-info {
@@ -323,7 +392,7 @@ const getDayClass = (n) => {
   align-items: center;
   margin-bottom: 10px;
   font-size: 0.72rem;
-  color: #888;
+  color: var(--color-texto-secundario, #888);
   font-family: 'Oswald', sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -339,7 +408,7 @@ const getDayClass = (n) => {
   align-items: center;
   gap: 3px;
   font-size: 0.65rem;
-  color: #aaa;
+  color: var(--color-texto-secundario, #aaa);
   text-transform: none;
 }
 
@@ -381,7 +450,7 @@ const getDayClass = (n) => {
 .is-corte { background: #fbbf24 !important; color: #000 !important; font-weight: bold; box-shadow: 0 0 8px rgba(251, 191, 36, 0.4); }
 .mes { background: #1d4ed8; color: white; }
 .quin { background: #15803d; color: white; }
-.default-bg { background: #18181b; color: #52525b; border: 1px solid rgba(255, 255, 255, 0.02); }
+.default-bg { background: #18181b; color: var(--color-texto-secundario, #52525b); border: 1px solid rgba(255, 255, 255, 0.02); }
 
 .icon-del { 
   background: rgba(239, 68, 68, 0.1); 
@@ -404,7 +473,7 @@ const getDayClass = (n) => {
 .close-x { 
   background: rgba(255, 255, 255, 0.05); 
   border: 1px solid rgba(255, 255, 255, 0.08); 
-  color: #aaa; 
+  color: var(--color-texto-secundario, #aaa); 
   cursor: pointer; 
   width: 32px;
   height: 32px;
@@ -417,6 +486,6 @@ const getDayClass = (n) => {
 
 .close-x:hover {
   background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  color: var(--color-titulos, #fff);
 }
 </style>

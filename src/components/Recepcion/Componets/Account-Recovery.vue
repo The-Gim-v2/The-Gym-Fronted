@@ -5,10 +5,10 @@
       
       <div class="panel-header">
         <div class="title-group">
-          <h2 class="form-title">REACTIVAR <span class="highlight">CUENTA</span></h2>
-          <p class="form-subtitle">Desglose de adeudo, recargos y pago para reactivación</p>
+          <h2 class="form-title">{{ t('reactivateTitle') }} <span class="highlight">{{ t('account') }}</span></h2>
+          <p class="form-subtitle">{{ t('reactivateSubtitle') }}</p>
         </div>
-        <button class="close-x" @click="$emit('close')" aria-label="Cerrar modal">
+        <button class="close-x" @click="$emit('close')" :aria-label="t('close')">
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 6L6 18M6 6l12 12"/>
           </svg>
@@ -17,63 +17,43 @@
       
       <form class="form-body" @submit.prevent="handleSubmit">
         <div class="input-group">
-          <label for="usuario">Cuenta o Correo</label>
+          <label for="usuario">{{ t('accountOrEmail') }}</label>
           <div class="input-wrapper">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="input-icon">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
               <circle cx="12" cy="7" r="4"></circle>
             </svg>
-            <input 
-              id="usuario" 
-              v-model="form.usuario" 
-              type="text" 
-              placeholder="usuario@correo.com" 
-              required 
-            />
+            <input id="usuario" v-model="form.usuario" type="text" placeholder="usuario@correo.com" required />
           </div>
         </div>
 
         <div class="desglose-grid">
           <div class="input-group">
-            <label for="deuda">Deuda Pendiente ($)</label>
+            <label for="deuda">{{ t('pendingDebt') }} ($)</label>
             <div class="input-wrapper">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="input-icon">
                 <line x1="12" y1="1" x2="12" y2="23"></line>
                 <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
               </svg>
-              <input 
-                id="deuda" 
-                v-model.number="form.deudaPendiente" 
-                type="number" 
-                min="0" 
-                step="0.01" 
-                required 
-              />
+              <input id="deuda" v-model.number="form.deudaPendiente" type="number" min="0" step="0.01" required />
             </div>
           </div>
 
           <div class="input-group">
-            <label for="recargo">Recargo Activación ($)</label>
+            <label for="recargo">{{ t('activationFee') }} ($)</label>
             <div class="input-wrapper">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="input-icon">
                 <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
               </svg>
-              <input 
-                id="recargo" 
-                v-model.number="form.recargoTiempo" 
-                type="number" 
-                min="0" 
-                step="0.01" 
-                required 
-              />
+              <input id="recargo" v-model.number="form.recargoTiempo" type="number" min="0" step="0.01" required />
             </div>
           </div>
         </div>
 
         <div class="total-card">
           <div class="total-info">
-            <span class="total-label">TOTAL A COBRAR</span>
-            <span class="total-sub">Adeudo + recargo por baja</span>
+            <span class="total-label">{{ t('totalToCharge') }}</span>
+            <span class="total-sub">{{ t('totalSub') }}</span>
           </div>
           <div class="total-amount">
             ${{ totalAPagar.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
@@ -82,17 +62,17 @@
 
         <div class="row-inputs">
           <div class="input-group">
-            <label for="metodo">Método de Pago</label>
+            <label for="metodo">{{ t('paymentMethod') }}</label>
             <div class="input-wrapper select-wrapper-container">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="input-icon">
                 <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
                 <line x1="1" y1="10" x2="23" y2="10"></line>
               </svg>
               <select id="metodo" v-model="form.metodoPago" required>
-                <option disabled value="">Seleccionar</option>
-                <option value="Efectivo">Efectivo</option>
-                <option value="Transferencia">Transferencia</option>
-                <option value="Tarjeta">Tarjeta</option>
+                <option disabled value="">{{ t('select') }}</option>
+                <option value="Efectivo">{{ t('cash') }}</option>
+                <option value="Transferencia">{{ t('transfer') }}</option>
+                <option value="Tarjeta">{{ t('card') }}</option>
               </select>
               <svg class="select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="6 9 12 15 18 9"></polyline>
@@ -101,25 +81,20 @@
           </div>
 
           <div class="input-group">
-            <label for="referencia">Folio / Referencia</label>
+            <label for="referencia">{{ t('reference') }}</label>
             <div class="input-wrapper">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="input-icon">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                 <polyline points="7 10 12 15 17 10"></polyline>
                 <line x1="12" y1="15" x2="12" y2="3"></line>
               </svg>
-              <input 
-                id="referencia" 
-                v-model="form.referencia" 
-                type="text" 
-                placeholder="N° de comprobante" 
-              />
+              <input id="referencia" v-model="form.referencia" type="text" :placeholder="t('referencePlaceholder')" />
             </div>
           </div>
         </div>
 
         <button type="submit" class="submit-btn">
-          <span>Procesar Pago y Reactivar</span>
+          <span>{{ t('btnProcess') }}</span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M5 12h14M12 5l7 7-7 7"/>
           </svg>
@@ -129,12 +104,63 @@
   </div>
 </template>
 
-<script setup>
-import { reactive, computed, ref } from 'vue';
+<script setup lang="ts">
+import { reactive, computed, ref, onMounted } from 'vue';
 import NotificationSystem from '../../Modals/NotificationSystem.vue';
 
 const emit = defineEmits(['close', 'reactivate']);
-const toastRef = ref(null);
+const toastRef = ref<any>(null);
+
+const settings = reactive({
+  idioma: localStorage.getItem('app-idioma') || 'es'
+});
+
+const translations: Record<string, Record<string, string>> = {
+  es: {
+    reactivateTitle: "REACTIVAR",
+    account: "CUENTA",
+    reactivateSubtitle: "Desglose de adeudo, recargos y pago para reactivación",
+    close: "Cerrar modal",
+    accountOrEmail: "Cuenta o Correo",
+    pendingDebt: "Deuda Pendiente",
+    activationFee: "Recargo Activación",
+    totalToCharge: "TOTAL A COBRAR",
+    totalSub: "Adeudo + recargo por baja",
+    paymentMethod: "Método de Pago",
+    select: "Seleccionar",
+    cash: "Efectivo",
+    transfer: "Transferencia",
+    card: "Tarjeta",
+    reference: "Folio / Referencia",
+    referencePlaceholder: "N° de comprobante",
+    btnProcess: "Procesar Pago y Reactivar",
+    toastSuccess: "¡Cuenta de {user} reactivada con éxito!"
+  },
+  en: {
+    reactivateTitle: "REACTIVATE",
+    account: "ACCOUNT",
+    reactivateSubtitle: "Debt breakdown, surcharges, and payment for reactivation",
+    close: "Close modal",
+    accountOrEmail: "Account or Email",
+    pendingDebt: "Pending Debt",
+    activationFee: "Activation Fee",
+    totalToCharge: "TOTAL TO CHARGE",
+    totalSub: "Debt + reactivation surcharge",
+    paymentMethod: "Payment Method",
+    select: "Select",
+    cash: "Cash",
+    transfer: "Wire Transfer",
+    card: "Credit/Debit Card",
+    reference: "Folio / Reference",
+    referencePlaceholder: "Voucher number",
+    btnProcess: "Process Payment and Reactivate",
+    toastSuccess: "Account {user} reactivated successfully!"
+  }
+};
+
+const t = (key: string) => {
+  return translations[settings.idioma]?.[key] || translations['es']?.[key] || key;
+};
 
 const form = reactive({
   usuario: '',
@@ -144,18 +170,22 @@ const form = reactive({
   referencia: ''
 });
 
-const totalAPagar = computed(() => {
-  const deuda = Number(form.deudaPendiente) || 0;
-  const recargo = Number(form.recargoTiempo) || 0;
-  return deuda + recargo;
-});
+const totalAPagar = computed(() => (Number(form.deudaPendiente) || 0) + (Number(form.recargoTiempo) || 0));
 
 const handleSubmit = () => {
-  if (toastRef.value) {
-    toastRef.value.notify(`¡Cuenta de ${form.usuario || 'usuario'} reactivada con éxito!`, 'success');
+  if (toastRef.value?.notify) {
+    const msg = t('toastSuccess').replace('{user}', form.usuario || 'usuario');
+    toastRef.value.notify(msg, 'success');
   }
   emit('reactivate', { ...form, total: totalAPagar.value });
 };
+
+onMounted(() => {
+  window.addEventListener('idioma-changed', (e: Event) => {
+    const customEvent = e as CustomEvent;
+    if (customEvent.detail?.idioma) settings.idioma = customEvent.detail.idioma;
+  });
+});
 </script>
 
 <style scoped>
@@ -176,10 +206,10 @@ const handleSubmit = () => {
 }
 
 .form-panel { 
-  background: #121214; 
-  border: 1px solid rgba(255, 255, 255, 0.08); 
-  color: #f5f5f4; 
-  border-radius: 20px; 
+  background: var(--bg-cards, #121214); 
+  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.08)); 
+  color: var(--color-texto-general, #f5f5f4); 
+  border-radius: var(--app-border-radius, 20px); 
   padding: 24px; 
   width: 100%; 
   max-width: 480px; 
@@ -205,19 +235,19 @@ const handleSubmit = () => {
 .form-title { 
   font-family: 'Oswald', sans-serif; 
   font-size: 1.2rem; 
-  color: #fff; 
+  color: var(--color-titulos, #fff); 
   letter-spacing: 0.8px;
   margin: 0;
 }
 
 .form-subtitle {
   font-size: 0.78rem;
-  color: #888;
+  color: var(--color-texto-secundario, #888);
   margin: 0;
 }
 
 .highlight { 
-  color: #3b82f6; 
+  color: var(--color-highlight, #3b82f6); 
 }
 
 .form-body {
@@ -240,7 +270,7 @@ const handleSubmit = () => {
 
 .input-group label {
   font-size: 0.75rem;
-  color: #a1a1aa;
+  color: var(--color-texto-secundario, #a1a1aa);
   font-family: 'Oswald', sans-serif;
   letter-spacing: 0.5px;
 }
@@ -254,7 +284,7 @@ const handleSubmit = () => {
 .input-icon {
   position: absolute;
   left: 12px;
-  color: #71717a;
+  color: var(--color-texto-secundario, #71717a);
   pointer-events: none;
   z-index: 2;
 }
@@ -262,11 +292,11 @@ const handleSubmit = () => {
 .input-wrapper input,
 .input-wrapper select {
   width: 100%;
-  background: #09090b;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
+  background: var(--bg-input, #09090b);
+  border: 1.5px solid var(--border-input, rgba(255, 255, 255, 0.08));
+  border-radius: var(--app-border-radius, 12px);
   padding: 11px 12px 11px 38px;
-  color: #fff;
+  color: var(--color-texto-input, var(--color-texto-general, #fff));
   font-size: 0.88rem;
   outline: none;
   transition: all 0.2s ease;
@@ -290,27 +320,27 @@ const handleSubmit = () => {
 .select-arrow {
   position: absolute;
   right: 12px;
-  color: #71717a;
+  color: var(--color-texto-secundario, #71717a);
   pointer-events: none;
 }
 
 .input-wrapper select option {
-  background-color: #18181b;
-  color: #fff;
+  background-color: var(--bg-input, #18181b);
+  color: var(--color-texto-general, #fff);
   padding: 12px;
 }
 
 .input-wrapper input:focus,
 .input-wrapper select:focus {
-  border-color: rgba(59, 130, 246, 0.5);
-  background: rgba(255, 255, 255, 0.02);
+  border-color: var(--color-highlight, rgba(59, 130, 246, 0.5));
+  background: var(--bg-cards, rgba(255, 255, 255, 0.02));
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .total-card {
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.05) 100%);
   border: 1px solid rgba(59, 130, 246, 0.3);
-  border-radius: 14px;
+  border-radius: var(--app-border-radius, 14px);
   padding: 14px 16px;
   display: flex;
   justify-content: space-between;
@@ -332,7 +362,7 @@ const handleSubmit = () => {
 
 .total-sub {
   font-size: 0.68rem;
-  color: #71717a;
+  color: var(--color-texto-secundario, #71717a);
 }
 
 .total-amount {
@@ -343,10 +373,10 @@ const handleSubmit = () => {
 }
 
 .submit-btn {
-  background: #3b82f6;
+  background: var(--color-highlight, #3b82f6);
   color: #fff;
   border: none;
-  border-radius: 12px;
+  border-radius: var(--app-border-radius, 12px);
   padding: 13px;
   font-family: 'Oswald', sans-serif;
   font-size: 0.95rem;
@@ -368,7 +398,7 @@ const handleSubmit = () => {
 .close-x { 
   background: rgba(255, 255, 255, 0.05); 
   border: 1px solid rgba(255, 255, 255, 0.08); 
-  color: #aaa; 
+  color: var(--color-texto-secundario, #aaa); 
   cursor: pointer; 
   width: 32px;
   height: 32px;
@@ -382,7 +412,7 @@ const handleSubmit = () => {
 
 .close-x:hover {
   background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  color: var(--color-titulos, #fff);
 }
 
 /* Responsividad mejorada para móviles */
