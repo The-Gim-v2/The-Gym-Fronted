@@ -12,8 +12,11 @@ const currentLang = ref(localStorage.getItem('app-idioma') || 'es');
 const router = useRouter();
 
 const t = (key: string) => {
-  const langTable = (traducciones as Record<string, Record<string, string>>)[currentLang.value] || traducciones.es;
-  return langTable[key] || traducciones.es[key] || key;
+  const dict = traducciones as Record<string, Record<string, string>>;
+  const langTable = dict[currentLang.value] || dict['es'] || {};
+  const fallbackTable = dict['es'] || {};
+  
+  return langTable[key] || fallbackTable[key] || key;
 };
 
 const handleLangChange = (e: Event) => {
