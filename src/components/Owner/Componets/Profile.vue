@@ -1,9 +1,37 @@
 <script setup lang="ts">
-import { reactive, ref, onMounted, onUnmounted, computed } from 'vue';
+import { ref, reactive, onMounted, onUnmounted, computed } from 'vue';
+import { useRouter } from 'vue-router'; 
 import HeadingOwner from '../HeadingOwner.vue';
 import RegisterGymModal from '../../Record/Record-Gym.vue'; 
 import AIChatModal from '../../Record/Record-Staff.vue'; 
-import MembershipModal from '../../Modals/MembershipModal.vue'; 
+import MembershipModal from '../../Modals/MembershipModal.vue';
+import { traducciones } from '../i18n.js';
+
+// Sistema de idioma reactivo igual que en tu ejemplo
+const currentLang = ref(localStorage.getItem('app-idioma') || 'es');
+const router = useRouter();
+
+const t = (key: string) => {
+  const langTable = (traducciones as Record<string, Record<string, string>>)[currentLang.value] || traducciones.es;
+  return langTable[key] || traducciones.es[key] || key;
+};
+
+const handleLangChange = (e: Event) => {
+  const customEvent = e as CustomEvent<{ idioma?: string }>;
+  if (customEvent.detail && customEvent.detail.idioma) {
+    currentLang.value = customEvent.detail.idioma;
+  }
+};
+
+onMounted(() => {
+  window.addEventListener('idioma-changed', handleLangChange as EventListener);
+  window.addEventListener('scroll', handleScroll, { passive: true });
+});
+
+onUnmounted(() => {
+  window.removeEventListener('idioma-changed', handleLangChange as EventListener);
+  window.removeEventListener('scroll', handleScroll);
+});
 
 const allDays = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 const fileInput = ref<HTMLInputElement | null>(null);
@@ -14,7 +42,7 @@ const showPassword = ref(false);
 const showAddSedeModal = ref(false);
 const showAIModal = ref(false);
 const showPaymentModal = ref(false); 
-const showCancelModal = ref(false); // <--- Nuevo estado para el modal de baja
+const showCancelModal = ref(false);
 
 // Sistema de notificaciones (tipo toast flotante)
 const notification = reactive({
@@ -45,14 +73,6 @@ const handleScroll = () => {
     profileTranslateY.value = 0;
   }
 };
-
-onMounted(() => {
-  window.addEventListener('scroll', handleScroll, { passive: true });
-});
-
-onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll);
-});
 
 const form = reactive({
   nombreGimnasio: 'Iron Fitness Center',
@@ -94,13 +114,13 @@ const onFileSelected = (event: Event) => {
   const file = (event.target as HTMLInputElement).files?.[0];
   if (file) {
     previewImage.value = URL.createObjectURL(file);
-    showNotification('Logotipo actualizado temporalmente', 'info');
+    showNotification(t('toastLogoUpdated'), 'info');
   }
 };
 
 const handleSaveChanges = () => {
   console.log('Guardar cambios:', form);
-  showNotification('¡Cambios guardados correctamente!', 'success');
+  showNotification(t('toastChangesSaved'), 'success');
 };
 
 const handleUpdateMembership = () => {
@@ -112,20 +132,18 @@ const handlePaymentSuccess = (msg: string) => {
   showNotification(msg, 'success');
 };
 
-// Funciones para el flujo de cancelación de suscripción con modal personalizado
 const handleCancelSubscription = () => {
   showCancelModal.value = true;
 };
 
 const confirmCancelSubscription = () => {
   showCancelModal.value = false;
-  // Lógica de baja de suscripción
-  showNotification('Has solicitado dar de baja tu suscripción.', 'warning');
+  showNotification(t('toastCancelRequested'), 'warning');
 };
 
 const handleAddSede = () => {
   if (!isProMember.value) {
-    showNotification('Esta función solo está disponible para cuentas con Membresía Pro.', 'warning');
+    showNotification(t('toastProOnlySede'), 'warning');
     return;
   }
   showAddSedeModal.value = true;
@@ -133,7 +151,7 @@ const handleAddSede = () => {
 
 const handleInteractAI = () => {
   if (!isProMember.value) {
-    showNotification('Interactuar con la IA requiere una Membresía Pro activa.', 'warning');
+    showNotification(t('toastProOnlyAI'), 'warning');
     return;
   }
   showAIModal.value = true;
@@ -162,21 +180,21 @@ const handleInteractAI = () => {
           :style="{ transform: `translateY(${profileTranslateY}px)` }"
           id="tutor-3"
         >
-          <h1 class="main-title" id="tutor-4">PERFIL DEL <br> <span class="highlight">GIMNASIO</span></h1>
+          <h1 class="main-title" id="tutor-4" v-html="t('profileMainTitle')"></h1>
           
-          <div class="avatar-wrapper" @click="triggerFileInput" title="Subir logotipo" id="tutor-5">
+          <div class="avatar-wrapper" @click="triggerFileInput" :title="t('avatarUploadTitle')" id="tutor-5">
             <div class="avatar-circle" id="tutor-6">
-              <img v-if="previewImage" :src="previewImage" alt="Vista previa" class="avatar-img" />
+              <img v-if="previewImage" :src="previewImage" :alt="t('avatarPreviewAlt')" class="avatar-img" />
               <svg v-else viewBox="0 0 24 24" fill="white"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
             </div>
-            <button type="button" class="avatar-action btn-camera" title="Cambiar logotipo" id="tutor-7">
+            <button type="button" class="avatar-action btn-camera" :title="t('avatarChangeTitle')" id="tutor-7">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
             </button>
             <input type="file" ref="fileInput" @change="onFileSelected" accept="image/*" style="display: none" id="tutor-8" />
           </div>
 
-          <h3 class="gym-name-display" id="tutor-9">{{ form.nombreGimnasio || 'Gimnasio' }}</h3>
-          <p class="profile-hint" id="tutor-10">Actualiza la información de tu establecimiento y perfil.</p>
+          <h3 class="gym-name-display" id="tutor-9">{{ form.nombreGimnasio || t('gymDefaultName') }}</h3>
+          <p class="profile-hint" id="tutor-10">{{ t('profileHintText') }}</p>
         </div>
 
         <!-- Columna Derecha: Formularios -->
@@ -185,30 +203,29 @@ const handleInteractAI = () => {
             
             <!-- Datos del Gimnasio y Membresía -->
             <div class="login-card" id="tutor-13">
-              <h3 class="section-title" id="tutor-14">Información del Establecimiento</h3>
+              <h3 class="section-title" id="tutor-14">{{ t('sectionGymInfo') }}</h3>
               <div class="form-grid" id="tutor-15">
                 <div class="input-group" id="tutor-16">
-                  <label for="nombreGimnasio">Nombre del gimnasio</label>
+                  <label for="nombreGimnasio">{{ t('labelGymName') }}</label>
                   <input id="nombreGimnasio" type="text" v-model="form.nombreGimnasio" required />
                 </div>
                 <div class="input-group" id="tutor-17">
-                  <label for="curp">CURP</label>
-                  <input id="curp" type="text" v-model="form.curp" disabled class="input-disabled" title="El CURP no se puede editar" />
+                  <label for="curp">{{ t('labelCurp') }}</label>
+                  <input id="curp" type="text" v-model="form.curp" disabled class="input-disabled" :title="t('curpDisabledTitle')" />
                 </div>
               </div>
 
               <div class="form-grid mt-3" id="tutor-18">
                 <div class="input-group" id="tutor-19">
-                  <label for="membresiaActual">Membresía actual del sitio</label>
+                  <label for="membresiaActual">{{ t('labelCurrentMembership') }}</label>
                   <div class="membership-inline-row" id="tutor-20">
                     <input id="membresiaActual" type="text" v-model="form.membresiaActual" disabled class="input-disabled" />
-                    <button type="button" class="action-btn" @click="handleUpdateMembership" title="Actualizar membresía" id="tutor-21">
+                    <button type="button" class="action-btn" @click="handleUpdateMembership" :title="t('updateMembershipTitle')" id="tutor-21">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>
                     </button>
                   </div>
-                  <!-- Botón para disparar el modal de cancelación -->
                   <button type="button" class="btn-cancel-subscription" @click="handleCancelSubscription" id="tutor-22">
-                    Darse de baja / Cancelar suscripción
+                    {{ t('btnCancelSubscription') }}
                   </button>
                 </div>
 
@@ -222,7 +239,7 @@ const handleInteractAI = () => {
                       @click="handleAddSede"
                       id="tutor-25"
                     >
-                      Agregar otra Sede
+                      {{ t('btnAddBranch') }}
                     </button>
                     <button 
                       type="button" 
@@ -231,7 +248,7 @@ const handleInteractAI = () => {
                       @click="handleInteractAI"
                       id="tutor-26"
                     >
-                      Interactuar IA
+                      {{ t('btnInteractAI') }}
                     </button>
                   </div>
                 </div>
@@ -240,36 +257,36 @@ const handleInteractAI = () => {
 
             <!-- Datos del Administrador -->
             <div class="login-card" id="tutor-27">
-              <h3 class="section-title" id="tutor-28">Datos del Administrador</h3>
+              <h3 class="section-title" id="tutor-28">{{ t('sectionAdminData') }}</h3>
               <div class="form-grid" id="tutor-29">
                 <div class="input-group" id="tutor-30">
-                  <label for="nombres">Nombre(s)</label>
+                  <label for="nombres">{{ t('labelNames') }}</label>
                   <input id="nombres" type="text" v-model="form.nombres" required />
                 </div>
                 <div class="input-group" id="tutor-31">
-                  <label for="apellidoP">Apellido paterno</label>
+                  <label for="apellidoP">{{ t('labelLastNameP') }}</label>
                   <input id="apellidoP" type="text" v-model="form.apellidoP" required />
                 </div>
                 <div class="input-group" id="tutor-32">
-                  <label for="apellidoM">Apellido materno</label>
+                  <label for="apellidoM">{{ t('labelLastNameM') }}</label>
                   <input id="apellidoM" type="text" v-model="form.apellidoM" required />
                 </div>
                 <div class="input-group" id="tutor-33">
-                  <label for="fechaNac">Fecha de nacimiento</label>
+                  <label for="fechaNac">{{ t('labelBirthDate') }}</label>
                   <input id="fechaNac" type="date" v-model="form.fechaNac" required />
                 </div>
                 <div class="input-group" id="tutor-34">
-                  <label for="celular">Teléfono celular</label>
+                  <label for="celular">{{ t('labelPhone') }}</label>
                   <input id="celular" type="tel" v-model="form.celular" required />
                 </div>
                 <div class="input-group" id="tutor-35">
-                  <label for="email">Correo electrónico</label>
+                  <label for="email">{{ t('labelEmail') }}</label>
                   <input id="email" type="email" v-model="form.email" required />
                 </div>
                 <div class="input-group" id="tutor-36">
-                  <label for="password">Nueva contraseña</label>
+                  <label for="password">{{ t('labelNewPassword') }}</label>
                   <div class="input-wrapper" id="tutor-37">
-                    <input id="password" :type="showPassword ? 'text' : 'password'" v-model="form.password" placeholder="Dejar en blanco para mantener" />
+                    <input id="password" :type="showPassword ? 'text' : 'password'" v-model="form.password" :placeholder="t('passwordPlaceholder')" />
                     <button type="button" class="toggle-password-btn" @click="showPassword = !showPassword" id="tutor-38">
                       <svg v-if="showPassword" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                       <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
@@ -277,42 +294,42 @@ const handleInteractAI = () => {
                   </div>
                 </div>
                 <div class="input-group" id="tutor-39">
-                  <label for="confirmPassword">Confirmar contraseña</label>
-                  <input id="confirmPassword" type="password" v-model="form.confirmPassword" placeholder="Repetir contraseña" />
+                  <label for="confirmPassword">{{ t('labelConfirmPassword') }}</label>
+                  <input id="confirmPassword" type="password" v-model="form.confirmPassword" :placeholder="t('confirmPasswordPlaceholder')" />
                 </div>
               </div>
             </div>
 
             <!-- Ubicación del Gimnasio -->
             <div class="login-card" id="tutor-40">
-              <h3 class="section-title" id="tutor-41">Ubicación del Gimnasio</h3>
+              <h3 class="section-title" id="tutor-41">{{ t('sectionLocation') }}</h3>
               <div class="form-grid" id="tutor-42">
                 <div class="input-group" id="tutor-43">
-                  <label for="entidad">Entidad</label>
+                  <label for="entidad">{{ t('labelState') }}</label>
                   <input id="entidad" type="text" v-model="form.entidad" required />
                 </div>
                 <div class="input-group" id="tutor-44">
-                  <label for="municipio">Municipio</label>
+                  <label for="municipio">{{ t('labelMunicipality') }}</label>
                   <input id="municipio" type="text" v-model="form.municipio" required />
                 </div>
                 <div class="input-group" id="tutor-45">
-                  <label for="colonia">Colonia</label>
+                  <label for="colonia">{{ t('labelNeighborhood') }}</label>
                   <input id="colonia" type="text" v-model="form.colonia" required />
                 </div>
                 <div class="input-group" id="tutor-46">
-                  <label for="cp">Código postal</label>
+                  <label for="cp">{{ t('labelZipCode') }}</label>
                   <input id="cp" type="text" v-model="form.cp" required />
                 </div>
                 <div class="input-group span-2" id="tutor-47">
-                  <label for="calle">Calle</label>
+                  <label for="calle">{{ t('labelStreet') }}</label>
                   <input id="calle" type="text" v-model="form.calle" required />
                 </div>
                 <div class="input-group" id="tutor-48">
-                  <label for="numExt">Núm. exterior</label>
+                  <label for="numExt">{{ t('labelExtNumber') }}</label>
                   <input id="numExt" type="text" v-model="form.numExt" required />
                 </div>
                 <div class="input-group" id="tutor-49">
-                  <label for="numInt">Núm. interior</label>
+                  <label for="numInt">{{ t('labelIntNumber') }}</label>
                   <input id="numInt" type="text" v-model="form.numInt" />
                 </div>
               </div>
@@ -320,9 +337,9 @@ const handleInteractAI = () => {
 
             <!-- Configuración de Operación -->
             <div class="login-card" id="tutor-50">
-              <h3 class="section-title" id="tutor-51">Configuración de Operación</h3>
+              <h3 class="section-title" id="tutor-51">{{ t('sectionOperationConfig') }}</h3>
               <div class="input-group mb-3" id="tutor-52">
-                <label>Días de apertura</label>
+                <label>{{ t('labelOpeningDays') }}</label>
                 <div class="days-container" id="tutor-53">
                   <button
                     type="button"
@@ -340,17 +357,17 @@ const handleInteractAI = () => {
 
               <div class="form-grid" id="tutor-61">
                 <div class="input-group" id="tutor-62">
-                  <label for="precioMes">Mensualidad ($)</label>
+                  <label for="precioMes">{{ t('labelMonthlyPrice') }}</label>
                   <input id="precioMes" type="number" v-model="form.precioMes" required />
                 </div>
                 <div class="input-group" id="tutor-63">
-                  <label for="precioSem">Semanal ($)</label>
+                  <label for="precioSem">{{ t('labelWeeklyPrice') }}</label>
                   <input id="precioSem" type="number" v-model="form.precioSem" required />
                 </div>
               </div>
             </div>
 
-            <button type="submit" class="btn-primary" id="tutor-64">Guardar Cambios</button>
+            <button type="submit" class="btn-primary" id="tutor-64">{{ t('btnSaveDataset') }}</button>
           </form>
         </div>
       </div>
@@ -359,17 +376,17 @@ const handleInteractAI = () => {
       <div v-if="showCancelModal" class="modal-overlay" @click.self="showCancelModal = false" id="tutor-65">
         <div class="modal-container modal-small animate-modal" id="tutor-66">
           <div class="modal-header" id="tutor-67">
-            <h3 id="tutor-68">¿Estás seguro?</h3>
+            <h3 id="tutor-68">{{ t('modalCancelTitle') }}</h3>
             <button class="close-btn" @click="showCancelModal = false" id="tutor-69">&times;</button>
           </div>
           <div class="modal-body text-center" id="tutor-70">
             <div class="warning-icon-wrapper" id="tutor-71">
               <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
             </div>
-            <p class="modal-text" id="tutor-72">¿Estás seguro de que deseas cancelar tu suscripción y dar de baja el servicio? Perderás acceso a los beneficios activos.</p>
+            <p class="modal-text" id="tutor-72">{{ t('modalCancelText') }}</p>
             <div class="modal-actions" id="tutor-73">
-              <button type="button" class="btn-secondary-modal" @click="showCancelModal = false" id="tutor-74">Conservar plan</button>
-              <button type="button" class="btn-danger-modal" @click="confirmCancelSubscription" id="tutor-75">Sí, dar de baja</button>
+              <button type="button" class="btn-secondary-modal" @click="showCancelModal = false" id="tutor-74">{{ t('btnKeepPlan') }}</button>
+              <button type="button" class="btn-danger-modal" @click="confirmCancelSubscription" id="tutor-75">{{ t('btnConfirmCancel') }}</button>
             </div>
           </div>
         </div>
@@ -387,7 +404,7 @@ const handleInteractAI = () => {
       <div v-if="showAddSedeModal" class="modal-overlay" @click.self="showAddSedeModal = false" id="tutor-77">
         <div class="modal-container animate-modal" id="tutor-78">
           <div class="modal-header" id="tutor-79">
-            <h3 id="tutor-80">Registro de Nueva Sede / Gimnasio</h3>
+            <h3 id="tutor-80">{{ t('modalAddSedeTitle') }}</h3>
             <button class="close-btn" @click="showAddSedeModal = false" id="tutor-81">&times;</button>
           </div>
           <div class="modal-body" id="tutor-82">
@@ -400,7 +417,7 @@ const handleInteractAI = () => {
       <div v-if="showAIModal" class="modal-overlay" @click.self="showAIModal = false" id="tutor-84">
         <div class="modal-container animate-modal" id="tutor-85">
           <div class="modal-header" id="tutor-86">
-            <h3 id="tutor-87">Asistente IA - Gestión de Gimnasio</h3>
+            <h3 id="tutor-87">{{ t('modalAITitle') }}</h3>
             <button class="close-btn" @click="showAIModal = false" id="tutor-88">&times;</button>
           </div>
           <div class="modal-body" id="tutor-89">
@@ -412,7 +429,6 @@ const handleInteractAI = () => {
     </main>
   </HeadingOwner>
 </template>
-
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;600;700&display=swap');
 

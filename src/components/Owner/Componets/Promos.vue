@@ -4,10 +4,10 @@
     
     <div class="panel-header">
       <div class="title-group">
-        <h2 class="form-title">SELECCIONAR <span class="highlight">OFERTA</span></h2>
-        <p class="form-subtitle">Elige un plan o paquete disponible</p>
+        <h2 class="form-title">{{ t('offerTitle') }} <span class="highlight">{{ t('offerHighlight') }}</span></h2>
+        <p class="form-subtitle">{{ t('offerSubtitle') }}</p>
       </div>
-      <button class="close-x" @click="$emit('close')" aria-label="Cerrar modal">
+      <button class="close-x" @click="$emit('close')" :aria-label="t('close')">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M18 6L6 18M6 6l12 12"/>
         </svg>
@@ -28,11 +28,11 @@
                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
               </svg>
             </div>
-            <span class="nombre-oferta">{{ oferta.nombre }}</span>
+            <span class="nombre-oferta">{{ getLocalizedOfferName(oferta.nombre) }}</span>
           </div>
           
           <div class="oferta-precio">
-            <span class="precio">${{ oferta.precio.toLocaleString('es-MX') }}</span>
+            <span class="precio">${{ oferta.precio.toLocaleString(settings.idioma === 'en' ? 'en-US' : 'es-MX') }}</span>
             <div class="arrow-wrapper">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M5 12h14M12 5l7 7-7 7"/>
@@ -45,28 +45,75 @@
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue';
+<script setup lang="ts">
+import { ref, reactive, onMounted } from 'vue';
 import NotificationSystem from '../../Modals/NotificationSystem.vue';
+
+interface OfertaItem {
+  nombre: string;
+  precio: number;
+}
 
 // Definimos los eventos que puede emitir este componente
 const emit = defineEmits(['close', 'select-oferta']);
 
-const toastRef = ref(null);
-const ofertas = ref([
+const toastRef = ref<any>(null);
+
+const settings = reactive({
+  idioma: localStorage.getItem('app-idioma') || 'es'
+});
+
+const translations: Record<string, Record<string, string>> = {
+  es: {
+    offerTitle: "SELECCIONAR",
+    offerHighlight: "OFERTA",
+    offerSubtitle: "Elige un plan o paquete disponible",
+    close: "Cerrar modal",
+    selectedPrefix: "Seleccionaste: "
+  },
+  en: {
+    offerTitle: "SELECT",
+    offerHighlight: "OFFER",
+    offerSubtitle: "Choose an available plan or package",
+    close: "Close modal",
+    selectedPrefix: "Selected: "
+  }
+};
+
+const offerNameMap: Record<string, Record<string, string>> = {
+  es: { '3 Meses': '3 Meses', '1 Semana': '1 Semana', '12 Meses': '12 Meses', '1 Mes': '1 Mes' },
+  en: { '3 Meses': '3 Months', '1 Semana': '1 Week', '12 Meses': '12 Months', '1 Mes': '1 Month' }
+};
+
+const t = (key: string) => {
+  return translations[settings.idioma]?.[key] || translations['es']?.[key] || key;
+};
+
+const getLocalizedOfferName = (nombre: string) => {
+  return offerNameMap[settings.idioma]?.[nombre] || offerNameMap['es']?.[nombre] || nombre;
+};
+
+const ofertas = ref<OfertaItem[]>([
   { nombre: '3 Meses', precio: 1200 },
   { nombre: '1 Semana', precio: 150 },
   { nombre: '12 Meses', precio: 4000 },
   { nombre: '1 Mes', precio: 650 }
 ]);
 
-const seleccionar = (oferta) => {
-  if (toastRef.value) {
-    toastRef.value.notify(`Seleccionaste: ${oferta.nombre}`, 'success');
+const seleccionar = (oferta: OfertaItem) => {
+  if (toastRef.value?.notify) {
+    toastRef.value.notify(`${t('selectedPrefix')}${getLocalizedOfferName(oferta.nombre)}`, 'success');
   }
   
   emit('select-oferta', oferta);
 };
+
+onMounted(() => {
+  window.addEventListener('idioma-changed', (e: Event) => {
+    const customEvent = e as CustomEvent;
+    if (customEvent.detail?.idioma) settings.idioma = customEvent.detail.idioma;
+  });
+});
 </script>
 
 <style scoped>

@@ -2,10 +2,10 @@
   <div class="form-panel glass-effect">
     <div class="panel-header">
       <div class="title-group">
-        <h2 class="form-title">INGRESOS <span class="highlight">(ÚLTIMOS 12 MESES)</span></h2>
-        <p class="form-subtitle">Comportamiento financiero anual</p>
+        <h2 class="form-title">{{ t('incomeTitle') }} <span class="highlight">{{ t('incomeHighlight') }}</span></h2>
+        <p class="form-subtitle">{{ t('incomeSubtitle') }}</p>
       </div>
-      <button class="close-x" @click="$emit('close')" aria-label="Cerrar modal">
+      <button class="close-x" @click="$emit('close')" :aria-label="t('close')">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M18 6L6 18M6 6l12 12"/>
         </svg>
@@ -21,18 +21,18 @@
             <div class="tooltip-badge">{{ mes.valor }}</div>
             <div class="bar-fill" :style="{ height: mes.porcentaje + '%' }"></div>
           </div>
-          <span class="month-label">{{ mes.nombre }}</span>
+          <span class="month-label">{{ getLocalizedMonth(mes.nombre) }}</span>
         </div>
       </div>
 
       <!-- Footer con estadísticas dinámicas -->
       <div class="stats-grid">
         <div class="total-stats">
-          <span class="label">Promedio mensual</span>
+          <span class="label">{{ t('monthlyAverage') }}</span>
           <span class="value">{{ promedioMensual }}</span>
         </div>
         <div class="total-stats">
-          <span class="label">Pico más alto</span>
+          <span class="label">{{ t('highestPeak') }}</span>
           <span class="value text-success">{{ maxIngreso }}</span>
         </div>
       </div>
@@ -40,10 +40,54 @@
   </div>
 </template>
 
-<script setup>
-import { ref, computed } from 'vue';
+<script setup lang="ts">
+import { ref, computed, reactive, onMounted } from 'vue';
 
-const dataIngresos = ref([
+interface IngresoItem {
+  nombre: string;
+  porcentaje: number;
+  valor: string;
+}
+
+const emit = defineEmits(['close']);
+
+const settings = reactive({
+  idioma: localStorage.getItem('app-idioma') || 'es'
+});
+
+const translations: Record<string, Record<string, string>> = {
+  es: {
+    incomeTitle: "INGRESOS",
+    incomeHighlight: "(ÚLTIMOS 12 MESES)",
+    incomeSubtitle: "Comportamiento financiero anual",
+    close: "Cerrar modal",
+    monthlyAverage: "Promedio mensual",
+    highestPeak: "Pico más alto"
+  },
+  en: {
+    incomeTitle: "INCOME",
+    incomeHighlight: "(LAST 12 MONTHS)",
+    incomeSubtitle: "Annual financial performance",
+    close: "Close modal",
+    monthlyAverage: "Monthly average",
+    highestPeak: "Highest peak"
+  }
+};
+
+const monthMap: Record<string, Record<string, string>> = {
+  es: { Ene: 'Ene', Feb: 'Feb', Mar: 'Mar', Abr: 'Abr', May: 'May', Jun: 'Jun', Jul: 'Jul', Ago: 'Ago', Sep: 'Sep', Oct: 'Oct', Nov: 'Nov', Dic: 'Dic' },
+  en: { Ene: 'Jan', Feb: 'Feb', Mar: 'Mar', Abr: 'Apr', May: 'May', Jun: 'Jun', Jul: 'Jul', Ago: 'Aug', Sep: 'Sep', Oct: 'Oct', Nov: 'Nov', Dic: 'Dec' }
+};
+
+const t = (key: string) => {
+  return translations[settings.idioma]?.[key] || translations['es']?.[key] || key;
+};
+
+const getLocalizedMonth = (nombre: string) => {
+  return monthMap[settings.idioma]?.[nombre] || monthMap['es']?.[nombre] || nombre;
+};
+
+const dataIngresos = ref<IngresoItem[]>([
   { nombre: 'Ene', porcentaje: 35, valor: '$9k' }, { nombre: 'Feb', porcentaje: 60, valor: '$15k' },
   { nombre: 'Mar', porcentaje: 40, valor: '$10k' }, { nombre: 'Abr', porcentaje: 85, valor: '$21k' },
   { nombre: 'May', porcentaje: 55, valor: '$13k' }, { nombre: 'Jun', porcentaje: 75, valor: '$18k' },
@@ -59,7 +103,8 @@ const promedioMensual = computed(() => {
     return acc + num;
   }, 0);
   const promedio = Math.round(suma / dataIngresos.value.length);
-  return `$${promedio.toLocaleString('es-MX')}.00`;
+  const locale = settings.idioma === 'en' ? 'en-US' : 'es-MX';
+  return `$${promedio.toLocaleString(locale)}.00`;
 });
 
 // Identificar el valor máximo para mostrarlo como pico más alto
@@ -67,6 +112,13 @@ const maxIngreso = computed(() => {
   const valoresNum = dataIngresos.value.map(curr => parseInt(curr.valor.replace('$', '').replace('k', '')) * 1000);
   const max = Math.max(...valoresNum);
   return `$${(max / 1000).toFixed(0)}k`;
+});
+
+onMounted(() => {
+  window.addEventListener('idioma-changed', (e: Event) => {
+    const customEvent = e as CustomEvent;
+    if (customEvent.detail?.idioma) settings.idioma = customEvent.detail.idioma;
+  });
 });
 </script>
 

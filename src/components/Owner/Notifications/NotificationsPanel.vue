@@ -4,16 +4,16 @@
       
       <div v-if="currentView === 'list'" class="view-content">
         <div class="panel-header">
-          <h3>Notificaciones</h3>
+          <h3>{{ t('notificationsTitle') }}</h3>
           <div class="header-actions">
-            <button class="btn-pill" @click="$emit('mark-read')" title="Marcar leídas">
+            <button class="btn-pill" @click="$emit('mark-read')" :title="t('markReadTooltip')">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
-              <span>Leídas</span>
+              <span>{{ t('readBtn') }}</span>
             </button>
-            <button class="btn-icon" @click="currentView = 'settings'" title="Configuración">
+            <button class="btn-icon" @click="currentView = 'settings'" :title="t('settingsTooltip')">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
             </button>
-            <button class="btn-icon" @click="$emit('close')" title="Cerrar">
+            <button class="btn-icon" @click="$emit('close')" :title="t('closeTooltip')">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
           </div>
@@ -36,37 +36,37 @@
       <div v-else class="view-content">
         <div class="panel-header">
           <div class="header-titles">
-            <h3>Notificaciones</h3>
-            <span class="panel-subtitle">Configura tus preferencias</span>
+            <h3>{{ t('notificationsTitle') }}</h3>
+            <span class="panel-subtitle">{{ t('settingsSubtitle') }}</span>
           </div>
-          <button class="btn-icon" @click="currentView = 'list'" title="Volver">
+          <button class="btn-icon" @click="currentView = 'list'" :title="t('backTooltip')">
              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
           </button>
         </div>
 
         <div class="notifications-list settings-scroll">
            
-           <div class="settings-section-title">PUSH NOTIFICATIONS</div>
+           <div class="settings-section-title">{{ t('pushSectionTitle') }}</div>
            <div class="notif-card setting-item-card banner-card">
               <div class="notif-icon">
                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13.73 21a2 2 0 0 1-3.46 0"></path><path d="M18.63 13A17.89 17.89 0 0 1 18 8"></path><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
               </div>
               <div class="notif-content">
-                 <h4>Desactivadas</h4>
-                 <p>Alertas cuando la app está cerrada</p>
+                 <h4>{{ t('pushDisabledTitle') }}</h4>
+                 <p>{{ t('pushDisabledDesc') }}</p>
               </div>
-              <button class="btn-pill-action" @click="activatePush">Activar</button>
+              <button class="btn-pill-action" @click="activatePush">{{ t('activateBtn') }}</button>
            </div>
 
-           <div class="settings-section-title">GENERAL</div>
+           <div class="settings-section-title">{{ t('generalSectionTitle') }}</div>
            
            <div class="notif-card setting-item-card">
               <div class="notif-icon">
                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path></svg>
               </div>
               <div class="notif-content">
-                 <h4>In-App</h4>
-                 <p>Campanita de notificaciones</p>
+                 <h4>{{ t('inAppTitle') }}</h4>
+                 <p>{{ t('inAppDesc') }}</p>
               </div>
               <input type="checkbox" class="toggle-switch" v-model="settings.inApp" />
            </div>
@@ -76,37 +76,38 @@
                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
               </div>
               <div class="notif-content">
-                 <h4>Sonido</h4>
-                 <p>Al recibir notificación</p>
+                 <h4>{{ t('soundTitle') }}</h4>
+                 <p>{{ t('soundDesc') }}</p>
               </div>
               <input type="checkbox" class="toggle-switch" v-model="settings.sound" />
            </div>
 
-           <div class="settings-section-title">TIPOS DE NOTIFICACIÓN</div>
+           <div class="settings-section-title">{{ t('typesSectionTitle') }}</div>
            
-           <div v-for="item in notificationTypes" :key="item.label" class="notif-card setting-item-card">
+           <!-- Corrección aquí: Usar item.labelKey en lugar de item.key -->
+           <div v-for="item in notificationTypes" :key="item.labelKey" class="notif-card setting-item-card">
               <div class="notif-icon">
                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
               </div>
               <div class="notif-content">
-                 <h4>{{ item.label }}</h4>
-                 <p>{{ item.desc }}</p>
+                 <h4>{{ t(item.labelKey) }}</h4>
+                 <p>{{ t(item.descKey) }}</p>
               </div>
               <input type="checkbox" class="toggle-switch" v-model="item.value" />
            </div>
 
-           <div class="settings-section-title">PRIVACIDAD E IA</div>
+           <div class="settings-section-title">{{ t('privacySectionTitle') }}</div>
            <div class="notif-card setting-item-card info-card">
               <div class="notif-content full-width">
-                 <h4>Servicios externos de IA</h4>
-                 <p>Sin autorización. Las funciones de IA solicitarán permiso antes de enviar datos.</p>
+                 <h4>{{ t('aiExternalTitle') }}</h4>
+                 <p>{{ t('aiExternalDesc') }}</p>
               </div>
            </div>
 
         </div>
 
         <div class="panel-footer-action">
-           <button class="btn-close-large" @click="currentView = 'list'">Cerrar</button>
+           <button class="btn-close-large" @click="currentView = 'list'">{{ t('closeBtn') }}</button>
         </div>
       </div>
 
@@ -115,11 +116,108 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted, onUnmounted } from 'vue';
 
 const props = defineProps<{ isOpen: boolean, notifications: any[] }>();
 const emit = defineEmits(['close', 'mark-read']);
 const currentView = ref('list');
+
+const currentLang = ref(localStorage.getItem('app-idioma') || 'es');
+
+const handleLangChange = (e: Event) => {
+  const customEvent = e as CustomEvent<{ idioma?: string }>;
+  if (customEvent.detail && customEvent.detail.idioma) {
+    currentLang.value = customEvent.detail.idioma;
+  }
+};
+
+onMounted(() => {
+  window.addEventListener('idioma-changed', handleLangChange as EventListener);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('idioma-changed', handleLangChange as EventListener);
+});
+
+// Tipado estricto para evitar el error de TypeScript en 'table'
+const langData: Record<'es' | 'en', Record<string, string>> = {
+  es: {
+    notificationsTitle: 'Notificaciones',
+    markReadTooltip: 'Marcar leídas',
+    readBtn: 'Leídas',
+    settingsTooltip: 'Configuración',
+    closeTooltip: 'Cerrar',
+    settingsSubtitle: 'Configura tus preferencias',
+    backTooltip: 'Volver',
+    pushSectionTitle: 'PUSH NOTIFICATIONS',
+    pushDisabledTitle: 'Desactivadas',
+    pushDisabledDesc: 'Alertas cuando la app está cerrada',
+    activateBtn: 'Activar',
+    generalSectionTitle: 'GENERAL',
+    inAppTitle: 'In-App',
+    inAppDesc: 'Campanita de notificaciones',
+    soundTitle: 'Sonido',
+    soundDesc: 'Al recibir notificación',
+    typesSectionTitle: 'TIPOS DE NOTIFICACIÓN',
+    privacySectionTitle: 'PRIVACIDAD E IA',
+    aiExternalTitle: 'Servicios externos de IA',
+    aiExternalDesc: 'Sin autorización. Las funciones de IA solicitarán permiso antes de enviar datos.',
+    closeBtn: 'Cerrar',
+    labelMessages: 'Mensajes',
+    descMessages: 'Nuevos mensajes de chat',
+    labelRoutines: 'Rutinas',
+    descRoutines: 'Planes de entrenamiento',
+    labelProgress: 'Progreso',
+    descProgress: 'Hábitos, rachas y seguimiento diario',
+    labelSchedule: 'Agenda',
+    descSchedule: 'Citas y recordatorios',
+    labelForms: 'Formularios',
+    descForms: 'Encuestas y mediciones',
+    labelSystem: 'Sistema',
+    descSystem: 'Alertas del sistema'
+  },
+  en: {
+    notificationsTitle: 'Notifications',
+    markReadTooltip: 'Mark as read',
+    readBtn: 'Read',
+    settingsTooltip: 'Settings',
+    closeTooltip: 'Close',
+    settingsSubtitle: 'Configure your preferences',
+    backTooltip: 'Back',
+    pushSectionTitle: 'PUSH NOTIFICATIONS',
+    pushDisabledTitle: 'Disabled',
+    pushDisabledDesc: 'Alerts when the app is closed',
+    activateBtn: 'Activate',
+    generalSectionTitle: 'GENERAL',
+    inAppTitle: 'In-App',
+    inAppDesc: 'Notification bell',
+    soundTitle: 'Sound',
+    soundDesc: 'When receiving notification',
+    typesSectionTitle: 'NOTIFICATION TYPES',
+    privacySectionTitle: 'PRIVACY & AI',
+    aiExternalTitle: 'External AI Services',
+    aiExternalDesc: 'Unauthorized. AI features will request permission before sending data.',
+    closeBtn: 'Close',
+    labelMessages: 'Messages',
+    descMessages: 'New chat messages',
+    labelRoutines: 'Routines',
+    descRoutines: 'Workout plans',
+    labelProgress: 'Progress',
+    descProgress: 'Habits, streaks and daily tracking',
+    labelSchedule: 'Schedule',
+    descSchedule: 'Appointments and reminders',
+    labelForms: 'Forms',
+    descForms: 'Surveys and measurements',
+    labelSystem: 'System',
+    descSystem: 'System alerts'
+  }
+};
+
+const t = (key: string) => {
+  const langKey = (currentLang.value === 'en' ? 'en' : 'es') as 'es' | 'en';
+  const table = langData[langKey] || langData.es;
+  return table[key] || langData.es[key] || key;
+};
 
 const settings = ref({
   inApp: true,
@@ -127,12 +225,12 @@ const settings = ref({
 });
 
 const notificationTypes = ref([
-  { label: 'Mensajes', desc: 'Nuevos mensajes de chat', value: true },
-  { label: 'Rutinas', desc: 'Planes de entrenamiento', value: true },
-  { label: 'Progreso', desc: 'Hábitos, rachas y seguimiento diario', value: true },
-  { label: 'Agenda', desc: 'Citas y recordatorios', value: true },
-  { label: 'Formularios', desc: 'Encuestas y mediciones', value: true },
-  { label: 'Sistema', desc: 'Alertas del sistema', value: true }
+  { labelKey: 'labelMessages', descKey: 'descMessages', value: true },
+  { labelKey: 'labelRoutines', descKey: 'descRoutines', value: true },
+  { labelKey: 'labelProgress', descKey: 'descProgress', value: true },
+  { labelKey: 'labelSchedule', descKey: 'descSchedule', value: true },
+  { labelKey: 'labelForms', descKey: 'descForms', value: true },
+  { labelKey: 'labelSystem', descKey: 'descSystem', value: true }
 ]);
 
 const activatePush = () => {};

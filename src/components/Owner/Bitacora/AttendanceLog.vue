@@ -3,30 +3,30 @@
     <NotificationSystem ref="toastRef" />
     <main class="main-content">
       <header class="header-section">
-        <h1 class="main-title">Asistencia <span class="highlight">Semanal</span></h1>
+        <h1 class="main-title">{{ t('asistenciaTitle') }} <span class="highlight">{{ t('semanalHighlight') }}</span></h1>
       
         <!-- ID 0 aplicado a la barra de acciones/filtros -->
         <div class="actions-bar" id="tutorial-step-0">
             <select class="status-select" v-model="selectedDay">
-                <option value="">Dia Semanal (Todas)</option>
-                <option value="Lunes">Lunes</option>
-                <option value="Martes">Martes</option>
-                <option value="Miercoles">Miercoles</option>
-                <option value="Jueves">Jueves</option>
-                <option value="Viernes">Viernes</option>
-                <option value="Sabado">Sabado</option>
-                <option value="Domingo">Domingo</option>
+                <option value="">{{ t('allDaysOption') }}</option>
+                <option value="Lunes">{{ t('monday') }}</option>
+                <option value="Martes">{{ t('tuesday') }}</option>
+                <option value="Miercoles">{{ t('wednesday') }}</option>
+                <option value="Jueves">{{ t('thursday') }}</option>
+                <option value="Viernes">{{ t('friday') }}</option>
+                <option value="Sabado">{{ t('saturday') }}</option>
+                <option value="Domingo">{{ t('sunday') }}</option>
             </select>
             <button class="btn-bulk" @click="activeModal = 'asistencias'">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
                     <path d="M18 20V10M12 20V4M6 20v-6"/>
                 </svg>
                 <div class="btn-text-wrapper">
-                    <span class="btn-label">Reportes</span>
-                    <span class="highlight-text-custom">Ver Gráfica</span>
+                    <span class="btn-label">{{ t('reportsLabel') }}</span>
+                    <span class="highlight-text-custom">{{ t('viewGraph') }}</span>
                 </div>
             </button>
-            <input type="text" class="search-input" placeholder="Buscar usuario..." v-model="searchQuery">
+            <input type="text" class="search-input" :placeholder="t('searchPlaceholder')" v-model="searchQuery">
         </div>
       </header>
           
@@ -34,7 +34,14 @@
       <div class="table-container desktop-only" :id="!isMobile ? 'tutorial-step-1' : undefined">
         <table class="user-table">
           <thead>
-            <tr><th>Foto</th><th>Nombre</th><th>Correo</th><th>Membresia</th><th>Fecha a Vencer</th><th>Status</th></tr>
+            <tr>
+              <th>{{ t('colPhoto') }}</th>
+              <th>{{ t('colName') }}</th>
+              <th>{{ t('colEmail') }}</th>
+              <th>{{ t('colMembership') }}</th>
+              <th>{{ t('colExpiration') }}</th>
+              <th>{{ t('colStatus') }}</th>
+            </tr>
           </thead>
           <tbody>
             <tr v-for="user in filteredUsers" :key="user.id">
@@ -71,7 +78,7 @@
           
           <div class="card-meta">
             <span class="email-text">{{ user.email }}</span>
-            <span class="expiration-warning"><span class="vence-label">Vence:</span> {{ user.expirationDate }}</span>
+            <span class="expiration-warning"><span class="vence-label">{{ t('expiresLabel') }}:</span> {{ user.expirationDate }}</span>
             <span class="phone-text">{{ user.phone }}</span>
           </div>
         </div>
@@ -83,11 +90,11 @@
           <div class="modal-icon-container danger-bg">
             <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#ef4444" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
           </div>
-          <h2>¿Eliminar usuario?</h2>
-          <p>¿Deseas eliminar a <span class="highlight-name">{{ selectedUser?.name }}</span> temporalmente?</p>
+          <h2>{{ t('deleteTitle') }}</h2>
+          <p>{{ t('deleteMsgPre') }} <span class="highlight-name">{{ selectedUser?.name }}</span> {{ t('deleteMsgPost') }}</p>
           <div class="modal-buttons">
-            <button class="btn-modal secondary" @click="showDelete = false">Cancelar</button>
-            <button class="btn-modal danger">Confirmar</button>
+            <button class="btn-modal secondary" @click="showDelete = false">{{ t('cancelBtn') }}</button>
+            <button class="btn-modal danger">{{ t('confirmBtn') }}</button>
           </div>
         </div>
       </ModalComponent>
@@ -100,6 +107,174 @@
     </transition>   
   </HeadingOwner>
 </template>
+
+<script setup lang="ts">
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { useRouter } from 'vue-router';
+import HeadingOwner from '../HeadingOwner.vue';
+import ModalComponent from '../../Modals/ModalComponent.vue';
+import Asistencias from '../Componets/Attendance.vue';
+import NotificationSystem from '../../Modals/NotificationSystem.vue'; 
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  expirationDate: string;
+  status: string;
+  phone: string;
+  mensualidad: string;
+  membership: string;
+  dia: string;
+}
+
+const activeModal = ref<string | null>(null);
+const toastRef = ref<any>(null);
+const router = useRouter();
+const showDelete = ref<boolean>(false);
+const selectedUser = ref<User | null>(null);
+const selectedDay = ref<string>('');
+const searchQuery = ref<string>('');
+
+const currentLang = ref<string>(localStorage.getItem('app-idioma') || 'es');
+
+const handleLangChange = (e: Event) => {
+  const customEvent = e as CustomEvent<{ idioma?: string }>;
+  if (customEvent.detail && customEvent.detail.idioma) {
+    currentLang.value = customEvent.detail.idioma;
+  }
+};
+
+onMounted(() => {
+  window.addEventListener('idioma-changed', handleLangChange as EventListener);
+  window.addEventListener('resize', updateWidth);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('idioma-changed', handleLangChange as EventListener);
+  window.removeEventListener('resize', updateWidth);
+});
+
+const langData: Record<'es' | 'en', Record<string, string>> = {
+  es: {
+    asistenciaTitle: 'Asistencia',
+    semanalHighlight: 'Semanal',
+    allDaysOption: 'Dia Semanal (Todas)',
+    monday: 'Lunes',
+    tuesday: 'Martes',
+    wednesday: 'Miercoles',
+    thursday: 'Jueves',
+    friday: 'Viernes',
+    saturday: 'Sabado',
+    sunday: 'Domingo',
+    reportsLabel: 'Reportes',
+    viewGraph: 'Ver Gráfica',
+    searchPlaceholder: 'Buscar usuario...',
+    colPhoto: 'Foto',
+    colName: 'Nombre',
+    colEmail: 'Correo',
+    colMembership: 'Membresia',
+    colExpiration: 'Fecha a Vencer',
+    colStatus: 'Status',
+    expiresLabel: 'Vence',
+    deleteTitle: '¿Eliminar usuario?',
+    deleteMsgPre: '¿Deseas eliminar a',
+    deleteMsgPost: 'temporalmente?',
+    cancelBtn: 'Cancelar',
+    confirmBtn: 'Confirmar'
+  },
+  en: {
+    asistenciaTitle: 'Weekly',
+    semanalHighlight: 'Attendance',
+    allDaysOption: 'Weekday (All)',
+    monday: 'Monday',
+    tuesday: 'Tuesday',
+    wednesday: 'Wednesday',
+    thursday: 'Thursday',
+    friday: 'Friday',
+    saturday: 'Saturday',
+    sunday: 'Sunday',
+    reportsLabel: 'Reports',
+    viewGraph: 'View Chart',
+    searchPlaceholder: 'Search user...',
+    colPhoto: 'Photo',
+    colName: 'Name',
+    colEmail: 'Email',
+    colMembership: 'Membership',
+    colExpiration: 'Expiration Date',
+    colStatus: 'Status',
+    expiresLabel: 'Expires',
+    deleteTitle: 'Delete user?',
+    deleteMsgPre: 'Do you want to temporarily delete',
+    deleteMsgPost: '?',
+    cancelBtn: 'Cancel',
+    confirmBtn: 'Confirm'
+  }
+};
+
+const t = (key: string) => {
+  const langKey = (currentLang.value === 'en' ? 'en' : 'es') as 'es' | 'en';
+  const table = langData[langKey] || langData.es;
+  return table[key] || langData.es[key] || key;
+};
+
+const isMobile = ref<boolean>(window.innerWidth <= 900);
+const updateWidth = () => {
+  isMobile.value = window.innerWidth <= 900;
+};
+
+const users = ref<User[]>([
+  { id: 1, name: 'Maria Luis Ramires Sanchez', email: 'Maria.luis@example.com', expirationDate: '18/03/2026', status: 'Activo', phone: '+52 481 123 4321', mensualidad: 'Mensual', membership: '2 Meses', dia: 'Lunes' },
+  { id: 2, name: 'Francisco Luis Ramires Sanchez', email: 'Francisco.luis@example.com', expirationDate: '18/03/2026', status: 'Pendiente', phone: '+52 481 123 4321', mensualidad: 'Quincenal', membership: '1 Mes', dia: 'Martes' },
+  { id: 3, name: 'Luis Ramires Sanchez', email: 'Luis.luis@example.com', expirationDate: '18/03/2026', status: 'Activo', phone: '+52 481 123 4321', mensualidad: 'Mensual', membership: '4 Meses', dia: 'Miercoles' },
+  { id: 4, name: 'Jose Luis Ramires Sanchez', email: 'Jose.luis@example.com', expirationDate: '18/03/2026', status: 'Inactivo', phone: '+52 481 123 4321', mensualidad: 'Quincenal', membership: '1 Mes', dia: 'Jueves' },
+  { id: 5, name: 'Mario Luis Ramires Sanchez', email: 'Mario.luis@example.com', expirationDate: '18/03/2026', status: 'Pendiente', phone: '+52 481 123 4321', mensualidad: 'Mensual', membership: '3 Meses', dia: 'Viernes' },
+  { id: 6, name: 'Jesus Luis Ramires Sanchez', email: 'Jesus.luis@example.com', expirationDate: '18/03/2026', status: 'Inactivo', phone: '+52 481 123 4321', mensualidad: 'Quincenal', membership: '1 Mes', dia: 'Sabado' },
+  { id: 7, name: 'Ana Luis Ramires Sanchez', email: 'Ana.luis@example.com', expirationDate: '18/03/2026', status: 'Activo', phone: '+52 481 123 4321', mensualidad: 'Mensual', membership: '2 Meses', dia: 'Martes' },
+  { id: 8, name: 'Carlos Luis Ramires Sanchez', email: 'Carlos.luis@example.com', expirationDate: '18/03/2026', status: 'Pendiente', phone: '+52 481 123 4321', mensualidad: 'Quincenal', membership: '1 Mes', dia: 'Lunes' }
+]);
+
+const filteredUsers = computed(() => {
+  return users.value.filter(user => {
+    const matchStatus = selectedDay.value ? user.dia === selectedDay.value : true;
+    
+    const term = searchQuery.value.toLowerCase();
+    const matchSearch = 
+      user.name.toLowerCase().includes(term) || 
+      user.email.toLowerCase().includes(term) ||
+      user.membership.toLowerCase().includes(term) ||
+      user.status.toLowerCase().includes(term) ||
+      user.mensualidad.toLowerCase().includes(term) || 
+      user.phone.toLowerCase().includes(term) ||
+      user.expirationDate.toLowerCase().includes(term) ||
+      user.id.toString().includes(term);
+    
+    return matchStatus && matchSearch;
+  });
+});
+
+const getMembershipClass = (membership: string): string => {
+  const classes: Record<string, string> = {
+    '1 Mes': 'membership-red',
+    '2 Meses': 'membership-blue',
+    '3 Meses': 'membership-green',
+    '4 Meses': 'membership-purple',
+    '5 Meses': 'membership-orange',
+    '6 Meses': 'membership-pink'
+  };
+  return classes[membership] || 'membership-default';
+};
+
+const getStatusClass = (status: string): string => {
+  const classes: Record<string, string> = {
+    'Activo': 'status-green',
+    'Inactivo': 'status-red',
+    'Pendiente': 'status-orange',
+    'Próximo a vencer': 'status-yellow'
+  };
+  return classes[status] || 'status-default';
+};
+</script>
 
 <style scoped>
 .main-content { padding: 30px 40px; max-width: 1400px; margin: 0 auto; color: var(--color-texto-general, #e5e5e5); }
@@ -367,85 +542,3 @@
 .btn-modal.danger { background: #ef4444; color: white; }
 .btn-modal:hover { opacity: 0.9; }
 </style>
-
-<script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
-import HeadingOwner from '../HeadingOwner.vue';
-import ModalComponent from '../../Modals/ModalComponent.vue';
-import Asistencias from '../Componets/Attendance.vue';
-import NotificationSystem from '../../Modals/NotificationSystem.vue'; 
-
-const activeModal = ref(null);
-const toastRef = ref(null);
-const router = useRouter();
-const showDelete = ref(false);
-const selectedUser = ref(null);
-const selectedDay = ref('');
-const searchQuery = ref('');
-
-const isMobile = ref(window.innerWidth <= 900);
-const updateWidth = () => {
-  isMobile.value = window.innerWidth <= 900;
-};
-
-onMounted(() => {
-  window.addEventListener('resize', updateWidth);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('resize', updateWidth);
-});
-
-const filteredUsers = computed(() => {
-  return users.value.filter(user => {
-    const matchStatus = selectedDay.value ? user.dia === selectedDay.value : true;
-    
-    const term = searchQuery.value.toLowerCase();
-    const matchSearch = 
-      user.name.toLowerCase().includes(term) || 
-      user.email.toLowerCase().includes(term) ||
-      user.membership.toLowerCase().includes(term) ||
-      user.status.toLowerCase().includes(term) ||
-      user.mensualidad.toLowerCase().includes(term) || 
-      user.phone.toLowerCase().includes(term) ||
-      user.expirationDate.toLowerCase().includes(term) ||
-      user.id.toString().includes(term);
-    
-    return matchStatus && matchSearch;
-  });
-});
-
-const users = ref([
-  { id: 1, name: 'Maria Luis Ramires Sanchez', email: 'Maria.luis@example.com', expirationDate: '18/03/2026', status: 'Activo', phone: '+52 481 123 4321', mensualidad: 'Mensual', membership: '2 Meses', dia: 'Lunes' },
-  { id: 2, name: 'Francisco Luis Ramires Sanchez', email: 'Francisco.luis@example.com', expirationDate: '18/03/2026', status: 'Pendiente', phone: '+52 481 123 4321', mensualidad: 'Quincenal', membership: '1 Mes', dia: 'Martes' },
-  { id: 3, name: 'Luis Ramires Sanchez', email: 'Luis.luis@example.com', expirationDate: '18/03/2026', status: 'Activo', phone: '+52 481 123 4321', mensualidad: 'Mensual', membership: '4 Meses', dia: 'Miercoles' },
-  { id: 4, name: 'Jose Luis Ramires Sanchez', email: 'Jose.luis@example.com', expirationDate: '18/03/2026', status: 'Inactivo', phone: '+52 481 123 4321', mensualidad: 'Quincenal', membership: '1 Mes', dia: 'Jueves' },
-  { id: 5, name: 'Mario Luis Ramires Sanchez', email: 'Mario.luis@example.com', expirationDate: '18/03/2026', status: 'Pendiente', phone: '+52 481 123 4321', mensualidad: 'Mensual', membership: '3 Meses', dia: 'Viernes' },
-  { id: 6, name: 'Jesus Luis Ramires Sanchez', email: 'Jesus.luis@example.com', expirationDate: '18/03/2026', status: 'Inactivo', phone: '+52 481 123 4321', mensualidad: 'Quincenal', membership: '1 Mes', dia: 'Sabado' },
-  { id: 7, name: 'Ana Luis Ramires Sanchez', email: 'Ana.luis@example.com', expirationDate: '18/03/2026', status: 'Activo', phone: '+52 481 123 4321', mensualidad: 'Mensual', membership: '2 Meses', dia: 'Martes' },
-  { id: 8, name: 'Carlos Luis Ramires Sanchez', email: 'Carlos.luis@example.com', expirationDate: '18/03/2026', status: 'Pendiente', phone: '+52 481 123 4321', mensualidad: 'Quincenal', membership: '1 Mes', dia: 'Lunes' }
-]);
-
-const getMembershipClass = (membership) => {
-  const classes = {
-    '1 Mes': 'membership-red',
-    '2 Meses': 'membership-blue',
-    '3 Meses': 'membership-green',
-    '4 Meses': 'membership-purple',
-    '5 Meses': 'membership-orange',
-    '6 Meses': 'membership-pink'
-  };
-  return classes[membership] || 'membership-default';
-};
-
-const getStatusClass = (status) => {
-  const classes = {
-    'Activo': 'status-green',
-    'Inactivo': 'status-red',
-    'Pendiente': 'status-orange',
-    'Próximo a vencer': 'status-yellow'
-  };
-  return classes[status] || 'status-default';
-};
-</script>

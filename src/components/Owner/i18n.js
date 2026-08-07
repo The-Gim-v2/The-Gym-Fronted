@@ -409,7 +409,70 @@ export const traducciones = {
     saveActivityBtn: "Guardar Actividad",
     toastSaved: "¡Actividad guardada correctamente!",
 
-
+    // Perfil de Usuario
+    // Toasts y Notificaciones
+    toastLogoUpdated: "Logo actualizado correctamente",
+    toastChangesSaved: "Cambios guardados con éxito",
+    toastCancelRequested: "Solicitud de cancelación procesada",
+    toastProOnlySede: "Función exclusiva para miembros Pro",
+    toastProOnlyAI: "Asistente de IA exclusivo para miembros Pro",
+    
+    // Perfil Principal
+    profileMainTitle: "Configuración de <span class='highlight'>Perfil</span>",
+    avatarUploadTitle: "Subir imagen de perfil",
+    avatarPreviewAlt: "Vista previa del avatar",
+    avatarChangeTitle: "Cambiar imagen",
+    gymDefaultName: "Mi Gimnasio",
+    profileHintText: "Haz clic en el avatar para cambiar la imagen del gimnasio",
+    
+    // Sección Información del Gimnasio
+    sectionGymInfo: "Información del Gimnasio",
+    labelGymName: "Nombre del Gimnasio",
+    labelCurp: "CURP / RFC",
+    curpDisabledTitle: "Este campo no se puede modificar",
+    labelCurrentMembership: "Membresía Actual",
+    updateMembershipTitle: "Actualizar membresía",
+    btnCancelSubscription: "Cancelar suscripción",
+    btnAddBranch: "Agregar Sede",
+    btnInteractAI: "IA Assistant",
+    
+    // Sección Datos del Administrador
+    sectionAdminData: "Datos del Administrador",
+    labelNames: "Nombres",
+    labelLastNameP: "Apellido Paterno",
+    labelLastNameM: "Apellido Materno",
+    labelBirthDate: "Fecha de Nacimiento",
+    labelPhone: "Celular",
+    labelEmail: "Correo Electrónico",
+    labelNewPassword: "Nueva Contraseña",
+    passwordPlaceholder: "Dejar en blanco para mantener",
+    labelConfirmPassword: "Confirmar Contraseña",
+    confirmPasswordPlaceholder: "Repite la contraseña",
+    
+    // Sección Ubicación
+    sectionLocation: "Ubicación del Establecimiento",
+    labelState: "Entidad Federativa",
+    labelMunicipality: "Municipio / Alcaldía",
+    labelNeighborhood: "Colonia",
+    labelZipCode: "Código Postal",
+    labelStreet: "Calle",
+    labelExtNumber: "Núm. Exterior",
+    labelIntNumber: "Núm. Interior",
+    
+    // Sección Operación
+    sectionOperationConfig: "Configuración Operativa",
+    labelOpeningDays: "Días de Operación",
+    labelMonthlyPrice: "Precio Mensual ($)",
+    labelWeeklyPrice: "Precio Semanal ($)",
+    btnSaveDataset: "Guardar Cambios",
+    
+    // Modales de Confirmación y Acciones
+    modalCancelTitle: "Cancelar Suscripción",
+    modalCancelText: "¿Estás seguro de que deseas cancelar tu suscripción? Perderás acceso a los beneficios Pro al finalizar el periodo actual.",
+    btnKeepPlan: "Conservar plan",
+    btnConfirmCancel: "Sí, cancelar",
+    modalAddSedeTitle: "Registrar Nueva Sede",
+    modalAITitle: "Asistente IA - Gestión",
 
   },
 
@@ -825,6 +888,72 @@ export const traducciones = {
     cancelBtn: "Cancel",
     saveActivityBtn: "Save Activity",
     toastSaved: "Activity saved successfully!",
+
+    // User Profile
+
+    // Toasts & Notifications
+    toastLogoUpdated: "Logo updated successfully",
+    toastChangesSaved: "Changes saved successfully",
+    toastCancelRequested: "Cancellation request processed",
+    toastProOnlySede: "Feature exclusive for Pro members",
+    toastProOnlyAI: "AI Assistant exclusive for Pro members",
+    
+    // Main Profile
+    profileMainTitle: "Profile <span class='highlight'>Settings</span>",
+    avatarUploadTitle: "Upload profile image",
+    avatarPreviewAlt: "Avatar preview",
+    avatarChangeTitle: "Change image",
+    gymDefaultName: "My Gym",
+    profileHintText: "Click on the avatar to change the gym image",
+    
+    // Gym Info Section
+    sectionGymInfo: "Gym Information",
+    labelGymName: "Gym Name",
+    labelCurp: "CURP / Tax ID",
+    curpDisabledTitle: "This field cannot be modified",
+    labelCurrentMembership: "Current Membership",
+    updateMembershipTitle: "Update membership",
+    btnCancelSubscription: "Cancel subscription",
+    btnAddBranch: "Add Branch",
+    btnInteractAI: "AI Assistant",
+    
+    // Administrator Data Section
+    sectionAdminData: "Administrator Data",
+    labelNames: "First Names",
+    labelLastNameP: "Last Name",
+    labelLastNameM: "Second Last Name",
+    labelBirthDate: "Birth Date",
+    labelPhone: "Phone",
+    labelEmail: "Email",
+    labelNewPassword: "New Password",
+    passwordPlaceholder: "Leave blank to keep current",
+    labelConfirmPassword: "Confirm Password",
+    confirmPasswordPlaceholder: "Repeat password",
+    
+    // Location Section
+    sectionLocation: "Establishment Location",
+    labelState: "State",
+    labelMunicipality: "Municipality",
+    labelNeighborhood: "Neighborhood",
+    labelZipCode: "Zip Code",
+    labelStreet: "Street",
+    labelExtNumber: "Ext. Number",
+    labelIntNumber: "Int. Number",
+    
+    // Operation Section
+    sectionOperationConfig: "Operating Configuration",
+    labelOpeningDays: "Opening Days",
+    labelMonthlyPrice: "Monthly Price ($)",
+    labelWeeklyPrice: "Weekly Price ($)",
+    btnSaveDataset: "Save Changes",
+    
+    // Modals & Actions
+    modalCancelTitle: "Cancel Subscription",
+    modalCancelText: "Are you sure you want to cancel your subscription? You will lose access to Pro benefits at the end of the current billing period.",
+    btnKeepPlan: "Keep plan",
+    btnConfirmCancel: "Yes, cancel",
+    modalAddSedeTitle: "Register New Branch",
+    modalAITitle: "AI Assistant - Management",
   
 },
 };
