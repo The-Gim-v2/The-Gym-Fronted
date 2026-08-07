@@ -1,0 +1,1 @@
+export const traducciones: Record<string, Record<string, string>>;
