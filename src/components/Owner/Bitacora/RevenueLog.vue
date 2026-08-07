@@ -3,13 +3,13 @@
     <NotificationSystem ref="toastRef" />
     <main class="main-content">
       <header class="header-section">
-        <h1 class="main-title">Ingresos</h1>
+        <h1 class="main-title">{{ t('incomesTitle') }}</h1>
       
         <div class="actions-bar" id="tutorial-step-0">
             <select class="status-select" v-model="selectedMembership">
-                <option value="">Mensualidad (Todas)</option>
-                <option value="Mensual">Mensual</option>
-                <option value="Quincenal">Quincenal</option>
+                <option value="">{{ t('membershipAll') }}</option>
+                <option value="Mensual">{{ t('monthly') }}</option>
+                <option value="Quincenal">{{ t('fortnightly') }}</option>
             </select>
             <button class="btn-bulk" @click="activeModal = 'ganancias'">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
@@ -18,11 +18,11 @@
                     <line x1="12" y1="22.08" x2="12" y2="12"/>
                 </svg>
                 <div class="btn-text-wrapper">
-                    <span class="btn-label">Ingresos Totales</span>
+                    <span class="btn-label">{{ t('totalIncomes') }}</span>
                     <span class="highlight-text-custom">{{ formatCurrency(totalIncome) }}</span>
                 </div>
             </button>
-            <input type="text" class="search-input" placeholder="Buscar usuario..." v-model="searchQuery">
+            <input type="text" class="search-input" :placeholder="t('searchPlaceholder')" v-model="searchQuery">
         </div>
         </header>
             
@@ -30,7 +30,14 @@
       <div class="table-container desktop-only" :id="!isMobile ? 'tutorial-step-1' : undefined">
         <table class="user-table">
           <thead>
-            <tr><th>Foto</th><th>Nombre</th><th>Correo</th><th>Fecha a Vencer</th><th>Membresia</th><th>Monto</th></tr>
+            <tr>
+              <th>{{ t('colPhoto') }}</th>
+              <th>{{ t('colName') }}</th>
+              <th>{{ t('colEmail') }}</th>
+              <th>{{ t('colExpiration') }}</th>
+              <th>{{ t('colMembership') }}</th>
+              <th>{{ t('colAmount') }}</th>
+            </tr>
           </thead>
           <tbody>
             <tr v-for="(user, index) in filteredUsers" :key="user.id">
@@ -67,7 +74,7 @@
           
           <div class="card-meta">
             <span class="email-text">{{ user.email }}</span>
-            <span class="expiration-warning"><span class="vence-label">Vence:</span> {{ user.expirationDate }}</span>
+            <span class="expiration-warning"><span class="vence-label">{{ t('expiresLabel') }}:</span> {{ user.expirationDate }}</span>
             <span class="phone-text">{{ user.phone }}</span>
           </div>
         </div>
@@ -79,11 +86,11 @@
           <div class="modal-icon-container danger-bg">
             <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#ef4444" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
           </div>
-          <h2>¿Eliminar usuario?</h2>
-          <p>¿Deseas eliminar a <span class="highlight-name">{{ selectedUser?.name }}</span> temporalmente?</p>
+          <h2>{{ t('deleteTitle') }}</h2>
+          <p>{{ t('deleteMsgPre') }} <span class="highlight-name">{{ selectedUser?.name }}</span> {{ t('deleteMsgPost') }}</p>
           <div class="modal-buttons">
-            <button class="btn-modal secondary" @click="showDelete = false">Cancelar</button>
-            <button class="btn-modal danger">Confirmar</button>
+            <button class="btn-modal secondary" @click="showDelete = false">{{ t('cancelBtn') }}</button>
+            <button class="btn-modal danger">{{ t('confirmBtn') }}</button>
           </div>
         </div>
       </ModalComponent>
@@ -96,6 +103,161 @@
     </transition>  
   </HeadingOwner>
 </template>
+
+<script setup lang="ts">
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { useRouter } from 'vue-router';
+import HeadingOwner from '../HeadingOwner.vue';
+import ModalComponent from '../../Modals/ModalComponent.vue';
+import Ganancias from '../Componets/Earnings.vue';
+import NotificationSystem from '../../Modals/NotificationSystem.vue'; 
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  expirationDate: string;
+  membership: string;
+  amount: string;
+  mensualidad: string;
+  phone: string;
+}
+
+const activeModal = ref<string | null>(null);
+const router = useRouter();
+const showDelete = ref<boolean>(false);
+const selectedUser = ref<User | null>(null);
+const selectedMembership = ref<string>(''); 
+const searchQuery = ref<string>('');
+const toastRef = ref<any>(null);
+
+// Sistema de Idiomas
+const currentLang = ref<string>(localStorage.getItem('app-idioma') || 'es');
+const handleLangChange = (e: Event): void => {
+  const customEvent = e as CustomEvent<{ idioma?: string }>;
+  if (customEvent.detail?.idioma) currentLang.value = customEvent.detail.idioma;
+};
+
+const langData: Record<'es' | 'en', Record<string, string>> = {
+  es: {
+    incomesTitle: 'Ingresos',
+    membershipAll: 'Mensualidad (Todas)',
+    monthly: 'Mensual',
+    fortnightly: 'Quincenal',
+    totalIncomes: 'Ingresos Totales',
+    searchPlaceholder: 'Buscar usuario...',
+    colPhoto: 'Foto',
+    colName: 'Nombre',
+    colEmail: 'Correo',
+    colExpiration: 'Fecha a Vencer',
+    colMembership: 'Membresia',
+    colAmount: 'Monto',
+    expiresLabel: 'Vence',
+    deleteTitle: '¿Eliminar usuario?',
+    deleteMsgPre: '¿Deseas eliminar a',
+    deleteMsgPost: 'temporalmente?',
+    cancelBtn: 'Cancelar',
+    confirmBtn: 'Confirmar'
+  },
+  en: {
+    incomesTitle: 'Incomes',
+    membershipAll: 'Membership (All)',
+    monthly: 'Monthly',
+    fortnightly: 'Fortnightly',
+    totalIncomes: 'Total Incomes',
+    searchPlaceholder: 'Search user...',
+    colPhoto: 'Photo',
+    colName: 'Name',
+    colEmail: 'Email',
+    colExpiration: 'Expiration Date',
+    colMembership: 'Membership',
+    colAmount: 'Amount',
+    expiresLabel: 'Expires',
+    deleteTitle: 'Delete user?',
+    deleteMsgPre: 'Do you want to temporarily delete',
+    deleteMsgPost: '?',
+    cancelBtn: 'Cancel',
+    confirmBtn: 'Confirm'
+  }
+};
+
+const t = (key: string): string => {
+  const langKey = (currentLang.value === 'en' ? 'en' : 'es') as 'es' | 'en';
+  return langData[langKey][key] || langData.es[key] || key;
+};
+
+// Detectar pantalla móvil de manera reactiva para evitar duplicidad de IDs en el DOM
+const isMobile = ref<boolean>(window.innerWidth <= 900);
+const updateWidth = (): void => {
+  isMobile.value = window.innerWidth <= 900;
+};
+
+onMounted(() => {
+  window.addEventListener('idioma-changed', handleLangChange as EventListener);
+  window.addEventListener('resize', updateWidth);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('idioma-changed', handleLangChange as EventListener);
+  window.removeEventListener('resize', updateWidth);
+});
+
+const users = ref<User[]>([
+  { id: 1, name: 'Jesus Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expirationDate: '18/03/2026', membership: '1 Mes', amount: '$ 900.00', mensualidad: 'Mensual', phone: '+52 481 123 4321' },
+  { id: 2, name: 'Maria Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expirationDate: '18/03/2026', membership: '2 Meses', amount: '$ 500.00', mensualidad: 'Quincenal', phone: '+52 481 123 4321' },
+  { id: 3, name: 'Erick Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expirationDate: '18/03/2026', membership: '4 Meses', amount: '$ 500.00', mensualidad: 'Mensual', phone: '+52 481 123 4321' },
+  { id: 4, name: 'Luis Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expirationDate: '18/03/2026', membership: '6 Meses', amount: '$ 800.00', mensualidad: 'Quincenal', phone: '+52 481 123 4321' },
+  { id: 5, name: 'Fernando Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expirationDate: '18/03/2026', membership: '2 Meses', amount: '$ 500.00', mensualidad: 'Mensual', phone: '+52 481 123 4321' },
+  { id: 6, name: 'Mario Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expirationDate: '18/03/2026', membership: '3 Meses', amount: '$ 500.00', mensualidad: 'Quincenal', phone: '+52 481 123 4321' },
+  { id: 7, name: 'Jorge Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expirationDate: '18/03/2026', membership: '5 Meses', amount: '$ 500.00', mensualidad: 'Mensual', phone: '+52 481 123 4321' },
+  { id: 8, name: 'Francisco Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expirationDate: '18/03/2026', membership: '1 Mes', amount: '$ 500.00', mensualidad: 'Quincenal', phone: '+52 481 123 4321' }
+]);
+
+const filteredUsers = computed(() => {
+  return users.value.filter(user => {
+    const matchMembership = selectedMembership.value ? user.mensualidad === selectedMembership.value : true;
+    
+    const term = searchQuery.value.toLowerCase();
+    const matchSearch = 
+      user.name.toLowerCase().includes(term) || 
+      user.email.toLowerCase().includes(term) ||
+      user.membership.toLowerCase().includes(term) ||
+      user.amount.toLowerCase().includes(term) ||
+      user.mensualidad.toLowerCase().includes(term) || 
+      user.phone.toLowerCase().includes(term) ||
+      user.expirationDate.toLowerCase().includes(term) ||
+      user.id.toString().includes(term);
+    
+    return matchMembership && matchSearch;
+  });
+});
+
+const totalIncome = computed(() => {
+  return filteredUsers.value.reduce((sum, user) => {
+    const amountValue = parseFloat(user.amount.replace(/[^0-9.]/g, '')) || 0;
+    return sum + amountValue;
+  }, 0);
+});
+
+const formatCurrency = (value: number): string => {
+  return new Intl.NumberFormat('es-MX', {
+    style: 'currency',
+    currency: 'MXN',
+  }).format(value);
+};
+
+const getMembershipClass = (membership: string): string => {
+  const classes: Record<string, string> = {
+    '1 Mes': 'membership-red',
+    '2 Meses': 'membership-blue',
+    '3 Meses': 'membership-green',
+    '4 Meses': 'membership-purple',
+    '5 Meses': 'membership-orange',
+    '6 Meses': 'membership-pink'
+  };
+  return classes[membership] || 'membership-default';
+};
+</script>
 
 <style scoped>
 .main-content { padding: 30px 40px; max-width: 1400px; margin: 0 auto; color: var(--color-texto-general, #e5e5e5); }
@@ -352,89 +514,3 @@
 .btn-modal.danger { background: #ef4444; color: white; }
 .btn-modal:hover { opacity: 0.9; }
 </style>
-
-<script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
-import HeadingOwner from '../HeadingOwner.vue';
-import ModalComponent from '../../Modals/ModalComponent.vue';
-import Ganancias from '../Componets/Earnings.vue';
-import NotificationSystem from '../../Modals/NotificationSystem.vue'; 
-
-const activeModal = ref(null);
-const router = useRouter();
-const showDelete = ref(false);
-const selectedUser = ref(null);
-const selectedMembership = ref(''); 
-const searchQuery = ref('');
-
-// Detectar pantalla móvil de manera reactiva para evitar duplicidad de IDs en el DOM
-const isMobile = ref(window.innerWidth <= 900);
-const updateWidth = () => {
-  isMobile.value = window.innerWidth <= 900;
-};
-
-onMounted(() => {
-  window.addEventListener('resize', updateWidth);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('resize', updateWidth);
-});
-
-const filteredUsers = computed(() => {
-  return users.value.filter(user => {
-    const matchMembership = selectedMembership.value ? user.mensualidad === selectedMembership.value : true;
-    
-    const term = searchQuery.value.toLowerCase();
-    const matchSearch = 
-      user.name.toLowerCase().includes(term) || 
-      user.email.toLowerCase().includes(term) ||
-      user.membership.toLowerCase().includes(term) ||
-      user.amount.toLowerCase().includes(term) ||
-      user.mensualidad.toLowerCase().includes(term) || 
-      user.phone.toLowerCase().includes(term) ||
-      user.expirationDate.toLowerCase().includes(term) ||
-      user.id.toString().includes(term);
-    
-    return matchMembership && matchSearch;
-  });
-});
-
-const users = ref([
-  { id: 1, name: 'Jesus Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expirationDate: '18/03/2026', membership: '1 Mes', amount: '$ 900.00', mensualidad: 'Mensual', phone: '+52 481 123 4321' },
-  { id: 2, name: 'Maria Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expirationDate: '18/03/2026', membership: '2 Meses', amount: '$ 500.00', mensualidad: 'Quincenal', phone: '+52 481 123 4321' },
-  { id: 3, name: 'Erick Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expirationDate: '18/03/2026', membership: '4 Meses', amount: '$ 500.00', mensualidad: 'Mensual', phone: '+52 481 123 4321' },
-  { id: 4, name: 'Luis Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expirationDate: '18/03/2026', membership: '6 Meses', amount: '$ 800.00', mensualidad: 'Quincenal', phone: '+52 481 123 4321' },
-  { id: 5, name: 'Fernando Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expirationDate: '18/03/2026', membership: '2 Meses', amount: '$ 500.00', mensualidad: 'Mensual', phone: '+52 481 123 4321' },
-  { id: 6, name: 'Mario Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expirationDate: '18/03/2026', membership: '3 Meses', amount: '$ 500.00', mensualidad: 'Quincenal', phone: '+52 481 123 4321' },
-  { id: 7, name: 'Jorge Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expirationDate: '18/03/2026', membership: '5 Meses', amount: '$ 500.00', mensualidad: 'Mensual', phone: '+52 481 123 4321' },
-  { id: 8, name: 'Francisco Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expirationDate: '18/03/2026', membership: '1 Mes', amount: '$ 500.00', mensualidad: 'Quincenal', phone: '+52 481 123 4321' }
-]);
-
-const totalIncome = computed(() => {
-  return filteredUsers.value.reduce((sum, user) => {
-    const amountValue = parseFloat(user.amount.replace(/[^0-9.]/g, '')) || 0;
-    return sum + amountValue;
-  }, 0);
-});
-
-const formatCurrency = (value) => {
-  return new Intl.NumberFormat('es-MX', {
-    style: 'currency',
-    currency: 'MXN',
-  }).format(value);
-};
-
-const getMembershipClass = (membership) => {
-  const classes = {
-    '1 Mes': 'membership-red',
-    '2 Meses': 'membership-blue',
-    '3 Meses': 'membership-green',
-    '4 Meses': 'membership-purple',
-    '5 Meses': 'membership-orange',
-    '6 Meses': 'membership-pink'
-  };
-  return classes[membership] || 'membership-default';
-};
-</script>

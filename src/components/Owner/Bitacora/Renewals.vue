@@ -3,12 +3,12 @@
     <main class="main-content">
       <header class="header-section">
         <div class="title-wrapper">
-          <h1 class="main-title">Renovaciones</h1>
-          <p class="main-subtitle">Gestiona las membresías vencidas o próximas a vencer de los usuarios</p>
+          <h1 class="main-title">{{ t('renewalsTitle') }}</h1>
+          <p class="main-subtitle">{{ t('renewalsSubtitle') }}</p>
         </div>
       
         <div class="actions-bar" id="tutorial-step-0">
-            <input type="text" class="search-input" placeholder="Buscar usuario..." v-model="searchQuery">
+            <input type="text" class="search-input" :placeholder="t('searchPlaceholder')" v-model="searchQuery">
         </div>
       </header>
           
@@ -16,18 +16,25 @@
       <div class="table-container desktop-only" :id="!isMobile ? 'tutorial-step-1' : undefined">
         <table class="user-table">
           <thead>
-            <tr><th>Foto</th><th>Nombre</th><th>Correo</th><th>Vencimiento</th><th>Adeudo</th><th>Acciones</th></tr>
+            <tr>
+              <th>{{ t('colPhoto') }}</th>
+              <th>{{ t('colName') }}</th>
+              <th>{{ t('colEmail') }}</th>
+              <th>{{ t('colExpiration') }}</th>
+              <th>{{ t('colDebt') }}</th>
+              <th>{{ t('colActions') }}</th>
+            </tr>
           </thead>
           <tbody>
             <tr v-for="(user, index) in filteredUsers" :key="user.id">
-            <td><div class="avatar-small"></div></td>
+              <td><div class="avatar-small"></div></td>
               <td class="text-bold">{{ user.name }}</td>
               <td>{{ user.email }}</td>
               <td>{{ user.expiredDate }}</td>
               <td><span class="status-badge" :class="getDebtClass(user.status)">{{ user.debt }}</span></td>
               <td class="actions-cell" :id="!isMobile && index === 0 ? 'tutorial-step-2' : undefined">
-                <button class="icon-btn" title="Renovar" @click="activeModal = 'renovacion'; selectedUser = user"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.5 4a3.5 3.5 0 1 0 5 0m-5 0V3m5 6l-5-5-5 5"/></svg></button>
-                <button class="icon-btn delete-icon-btn" title="Eliminar" @click="confirmDelete(user)"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+                <button class="icon-btn" :title="t('renewBtn')" @click="activeModal = 'renovacion'; selectedUser = user"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.5 4a3.5 3.5 0 1 0 5 0m-5 0V3m5 6l-5-5-5 5"/></svg></button>
+                <button class="icon-btn delete-icon-btn" :title="t('deleteBtn')" @click="confirmDelete(user)"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
               </td>
             </tr>
           </tbody>
@@ -52,19 +59,18 @@
           
           <div class="card-meta">
             <span class="email-text">{{ user.email }}</span>
-            <span class="expiration-warning"><span class="vence-label">Vence:</span> {{ user.expiredDate }}</span>
+            <span class="expiration-warning"><span class="vence-label">{{ t('expiresLabel') }}:</span> {{ user.expiredDate }}</span>
             <span class="phone-text">{{ user.phone }}</span>
           </div>
 
-          <!-- Asignamos el tutorial-step-2 exclusivamente en móvil para el primer usuario -->
           <div class="card-actions" :id="isMobile && index === 0 ? 'tutorial-step-2' : undefined">
             <button class="action-chip btn-renew-chip" @click="activeModal = 'renovacion'; selectedUser = user">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.5 4a3.5 3.5 0 1 0 5 0m-5 0V3m5 6l-5-5-5 5"/></svg>
-              <span>Renovar</span>
+              <span>{{ t('renewBtn') }}</span>
             </button>
             <button class="action-chip btn-delete-chip" @click="confirmDelete(user)">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-              <span>Eliminar</span>
+              <span>{{ t('deleteBtn') }}</span>
             </button>
           </div>
         </div>
@@ -83,11 +89,11 @@
           <div class="modal-icon-container danger-bg">
             <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#ef4444" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
           </div>
-          <h2>¿Eliminar usuario?</h2>
-          <p>¿Estás seguro de que deseas eliminar a <span class="highlight-name">{{ selectedUser?.name }}</span> permanentemente? Esta acción no se puede deshacer.</p>
+          <h2>{{ t('deleteTitle') }}</h2>
+          <p>{{ t('deleteMsgPre') }} <span class="highlight-name">{{ selectedUser?.name }}</span> {{ t('deleteMsgPost') }}</p>
           <div class="modal-buttons">
-            <button class="btn-modal secondary" @click="showDelete = false">Cancelar</button>
-            <button class="btn-modal danger" @click="executeDelete">Sí, eliminar</button>
+            <button class="btn-modal secondary" @click="showDelete = false">{{ t('cancelBtn') }}</button>
+            <button class="btn-modal danger" @click="executeDelete">{{ t('confirmDeleteBtn') }}</button>
           </div>
         </div>
       </ModalComponent>
@@ -95,6 +101,140 @@
     </main>
   </HeadingOwner>
 </template>
+
+<script setup lang="ts">
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import HeadingOwner from '../HeadingOwner.vue';
+import ModalComponent from '../../Modals/ModalComponent.vue';
+import RenovacionModal from '../Componets/Account-Recovery.vue'; 
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  expiredDate: string;
+  mensualidad: string;
+  debt: string;
+  status: string;
+  phone: string;
+}
+
+const activeModal = ref<string | null>(null);
+const showDelete = ref<boolean>(false);
+const selectedUser = ref<User | null>(null);
+const searchQuery = ref<string>('');
+
+// Sistema de Idiomas
+const currentLang = ref<string>(localStorage.getItem('app-idioma') || 'es');
+const handleLangChange = (e: Event) => {
+  const customEvent = e as CustomEvent<{ idioma?: string }>;
+  if (customEvent.detail?.idioma) currentLang.value = customEvent.detail.idioma;
+};
+
+const langData: Record<'es' | 'en', Record<string, string>> = {
+  es: {
+    renewalsTitle: 'Renovaciones',
+    renewalsSubtitle: 'Gestiona las membresías vencidas o próximas a vencer de los usuarios',
+    searchPlaceholder: 'Buscar usuario...',
+    colPhoto: 'Foto',
+    colName: 'Nombre',
+    colEmail: 'Correo',
+    colExpiration: 'Vencimiento',
+    colDebt: 'Adeudo',
+    colActions: 'Acciones',
+    expiresLabel: 'Vence',
+    renewBtn: 'Renovar',
+    deleteBtn: 'Eliminar',
+    deleteTitle: '¿Eliminar usuario?',
+    deleteMsgPre: '¿Estás seguro de que deseas eliminar a',
+    deleteMsgPost: 'permanentemente? Esta acción no se puede deshacer.',
+    cancelBtn: 'Cancelar',
+    confirmDeleteBtn: 'Sí, eliminar'
+  },
+  en: {
+    renewalsTitle: 'Renewals',
+    renewalsSubtitle: 'Manage expired or upcoming membership renewals for users',
+    searchPlaceholder: 'Search user...',
+    colPhoto: 'Photo',
+    colName: 'Name',
+    colEmail: 'Email',
+    colExpiration: 'Expiration',
+    colDebt: 'Debt',
+    colActions: 'Actions',
+    expiresLabel: 'Expires',
+    renewBtn: 'Renew',
+    deleteBtn: 'Delete',
+    deleteTitle: 'Delete user?',
+    deleteMsgPre: 'Are you sure you want to permanently delete',
+    deleteMsgPost: '? This action cannot be undone.',
+    cancelBtn: 'Cancel',
+    confirmDeleteBtn: 'Yes, delete'
+  }
+};
+
+const t = (key: string): string => {
+  const langKey = (currentLang.value === 'en' ? 'en' : 'es') as 'es' | 'en';
+  return langData[langKey][key] || langData.es[key] || key;
+};
+
+const isMobile = ref<boolean>(window.innerWidth <= 900);
+const handleResize = (): void => {
+  isMobile.value = window.innerWidth <= 900;
+};
+
+onMounted(() => {
+  window.addEventListener('idioma-changed', handleLangChange as EventListener);
+  window.addEventListener('resize', handleResize);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('idioma-changed', handleLangChange as EventListener);
+  window.removeEventListener('resize', handleResize);
+});
+
+const users = ref<User[]>([
+  { id: 1, name: 'Jesus Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expiredDate: '18/03/2026', mensualidad: 'Mensual', debt: '$600.00', status: 'Inactivo', phone: '+52 481 123 4321' },
+  { id: 2, name: 'Armando Luis Ramires Sanchez', email: 'armando@gmail.com', expiredDate: '18/03/2026', mensualidad: 'Mensual', debt: '$700.00', status: 'Inactivo', phone: '+52 481 124 3421' },
+  { id: 3, name: 'Luis Luis Ramires Sanchez', email: 'luis@gmail.com', expiredDate: '18/03/2026', mensualidad: 'Mensual', debt: '$900.00', status: 'Inactivo', phone: '+52 481 125 5421' },
+  { id: 4, name: 'Francisco Luis Ramires', email: 'francisco@gmail.com', expiredDate: '18/03/2026', mensualidad: 'Quincenal', debt: '$500.00', status: 'Pendiente', phone: '+52 481 126 6421' },
+  { id: 5, name: 'Jorge Luis Ramires Sanchez', email: 'jorge@gmail.com', expiredDate: '18/03/2026', mensualidad: 'Quincenal', debt: '$0.00', status: 'Activo', phone: '+52 481 127 7421' },
+]);
+
+const filteredUsers = computed(() => {
+  return users.value.filter(user => {
+    const term = searchQuery.value.toLowerCase();
+    const matchSearch = 
+      user.name.toLowerCase().includes(term) || 
+      user.email.toLowerCase().includes(term) ||
+      user.debt.toLowerCase().includes(term) ||
+      user.phone.toLowerCase().includes(term) ||
+      user.mensualidad.toLowerCase().includes(term) ||
+      user.status.toLowerCase().includes(term) ||
+      user.expiredDate.toLowerCase().includes(term) ||
+      user.id.toString().includes(term);
+    
+    return matchSearch;
+  });
+});
+
+const getDebtClass = (status: string): string => {
+  if (status === 'Pendiente') return 'debt-pending';
+  if (status === 'Inactivo') return 'debt-inactive';
+  return 'debt-default';
+};
+
+const confirmDelete = (user: User): void => { 
+  selectedUser.value = user; 
+  showDelete.value = true; 
+};
+
+const executeDelete = (): void => {
+  if (!selectedUser.value) return;
+  users.value = users.value.filter(u => u.id !== selectedUser.value?.id);
+  showDelete.value = false;
+  selectedUser.value = null;
+};
+</script>
 
 <style scoped>
 .main-content { padding: 30px 40px; max-width: 1400px; margin: 0 auto; color: var(--color-texto-general, #e5e5e5); }
@@ -351,71 +491,3 @@
 .btn-modal.danger { background: #ef4444; color: white; }
 .btn-modal:hover { opacity: 0.9; }
 </style>
-
-<script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
-import HeadingOwner from '../HeadingOwner.vue';
-import ModalComponent from '../../Modals/ModalComponent.vue';
-import RenovacionModal from '../Componets/Account-Recovery.vue'; 
-
-const activeModal = ref(null);
-const showDelete = ref(false);
-const selectedUser = ref(null);
-const searchQuery = ref('');
-
-const isMobile = ref(window.innerWidth <= 900);
-const handleResize = () => {
-  isMobile.value = window.innerWidth <= 900;
-};
-
-onMounted(() => {
-  window.addEventListener('resize', handleResize);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('resize', handleResize);
-});
-
-const users = ref([
-  { id: 1, name: 'Jesus Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expiredDate: '18/03/2026', mensualidad: 'Mensual', debt: '$600.00', status: 'Inactivo', phone: '+52 481 123 4321' },
-  { id: 2, name: 'Armando Luis Ramires Sanchez', email: 'armando@gmail.com', expiredDate: '18/03/2026', mensualidad: 'Mensual', debt: '$700.00', status: 'Inactivo', phone: '+52 481 124 3421' },
-  { id: 3, name: 'Luis Luis Ramires Sanchez', email: 'luis@gmail.com', expiredDate: '18/03/2026', mensualidad: 'Mensual', debt: '$900.00', status: 'Inactivo', phone: '+52 481 125 5421' },
-  { id: 4, name: 'Francisco Luis Ramires', email: 'francisco@gmail.com', expiredDate: '18/03/2026', mensualidad: 'Quincenal', debt: '$500.00', status: 'Pendiente', phone: '+52 481 126 6421' },
-  { id: 5, name: 'Jorge Luis Ramires Sanchez', email: 'jorge@gmail.com', expiredDate: '18/03/2026', mensualidad: 'Quincenal', debt: '$0.00', status: 'Activo', phone: '+52 481 127 7421' },
-]);
-
-const filteredUsers = computed(() => {
-  return users.value.filter(user => {
-    const term = searchQuery.value.toLowerCase();
-    const matchSearch = 
-      user.name.toLowerCase().includes(term) || 
-      user.email.toLowerCase().includes(term) ||
-      user.debt.toLowerCase().includes(term) ||
-      user.phone.toLowerCase().includes(term) ||
-      user.mensualidad.toLowerCase().includes(term) ||
-      user.status.toLowerCase().includes(term) ||
-      user.expiredDate.toLowerCase().includes(term) ||
-      user.id.toString().includes(term);
-    
-    return matchSearch;
-  });
-});
-
-const getDebtClass = (status) => {
-  if (status === 'Pendiente') return 'debt-pending';
-  if (status === 'Inactivo') return 'debt-inactive';
-  return 'debt-default';
-};
-
-const confirmDelete = (user) => { 
-  selectedUser.value = user; 
-  showDelete.value = true; 
-};
-
-const executeDelete = () => {
-  if (!selectedUser.value) return;
-  users.value = users.value.filter(u => u.id !== selectedUser.value.id);
-  showDelete.value = false;
-  selectedUser.value = null;
-};
-</script>

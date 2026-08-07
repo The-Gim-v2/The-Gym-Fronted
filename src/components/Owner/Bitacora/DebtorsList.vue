@@ -3,34 +3,41 @@
     <NotificationSystem ref="toastRef" />
     <main class="main-content">
       <header class="header-section">
-        <h1 class="main-title">Deudores</h1>
+        <h1 class="main-title">{{ t('debtorsTitle') }}</h1>
       
         <div class="actions-bar" id="tutorial-step-0">
             <select class="status-select" v-model="selectedMembership">
-                <option value="">Mensualidad (Todas)</option>
-                <option value="Mensual">Mensual</option>
-                <option value="Quincenal">Quincenal</option>
+                <option value="">{{ t('membershipAll') }}</option>
+                <option value="Mensual">{{ t('monthly') }}</option>
+                <option value="Quincenal">{{ t('fortnightly') }}</option>
             </select>
             <select class="status-select" v-model="selectedStatus">
-                <option value="">Status (Todos)</option>
-                <option value="Pendiente">Pendiente</option>
-                <option value="Inactivo">Inactivo</option>
+                <option value="">{{ t('statusAll') }}</option>
+                <option value="Pendiente">{{ t('pending') }}</option>
+                <option value="Inactivo">{{ t('inactive') }}</option>
             </select>
             <button class="btn-bulk" @click="activeModal = 'enviomasivo'">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
                   <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
               </svg>
-              Correo Masivo
+              {{ t('bulkEmail') }}
             </button>
-            <input type="text" class="search-input" placeholder="Buscar usuario..." v-model="searchQuery">
+            <input type="text" class="search-input" :placeholder="t('searchPlaceholder')" v-model="searchQuery">
         </div>
       </header>
-            
+          
       <!-- VISTA ESCRITORIO -->
       <div class="table-container desktop-only" :id="!isMobile ? 'tutorial-step-1' : undefined">
         <table class="user-table">
           <thead>
-            <tr><th>Foto</th><th>Nombre</th><th>Correo</th><th>Vencimiento</th><th>Adeudo</th><th>Acciones</th></tr>
+            <tr>
+              <th>{{ t('colPhoto') }}</th>
+              <th>{{ t('colName') }}</th>
+              <th>{{ t('colEmail') }}</th>
+              <th>{{ t('colExpiration') }}</th>
+              <th>{{ t('colDebt') }}</th>
+              <th>{{ t('colActions') }}</th>
+            </tr>
           </thead>
           <tbody>
             <tr v-for="(user, index) in filteredUsers" :key="user.id">
@@ -66,7 +73,7 @@
           
           <div class="card-meta">
             <span class="email-text">{{ user.email }}</span>
-            <span class="expiration-warning"><span class="vence-label">Vence:</span> {{ user.expiredDate }}</span>
+            <span class="expiration-warning"><span class="vence-label">{{ t('expiresLabel') }}:</span> {{ user.expiredDate }}</span>
             <span class="phone-text">{{ user.phone }}</span>
           </div>
 
@@ -89,11 +96,11 @@
           <div class="modal-icon-container danger-bg">
             <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#ef4444" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
           </div>
-          <h2>¿Eliminar usuario?</h2>
-          <p>¿Deseas eliminar a <span class="highlight-name">{{ selectedUser?.name }}</span> temporalmente?</p>
+          <h2>{{ t('deleteTitle') }}</h2>
+          <p>{{ t('deleteMsgPre') }} <span class="highlight-name">{{ selectedUser?.name }}</span> {{ t('deleteMsgPost') }}</p>
           <div class="modal-buttons">
-            <button class="btn-modal secondary" @click="showDelete = false">Cancelar</button>
-            <button class="btn-modal danger">Confirmar</button>
+            <button class="btn-modal secondary" @click="showDelete = false">{{ t('cancelBtn') }}</button>
+            <button class="btn-modal danger">{{ t('confirmBtn') }}</button>
           </div>
         </div>
       </ModalComponent>
@@ -108,9 +115,152 @@
       <div v-if="activeModal === 'enviocorreo'" class="modal-wrapper" @click.self="activeModal = null">
         <EnvioCorreo @close="activeModal = null" />
       </div>
-    </transition>     
+    </transition>    
   </HeadingOwner>
 </template>
+
+<script setup lang="ts">
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { useRouter } from 'vue-router';
+import HeadingOwner from '../HeadingOwner.vue';
+import ModalComponent from '../../Modals/ModalComponent.vue';
+import CorreoMasivo from '../Componets/Bulk-Email.vue';
+import EnvioCorreo from '../Componets/Mail.vue';
+import NotificationSystem from '../../Modals/NotificationSystem.vue'; 
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  expiredDate: string;
+  mensualidad: string;
+  debt: string;
+  status: string;
+  phone: string;
+}
+
+const activeModal = ref<string | null>(null);
+const toastRef = ref<any>(null);
+const router = useRouter();
+const showDelete = ref<boolean>(false);
+const selectedUser = ref<User | null>(null);
+const selectedMembership = ref<string>(''); 
+const selectedStatus = ref<string>(''); 
+const searchQuery = ref<string>('');
+
+// Sistema de Idiomas
+const currentLang = ref<string>(localStorage.getItem('app-idioma') || 'es');
+const handleLangChange = (e: Event) => {
+  const customEvent = e as CustomEvent<{ idioma?: string }>;
+  if (customEvent.detail?.idioma) currentLang.value = customEvent.detail.idioma;
+};
+
+const langData: Record<'es' | 'en', Record<string, string>> = {
+  es: {
+    debtorsTitle: 'Deudores',
+    membershipAll: 'Mensualidad (Todas)',
+    monthly: 'Mensual',
+    fortnightly: 'Quincenal',
+    statusAll: 'Status (Todos)',
+    pending: 'Pendiente',
+    inactive: 'Inactivo',
+    bulkEmail: 'Correo Masivo',
+    searchPlaceholder: 'Buscar usuario...',
+    colPhoto: 'Foto',
+    colName: 'Nombre',
+    colEmail: 'Correo',
+    colExpiration: 'Vencimiento',
+    colDebt: 'Adeudo',
+    colActions: 'Acciones',
+    expiresLabel: 'Vence',
+    deleteTitle: '¿Eliminar usuario?',
+    deleteMsgPre: '¿Deseas eliminar a',
+    deleteMsgPost: 'temporalmente?',
+    cancelBtn: 'Cancelar',
+    confirmBtn: 'Confirmar'
+  },
+  en: {
+    debtorsTitle: 'Debtors',
+    membershipAll: 'Membership (All)',
+    monthly: 'Monthly',
+    fortnightly: 'Fortnightly',
+    statusAll: 'Status (All)',
+    pending: 'Pending',
+    inactive: 'Inactive',
+    bulkEmail: 'Bulk Email',
+    searchPlaceholder: 'Search user...',
+    colPhoto: 'Photo',
+    colName: 'Name',
+    colEmail: 'Email',
+    colExpiration: 'Expiration',
+    colDebt: 'Debt',
+    colActions: 'Actions',
+    expiresLabel: 'Expires',
+    deleteTitle: 'Delete user?',
+    deleteMsgPre: 'Do you want to temporarily delete',
+    deleteMsgPost: '?',
+    cancelBtn: 'Cancel',
+    confirmBtn: 'Confirm'
+  }
+};
+
+const t = (key: string) => {
+  const langKey = (currentLang.value === 'en' ? 'en' : 'es') as 'es' | 'en';
+  return langData[langKey][key] || langData.es[key] || key;
+};
+
+const isMobile = ref<boolean>(window.innerWidth <= 900);
+const updateWidth = () => { isMobile.value = window.innerWidth <= 900; };
+
+onMounted(() => {
+  window.addEventListener('idioma-changed', handleLangChange as EventListener);
+  window.addEventListener('resize', updateWidth);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('idioma-changed', handleLangChange as EventListener);
+  window.removeEventListener('resize', updateWidth);
+});
+
+const users = ref<User[]>([
+  { id: 1, name: 'Jesus Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expiredDate: '18/03/2026', mensualidad: 'Mensual', debt: '$600.00', status: 'Pendiente', phone: '+52 481 123 4321' },
+  { id: 2, name: 'Armando Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expiredDate: '18/03/2026', mensualidad: 'Mensual', debt: '$700.00', status: 'Inactivo', phone: '+52 481 123 4321' },
+  { id: 3, name: 'Luis Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expiredDate: '18/03/2026', mensualidad: 'Mensual', debt: '$900.00', status: 'Pendiente', phone: '+52 481 123 4321' },
+  { id: 4, name: 'Francisco Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expiredDate: '18/03/2026', mensualidad: 'Quincenal', debt: '$500.00', status: 'Pendiente', phone: '+52 481 123 4321' },
+  { id: 5, name: 'Jorge Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expiredDate: '18/03/2026', mensualidad: 'Quincenal', debt: '$800.00', status: 'Inactivo', phone: '+52 481 123 4321' },
+  { id: 6, name: 'Maria Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expiredDate: '18/03/2026', mensualidad: 'Quincenal', debt: '$500.00', status: 'Pendiente', phone: '+52 481 123 4321' },
+  { id: 7, name: 'Fernando Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expiredDate: '18/03/2026', mensualidad: 'Quincenal', debt: '$800.00', status: 'Inactivo', phone: '+52 481 123 4321' },
+  { id: 8, name: 'Erick Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expiredDate: '18/03/2026', mensualidad: 'Quincenal', debt: '$500.00', status: 'Pendiente', phone: '+52 481 123 4321' },
+]);
+
+const filteredUsers = computed(() => {
+  return users.value.filter(user => {
+    const matchMembership = selectedMembership.value ? user.mensualidad === selectedMembership.value : true;
+    const matchStatus = selectedStatus.value ? user.status === selectedStatus.value : true;
+    const term = searchQuery.value.toLowerCase();
+    const matchSearch = 
+      user.name.toLowerCase().includes(term) || 
+      user.email.toLowerCase().includes(term) ||
+      user.debt.toLowerCase().includes(term) ||
+      user.phone.toLowerCase().includes(term) ||
+      user.mensualidad.toLowerCase().includes(term) ||
+      user.status.toLowerCase().includes(term) ||
+      user.expiredDate.toLowerCase().includes(term) ||
+      user.id.toString().includes(term);
+    return matchMembership && matchStatus && matchSearch;
+  });
+});
+
+const getDebtClass = (status: string): string => {
+  if (status === 'Pendiente') return 'debt-pending';
+  if (status === 'Inactivo') return 'debt-inactive';
+  return 'debt-default';
+};
+
+const openWhatsApp = (phone: string): void => {
+  window.open(`https://wa.me/${phone.replace(/\D/g, '')}`, '_blank');
+};
+</script>
 
 <style scoped>
 .main-content { padding: 30px 40px; max-width: 1400px; margin: 0 auto; color: var(--color-texto-general, #e5e5e5); }
@@ -387,74 +537,3 @@
 .btn-modal:hover { opacity: 0.9; }
 </style>
 
-<script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
-import HeadingOwner from '../HeadingOwner.vue';
-import ModalComponent from '../../Modals/ModalComponent.vue';
-import CorreoMasivo from '../Componets/Bulk-Email.vue';
-import EnvioCorreo from '../Componets/Mail.vue';
-import NotificationSystem from '../../Modals/NotificationSystem.vue'; 
-
-const activeModal = ref(null);
-const router = useRouter();
-const showDelete = ref(false);
-const selectedUser = ref(null);
-
-const selectedMembership = ref(''); 
-const selectedStatus = ref(''); 
-const searchQuery = ref('');
-
-// Detectar pantalla móvil de manera reactiva para los IDs del tutorial
-const isMobile = ref(window.innerWidth <= 900);
-const updateWidth = () => {
-  isMobile.value = window.innerWidth <= 900;
-};
-
-onMounted(() => {
-  window.addEventListener('resize', updateWidth);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('resize', updateWidth);
-});
-
-const filteredUsers = computed(() => {
-  return users.value.filter(user => {
-    const matchMembership = selectedMembership.value ? user.mensualidad === selectedMembership.value : true;
-    const matchStatus = selectedStatus.value ? user.status === selectedStatus.value : true;
-    
-    const term = searchQuery.value.toLowerCase();
-    const matchSearch = 
-      user.name.toLowerCase().includes(term) || 
-      user.email.toLowerCase().includes(term) ||
-      user.debt.toLowerCase().includes(term) ||
-      user.phone.toLowerCase().includes(term) ||
-      user.mensualidad.toLowerCase().includes(term) ||
-      user.status.toLowerCase().includes(term) ||
-      user.expiredDate.toLowerCase().includes(term) ||
-      user.id.toString().includes(term);
-    
-    return matchMembership && matchStatus && matchSearch;
-  });
-});
-
-const getDebtClass = (status) => {
-  if (status === 'Pendiente') return 'debt-pending';
-  if (status === 'Inactivo') return 'debt-inactive';
-  return 'debt-default';
-};
-
-const users = ref([
-  { id: 1, name: 'Jesus Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expiredDate: '18/03/2026', mensualidad: 'Mensual', debt: '$600.00', status: 'Pendiente', phone: '+52 481 123 4321' },
-  { id: 2, name: 'Armando Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expiredDate: '18/03/2026', mensualidad: 'Mensual', debt: '$700.00', status: 'Inactivo', phone: '+52 481 123 4321' },
-  { id: 3, name: 'Luis Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expiredDate: '18/03/2026', mensualidad: 'Mensual', debt: '$900.00', status: 'Pendiente', phone: '+52 481 123 4321' },
-  { id: 4, name: 'Francisco Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expiredDate: '18/03/2026', mensualidad: 'Quincenal', debt: '$500.00', status: 'Pendiente', phone: '+52 481 123 4321' },
-  { id: 5, name: 'Jorge Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expiredDate: '18/03/2026', mensualidad: 'Quincenal', debt: '$800.00', status: 'Inactivo', phone: '+52 481 123 4321' },
-  { id: 6, name: 'Maria Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expiredDate: '18/03/2026', mensualidad: 'Quincenal', debt: '$500.00', status: 'Pendiente', phone: '+52 481 123 4321' },
-  { id: 7, name: 'Fernando Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expiredDate: '18/03/2026', mensualidad: 'Quincenal', debt: '$800.00', status: 'Inactivo', phone: '+52 481 123 4321' },
-  { id: 8, name: 'Erick Luis Ramires Sanchez', email: 'jesusluis@gmail.com', expiredDate: '18/03/2026', mensualidad: 'Quincenal', debt: '$500.00', status: 'Pendiente', phone: '+52 481 123 4321' },
-]);
-
-const openWhatsApp = (phone) => window.open(`https://wa.me/${phone.replace(/\D/g, '')}`, '_blank');
-</script>
