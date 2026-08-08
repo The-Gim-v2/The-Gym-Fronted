@@ -2,13 +2,15 @@
   <HeadingOwner>
     <main class="main-content">
       <div class="header-section">
-        <div>
+        <div class="header-titles">
           <h1 class="main-title">{{ t('configPageTitle') }} <span class="highlight">{{ t('configPageHighlight') }}</span></h1>
           <p class="subtitle">{{ t('configPageSubtitle') }}</p>
         </div>
-        <button id="btn-guardar-cambios" class="btn-primary" @click="guardarCambios">{{ t('saveChangesBtn') }}</button>
+        <button id="btn-guardar-cambios" class="btn-primary" @click="guardarCambios">
+          <span>{{ t('saveChangesBtn') }}</span>
+        </button>
       </div>
-
+      
       <section class="form-panel" id="panel-temas">
         <div class="panel-header">
           <h2>{{ t('themesTitle') }}</h2>
@@ -569,22 +571,41 @@ const exportar = async (tipo) => {
 .header-section { 
   display: flex; 
   justify-content: space-between; 
-  align-items: flex-end; 
-  margin-bottom: 30px; 
-  gap: 20px;
+  align-items: center; 
+  margin-bottom: 36px; 
+  gap: 24px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 24px 28px;
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
 }
+
+.header-titles {
+  display: flex;
+  flex-direction: column;
+}
+
 
 .main-title { 
   font-family: 'Anton', sans-serif; 
-  font-size: 2.5rem; 
+  font-size: 2.2rem; 
   margin: 0; 
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  color: var(--color-titulos, #ffffff) !important;
+  color: var(--color-titulos, #ffffff);
+  line-height: 1.1;
 }
 
-.highlight { color: var(--color-highlight, #3b82f6); }
-.subtitle { color: var(--color-texto-general, #94a3b8); font-size: 0.95rem; margin-top: 5px; }
+.highlight { 
+  color: var(--color-highlight, #3b82f6); 
+}
+
+.subtitle { 
+  color: var(--color-texto-general, #94a3b8); 
+  font-size: 0.9rem; 
+  margin: 6px 0 0 0; 
+}
 
 .presets-grid {
   display: flex;
@@ -839,18 +860,29 @@ const exportar = async (tipo) => {
   background: var(--color-botones, #1c4fd6); 
   color: var(--color-texto-botones, #ffffff); 
   border: none; 
-  padding: 14px 24px; 
-  border-radius: var(--app-border-radius, 12px); 
+  padding: 12px 24px; 
+  border-radius: 12px; 
   font-family: 'Oswald', sans-serif;
-  font-weight: 700; 
+  font-weight: 600; 
   font-size: 0.95rem;
   letter-spacing: 0.5px;
   cursor: pointer; 
   text-transform: uppercase;
-  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: all 0.2s ease;
   box-shadow: 0 4px 14px rgba(28, 79, 214, 0.35);
   white-space: nowrap;
 }
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+  box-shadow: 0 6px 18px rgba(28, 79, 214, 0.5);
+}
+
+.btn-primary:active { 
+  transform: scale(0.97); 
+}
+
 
 .export-actions { display: flex; gap: 10px; }
 

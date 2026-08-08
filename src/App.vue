@@ -10,7 +10,7 @@ const router = useRouter();
 let inactivityTimer: number | null = null;
 let countdownTimer: number | null = null;
 
-const INACTIVITY_TIME_LIMIT = 14 * 60 * 1000; // 14 minutos de uso normal
+const INACTIVITY_TIME_LIMIT = 9 * 60 * 1000; // 14 minutos de uso normal
 const COUNTDOWN_TIME_LIMIT = 60; // 60 segundos de advertencia visual
 
 const mostrarAvisoInactividad = ref(false);

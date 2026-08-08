@@ -5,7 +5,7 @@
       <div class="profile-card">
         <!-- Sección Perfil / Avatar (Fija o sticky en desktop) -->
         <div class="profile-section" id="tutorial-step-0">
-          <h1 class="main-title">Registra tus <br> <span class="highlight">Clientes</span></h1>
+          <h1 class="main-title">{{ t('title1') }}<br> <span class="highlight">{{ t('title2') }}</span></h1>
           <div class="avatar-wrapper">
             <div class="avatar-circle">
               <img v-if="avatarPreview" :src="avatarPreview" :alt="t('altPreview')" class="avatar-img" />

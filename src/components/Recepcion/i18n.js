@@ -44,6 +44,8 @@ export const traducciones = {
     descargarQr: "Descargar QR",
 
     // Registro de Clientes
+    title1: "Registra tus",
+    title2: "Clientes",
     altPreview: "Vista previa del cliente",
     titleAvatar: "Subir foto de perfil",
     hintAvatar: "Sube una fotografía reciente del cliente para identificarlo rápidamente en el sistema.",
@@ -521,6 +523,8 @@ export const traducciones = {
     descargarQr: "Download QR",
 
     // Client Registration
+    title1: "Register your",
+    title2: "Clients",
     altPreview: "Client preview",
     titleAvatar: "Upload profile picture",
     hintAvatar: "Upload a recent photo of the client to quickly identify them in the system.",
