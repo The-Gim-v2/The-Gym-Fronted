@@ -207,7 +207,7 @@
 
 <script setup>
 import { reactive, onMounted } from 'vue';
-import Headingmember from './Headingmember.vue';
+import Headingmember from './HeadingMember.vue';
 import { useLang } from './useLang.js';
 
 const { setLang } = useLang();
