@@ -5,8 +5,8 @@
       <div class="header-icon-title">
         <svg class="svg-modal" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
         <div>
-          <h3>Salud y Nutrición</h3>
-          <span class="sub-title">Seguimiento clínico y nutricional</span>
+          <h3>{{ t.modalTitle }}</h3>
+          <span class="sub-title">{{ t.modalSubTitle }}</span>
         </div>
       </div>
       <button class="close-btn" @click="$emit('close')">&times;</button>
@@ -18,13 +18,13 @@
         :class="['tab-btn', { active: activeTab === 'nutricion' }]"
         @click="activeTab = 'nutricion'"
       >
-        Plan Nutricional
+        {{ t.tabNutrision }}
       </button>
       <button 
         :class="['tab-btn', { active: activeTab === 'biometria' }]"
         @click="activeTab = 'biometria'"
       >
-        Control Biométrico
+        {{ t.tabBiometria }}
       </button>
     </div>
 
@@ -35,61 +35,61 @@
       <div v-if="activeTab === 'nutricion'" class="tab-content">
         <div class="nutrition-banner">
           <div class="nutri-info">
-            <span class="label">Nutriólogo Asignado:</span>
+            <span class="label">{{ t.nutriLabel }}:</span>
             <strong>Lic. Andrea Montero</strong>
           </div>
-          <div class="nutri-badge">Objetivo: Definición muscular</div>
+          <div class="nutri-badge">{{ t.goalLabel }}: {{ t.goalValue }}</div>
         </div>
 
         <!-- Macros del día -->
         <div class="macros-grid">
           <div class="macro-card">
             <span class="macro-val">2,450</span>
-            <span class="macro-name">Calorías Diarias</span>
+            <span class="macro-name">{{ t.macroCalories }}</span>
           </div>
           <div class="macro-card">
             <span class="macro-val">180g</span>
-            <span class="macro-name">Proteínas</span>
+            <span class="macro-name">{{ t.macroProteins }}</span>
           </div>
           <div class="macro-card">
             <span class="macro-val">220g</span>
-            <span class="macro-name">Carbohidratos</span>
+            <span class="macro-name">{{ t.macroCarbs }}</span>
           </div>
           <div class="macro-card">
             <span class="macro-val">65g</span>
-            <span class="macro-name">Grasas</span>
+            <span class="macro-name">{{ t.macroFats }}</span>
           </div>
         </div>
 
         <!-- Registro de Agua Interactivo -->
         <div class="water-tracker-box">
           <div class="water-header">
-            <span>Hidratación diaria (Meta: 3.0 L)</span>
-            <strong>{{ waterDrank }} / 3.0 Litros</strong>
+            <span>{{ t.waterMeta }}</span>
+            <strong>{{ waterDrank }} / 3.0 {{ t.litersLabel }}</strong>
           </div>
           <div class="water-progress-bar">
             <div class="water-fill" :style="{ width: (waterDrank / 3.0) * 100 + '%' }"></div>
           </div>
           <div class="water-actions">
-            <button class="btn-water" @click="addWater(0.25)">+ 250 ml vaso</button>
-            <button class="btn-water-reset" @click="waterDrank = 0">Reiniciar</button>
+            <button class="btn-water" @click="addWater(0.25)">{{ t.addWaterBtn }}</button>
+            <button class="btn-water-reset" @click="waterDrank = 0">{{ t.resetWaterBtn }}</button>
           </div>
         </div>
 
         <!-- Comidas sugeridas -->
         <div class="meals-list">
-          <h4 class="section-title">Tus comidas de hoy</h4>
+          <h4 class="section-title">{{ t.mealsTitle }}</h4>
           <div class="meal-item">
             <span class="meal-time">08:30 hrs</span>
-            <div class="meal-desc"><strong>Desayuno:</strong> Omelet de 3 claras con espinacas y 1 taza de avena con frutos rojos.</div>
+            <div class="meal-desc"><strong>{{ t.breakfastLabel }}:</strong> {{ t.breakfastDesc }}</div>
           </div>
           <div class="meal-item">
             <span class="meal-time">13:30 hrs</span>
-            <div class="meal-desc"><strong>Comida:</strong> 200g de pechuga de pollo a la plancha, arroz integral y ensalada verde.</div>
+            <div class="meal-desc"><strong>{{ t.lunchLabel }}:</strong> {{ t.lunchDesc }}</div>
           </div>
           <div class="meal-item">
             <span class="meal-time">19:00 hrs</span>
-            <div class="meal-desc"><strong>Cena:</strong> Salmón al vapor con espárragos y puré de camote.</div>
+            <div class="meal-desc"><strong>{{ t.dinnerLabel }}:</strong> {{ t.dinnerDesc }}</div>
           </div>
         </div>
       </div>
@@ -98,35 +98,35 @@
       <div v-if="activeTab === 'biometria'" class="tab-content">
         <div class="bio-summary-card">
           <div class="bio-item">
-            <span class="bio-label">Peso Actual</span>
+            <span class="bio-label">{{ t.bioWeight }}</span>
             <strong class="bio-val">78.4 kg</strong>
-            <span class="bio-trend positive">-1.2 kg este mes</span>
+            <span class="bio-trend positive">{{ t.trendWeight }}</span>
           </div>
           <div class="bio-item">
-            <span class="bio-label">% Grasa Corporal</span>
+            <span class="bio-label">{{ t.bioFat }}</span>
             <strong class="bio-val">14.5%</strong>
             <span class="bio-trend positive">-0.8%</span>
           </div>
           <div class="bio-item">
-            <span class="bio-label">Masa Muscular</span>
+            <span class="bio-label">{{ t.bioMuscle }}</span>
             <strong class="bio-val">38.2 kg</strong>
-            <span class="bio-trend neutral">Estable</span>
+            <span class="bio-trend neutral">{{ t.trendStable }}</span>
           </div>
         </div>
 
         <div class="history-section">
-          <h4 class="section-title">Historial de Evaluaciones</h4>
+          <h4 class="section-title">{{ t.historyTitle }}</h4>
           <div class="history-row">
-            <div class="history-date">01 Ago 2026</div>
-            <div class="history-details">Peso: 78.4 kg &bull; Grasa: 14.5% &bull; IMC: 23.4</div>
+            <div class="history-date">{{ t.dateAug }}</div>
+            <div class="history-details">{{ t.detAug }}</div>
           </div>
           <div class="history-row">
-            <div class="history-date">01 Jul 2026</div>
-            <div class="history-details">Peso: 79.6 kg &bull; Grasa: 15.3% &bull; IMC: 23.8</div>
+            <div class="history-date">{{ t.dateJul }}</div>
+            <div class="history-details">{{ t.detJul }}</div>
           </div>
           <div class="history-row">
-            <div class="history-date">01 Jun 2026</div>
-            <div class="history-details">Peso: 81.0 kg &bull; Grasa: 16.5% &bull; IMC: 24.2</div>
+            <div class="history-date">{{ t.dateJun }}</div>
+            <div class="history-details">{{ t.detJun }}</div>
           </div>
         </div>
       </div>
@@ -136,17 +136,103 @@
     <!-- Footer del Modal -->
     <div class="modal-footer">
       <div class="footer-info">
-        Actualizado por última vez el <strong>01 de Ago, 2026</strong>
+        {{ t.lastUpdated }} <strong>{{ t.dateUpdated }}</strong>
       </div>
-      <button class="btn-primary" @click="$emit('close')">Cerrar</button>
+      <button class="btn-primary" @click="$emit('close')">{{ t.closeBtn }}</button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue';
+import { useLang } from '../useLang.js';
 
 defineEmits(['close']);
+
+const { lang } = useLang();
+
+const traducciones = {
+  es: {
+    modalTitle: "Salud y Nutrición",
+    modalSubTitle: "Seguimiento clínico y nutricional",
+    tabNutrision: "Plan Nutricional",
+    tabBiometria: "Control Biométrico",
+    nutriLabel: "Nutriólogo Asignado",
+    goalLabel: "Objetivo",
+    goalValue: "Definición muscular",
+    macroCalories: "Calorías Diarias",
+    macroProteins: "Proteínas",
+    macroCarbs: "Carbohidratos",
+    macroFats: "Grasas",
+    waterMeta: "Hidratación diaria (Meta: 3.0 L)",
+    litersLabel: "Litros",
+    addWaterBtn: "+ 250 ml vaso",
+    resetWaterBtn: "Reiniciar",
+    mealsTitle: "Tus comidas de hoy",
+    breakfastLabel: "Desayuno",
+    breakfastDesc: "Omelet de 3 claras con espinacas y 1 taza de avena con frutos rojos.",
+    lunchLabel: "Comida",
+    lunchDesc: "200g de pechuga de pollo a la plancha, arroz integral y ensalada verde.",
+    dinnerLabel: "Cena",
+    dinnerDesc: "Salmón al vapor con espárragos y puré de camote.",
+    bioWeight: "Peso Actual",
+    trendWeight: "-1.2 kg este mes",
+    bioFat: "% Grasa Corporal",
+    bioMuscle: "Masa Muscular",
+    trendStable: "Estable",
+    historyTitle: "Historial de Evaluaciones",
+    dateAug: "01 Ago 2026",
+    detAug: "Peso: 78.4 kg • Grasa: 14.5% • IMC: 23.4",
+    dateJul: "01 Jul 2026",
+    detJul: "Peso: 79.6 kg • Grasa: 15.3% • IMC: 23.8",
+    dateJun: "01 Jun 2026",
+    detJun: "Peso: 81.0 kg • Grasa: 16.5% • IMC: 24.2",
+    lastUpdated: "Actualizado por última vez el",
+    dateUpdated: "01 de Ago, 2026",
+    closeBtn: "Cerrar"
+  },
+  en: {
+    modalTitle: "Health & Nutrition",
+    modalSubTitle: "Clinical and nutritional tracking",
+    tabNutrision: "Nutrition Plan",
+    tabBiometria: "Biometric Control",
+    nutriLabel: "Assigned Nutritionist",
+    goalLabel: "Goal",
+    goalValue: "Muscle definition",
+    macroCalories: "Daily Calories",
+    macroProteins: "Proteins",
+    macroCarbs: "Carbohydrates",
+    macroFats: "Fats",
+    waterMeta: "Daily hydration (Goal: 3.0 L)",
+    litersLabel: "Liters",
+    addWaterBtn: "+ 250 ml glass",
+    resetWaterBtn: "Reset",
+    mealsTitle: "Today's meals",
+    breakfastLabel: "Breakfast",
+    breakfastDesc: "3-egg white omelet with spinach and 1 cup of oatmeal with berries.",
+    lunchLabel: "Lunch",
+    lunchDesc: "200g grilled chicken breast, brown rice, and green salad.",
+    dinnerLabel: "Dinner",
+    dinnerDesc: "Steamed salmon with asparagus and sweet potato mash.",
+    bioWeight: "Current Weight",
+    trendWeight: "-1.2 kg this month",
+    bioFat: "Body Fat %",
+    bioMuscle: "Muscle Mass",
+    trendStable: "Stable",
+    historyTitle: "Evaluation History",
+    dateAug: "Aug 01, 2026",
+    detAug: "Weight: 78.4 kg • Fat: 14.5% • BMI: 23.4",
+    dateJul: "Jul 01, 2026",
+    detJul: "Weight: 79.6 kg • Fat: 15.3% • BMI: 23.8",
+    dateJun: "Jun 01, 2026",
+    detJun: "Weight: 81.0 kg • Fat: 16.5% • BMI: 24.2",
+    lastUpdated: "Last updated on",
+    dateUpdated: "Aug 01, 2026",
+    closeBtn: "Close"
+  }
+};
+
+const t = computed(() => traducciones[lang.value] || traducciones.es);
 
 const activeTab = ref('nutricion');
 const waterDrank = ref(1.75); // Litros iniciales

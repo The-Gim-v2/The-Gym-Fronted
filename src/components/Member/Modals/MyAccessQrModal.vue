@@ -3,13 +3,13 @@
     <div class="modal-header">
       <div class="header-icon-title">
         <svg class="svg-modal" viewBox="0 0 24 24"><path d="M4 4h7V11H4V4M13 4h7V11h-7V4M4 13h7v7H4v-7M13 13h3v2h-3v-2M18 13h2v2h-2v-2M13 15h2v2h-2v-2M15 18h2v2h-2v-2M18 18h2v2h-2v-2M13 18h2v2h-2v-2M18 15h2v2h-2v-2z"/></svg>
-        <h3>Mi Código QR de Acceso</h3>
+        <h3>{{ t.qrModalTitle }}</h3>
       </div>
       <button class="close-btn" @click="$emit('close')">&times;</button>
     </div>
 
     <div class="modal-body qr-body-center">
-      <p class="modal-desc">Muestra este código en la recepción del gimnasio para registrar tu ingreso.</p>
+      <p class="modal-desc">{{ t.qrModalDesc }}</p>
       
       <div class="qr-container-box">
         <!-- Código QR realista y detallado -->
@@ -63,13 +63,33 @@
     </div>
 
     <div class="modal-footer">
-      <button class="btn-primary" @click="$emit('close')">Cerrar</button>
+      <button class="btn-primary" @click="$emit('close')">{{ t.closeBtn }}</button>
     </div>
   </div>
 </template>
 
 <script setup>
+import { computed } from 'vue';
+import { useLang } from '../useLang.js'; 
+
 defineEmits(['close']);
+
+const { lang } = useLang();
+
+const traducciones = {
+  es: {
+    qrModalTitle: "Mi Código QR de Acceso",
+    qrModalDesc: "Muestra este código en la recepción del gimnasio para registrar tu ingreso.",
+    closeBtn: "Cerrar"
+  },
+  en: {
+    qrModalTitle: "My Access QR Code",
+    qrModalDesc: "Show this code at the gym front desk to check-in.",
+    closeBtn: "Close"
+  }
+};
+
+const t = computed(() => traducciones[lang.value] || traducciones.es);
 </script>
 
 <style scoped>

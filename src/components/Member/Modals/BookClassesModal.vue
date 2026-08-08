@@ -4,8 +4,8 @@
       <div class="header-icon-title">
         <svg class="svg-modal" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
         <div>
-          <h3>Reservar Clases</h3>
-          <span class="sub-title">Aparta tu lugar en disciplinas y horarios</span>
+          <h3>{{ t.modalTitle }}</h3>
+          <span class="sub-title">{{ t.modalSubTitle }}</span>
         </div>
       </div>
       <button class="close-btn" @click="$emit('close')">&times;</button>
@@ -32,16 +32,16 @@
         >
           <div class="class-main-info">
             <div class="time-badge">
-              <span class="day">{{ item.day }}</span>
+              <span class="day">{{ translateDay(item.dayKey) }}</span>
               <span class="hour">{{ item.time }}</span>
             </div>
             
             <div class="class-details">
               <span class="class-name">{{ item.name }}</span>
               <div class="class-meta">
-                <span class="instructor">Instructor: <strong>{{ item.instructor }}</strong></span>
+                <span class="instructor">{{ t.instructorLabel }}: <strong>{{ item.instructor }}</strong></span>
                 <span class="spots" :class="{ 'warning': item.spotsLeft <= 3 }">
-                  {{ item.isBooked ? '✓ Tu lugar está confirmado' : `${item.spotsLeft} lugares disponibles` }}
+                  {{ item.isBooked ? t.spotsConfirmed : t.spotsAvailable(item.spotsLeft) }}
                 </span>
               </div>
             </div>
@@ -53,14 +53,14 @@
               class="btn-book"
               @click="bookClass(item)"
             >
-              Reservar
+              {{ t.btnBook }}
             </button>
             <button 
               v-else
               class="btn-cancel-book"
               @click="cancelBooking(item)"
             >
-              Cancelar
+              {{ t.btnCancel }}
             </button>
           </div>
         </div>
@@ -69,34 +69,79 @@
 
     <div class="modal-footer">
       <div class="footer-info">
-        Mis reservas activas: <strong>{{ bookedCount }} clase(s)</strong>
+        {{ t.activeBookings }}: <strong>{{ bookedCount }} {{ t.classesLabel }}</strong>
       </div>
-      <button class="btn-primary" @click="$emit('close')">Cerrar</button>
+      <button class="btn-primary" @click="$emit('close')">{{ t.closeBtn }}</button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed } from 'vue';
+import { useLang } from '../useLang.js';
 
 defineEmits(['close']);
 
+const { lang } = useLang();
+
+const traducciones = {
+  es: {
+    modalTitle: "Reservar Clases",
+    modalSubTitle: "Aparta tu lugar en disciplinas y horarios",
+    catAll: "Todas",
+    catCycling: "Ciclismo",
+    catFunctional: "Funcional",
+    catYoga: "Yoga / Relax",
+    instructorLabel: "Instructor",
+    spotsConfirmed: "✓ Tu lugar está confirmado",
+    spotsAvailable: (spots) => `${spots} lugares disponibles`,
+    btnBook: "Reservar",
+    btnCancel: "Cancelar",
+    activeBookings: "Mis reservas activas",
+    classesLabel: "clase(s)",
+    closeBtn: "Cerrar",
+    dayToday: "Hoy",
+    dayTomorrow: "Mañana",
+    dayWednesday: "Miércoles"
+  },
+  en: {
+    modalTitle: "Book Classes",
+    modalSubTitle: "Reserve your spot in disciplines and schedules",
+    catAll: "All",
+    catCycling: "Cycling",
+    catFunctional: "Functional",
+    catYoga: "Yoga / Relax",
+    instructorLabel: "Instructor",
+    spotsConfirmed: "✓ Your spot is confirmed",
+    spotsAvailable: (spots) => `${spots} spots available`,
+    btnBook: "Book",
+    btnCancel: "Cancel",
+    activeBookings: "My active bookings",
+    classesLabel: "class(es)",
+    closeBtn: "Close",
+    dayToday: "Today",
+    dayTomorrow: "Tomorrow",
+    dayWednesday: "Wednesday"
+  }
+};
+
+const t = computed(() => traducciones[lang.value] || traducciones.es);
+
 const selectedCategory = ref('todas');
 
-const categories = [
-  { id: 'todas', name: 'Todas' },
-  { id: 'ciclismo', name: 'Ciclismo' },
-  { id: 'funcional', name: 'Funcional' },
-  { id: 'yoga', name: 'Yoga / Relax' }
-];
+const categories = computed(() => [
+  { id: 'todas', name: t.value.catAll },
+  { id: 'ciclismo', name: t.value.catCycling },
+  { id: 'funcional', name: t.value.catFunctional },
+  { id: 'yoga', name: t.value.catYoga }
+]);
 
-// Lista de clases reactiva
 const classesList = ref([
   { 
     id: 1, 
     name: 'Spinning Avanzado', 
     category: 'ciclismo', 
-    day: 'Hoy', 
+    dayKey: 'Hoy', 
     time: '18:00 hrs', 
     instructor: 'Marco', 
     spotsLeft: 2, 
@@ -106,7 +151,7 @@ const classesList = ref([
     id: 2, 
     name: 'Functional Training', 
     category: 'funcional', 
-    day: 'Mañana', 
+    dayKey: 'Mañana', 
     time: '08:00 hrs', 
     instructor: 'Sofia', 
     spotsLeft: 5, 
@@ -116,7 +161,7 @@ const classesList = ref([
     id: 3, 
     name: 'Power Yoga & Stretching', 
     category: 'yoga', 
-    day: 'Mañana', 
+    dayKey: 'Mañana', 
     time: '19:30 hrs', 
     instructor: 'Elena', 
     spotsLeft: 1, 
@@ -126,13 +171,20 @@ const classesList = ref([
     id: 4, 
     name: 'HIIT Extreme Circuit', 
     category: 'funcional', 
-    day: 'Miércoles', 
+    dayKey: 'Miércoles', 
     time: '07:00 hrs', 
     instructor: 'Carlos', 
     spotsLeft: 8, 
     isBooked: false 
   }
 ]);
+
+const translateDay = (dayKey) => {
+  if (dayKey === 'Hoy') return t.value.dayToday;
+  if (dayKey === 'Mañana') return t.value.dayTomorrow;
+  if (dayKey === 'Miércoles') return t.value.dayWednesday;
+  return dayKey;
+};
 
 const filteredClasses = computed(() => {
   if (selectedCategory.value === 'todas') return classesList.value;

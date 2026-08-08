@@ -4,8 +4,8 @@
       <div class="header-icon-title">
         <svg class="svg-modal" viewBox="0 0 24 24"><path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14 4.14 5.57 2 7.71 3.43 9.14 2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22 14.86 20.57 16.29 22 18.43 19.86 19.86 21.29 21.29 19.86 19.86 18.43 22 16.29z"/></svg>
         <div>
-          <h3>Mis Rutinas Asignadas</h3>
-          <span class="sub-title">Hipertrofia y Fuerza - Fase 2</span>
+          <h3>{{ t.modalTitle }}</h3>
+          <span class="sub-title">{{ t.modalSubTitle }}</span>
         </div>
       </div>
       <button class="close-btn" @click="$emit('close')">&times;</button>
@@ -25,11 +25,11 @@
     <div class="modal-body custom-scroll">
       <div class="routine-meta-banner">
         <div class="meta-info">
-          <span class="label">Entrenador Asignado:</span>
+          <span class="label">{{ t.trainerLabel }}:</span>
           <strong>Prof. Carlos Gómez</strong>
         </div>
         <div class="meta-badge">
-          {{ currentExercises.length }} Ejercicios hoy
+          {{ currentExercises.length }} {{ t.exercisesToday }}
         </div>
       </div>
 
@@ -46,18 +46,18 @@
               <span class="ex-title">{{ exercise.name }}</span>
               <div class="ex-tags">
                 <span class="tag-muscle">{{ exercise.muscle }}</span>
-                <span class="tag-specs">{{ exercise.sets }} Series &bull; {{ exercise.reps }} Reps</span>
+                <span class="tag-specs">{{ exercise.sets }} {{ t.setsLabel }} &bull; {{ exercise.reps }} {{ t.repsLabel }}</span>
               </div>
             </div>
           </div>
 
           <div class="exercise-actions">
-            <span class="weight-tag" v-if="exercise.weight">Sugerido: {{ exercise.weight }}</span>
+            <span class="weight-tag" v-if="exercise.weight">{{ t.suggestedWeight }}: {{ exercise.weight }}</span>
             <button 
               class="btn-check" 
               :class="{ 'checked': exercise.done }"
               @click="exercise.done = !exercise.done"
-              title="Marcar como realizado"
+              :title="t.markDoneTitle"
             >
               <svg viewBox="0 0 24 24" class="svg-check"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
             </button>
@@ -68,27 +68,64 @@
 
     <div class="modal-footer">
       <div class="progress-indicator">
-        Progreso del día: <strong>{{ completedCount }} / {{ currentExercises.length }}</strong>
+        {{ t.dayProgress }}: <strong>{{ completedCount }} / {{ currentExercises.length }}</strong>
       </div>
-      <button class="btn-primary" @click="$emit('close')">Guardar y Cerrar</button>
+      <button class="btn-primary" @click="$emit('close')">{{ t.saveAndClose }}</button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed } from 'vue';
+import { useLang } from '../useLang.js';
 
 defineEmits(['close']);
 
+const { lang } = useLang();
+
+const traducciones = {
+  es: {
+    modalTitle: "Mis Rutinas Asignadas",
+    modalSubTitle: "Hipertrofia y Fuerza - Fase 2",
+    dayMon: "Lunes: Pecho y Tríceps",
+    dayWed: "Miércoles: Espalda y Bíceps",
+    dayFri: "Viernes: Pierna Completa",
+    trainerLabel: "Entrenador Asignado",
+    exercisesToday: "Ejercicios hoy",
+    setsLabel: "Series",
+    repsLabel: "Reps",
+    suggestedWeight: "Sugerido",
+    markDoneTitle: "Marcar como realizado",
+    dayProgress: "Progreso del día",
+    saveAndClose: "Guardar y Cerrar"
+  },
+  en: {
+    modalTitle: "My Assigned Routines",
+    modalSubTitle: "Hypertrophy & Strength - Phase 2",
+    dayMon: "Monday: Chest & Triceps",
+    dayWed: "Wednesday: Back & Biceps",
+    dayFri: "Friday: Full Legs",
+    trainerLabel: "Assigned Trainer",
+    exercisesToday: "Exercises today",
+    setsLabel: "Sets",
+    repsLabel: "Reps",
+    suggestedWeight: "Suggested",
+    markDoneTitle: "Mark as completed",
+    dayProgress: "Day progress",
+    saveAndClose: "Save & Close"
+  }
+};
+
+const t = computed(() => traducciones[lang.value] || traducciones.es);
+
 const selectedDay = ref('lunes');
 
-const routineDays = [
-  { id: 'lunes', name: 'Lunes: Pecho y Tríceps' },
-  { id: 'miercoles', name: 'Miércoles: Espalda y Bíceps' },
-  { id: 'viernes', name: 'Viernes: Pierna Completa' }
-];
+const routineDays = computed(() => [
+  { id: 'lunes', name: t.value.dayMon },
+  { id: 'miercoles', name: t.value.dayWed },
+  { id: 'viernes', name: t.value.dayFri }
+]);
 
-// Base de datos de ejercicios por día (reactiva para marcar completados)
 const routinesData = ref({
   lunes: [
     { name: 'Press de Banca Plano con Barra', muscle: 'Pectorales', sets: 4, reps: '10-12', weight: '70 kg', done: false },

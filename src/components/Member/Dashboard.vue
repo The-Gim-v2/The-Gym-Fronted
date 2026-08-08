@@ -7,14 +7,14 @@
         <!-- HERO / BIENVENIDA -->
         <section class="hero-metrics-grid">
           
-          <div class="glass-card gym-identity-box" id="tutorial-step-0">
+          <div class="glass-card gym-identity-box" id="turtor1">
             <div class="gym-header-top">
-              <span class="gym-badge-tag">Sucursal Principal #01</span>
+              <span class="gym-badge-tag">{{ t.branchTitle }}</span>
               
               <div class="header-status-controls">
                 <div class="gym-status-toggle" :class="isGymOpen ? 'status-open' : 'status-closed'">
                   <span class="toggle-dot" :class="isGymOpen ? 'dot-open' : 'dot-closed'"></span>
-                  {{ isGymOpen ? 'Gimnasio Abierto' : 'Gimnasio Cerrado' }}
+                  {{ isGymOpen ? t.gymOpen : t.gymClosed }}
                 </div>
 
                 <div class="billing-status-badge" :class="billingStatus">
@@ -26,25 +26,25 @@
 
             <div class="gym-titles-container">
               <h1 class="main-heading">
-                ¡HOLA, <span class="highlight-color">ATLETA</span>!
+                {{ t.hello }} <span class="highlight-color">{{ t.athlete }}</span>!
               </h1>
-              <p class="hero-desc">Tu panel de miembro - Mantén el enfoque en tus metas</p>
+              <p class="hero-desc">{{ t.heroDesc }}</p>
             </div>
           </div>
 
           <!-- MÉTRICAS PERSONALES DEL MIEMBRO -->
-          <div class="metrics-card-group" id="tutorial-step-1">
+          <div class="metrics-card-group" id="turtor2">
             <div class="metric-mini-card">
               <span class="metric-number">12</span>
-              <span class="metric-label">Días Restantes</span>
+              <span class="metric-label">{{ t.daysRemaining }}</span>
             </div>
             <div class="metric-mini-card">
               <span class="metric-number text-highlight">18</span>
-              <span class="metric-label">Asistencias (Mes)</span>
+              <span class="metric-label">{{ t.attendanceMonth }}</span>
             </div>
             <div class="metric-mini-card">
               <span class="metric-number">2</span>
-              <span class="metric-label">Clases Reservadas</span>
+              <span class="metric-label">{{ t.classesReserved }}</span>
             </div>
           </div>
 
@@ -53,54 +53,54 @@
         <!-- MÓDULOS DE ACCESO RÁPIDO PARA MIEMBROS -->
         <div class="modules-grid-container">
           
-          <div class="module-column" id="tutorial-step-2">
-            <h3 class="column-category-title">Acceso y Credencial</h3>
+          <div class="module-column" id="turtor3">
+            <h3 class="column-category-title">{{ t.accessCategory }}</h3>
             <div class="cards-stack">
               
-              <button class="action-card-modern" @click="activeModal = 'my-qr'">
-                <div class="card-icon-box highlight-tint">
+              <button class="action-card-modern" id="turtor4" @click="activeModal = 'my-qr'">
+                <div class="card-icon-box qr-tint">
                   <svg class="svg-btn" viewBox="0 0 24 24"><path d="M4 4h7V11H4V4M13 4h7V11h-7V4M4 13h7v7H4v-7M13 13h3v2h-3v-2M18 13h2v2h-2v-2M13 15h2v2h-2v-2M15 18h2v2h-2v-2M18 18h2v2h-2v-2M13 18h2v2h-2v-2M18 15h2v2h-2v-2z"/></svg>
                 </div>
                 <div class="card-text-content">
-                  <span class="card-title">Mi Código QR de Acceso</span>
-                  <span class="card-desc">Muestra tu pase digital en recepción</span>
+                  <span class="card-title">{{ t.qrTitle }}</span>
+                  <span class="card-desc">{{ t.qrDesc }}</span>
                 </div>
               </button>
 
-              <button class="action-card-modern" @click="activeModal = 'my-routine'">
-                <div class="card-icon-box">
+              <button class="action-card-modern" id="turtor5" @click="activeModal = 'my-routine'">
+                <div class="card-icon-box routine-tint">
                   <svg class="svg-btn" viewBox="0 0 24 24"><path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14 4.14 5.57 2 7.71 3.43 9.14 2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22 14.86 20.57 16.29 22 18.43 19.86 19.86 21.29 21.29 19.86 19.86 18.43 22 16.29z"/></svg>
                 </div>
                 <div class="card-text-content">
-                  <span class="card-title">Mis Rutinas Asignadas</span>
-                  <span class="card-desc">Consulta tus ejercicios y progresos</span>
+                  <span class="card-title">{{ t.routineTitle }}</span>
+                  <span class="card-desc">{{ t.routineDesc }}</span>
                 </div>
               </button>
 
             </div>
           </div>
 
-          <div class="module-column" id="tutorial-step-3">
-            <h3 class="column-category-title">Clases y Nutrición</h3>
+          <div class="module-column" id="turtor6">
+            <h3 class="column-category-title">{{ t.classesCategory }}</h3>
             <div class="cards-stack">
               
-              <button class="action-card-modern" @click="activeModal = 'book-classes'">
-                <div class="card-icon-box">
+              <button class="action-card-modern" id="turtor7" @click="activeModal = 'book-classes'">
+                <div class="card-icon-box classes-tint">
                   <svg class="svg-btn" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
                 </div>
                 <div class="card-text-content">
-                  <span class="card-title">Reservar Clases</span>
-                  <span class="card-desc">Aparta tu lugar en disciplinas y horarios</span>
+                  <span class="card-title">{{ t.classesTitle }}</span>
+                  <span class="card-desc">{{ t.classesDesc }}</span>
                 </div>
               </button>
 
-              <button class="action-card-modern" @click="activeModal = 'nutrition-plan'">
-                <div class="card-icon-box">
+              <button class="action-card-modern" id="turtor8" @click="activeModal = 'nutrition-plan'">
+                <div class="card-icon-box nutrition-tint">
                   <svg class="svg-btn" viewBox="0 0 24 24"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg>
                 </div>
                 <div class="card-text-content">
-                  <span class="card-title">Salud y Nutrición</span>
-                  <span class="card-desc">Revisa tu plan alimenticio y metas</span>
+                  <span class="card-title">{{ t.nutritionTitle }}</span>
+                  <span class="card-desc">{{ t.nutritionDesc }}</span>
                 </div>
               </button>
 
@@ -114,19 +114,10 @@
       <!-- CONTENEDOR DE MODALES EXTERNOS -->
       <transition name="pop">
         <div v-if="activeModal" class="modal-wrapper" @click.self="closeModal">
-          
-          <!-- 1. Modal de Código QR de Acceso -->
           <MyAccessQrModal v-if="activeModal === 'my-qr'" @close="closeModal" />
-
-          <!-- 2. Modal de Rutinas Asignadas -->
           <MyRoutineModal v-if="activeModal === 'my-routine'" @close="closeModal" />
-
-          <!-- 3. Modal de Reservar Clases -->
           <BookClassesModal v-if="activeModal === 'book-classes'" @close="closeModal" />
-
-          <!-- 4. Modal de Salud y Nutrición -->
           <NutritionPlanModal v-if="activeModal === 'nutrition-plan'" @close="closeModal" />
-
         </div>
       </transition>
 
@@ -136,14 +127,17 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import { useLang } from './useLang.js'; 
+import { traducciones } from './i18n.js'; 
 import HeadingAdmin from './HeadingMember.vue';
 
-// Importa aquí tus 4 componentes de modales independientes
-// (Asegúrate de ajustar las rutas si tu carpeta de modales está en otra ubicación)
 import MyAccessQrModal from './Modals/MyAccessQrModal.vue';
 import MyRoutineModal from './Modals/MyRoutineModal.vue';
 import BookClassesModal from './Modals/BookClassesModal.vue';
 import NutritionPlanModal from './Modals/NutritionPlanModal.vue';
+
+const { lang } = useLang();
+const t = computed(() => traducciones[lang.value] || traducciones.es);
 
 const activeModal = ref(null);
 const isGymOpen = ref(true);
@@ -154,9 +148,9 @@ const closeModal = () => {
 };
 
 const billingStatusText = computed(() => {
-  if (billingStatus.value === 'active') return 'Cuenta al Corriente';
-  if (billingStatus.value === 'pending') return 'Pendiente de Pago';
-  return 'Bloqueado por Pago';
+  if (billingStatus.value === 'active') return t.value.accountActive;
+  if (billingStatus.value === 'pending') return t.value.accountPending;
+  return t.value.accountBlocked;
 });
 
 onMounted(() => {
@@ -334,13 +328,29 @@ onMounted(() => {
   background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--app-border-radius, 12px);
   display: flex; align-items: center; justify-content: center;
-  color: var(--color-svg, #f5f5f4); flex-shrink: 0;
+  flex-shrink: 0;
 }
 
-.card-icon-box.highlight-tint {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: var(--color-highlight, #3b82f6);
-  color: var(--color-highlight, #3b82f6);
+/* TINTES DE COLOR PERSONALIZADOS PARA CADA ICONO */
+.card-icon-box.qr-tint {
+  background: rgba(59, 130, 246, 0.12);
+  border-color: rgba(59, 130, 246, 0.35);
+  color: #3b82f6;
+}
+.card-icon-box.routine-tint {
+  background: rgba(168, 85, 247, 0.12);
+  border-color: rgba(168, 85, 247, 0.35);
+  color: #a855f7;
+}
+.card-icon-box.classes-tint {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.35);
+  color: #10b981;
+}
+.card-icon-box.nutrition-tint {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.35);
+  color: #f59e0b;
 }
 
 .svg-btn { width: 24px; height: 24px; fill: currentColor; }
