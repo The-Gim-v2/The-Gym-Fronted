@@ -136,7 +136,7 @@ const selectedUser = ref<User | null>(null);
 const selectedDay = ref<string>('');
 const searchQuery = ref<string>('');
 
-const currentLang = ref<string>(localStorage.getItem('app-idioma') || 'es');
+const currentLang = ref<string>(localStorage.getItem('owner-idioma') || 'es');
 
 const handleLangChange = (e: Event) => {
   const customEvent = e as CustomEvent<{ idioma?: string }>;

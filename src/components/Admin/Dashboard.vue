@@ -112,11 +112,13 @@ const deleteGym = (id: number) => {
 
 // Funciones para el flujo del modal de cierre de sesión animado
 const confirmLogout = () => {
+  localStorage.removeItem('user_role');
   localStorage.removeItem('token'); 
   localStorage.removeItem('user');
   showLogoutModal.value = false;
-  router.push('/login'); 
+   router.replace({ name: 'login' }); 
 };
+
 </script>
 
 <template>

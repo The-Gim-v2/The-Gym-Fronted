@@ -132,7 +132,7 @@ const searchQuery = ref<string>('');
 const toastRef = ref<any>(null);
 
 // Sistema de Idiomas
-const currentLang = ref<string>(localStorage.getItem('app-idioma') || 'es');
+const currentLang = ref<string>(localStorage.getItem('owner-idioma') || 'es');
 const handleLangChange = (e: Event): void => {
   const customEvent = e as CustomEvent<{ idioma?: string }>;
   if (customEvent.detail?.idioma) currentLang.value = customEvent.detail.idioma;

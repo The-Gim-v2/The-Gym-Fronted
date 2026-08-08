@@ -180,7 +180,7 @@ const searchQuery = ref('');
 const selectedMembership = ref(''); 
 const selectedStatus = ref('');
 
-const currentLang = ref(localStorage.getItem('app-idioma') || 'es');
+const currentLang = ref(localStorage.getItem('recepcion-idioma') || 'es');
 
 const t = (key) => {
   const langTable = traducciones[currentLang.value] || traducciones.es;

@@ -309,7 +309,7 @@ const cambiarIdiomaApp = (nuevoIdioma) => {
 };
 
 // Estado reactivo para el idioma actual en todo el layout
-const idiomaActual = ref(localStorage.getItem('app-idioma') || 'es');
+const idiomaActual = ref(localStorage.getItem('owner-idioma') || 'es');
 
 // Propiedad computada para las traducciones
 const t = computed(() => traducciones[idiomaActual.value] || traducciones.es);

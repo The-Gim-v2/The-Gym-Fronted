@@ -8,7 +8,7 @@ import MembershipModal from '../../Modals/MembershipModal.vue';
 import { traducciones } from '../i18n.js';
 
 // Sistema de idioma reactivo igual que en tu ejemplo
-const currentLang = ref(localStorage.getItem('app-idioma') || 'es');
+const currentLang = ref(localStorage.getItem('owner-idioma') || 'es');
 const router = useRouter();
 
 const t = (key: string) => {

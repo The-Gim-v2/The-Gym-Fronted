@@ -6,7 +6,7 @@ import { traducciones } from '../i18n.js';
 
 const searchQuery = ref('');
 
-const currentLang = ref(localStorage.getItem('app-idioma') || 'es');
+const currentLang = ref(localStorage.getItem('recepcion-idioma') || 'es');
 
 const t = (key) => {
   const langTable = traducciones[currentLang.value] || traducciones.es;

@@ -4,7 +4,7 @@ import HeadingOwner from '../HeadingOwner.vue';
 import NotificationSystem from '../../Modals/NotificationSystem.vue';
 import { traducciones } from '../i18n.js';
 
-const currentLang = ref(localStorage.getItem('app-idioma') || 'es');
+const currentLang = ref(localStorage.getItem('owner-idioma') || 'es');
 
 const t = (key) => {
   const langTable = traducciones[currentLang.value] || traducciones.es;

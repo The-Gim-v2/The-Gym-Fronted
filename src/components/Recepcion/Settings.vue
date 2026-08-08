@@ -120,7 +120,7 @@ const t = (key) => {
 const settings = reactive({
   notificaciones: false,
   tutorial: localStorage.getItem('tutorialActivo') === 'true', 
-  idioma: localStorage.getItem('app-idioma') || 'es',
+  idioma: localStorage.getItem('recepcion-idioma') || 'es',
   densidad: localStorage.getItem('app-densidad') || 'normal',
   borderRadius: localStorage.getItem('app-radius') || '16px',
 });
@@ -144,7 +144,7 @@ const guardarCambios = async () => {
     const userRole = localStorage.getItem('userRole') || 'Recepcion';
 
     localStorage.setItem('tutorialActivo', settings.tutorial);
-    localStorage.setItem('app-idioma', settings.idioma);
+    localStorage.setItem('recepcion-idioma', settings.idioma);
     
     window.dispatchEvent(new Event('tutorial-updated'));
     window.dispatchEvent(new CustomEvent('app-settings-updated', { detail: settings }));
@@ -197,7 +197,7 @@ onMounted(async () => {
         const data = await res.json();
         if (data && data.idioma) {
           settings.idioma = data.idioma;
-          localStorage.setItem('app-idioma', data.idioma);
+          localStorage.setItem('recepcion-idioma', data.idioma);
         }
       }
     } catch (e) {}

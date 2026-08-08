@@ -122,7 +122,7 @@ const props = defineProps<{ isOpen: boolean, notifications: any[] }>();
 const emit = defineEmits(['close', 'mark-read']);
 const currentView = ref('list');
 
-const currentLang = ref(localStorage.getItem('app-idioma') || 'es');
+const currentLang = ref(localStorage.getItem('owner-idioma') || 'es');
 
 const handleLangChange = (e: Event) => {
   const customEvent = e as CustomEvent<{ idioma?: string }>;

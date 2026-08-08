@@ -26,29 +26,79 @@
 
         <div class="forms-wrapper">
           
+          <!-- CREDENCIALES Y ROL -->
           <div class="login-card" id="tutorial-step-1">
             <h3 class="section-title">{{ t('credentialsAndRole') }}</h3>
             <div class="form-grid">
+              
+              <!-- Rol -->
               <div class="input-group">
                 <label>{{ t('systemRole') }}</label>
                 <select v-model="form.rol" class="custom-select">
                   <option value="" disabled>{{ t('selectRole') }}</option>
-                  <option value="Owner">{{ t('roleOwner') }}</option>
+                  <option value="gerente">Gerente</option>
                   <option value="entrenador">{{ t('roleTrainer') }}</option>
                   <option value="recepcion">{{ t('roleReception') }}</option>
                 </select>
               </div>
+
+              <!-- Correo -->
               <div class="input-group">
                 <label>{{ t('email') }}</label>
                 <input type="email" v-model="form.email" placeholder="correo@ejemplo.com">
               </div>
-              <div class="input-group span-full" v-if="form.rol === 'entrenador'">
+
+              <!-- Contraseñas (Gerente / Recepción) -->
+              <template v-if="form.rol === 'gerente' || form.rol === 'recepcion'">
+                <div class="input-group">
+                  <label>{{ t('password') }}</label>
+                  <input type="password" v-model="form.password" placeholder="••••••••">
+                </div>
+                <div class="input-group">
+                  <label>{{ t('confirmPassword') }}</label>
+                  <input type="password" v-model="form.confirmPassword" placeholder="••••••••">
+                </div>
+              </template>
+
+              <!-- Especialidad (Solo Entrenador - Columna Izquierda) -->
+              <div class="input-group" v-if="form.rol === 'entrenador'">
                 <label>{{ t('specialty') }}</label>
                 <input type="text" v-model="form.especialidad" :placeholder="t('placeholderSpecialty')">
               </div>
+
+              <!-- SEDES / UBICACIONES (Select Múltiple en la parte derecha) -->
+              <div class="input-group" :class="{ 'sedes-right-col': form.rol !== 'entrenador' }">
+                <label>{{ t('allowedLocations') }}</label>
+                <div class="custom-multiselect" ref="dropdownRef">
+                  <div class="select-box-trigger" @click="isDropdownOpen = !isDropdownOpen">
+                    <span :class="{ 'placeholder-text': form.sedes.length === 0 }">
+                      {{ getSedesDisplayText() }}
+                    </span>
+                    <svg class="dropdown-arrow" :class="{ 'rotate': isDropdownOpen }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                  </div>
+
+                  <!-- Lista desplegable hacia arriba -->
+                  <div class="dropdown-options-list" v-if="isDropdownOpen">
+                    <div 
+                      v-for="sede in listaSedes" 
+                      :key="sede.id" 
+                      class="dropdown-option-item"
+                      :class="{ 'selected': form.sedes.includes(sede.id) }"
+                      @click="toggleSede(sede.id)"
+                    >
+                      <div class="option-checkbox">
+                        <svg v-if="form.sedes.includes(sede.id)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                      </div>
+                      <span>{{ sede.nombre }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
 
+          <!-- DATOS DEL EMPLEADO -->
           <div class="login-card" id="tutorial-step-2">
             <h3 class="section-title">{{ t('employeeData') }}</h3>
             <div class="form-grid">
@@ -77,7 +127,7 @@
                 <input type="text" v-model="form.celular" placeholder="+52 000 000 0000">
               </div>
 
-              <template v-if="form.rol !== 'recepcion' && form.rol !== 'Owner'">
+              <template v-if="form.rol !== 'recepcion' && form.rol !== 'gerente'">
                 <div class="input-group">
                   <label>{{ t('facebook') }}</label>
                   <input type="text" v-model="form.facebook" placeholder="usuario_fb">
@@ -98,6 +148,7 @@
             </div>
           </div>
 
+          <!-- HORARIO DE TRABAJO -->
           <div class="login-card" id="tutorial-step-3">
             <h3 class="section-title">{{ t('workSchedule') }}</h3>
             <div class="form-grid">
@@ -130,8 +181,17 @@ const router = useRouter();
 const toastRef = ref(null);
 const fileInput = ref(null);
 const avatarPreview = ref(null);
+const isDropdownOpen = ref(false);
+const dropdownRef = ref(null);
 
-const currentLang = ref(localStorage.getItem('app-idioma') || 'es');
+const currentLang = ref(localStorage.getItem('owner-idioma') || 'es');
+
+const listaSedes = ref([
+  { id: 'sede_norte', nombre: 'Sucursal Norte (Centro)' },
+  { id: 'sede_sur', nombre: 'Sucursal Sur (Plaza)' },
+  { id: 'sede_oriente', nombre: 'Sucursal Oriente' },
+  { id: 'sede_poniente', nombre: 'Sucursal Poniente' }
+]);
 
 const t = (key) => {
   const langTable = traducciones[currentLang.value] || traducciones.es;
@@ -144,12 +204,20 @@ const handleLangChange = (e) => {
   }
 };
 
+const handleClickOutside = (event) => {
+  if (dropdownRef.value && !dropdownRef.value.contains(event.target)) {
+    isDropdownOpen.value = false;
+  }
+};
+
 onMounted(() => {
   window.addEventListener('idioma-changed', handleLangChange);
+  document.addEventListener('click', handleClickOutside);
 });
 
 onUnmounted(() => {
   window.removeEventListener('idioma-changed', handleLangChange);
+  document.removeEventListener('click', handleClickOutside);
 });
 
 const form = reactive({
@@ -165,10 +233,32 @@ const form = reactive({
   otrasApps: '',
   rol: '',
   email: '',
+  password: '',
+  confirmPassword: '',
   especialidad: '',
   horaEntrada: '',
-  horaSalida: ''
+  horaSalida: '',
+  sedes: [] 
 });
+
+const toggleSede = (id) => {
+  const index = form.sedes.indexOf(id);
+  if (index > -1) {
+    form.sedes.splice(index, 1);
+  } else {
+    form.sedes.push(id);
+  }
+};
+
+const getSedesDisplayText = () => {
+  if (form.sedes.length === 0) {
+    return 'Seleccionar sedes...';
+  }
+  const nombresSeleccionados = listaSedes.value
+    .filter(s => form.sedes.includes(s.id))
+    .map(s => s.nombre);
+  return nombresSeleccionados.join(', ');
+};
 
 const handleFileChange = (e) => {
   const file = e.target.files[0];
@@ -181,6 +271,13 @@ const saveRegistration = () => {
   if (!form.nombres || !form.apellidoP) {
     toastRef.value?.notify(t('msgWarningStaff'), 'warning');
     return;
+  }
+
+  if ((form.rol === 'gerente' || form.rol === 'recepcion') && form.password) {
+    if (form.password !== form.confirmPassword) {
+      toastRef.value?.notify('Las contraseñas no coinciden', 'error');
+      return;
+    }
   }
   
   try {
@@ -204,10 +301,6 @@ const saveRegistration = () => {
   color: var(--color-texto-general, #e5e5e5);
 }
 
-.highlight { 
-  color: var(--color-highlight, #3b82f6); 
-}
-
 .profile-card { 
   display: grid; 
   grid-template-columns: 340px minmax(0, 1fr); 
@@ -216,6 +309,149 @@ const saveRegistration = () => {
   max-width: 1200px;
   margin: 0 auto;   
   align-items: start; 
+}
+
+.forms-wrapper { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 20px; 
+  width: 100%; 
+}
+
+.login-card { 
+  background: var(--bg-cards, rgba(18, 18, 18, 0.75)); 
+  backdrop-filter: blur(12px);
+  padding: 30px; 
+  border-radius: var(--app-border-radius, 24px); 
+  border: 1px solid rgba(255, 255, 255, 0.12); 
+  box-sizing: border-box;
+  position: relative;
+}
+
+.sedes-right-col {
+  grid-column: 2;
+}
+
+/* Estilos personalizados del Multiselect */
+.custom-multiselect {
+  position: relative;
+  width: 100%;
+}
+
+.select-box-trigger {
+  background: var(--bg-cards, #141414); 
+  border: 1.5px solid rgba(255, 255, 255, 0.12); 
+  border-radius: var(--app-border-radius, 12px); 
+  color: var(--color-texto-general, #fff); 
+  padding: 12px 14px; 
+  width: 100%; 
+  box-sizing: border-box; 
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  outline: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  user-select: none;
+  min-height: 48px;
+}
+
+.select-box-trigger:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.select-box-trigger:focus-within, 
+.custom-multiselect:focus-within .select-box-trigger {
+  border-color: var(--color-highlight, #3b82f6);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.placeholder-text {
+  color: #71717a;
+}
+
+.dropdown-arrow {
+  width: 16px;
+  height: 16px;
+  stroke: #a1a1aa;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+  margin-left: 10px;
+}
+
+.dropdown-arrow.rotate {
+  transform: rotate(180deg);
+}
+
+/* Lista flotante posicionada HACIA ARRIBA para que nunca salga de la tarjeta ni se oculte */
+.dropdown-options-list {
+  position: absolute;
+  bottom: calc(100% + 6px); /* Se despliega hacia arriba */
+  top: auto;
+  left: 0;
+  width: 100%;
+  background: #18181b;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--app-border-radius, 12px);
+  box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.6);
+  z-index: 100; 
+  max-height: 240px;
+  overflow-y: auto;
+  padding: 6px;
+  box-sizing: border-box;
+}
+
+.dropdown-option-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  color: #e4e4e7;
+  transition: background 0.15s, color 0.15s;
+}
+
+.dropdown-option-item:hover {
+  background: rgba(59, 130, 246, 0.12);
+  color: #fff;
+}
+
+.dropdown-option-item.selected {
+  background: rgba(59, 130, 246, 0.2);
+  color: #fff;
+  font-weight: 500;
+}
+
+.option-checkbox {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.dropdown-option-item.selected .option-checkbox {
+  background: var(--color-highlight, #3b82f6);
+  border-color: var(--color-highlight, #3b82f6);
+  color: white;
+}
+
+.option-checkbox svg {
+  width: 10px;
+  height: 10px;
+}
+
+.highlight { 
+  color: var(--color-highlight, #3b82f6); 
 }
 
 .profile-section { 
@@ -249,22 +485,6 @@ const saveRegistration = () => {
   line-height: 1.4;
   margin-top: 10px;
   opacity: 0.8;
-}
-
-.forms-wrapper { 
-  display: flex; 
-  flex-direction: column; 
-  gap: 20px; 
-  width: 100%; 
-}
-
-.login-card { 
-  background: var(--bg-cards, rgba(18, 18, 18, 0.75)); 
-  backdrop-filter: blur(12px);
-  padding: 30px; 
-  border-radius: var(--app-border-radius, 24px); 
-  border: 1px solid rgba(255, 255, 255, 0.12); 
-  box-sizing: border-box;
 }
 
 .form-grid { 
@@ -432,7 +652,7 @@ input:focus, .custom-select:focus {
     gap: 14px;
   } 
 
-  .form-grid .span-full {
+  .form-grid .span-full, .sedes-right-col {
     grid-column: span 1;
   }
 

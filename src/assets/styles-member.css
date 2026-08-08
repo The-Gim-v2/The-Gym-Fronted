@@ -1,0 +1,21 @@
+/* Archivo CSS Global (ej. main.css o App.vue raíz) */
+:root {
+  --color-heading-bg: #0b0b0e;
+  --color-tablas: #111111;
+  --color-interfaz: #0a0a0a;
+  --color-botones: #1c4fd6;
+  --bg-cards: #121212;
+  --bg-custom: #0a0a0a;
+  --app-border-radius: 16px;
+  --app-font-family: 'Inter', sans-serif;
+  
+  --color-titulos: #ffffff;
+  --color-highlight: #3b82f6;
+  --color-etiquetas: #f5f5f4;
+  --color-texto-general: #94a3b8;
+  --color-texto-botones: #ffffff;
+  --color-svg: #ffffff;
+
+  --panel-padding: 30px;
+  --row-padding: 16px 0;
+}

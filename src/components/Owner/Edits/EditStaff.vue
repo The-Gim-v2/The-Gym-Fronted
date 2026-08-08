@@ -66,7 +66,36 @@
               </div>
               <div class="form-grid-1">
                 <div  class="input-group"><label>{{ t('emailLabel') }}</label><input type="email" v-model="form.correo"></div>
-                <div  class="input-group"><label>{{ t('locationLabel') }}</label><input type="text" v-model="form.sede"></div>
+                
+                <!-- SEDES / UBICACIONES PERMITIDAS (Multiselect hacia arriba) -->
+                <div class="input-group">
+                  <label>{{ t('locationLabel') }}</label>
+                  <div class="custom-multiselect" ref="dropdownRef">
+                    <div class="select-box-trigger" @click="isDropdownOpen = !isDropdownOpen">
+                      <span :class="{ 'placeholder-text': form.sedes.length === 0 }">
+                        {{ getSedesDisplayText() }}
+                      </span>
+                      <svg class="dropdown-arrow" :class="{ 'rotate': isDropdownOpen }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+
+                    <!-- Lista desplegable hacia arriba -->
+                    <div class="dropdown-options-list" v-if="isDropdownOpen">
+                      <div 
+                        v-for="sede in listaSedes" 
+                        :key="sede.id" 
+                        class="dropdown-option-item"
+                        :class="{ 'selected': form.sedes.includes(sede.id) }"
+                        @click="toggleSede(sede.id)"
+                      >
+                        <div class="option-checkbox">
+                          <svg v-if="form.sedes.includes(sede.id)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                        <span>{{ sede.nombre }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <div  class="input-group"><label>{{ t('systemRoleLabel') }}</label><input type="text" v-model="form.rol"></div>
                 <div  class="input-group"><label>{{ t('specialtyLabel') }}</label><input type="text" v-model="form.especialidad"></div>
               </div>
@@ -104,9 +133,18 @@ import { traducciones } from '../i18n.js';
 const router = useRouter(); 
 const fileInput = ref(null); 
 const searchQuery = ref('');
+const isDropdownOpen = ref(false);
+const dropdownRef = ref(null);
 const avatarSrc = ref('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3');
 
-const currentLang = ref(localStorage.getItem('app-idioma') || 'es');
+const currentLang = ref(localStorage.getItem('owner-idioma') || 'es');
+
+const listaSedes = ref([
+  { id: 'sede_norte', nombre: 'Sucursal Norte (Centro)' },
+  { id: 'sede_sur', nombre: 'Sucursal Sur (Plaza)' },
+  { id: 'sede_oriente', nombre: 'Sucursal Oriente' },
+  { id: 'sede_poniente', nombre: 'Sucursal Poniente' }
+]);
 
 const t = (key) => {
   const langTable = traducciones[currentLang.value] || traducciones.es;
@@ -119,12 +157,20 @@ const handleLangChange = (e) => {
   }
 };
 
+const handleClickOutside = (event) => {
+  if (dropdownRef.value && !dropdownRef.value.contains(event.target)) {
+    isDropdownOpen.value = false;
+  }
+};
+
 onMounted(() => {
   window.addEventListener('idioma-changed', handleLangChange);
+  document.addEventListener('click', handleClickOutside);
 });
 
 onUnmounted(() => {
   window.removeEventListener('idioma-changed', handleLangChange);
+  document.removeEventListener('click', handleClickOutside);
 });
 
 const form = reactive({
@@ -139,12 +185,31 @@ const form = reactive({
   tiktok: '',
   otrasApp: '',
   correo: '',
-  sede: 'Matriz',
+  sedes: ['sede_norte'], 
   rol: '',
   especialidad: '',
   entrada: '',
   salida: ''
 });
+
+const toggleSede = (id) => {
+  const index = form.sedes.indexOf(id);
+  if (index > -1) {
+    form.sedes.splice(index, 1);
+  } else {
+    form.sedes.push(id);
+  }
+};
+
+const getSedesDisplayText = () => {
+  if (form.sedes.length === 0) {
+    return 'Seleccionar sedes...';
+  }
+  const nombresSeleccionados = listaSedes.value
+    .filter(s => form.sedes.includes(s.id))
+    .map(s => s.nombre);
+  return nombresSeleccionados.join(', ');
+};
 
 const handleSearch = () => {
   if (searchQuery.value.trim()) {
@@ -343,6 +408,7 @@ const saveChanges = () => {
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
   height: 100%;
   box-sizing: border-box;
+  position: relative;
 }
 
 .login-card.span-two {
@@ -422,6 +488,123 @@ input:focus, .custom-select:focus {
   border-color: var(--color-highlight, #3b82f6);
   background: var(--bg-input-focus, var(--bg-cards, #141414));
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* Estilos personalizados del Multiselect Hacia Arriba */
+.custom-multiselect {
+  position: relative;
+  width: 100%;
+}
+
+.select-box-trigger {
+  background: var(--bg-input, var(--bg-cards, #141414)); 
+  border: 1.5px solid var(--border-input, rgba(255, 255, 255, 0.12)); 
+  border-radius: var(--app-border-radius, 12px); 
+  color: var(--color-texto-input, var(--color-texto-general, #fff)); 
+  padding: 12px 14px; 
+  width: 100%; 
+  box-sizing: border-box; 
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  outline: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  user-select: none;
+  min-height: 48px;
+}
+
+.select-box-trigger:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.select-box-trigger:focus-within, 
+.custom-multiselect:focus-within .select-box-trigger {
+  border-color: var(--color-highlight, #3b82f6);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.placeholder-text {
+  color: #71717a;
+}
+
+.dropdown-arrow {
+  width: 16px;
+  height: 16px;
+  stroke: #a1a1aa;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+  margin-left: 10px;
+}
+
+.dropdown-arrow.rotate {
+  transform: rotate(180deg);
+}
+
+.dropdown-options-list {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  top: auto;
+  left: 0;
+  width: 100%;
+  background: #18181b;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--app-border-radius, 12px);
+  box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.6);
+  z-index: 100; 
+  max-height: 240px;
+  overflow-y: auto;
+  padding: 6px;
+  box-sizing: border-box;
+}
+
+.dropdown-option-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  color: #e4e4e7;
+  transition: background 0.15s, color 0.15s;
+}
+
+.dropdown-option-item:hover {
+  background: rgba(59, 130, 246, 0.12);
+  color: #fff;
+}
+
+.dropdown-option-item.selected {
+  background: rgba(59, 130, 246, 0.2);
+  color: #fff;
+  font-weight: 500;
+}
+
+.option-checkbox {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.dropdown-option-item.selected .option-checkbox {
+  background: var(--color-highlight, #3b82f6);
+  border-color: var(--color-highlight, #3b82f6);
+  color: white;
+}
+
+.option-checkbox svg {
+  width: 10px;
+  height: 10px;
 }
 
 .action-footer {

@@ -104,7 +104,7 @@ const fileInput = ref(null);
 const searchQuery = ref('');
 const avatarSrc = ref('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3');
 
-const currentLang = ref(localStorage.getItem('app-idioma') || 'es');
+const currentLang = ref(localStorage.getItem('owner-idioma') || 'es');
 
 const t = (key) => {
   const langTable = traducciones[currentLang.value] || traducciones.es;

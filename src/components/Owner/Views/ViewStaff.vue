@@ -169,7 +169,7 @@ const selectedUser = ref(null);
 const searchQuery = ref('');
 const selectedRoleFilter = ref('Todos');
 
-const currentLang = ref(localStorage.getItem('app-idioma') || 'es');
+const currentLang = ref(localStorage.getItem('owner-idioma') || 'es');
 
 const t = (key) => {
   const langTable = traducciones[currentLang.value] || traducciones.es;

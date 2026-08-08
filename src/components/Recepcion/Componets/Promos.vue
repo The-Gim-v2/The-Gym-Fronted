@@ -60,7 +60,7 @@ const emit = defineEmits(['close', 'select-oferta']);
 const toastRef = ref<any>(null);
 
 const settings = reactive({
-  idioma: localStorage.getItem('app-idioma') || 'es'
+  idioma: localStorage.getItem('recepcion-idioma') || 'es'
 });
 
 const translations: Record<string, Record<string, string>> = {

@@ -169,7 +169,7 @@ const gyms = ref<string[]>([
 ]);
 
 // Sistema de Idiomas
-const currentLang = ref<string>(localStorage.getItem('app-idioma') || 'es');
+const currentLang = ref<string>(localStorage.getItem('owner-idioma') || 'es');
 const handleLangChange = (e: Event): void => {
   const customEvent = e as CustomEvent<{ idioma?: string }>;
   if (customEvent.detail?.idioma) currentLang.value = customEvent.detail.idioma;
@@ -253,9 +253,11 @@ const selectGym = (gym: string): void => {
 };
 
 const handleLogout = (): void => {
+  localStorage.removeItem('user_role');
   localStorage.removeItem('token'); 
   localStorage.removeItem('user');
-  router.push('/login'); 
+  
+  router.replace({ name: 'login' }); 
 };
 </script>
 

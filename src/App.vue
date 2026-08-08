@@ -4,13 +4,16 @@ import { useRouter } from 'vue-router';
 import { RouterView } from 'vue-router';
 import HelpButton from './components/Owner/HelpButton.vue';
 import HelpButton2 from './components/Recepcion/HelpButton.vue';
+
 const router = useRouter();
+
+const userRole = ref(localStorage.getItem('user_role') || '');
 
 // --- CONTROL DE INACTIVIDAD Y ADVERTENCIA ---
 let inactivityTimer: number | null = null;
 let countdownTimer: number | null = null;
 
-const INACTIVITY_TIME_LIMIT = 9 * 60 * 1000; // 14 minutos de uso normal
+const INACTIVITY_TIME_LIMIT = 10 * 60 * 1000; // 10 minutos de uso normal 
 const COUNTDOWN_TIME_LIMIT = 60; // 60 segundos de advertencia visual
 
 const mostrarAvisoInactividad = ref(false);
@@ -18,9 +21,14 @@ const segundosRestantes = ref(COUNTDOWN_TIME_LIMIT);
 
 const ejecutarCierreSesion = () => {
   detenerMonitoreoInactividad();
+  
+  // Limpieza total de credenciales y del rol de seguridad
+  localStorage.removeItem('user_role');
   localStorage.removeItem('token');
   localStorage.removeItem('user');
-  router.push('/login');
+  
+  // Redirección segura reemplazando la ruta para evitar que el botón "Atrás" regrese al panel
+  router.replace({ name: 'login' });
 };
 
 const iniciarCuentaRegresiva = () => {
@@ -121,9 +129,9 @@ onUnmounted(() => {
 
 <template>
   <RouterView />
-  <HelpButton />
-  <HelpButton2 />
-  <!-- MODAL DE ADVERTENCIA POR INACTIVIDAD -->
+  <HelpButton v-if="userRole === 'Owner'" />
+  <HelpButton2 v-if="userRole === 'Recepcion'" />
+  
   <transition name="fade">
     <div v-if="mostrarAvisoInactividad" class="inactivity-overlay">
       <div class="inactivity-modal glass-effect">
@@ -147,6 +155,7 @@ onUnmounted(() => {
 
 <style>
 @import './assets/global-theme.css';
+@import '@/assets/styles-member.css';
 
 body {
   margin: 0;

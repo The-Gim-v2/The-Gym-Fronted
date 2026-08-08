@@ -3,11 +3,12 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import Logo from '@/landing/logo.vue';
 
-const VALID_USERS: Record<string, string> = {
-  'admin@gmail.com': 'Admin',
-  'propietario@gmail.com': 'Owner',
-  'recepcionista@gmail.com': 'Recepcionista',
-  'cliente@gmail.com': 'Cliente',
+// Mapeo seguro de usuarios válidos con sus respectivos roles y rutas de destino
+const VALID_USERS: Record<string, { role: string; nameRoute: string }> = {
+  'admin@gmail.com': { role: 'Admin', nameRoute: 'Admin-dashboard' },
+  'propietario@gmail.com': { role: 'Owner', nameRoute: 'Owner-dashboard' },
+  'recepcionista@gmail.com': { role: 'recepcion', nameRoute: 'recepcion-dashboard' },
+  'miembro@gmail.com': { role: 'Member', nameRoute: 'Member-dashboard' },
 };
 
 const router = useRouter();
@@ -24,38 +25,29 @@ const clearMessages = () => {
 
 const handleSubmit = () => {
   const userEmail = email.value.toLowerCase().trim();
-  const roleName = VALID_USERS[userEmail];
+  const userInfo = VALID_USERS[userEmail];
 
+  // Validación estricta de credenciales
   if (password.value !== '123') {
     errorMessage.value = 'Contraseña incorrecta. Intenta de nuevo.';
     return;
   }
-  if (!roleName) {
-    errorMessage.value = 'Usuario no reconocido.';
+  
+  if (!userInfo) {
+    errorMessage.value = 'Usuario no reconocido o sin privilegios de acceso.';
     return;
   }
 
   errorMessage.value = '';
-  
-  // Mostramos el mensaje de éxito que se ve en tu imagen antes de redirigir
-  successMessage.value = `Acceso concedido como ${roleName}. Redirigiendo...`;
+  successMessage.value = `Acceso concedido como ${userInfo.role}. Redirigiendo...`;
 
-  // Retardamos ligeramente la redirección para que se alcance a apreciar la animación y el mensaje
+  // Asignación segura del rol en localStorage requerida por los guards de las rutas
+  localStorage.setItem('user_role', userInfo.role);
+
+  // Redirección controlada tras un breve retraso visual
   setTimeout(() => {
-    if (userEmail === 'admin@gmail.com' || userEmail === 'dueño@gmail.com') {
-      localStorage.setItem('user_role', 'Admin'); 
-      router.push({ name: 'Admin-dashboard' });
-    } else if (userEmail === 'propietario@gmail.com') {
-      localStorage.setItem('user_role', 'Owner');
-      router.push({ name: 'Owner-dashboard' });
-    }  else if (userEmail === 'recepcionista@gmail.com') {
-      localStorage.setItem('user_role', 'recepcion'); 
-      router.push({ name: 'recepcion-dashboard' });
-    } else {
-      errorMessage.value = 'Este usuario debe iniciar sesión en el portal de clientes.';
-      successMessage.value = '';
-    }
-  }, 1000); // 1 segundo de retraso para el efecto visual
+    router.push({ name: userInfo.nameRoute });
+  }, 1000);
 };
 </script>
 

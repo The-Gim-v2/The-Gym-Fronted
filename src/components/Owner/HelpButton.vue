@@ -127,7 +127,7 @@ const tutoriales = {
     },
     { 
       title: "Credenciales y Rol", 
-      description: "Define el rol que desempeñará en el sistema (permisos de acceso) y asigna el correo electrónico con el que iniciará sesión.",
+      description: "Define el rol que desempeñará en el sistema (permisos de acceso), asigna el correo electrónico, establece su contraseña y selecciona las sedes o ubicaciones autorizadas.",
       selector: '#tutorial-step-1' 
     },
     { 

@@ -83,7 +83,7 @@ const editor = ref<HTMLElement | null>(null);
 const fileInput = ref<HTMLInputElement | null>(null);
 
 const settings = reactive({
-  idioma: localStorage.getItem('app-idioma') || 'es'
+  idioma: localStorage.getItem('recepcion-idioma') || 'es'
 });
 
 const translations: Record<string, Record<string, string>> = {

@@ -330,7 +330,7 @@ const translations = {
     borderRounded: "Fully Rounded",
     exportSectionTitle: "Data Export",
     exportFormatLabel: "Export Format",
-    exportFormatDesc: "Format when downloading logs and backups.",
+    exportFormatDesc: "Format when downloading loMembergs and backups.",
     toastColorsRestored: "Colors restored and saved.",
     toastPresetApplied: "Combined theme '{label}' applied and saved.",
     toastOwnerSaved: "Owner configuration saved globally.",
@@ -347,7 +347,7 @@ const t = (key) => {
 const settings = reactive({
   notificaciones: false,
   tutorial: localStorage.getItem('tutorialActivo') === 'true', 
-  idioma: localStorage.getItem('app-idioma') || 'es',
+  idioma: localStorage.getItem('owner-idioma') || 'es',
   densidad: localStorage.getItem('app-densidad') || 'normal',
   borderRadius: localStorage.getItem('app-radius') || '16px',
   colors: JSON.parse(localStorage.getItem('app-colors')) || { ...defaultColors }
@@ -376,37 +376,129 @@ const defaultColors = {
 };
 
 const colorPresets = {
-  gymFemenino: { label: '🌸 Fit Femme (Gym)', colors: { headingBg: '#1f0d14', tablas: '#2a121b', interfaz: '#16080e', botones: '#db2777', tarjetas: '#200b12', titulos: '#fff1f2', highlight: '#f472b6', etiquetas: '#fbcfe8', textoGeneral: '#f472b6', textoBotones: '#ffffff', svgColor: '#f472b6' } },
-  barbieVibe: { label: '💖 Barbie Power', colors: { headingBg: '#240615', tablas: '#3b0a22', interfaz: '#1c030f', botones: '#ec4899', tarjetas: '#2c071a', titulos: '#fdf2f8', highlight: '#f472b6', etiquetas: '#fbcfe8', textoGeneral: '#f472b6', textoBotones: '#ffffff', svgColor: '#f472b6' } },
-  lavenderChic: { label: '💜 Lavender Chic', colors: { headingBg: '#190e24', tablas: '#281738', interfaz: '#12091a', botones: '#9333ea', tarjetas: '#1e112b', titulos: '#faf5ff', highlight: '#c084fc', etiquetas: '#e9d5ff', textoGeneral: '#d8b4fe', textoBotones: '#ffffff', svgColor: '#c084fc' } },
-  velvetOrchid: { label: '🌷 Velvet Orchid', colors: { headingBg: '#1f0814', tablas: '#331022', interfaz: '#14050d', botones: '#be185d', tarjetas: '#210a17', titulos: '#fdf4f8', highlight: '#f43f5e', etiquetas: '#fbcfe8', textoGeneral: '#fda4af', textoBotones: '#ffffff', svgColor: '#f43f5e' } },
-  blushNude: { label: '🩰 Blush Nude', colors: { headingBg: '#1f1214', tablas: '#2e1c1f', interfaz: '#140a0c', botones: '#b45309', tarjetas: '#211315', titulos: '#fef3c7', highlight: '#fbbf24', etiquetas: '#fde68a', textoGeneral: '#d1d5db', textoBotones: '#ffffff', svgColor: '#fbbf24' } },
-  coralPeach: { label: '🍑 Coral Peach', colors: { headingBg: '#24100b', tablas: '#3b1d14', interfaz: '#170b07', botones: '#f97316', tarjetas: '#26130e', titulos: '#fff7ed', highlight: '#fb923c', etiquetas: '#ffedd5', textoGeneral: '#fdba74', textoBotones: '#ffffff', svgColor: '#fb923c' } },
-  softMintGirl: { label: '🌿 Mint Elegance', colors: { headingBg: '#091c16', tablas: '#112e24', interfaz: '#05120e', botones: '#10b981', tarjetas: '#0c211a', titulos: '#ecfdf5', highlight: '#34d399', etiquetas: '#a7f3d0', textoGeneral: '#6ee7b7', textoBotones: '#ffffff', svgColor: '#34d399' } },
-  cherryBlossom: { label: '🌸 Cherry Blossom', colors: { headingBg: '#260c17', tablas: '#3d1425', interfaz: '#19070f', botones: '#e11d48', tarjetas: '#2b0e1b', titulos: '#fff1f2', highlight: '#fb7185', etiquetas: '#ffe4e6', textoGeneral: '#fda4af', textoBotones: '#ffffff', svgColor: '#fb7185' } },
-  neonVibe: { label: '💎 Neon Violet', colors: { headingBg: '#16072b', tablas: '#271047', interfaz: '#0f0420', botones: '#a855f7', tarjetas: '#1c0a36', titulos: '#faf5ff', highlight: '#c084fc', etiquetas: '#f3e8ff', textoGeneral: '#d8b4fe', textoBotones: '#ffffff', svgColor: '#c084fc' } },
-  sunset: { label: '🌅 Sunset Orange', colors: { headingBg: '#3b160b', tablas: '#5c2211', interfaz: '#260e07', botones: '#ea580c', tarjetas: '#42190d', titulos: '#fff7ed', highlight: '#fb923c', etiquetas: '#ffedd5', textoGeneral: '#fdba74', textoBotones: '#ffffff', svgColor: '#fb923c' } },
-  gymMasculino: { label: '🏋️‍♂️ Iron Masculino', colors: { headingBg: '#0d0d12', tablas: '#181822', interfaz: '#09090e', botones: '#2563eb', tarjetas: '#13131c', titulos: '#ffffff', highlight: '#3b82f6', etiquetas: '#f4f4f5', textoGeneral: '#a1a1aa', textoBotones: '#ffffff', svgColor: '#3b82f6' } },
-  steelIndustrial: { label: '⚙️ Steel Industrial', colors: { headingBg: '#111827', tablas: '#1f2937', interfaz: '#0b0f19', botones: '#475569', tarjetas: '#141c2e', titulos: '#f8fafc', highlight: '#94a3b8', etiquetas: '#cbd5e1', textoGeneral: '#94a3b8', textoBotones: '#ffffff', svgColor: '#94a3b8' } },
-  tacticalArmy: { label: '🪖 Tactical Army', colors: { headingBg: '#12170f', tablas: '#222b1c', interfaz: '#0c0f0a', botones: '#4d7c0f', tarjetas: '#171f13', titulos: '#f7fee7', highlight: '#84cc16', etiquetas: '#ecfccb', textoGeneral: '#a3e635', textoBotones: '#ffffff', svgColor: '#84cc16' } },
-  carbonMatrix: { label: '🏁 Carbon Matrix', colors: { headingBg: '#080808', tablas: '#141414', interfaz: '#030303', botones: '#e11d48', tarjetas: '#0d0d0d', titulos: '#fafafa', highlight: '#fb7185', etiquetas: '#f4f4f5', textoGeneral: '#a1a1aa', textoBotones: '#ffffff', svgColor: '#fb7185' } },
-  arcticIce: { label: '❄️ Arctic Ice', colors: { headingBg: '#07111e', tablas: '#0f243d', interfaz: '#040a12', botones: '#0284c7', tarjetas: '#0a1728', titulos: '#f0f9ff', highlight: '#38bdf8', etiquetas: '#bae6fd', textoGeneral: '#7dd3fc', textoBotones: '#ffffff', svgColor: '#38bdf8' } },
-  mafiaDark: { label: '🕶️ Dark Syndicate', colors: { headingBg: '#121212', tablas: '#1f1f1f', interfaz: '#0a0a0a', botones: '#d97706', tarjetas: '#161616', titulos: '#fffbeb', highlight: '#f59e0b', etiquetas: '#fde68a', textoGeneral: '#9ca3af', textoBotones: '#ffffff', svgColor: '#f59e0b' } },
-  copperOxide: { label: '🔩 Copper Oxide', colors: { headingBg: '#17100c', tablas: '#2b1f18', interfaz: '#0f0a08', botones: '#ea580c', tarjetas: '#1f1510', titulos: '#fff7ed', highlight: '#f97316', etiquetas: '#fed7aa', textoGeneral: '#d1d5db', textoBotones: '#ffffff', svgColor: '#f97316' } },
-  cyberpunk: { label: '⚡ Cyberpunk Blue', colors: { headingBg: '#0a0a14', tablas: '#16162b', interfaz: '#05050d', botones: '#f43f5e', tarjetas: '#0f0f1f', titulos: '#ffffff', highlight: '#f43f5e', etiquetas: '#e2e8f0', textoGeneral: '#94a3b8', textoBotones: '#ffffff', svgColor: '#f43f5e' } },
-  esmeralda: { label: '🟢 Esmeralda Pro', colors: { headingBg: '#04241d', tablas: '#063b30', interfaz: '#021712', botones: '#059669', tarjetas: '#052b22', titulos: '#ecfdf5', highlight: '#34d399', etiquetas: '#d1fae5', textoGeneral: '#a7f3d0', textoBotones: '#ffffff', svgColor: '#34d399' } },
-  minimal: { label: '⚪ Minimal Clean', colors: { headingBg: '#1c1c21', tablas: '#2a2a33', interfaz: '#121215', botones: '#e4e4e7', tarjetas: '#202026', titulos: '#f4f4f5', highlight: '#a1a1aa', etiquetas: '#fafafa', textoGeneral: '#a1a1aa', textoBotones: '#18181b', svgColor: '#e4e4e7' } },
-  deepMidnight: { label: '🌙 Deep Midnight', colors: { headingBg: '#111827', tablas: '#1e1b4b', interfaz: '#0b0f19', botones: '#6366f1', tarjetas: '#172033', titulos: '#f8fafc', highlight: '#818cf8', etiquetas: '#e2e8f0', textoGeneral: '#94a3b8', textoBotones: '#ffffff', svgColor: '#818cf8' } },
-  coffeeWarm: { label: '☕ Warm Mocha', colors: { headingBg: '#19110e', tablas: '#2e1e19', interfaz: '#0f0a08', botones: '#b45309', tarjetas: '#211613', titulos: '#fefae0', highlight: '#d97706', etiquetas: '#fef08a', textoGeneral: '#d4d4d4', textoBotones: '#ffffff', svgColor: '#d97706' } },
-  royalGold: { label: '👑 Royal Gold', colors: { headingBg: '#171508', tablas: '#2e290f', interfaz: '#0f0d04', botones: '#ca8a04', tarjetas: '#211d0a', titulos: '#fefce8', highlight: '#eab308', etiquetas: '#fef08a', textoGeneral: '#d4d4d4', textoBotones: '#ffffff', svgColor: '#eab308' } },
-  matrixCode: { label: '💻 Matrix Green', colors: { headingBg: '#031c0e', tablas: '#073319', interfaz: '#010d06', botones: '#16a34a', tarjetas: '#052412', titulos: '#f0fdf4', highlight: '#22c55e', etiquetas: '#dcfce7', textoGeneral: '#86efac', textoBotones: '#ffffff', svgColor: '#22c55e' } },
-  electricLime: { label: '⚡ Electric Lime', colors: { headingBg: '#0d1a0d', tablas: '#1a331a', interfaz: '#070f07', botones: '#65a30d', tarjetas: '#122412', titulos: '#f7fee7', highlight: '#bef264', etiquetas: '#ecfccb', textoGeneral: '#a3e635', textoBotones: '#ffffff', svgColor: '#bef264' } },
-  crimsonPower: { label: '🩸 Crimson Power', colors: { headingBg: '#210808', tablas: '#3d0c0c', interfaz: '#140303', botones: '#dc2626', tarjetas: '#2b0a0a', titulos: '#fef2f2', highlight: '#f87171', etiquetas: '#fee2e2', textoGeneral: '#fca5a5', textoBotones: '#ffffff', svgColor: '#f87171' } },
-  titaniumPro: { label: '🦾 Titanium Pro', colors: { headingBg: '#111827', tablas: '#1f2937', interfaz: '#0b0f19', botones: '#374151', tarjetas: '#161e2e', titulos: '#ffffff', highlight: '#60a5fa', etiquetas: '#e5e7eb', textoGeneral: '#9ca3af', textoBotones: '#ffffff', svgColor: '#60a5fa' } },
-  solarFlare: { label: '☀️ Solar Flare', colors: { headingBg: '#241702', tablas: '#402a04', interfaz: '#140d01', botones: '#d97706', tarjetas: '#2e1e03', titulos: '#fffbeb', highlight: '#fbbf24', etiquetas: '#fef3c7', textoGeneral: '#fcd34d', textoBotones: '#ffffff', svgColor: '#fbbf24' } },
-  toxicCyber: { label: '☣️ Toxic Cyber', colors: { headingBg: '#031c16', tablas: '#073b2e', interfaz: '#010f0b', botones: '#0d9488', tarjetas: '#052920', titulos: '#f0fdfa', highlight: '#2dd4bf', etiquetas: '#ccfbf1', textoGeneral: '#5eead4', textoBotones: '#ffffff', svgColor: '#2dd4bf' } },
-  zenithBlue: { label: '🌐 Zenith Blue', colors: { headingBg: '#0d132e', tablas: '#182452', interfaz: '#070a1a', botones: '#3b82f6', tarjetas: '#131b3b', titulos: '#eff6ff', highlight: '#60a5fa', etiquetas: '#dbeafe', textoGeneral: '#93c5fd', textoBotones: '#ffffff', svgColor: '#60a5fa' } }
+  gymFemenino: { 
+    label: '🌸 Fit Femme (Gym)', 
+    colors: { headingBg: '#1f0d14', tablas: '#2a121b', interfaz: '#16080e', botones: '#db2777', tarjetas: '#200b12', titulos: '#fff1f2', highlight: '#f472b6', etiquetas: '#fbcfe8', textoGeneral: '#f472b6', textoBotones: '#ffffff', svgColor: '#f472b6' } 
+  },
+  barbieVibe: { 
+    label: '💖 Barbie Power', 
+    colors: { headingBg: '#240615', tablas: '#3b0a22', interfaz: '#1c030f', botones: '#ec4899', tarjetas: '#2c071a', titulos: '#fdf2f8', highlight: '#f472b6', etiquetas: '#fbcfe8', textoGeneral: '#f472b6', textoBotones: '#ffffff', svgColor: '#f472b6' } 
+  },
+  gymMasculino: { 
+    label: '🏋️‍♂️ Iron Masculino', 
+    colors: { headingBg: '#0d0d12', tablas: '#181822', interfaz: '#09090e', botones: '#2563eb', tarjetas: '#13131c', titulos: '#ffffff', highlight: '#3b82f6', etiquetas: '#f4f4f5', textoGeneral: '#a1a1aa', textoBotones: '#ffffff', svgColor: '#3b82f6' } 
+  },
+  cyberpunk: { 
+    label: '⚡ Cyberpunk Blue', 
+    colors: { headingBg: '#0a0a14', tablas: '#16162b', interfaz: '#05050d', botones: '#f43f5e', tarjetas: '#0f0f1f', titulos: '#ffffff', highlight: '#f43f5e', etiquetas: '#e2e8f0', textoGeneral: '#94a3b8', textoBotones: '#ffffff', svgColor: '#f43f5e' } 
+  },
+  emeraldMatrix: { 
+    label: '🟢 Emerald Matrix', 
+    colors: { headingBg: '#022c22', tablas: '#064e3b', interfaz: '#021a14', botones: '#059669', tarjetas: '#042f24', titulos: '#ecfdf5', highlight: '#34d399', etiquetas: '#a7f3d0', textoGeneral: '#6ee7b7', textoBotones: '#ffffff', svgColor: '#34d399' } 
+  },
+  sunsetOrange: { 
+    label: '🌅 Sunset Orange', 
+    colors: { headingBg: '#2c1209', tablas: '#431407', interfaz: '#1c0b05', botones: '#f97316', tarjetas: '#260e05', titulos: '#fff7ed', highlight: '#fb923c', etiquetas: '#fed7aa', textoGeneral: '#fdba74', textoBotones: '#ffffff', svgColor: '#fb923c' } 
+  },
+  royalPurple: { 
+    label: '👑 Royal Purple', 
+    colors: { headingBg: '#1e1b4b', tablas: '#312e81', interfaz: '#0f172a', botones: '#7c3aed', tarjetas: '#1e293b', titulos: '#f8fafc', highlight: '#a78bfa', etiquetas: '#ddd6fe', textoGeneral: '#cbd5e1', textoBotones: '#ffffff', svgColor: '#a78bfa' } 
+  },
+  neonGlow: { 
+    label: '🧪 Neon Lime', 
+    colors: { headingBg: '#0f172a', tablas: '#1e293b', interfaz: '#090d16', botones: '#84cc16', tarjetas: '#111827', titulos: '#ffffff', highlight: '#a3e635', etiquetas: '#ecfccb', textoGeneral: '#9ca3af', textoBotones: '#000000', svgColor: '#a3e635' } 
+  },
+  crimsonDark: { 
+    label: '🩸 Crimson Blood', 
+    colors: { headingBg: '#2b0b0b', tablas: '#451010', interfaz: '#1a0505', botones: '#dc2626', tarjetas: '#240a0a', titulos: '#fef2f2', highlight: '#f87171', etiquetas: '#fecaca', textoGeneral: '#fca5a5', textoBotones: '#ffffff', svgColor: '#f87171' } 
+  },
+  arcticFrost: { 
+    label: '❄️ Arctic Frost', 
+    colors: { headingBg: '#082f49', tablas: '#0369a1', interfaz: '#021524', botones: '#0284c7', tarjetas: '#0c233b', titulos: '#f0f9ff', highlight: '#38bdf8', etiquetas: '#bae6fd', textoGeneral: '#7dd3fc', textoBotones: '#ffffff', svgColor: '#38bdf8' } 
+  },
+  goldenLuxury: { 
+    label: '✨ Golden Luxury', 
+    colors: { headingBg: '#272007', tablas: '#42360a', interfaz: '#161203', botones: '#d97706', tarjetas: '#201a05', titulos: '#fefce8', highlight: '#fbbf24', etiquetas: '#fef08a', textoGeneral: '#fde047', textoBotones: '#ffffff', svgColor: '#fbbf24' } 
+  },
+  midnightTeal: { 
+    label: '🌊 Midnight Teal', 
+    colors: { headingBg: '#042f2e', tablas: '#115e59', interfaz: '#021a19', botones: '#0d9488', tarjetas: '#082524', titulos: '#f0fdf4', highlight: '#2dd4bf', etiquetas: '#99f6e4', textoGeneral: '#5eead4', textoBotones: '#ffffff', svgColor: '#2dd4bf' } 
+  },
+  cherryBlossom: { 
+    label: '🌸 Cherry Blossom', 
+    colors: { headingBg: '#2a0813', tablas: '#4c0f22', interfaz: '#19040b', botones: '#e11d48', tarjetas: '#220610', titulos: '#fff1f2', highlight: '#fb7185', etiquetas: '#fecdd3', textoGeneral: '#fda4af', textoBotones: '#ffffff', svgColor: '#fb7185' } 
+  },
+  coffeeLatte: { 
+    label: '☕ Coffee Latte', 
+    colors: { headingBg: '#231815', tablas: '#3d2b25', interfaz: '#140e0c', botones: '#b45309', tarjetas: '#1c1310', titulos: '#fdf8f6', highlight: '#d97706', etiquetas: '#fde68a', textoGeneral: '#d1a18d', textoBotones: '#ffffff', svgColor: '#d97706' } 
+  },
+  matrixHacker: { 
+    label: '💻 Matrix Hacker', 
+    colors: { headingBg: '#051c0d', tablas: '#0a361a', interfaz: '#020f07', botones: '#16a34a', tarjetas: '#06170b', titulos: '#f0fdf4', highlight: '#22c55e', etiquetas: '#bbf7d0', textoGeneral: '#4ade80', textoBotones: '#ffffff', svgColor: '#22c55e' } 
+  },
+  deepSpace: { 
+    label: '🌌 Deep Space', 
+    colors: { headingBg: '#0f172a', tablas: '#1e1b4b', interfaz: '#090d16', botones: '#6366f1', tarjetas: '#111827', titulos: '#ffffff', highlight: '#818cf8', etiquetas: '#c7d2fe', textoGeneral: '#9ca3af', textoBotones: '#ffffff', svgColor: '#818cf8' } 
+  },
+  neonPink: { 
+    label: '💖 Neon Synthwave', 
+    colors: { headingBg: '#2e0824', tablas: '#4a0d3b', interfaz: '#1a0414', botones: '#d946ef', tarjetas: '#24061c', titulos: '#fdf4ff', highlight: '#e879f9', etiquetas: '#f5d0fe', textoGeneral: '#f0abfc', textoBotones: '#ffffff', svgColor: '#e879f9' } 
+  },
+  toxicGreen: { 
+    label: '☢️ Toxic Hazard', 
+    colors: { headingBg: '#1a2e05', tablas: '#2e4d0a', interfaz: '#0f1a02', botones: '#65a30d', tarjetas: '#142203', titulos: '#f7fee7', highlight: '#84cc16', etiquetas: '#d9f99d', textoGeneral: '#bef264', textoBotones: '#ffffff', svgColor: '#84cc16' } 
+  },
+  lavenderDream: { 
+    label: '💜 Lavender Dream', 
+    colors: { headingBg: '#2e1065', tablas: '#4c1d95', interfaz: '#170838', botones: '#8b5cf6', tarjetas: '#230c4f', titulos: '#f5f3ff', highlight: '#a78bfa', etiquetas: '#ddd6fe', textoGeneral: '#c4b5fd', textoBotones: '#ffffff', svgColor: '#a78bfa' } 
+  },
+  copperRust: { 
+    label: '🧱 Copper Rust', 
+    colors: { headingBg: '#2c1810', tablas: '#4a281b', interfaz: '#170d08', botones: '#c2410c', tarjetas: '#21120b', titulos: '#fff7ed', highlight: '#ea580c', etiquetas: '#ffedd5', textoGeneral: '#fdba74', textoBotones: '#ffffff', svgColor: '#ea580c' } 
+  },
+  electricAmber: { 
+    label: '⚡ Electric Amber', 
+    colors: { headingBg: '#291b03', tablas: '#473005', interfaz: '#140e01', botones: '#f59e0b', tarjetas: '#1f1402', titulos: '#fffbeb', highlight: '#fbbf24', etiquetas: '#fef3c7', textoGeneral: '#fde68a', textoBotones: '#000000', svgColor: '#fbbf24' } 
+  },
+  steelBlue: { 
+    label: '🛡️ Steel Blue', 
+    colors: { headingBg: '#0f172a', tablas: '#334155', interfaz: '#090d16', botones: '#475569', tarjetas: '#1e293b', titulos: '#f8fafc', highlight: '#94a3b8', etiquetas: '#e2e8f0', textoGeneral: '#cbd5e1', textoBotones: '#ffffff', svgColor: '#94a3b8' } 
+  },
+  velvetRuby: { 
+    label: '🍷 Velvet Ruby', 
+    colors: { headingBg: '#3b0764', tablas: '#581c87', interfaz: '#1e0333', botones: '#9333ea', tarjetas: '#2e054d', titulos: '#faf5ff', highlight: '#c084fc', etiquetas: '#e9d5ff', textoGeneral: '#d8b4fe', textoBotones: '#ffffff', svgColor: '#c084fc' } 
+  },
+  mintFresh: { 
+    label: '🍃 Mint Fresh', 
+    colors: { headingBg: '#064e3b', tablas: '#065f46', interfaz: '#022c22', botones: '#10b981', tarjetas: '#04382c', titulos: '#ecfdf5', highlight: '#34d399', etiquetas: '#a7f3d0', textoGeneral: '#6ee7b7', textoBotones: '#ffffff', svgColor: '#34d399' } 
+  },
+  slateMinimal: { 
+    label: '✒️ Slate Minimal', 
+    colors: { headingBg: '#18181b', tablas: '#27272a', interfaz: '#09090b', botones: '#52525b', tarjetas: '#1c1c1f', titulos: '#fafafa', highlight: '#a1a1aa', etiquetas: '#f4f4f5', textoGeneral: '#d4d4d8', textoBotones: '#ffffff', svgColor: '#a1a1aa' } 
+  },
+  neonCyan: { 
+    label: '🌐 Neon Cyan', 
+    colors: { headingBg: '#082f49', tablas: '#075985', interfaz: '#031624', botones: '#06b6d4', tarjetas: '#0b2236', titulos: '#ecfeff', highlight: '#22d3ee', etiquetas: '#cffafe', textoGeneral: '#67e8f9', textoBotones: '#000000', svgColor: '#22d3ee' } 
+  },
+  sunsetCoral: { 
+    label: '🍑 Sunset Coral', 
+    colors: { headingBg: '#311018', tablas: '#521b28', interfaz: '#1c080d', botones: '#f43f5e', tarjetas: '#260c13', titulos: '#fff1f2', highlight: '#fb7185', etiquetas: '#fecdd3', textoGeneral: '#fda4af', textoBotones: '#ffffff', svgColor: '#fb7185' } 
+  },
+  graphiteOrange: { 
+    label: '🏎️ Graphite Orange', 
+    colors: { headingBg: '#18181b', tablas: '#27272a', interfaz: '#09090b', botones: '#ea580c', tarjetas: '#1c1c1f', titulos: '#ffffff', highlight: '#f97316', etiquetas: '#fed7aa', textoGeneral: '#a1a1aa', textoBotones: '#ffffff', svgColor: '#f97316' } 
+  },
+  neonViolet: { 
+    label: '🔮 Neon Violet', 
+    colors: { headingBg: '#1e1b4b', tablas: '#3730a3', interfaz: '#0f0e26', botones: '#7c3aed', tarjetas: '#171536', titulos: '#f5f3ff', highlight: '#8b5cf6', etiquetas: '#ddd6fe', textoGeneral: '#a5b4fc', textoBotones: '#ffffff', svgColor: '#8b5cf6' } 
+  },
+  solarFlare: { 
+    label: '☀️ Solar Flare', 
+    colors: { headingBg: '#3b1c05', tablas: '#5c2d08', interfaz: '#1c0d02', botones: '#ea580c', tarjetas: '#2b1403', titulos: '#fff7ed', highlight: '#fb923c', etiquetas: '#ffedd5', textoGeneral: '#fdba74', textoBotones: '#ffffff', svgColor: '#fb923c' } 
+  }
 };
+
+
 
 const showToast = (msg) => {
   toast.message = msg;
@@ -435,7 +527,7 @@ const guardarCambios = async () => {
     const userRole = localStorage.getItem('userRole') || 'owner';
 
     localStorage.setItem('tutorialActivo', settings.tutorial);
-    localStorage.setItem('app-idioma', settings.idioma);
+    localStorage.setItem('owner-idioma', settings.idioma);
     localStorage.setItem('app-colors', JSON.stringify(settings.colors));
     localStorage.setItem('app-densidad', settings.densidad);
     localStorage.setItem('app-radius', settings.borderRadius);
@@ -527,7 +619,7 @@ onMounted(async () => {
         const data = await res.json();
         if (data && data.idioma) {
           settings.idioma = data.idioma;
-          localStorage.setItem('app-idioma', data.idioma);
+          localStorage.setItem('owner-idioma', data.idioma);
         }
       }
     } catch (e) {

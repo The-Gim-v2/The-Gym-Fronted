@@ -52,7 +52,7 @@ interface IngresoItem {
 const emit = defineEmits(['close']);
 
 const settings = reactive({
-  idioma: localStorage.getItem('app-idioma') || 'es'
+  idioma: localStorage.getItem('owner-idioma') || 'es'
 });
 
 const translations: Record<string, Record<string, string>> = {

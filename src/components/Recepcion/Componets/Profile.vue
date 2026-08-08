@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router';
 import HeadingRecepcion from '../HeadingRecepcion.vue';
 import { traducciones } from '../i18n.js';
 
-const currentLang = ref(localStorage.getItem('app-idioma') || 'es');
+const currentLang = ref(localStorage.getItem('recepcion-idioma') || 'es');
 const router = useRouter();
 
 // Diccionario local extendido para asegurar las traducciones de esta vista

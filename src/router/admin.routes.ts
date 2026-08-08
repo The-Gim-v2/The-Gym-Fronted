@@ -2,6 +2,7 @@ export const AdminRoutes = [
   {
     path: '/admin',
     component: () => import('@/views/admin/AdminLayout.vue'),
+    meta: { allowedRole: 'Admin' },
     children: [
       {
         path: 'dashboard',
