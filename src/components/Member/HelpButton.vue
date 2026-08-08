@@ -56,6 +56,7 @@ import { useRoute } from 'vue-router';
 
 const route = useRoute();
 const activeStep = ref(null);
+
 const tutorialEnabled = ref(localStorage.getItem('tutorialActivo') === 'true');
 const targetRect = ref(null);
 const windowWidth = ref(window.innerWidth);

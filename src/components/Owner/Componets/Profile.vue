@@ -823,7 +823,7 @@ input:focus {
   border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.15));
   border-radius: var(--app-border-radius, 20px);
   width: 100%;
-  max-width: 800px;
+  max-width: 1000px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;

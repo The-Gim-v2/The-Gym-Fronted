@@ -1,7 +1,7 @@
 <template>
   <HeadingAdmin :isGymOpen="isGymOpen" :billingStatus="billingStatus">
     <div class="saas-dashboard-wrapper">
-      
+     
       <main class="dashboard-main-container">
         
         <!-- HERO / BIENVENIDA -->
@@ -126,8 +126,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { useLang } from './useLang.js'; 
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { traducciones } from './i18n.js'; 
 import HeadingAdmin from './HeadingMember.vue';
 
@@ -136,8 +135,18 @@ import MyRoutineModal from './Modals/MyRoutineModal.vue';
 import BookClassesModal from './Modals/BookClassesModal.vue';
 import NutritionPlanModal from './Modals/NutritionPlanModal.vue';
 
-const { lang } = useLang();
-const t = computed(() => traducciones[lang.value] || traducciones.es);
+const currentLang = ref(localStorage.getItem('member-idioma') || 'es');
+
+const t = computed(() => {
+  const langTable = traducciones[currentLang.value] || traducciones.es;
+  const fallbackTable = traducciones.es;
+  
+  return new Proxy({}, {
+    get(_, key) {
+      return langTable[key] !== undefined ? langTable[key] : fallbackTable[key];
+    }
+  });
+});
 
 const activeModal = ref(null);
 const isGymOpen = ref(true);
@@ -153,14 +162,24 @@ const billingStatusText = computed(() => {
   return t.value.accountBlocked;
 });
 
+const handleLangChange = (e) => {
+  if (e.detail && e.detail.idioma) {
+    currentLang.value = e.detail.idioma;
+  }
+};
+
 onMounted(() => {
   const savedGymStatus = localStorage.getItem('isGymOpen');
   if (savedGymStatus !== null) {
     isGymOpen.value = JSON.parse(savedGymStatus);
   }
+  window.addEventListener('idioma-changed', handleLangChange);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('idioma-changed', handleLangChange);
 });
 </script>
-
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;700&display=swap');
 

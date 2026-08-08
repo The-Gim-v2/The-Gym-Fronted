@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, computed } from 'vue';
+import { reactive, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import Logo from '@/landing/logo.vue';
 import MembershipModal from './MembershipModal.vue';
@@ -15,7 +15,6 @@ const submitted = ref(false);
 const showPaymentModal = ref(false);
 const errorMessage = ref<string | null>(null);
 
-// Capturar el plan de la URL de forma segura por si el modal lo necesita al abrirse
 const planQuery = (route.query.plan as string || '').toLowerCase();
 
 const form = reactive({
@@ -24,6 +23,7 @@ const form = reactive({
   fechaNac: '', celular: '',
   entidad: 'SLP', municipio: '', cp: '', colonia: '', calle: '', numExt: '', numInt: '',
   selectedDays: [] as string[],
+  horarios: {} as Record<string, { open: string; close: string }>,
   precioMes: '', precioSem: '',
   email: '', password: '', confirmPassword: '',
   tipoMembresia: planQuery ? `Plan ${route.query.plan}` : 'Plan Pro Mensual'
@@ -31,8 +31,19 @@ const form = reactive({
 
 const toggleDay = (day: string) => {
   const index = form.selectedDays.indexOf(day);
-  if (index > -1) form.selectedDays.splice(index, 1);
-  else form.selectedDays.push(day);
+  if (index > -1) {
+    form.selectedDays.splice(index, 1);
+    delete form.horarios[day];
+  } else {
+    form.selectedDays.push(day);
+    form.horarios[day] = { open: '06:00', close: '22:00' };
+  }
+};
+
+const updateHorario = (day: string, field: 'open' | 'close', event: Event) => {
+  if (form.horarios[day]) {
+    form.horarios[day][field] = (event.target as HTMLInputElement).value;
+  }
 };
 
 const triggerFileInput = () => fileInput.value?.click();
@@ -41,27 +52,25 @@ const onFileSelected = (event: Event) => {
   if (file) previewImage.value = URL.createObjectURL(file);
 };
 
-// Interceptar el intento de registro para abrir el modal de pago/confirmación
 const handleRegisterClick = () => {
   errorMessage.value = null;
 
-  // Validar coincidencia de contraseñas primero
   if (form.password !== form.confirmPassword) {
     errorMessage.value = 'Las contraseñas no coinciden. Por favor, verifícalas.';
     return;
   }
 
-  // Abrir el modal de pago/membresía directamente
+  if (form.selectedDays.length === 0) {
+    errorMessage.value = 'Por favor, selecciona al menos un día de apertura.';
+    return;
+  }
+
   showPaymentModal.value = true;
 };
 
-// Se ejecuta cuando el usuario confirma el pago/suscripción desde el modal
 const handlePaymentSuccess = (msg: string) => {
   showPaymentModal.value = false;
   console.log(msg);
-
-  // Procedemos con el registro completo del gimnasio
-  console.log('Registro exitoso enviado con membresía confirmada:', form);
   submitted.value = true;
 };
 </script>
@@ -77,14 +86,7 @@ const handlePaymentSuccess = (msg: string) => {
       @success="handlePaymentSuccess"
     />
     
-    <header class="top-bar">
-      <!--<router-link :to="{ name: 'home' }" class="top-brand">
-        <Logo />
-        <span class="logo-text">
-          <span class="text-accent">SAHWA</span>
-        </span>
-      </router-link>-->
-    </header>
+    <header class="top-bar"></header>
 
     <main class="main-content">
       <div class="register-card">
@@ -250,7 +252,39 @@ const handlePaymentSuccess = (msg: string) => {
                 </div>
               </div>
 
-              <div class="rg-row price-row">
+              <!-- Bloque de horarios dinámicos -->
+              <div v-if="form.selectedDays.length > 0" class="input-group" style="margin-top: 16px;">
+                <label>Horarios por día seleccionado</label>
+                <div class="daily-schedules-list">
+                  <div v-for="day in form.selectedDays" :key="day" class="day-schedule-row">
+                    <span class="day-label">{{ day }}</span>
+                    <div class="time-inputs-wrapper">
+                      <div class="time-input-group">
+                        <label :for="`open-${day}`">Apertura</label>
+                        <input 
+                          :id="`open-${day}`" 
+                          type="time" 
+                          :value="form.horarios[day]?.open" 
+                          @input="updateHorario(day, 'open', $event)" 
+                          required 
+                        />
+                      </div>
+                      <div class="time-input-group">
+                        <label :for="`close-${day}`">Cierre</label>
+                        <input 
+                          :id="`close-${day}`" 
+                          type="time" 
+                          :value="form.horarios[day]?.close" 
+                          @input="updateHorario(day, 'close', $event)" 
+                          required 
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="rg-row price-row" style="margin-top: 16px;">
                 <div class="input-group">
                   <div class="label-help">
                     <label for="precioMes">Mensualidad ($)</label>
@@ -289,6 +323,7 @@ const handlePaymentSuccess = (msg: string) => {
   </div>
 </template>
 
+
 <style scoped>
 .alert-error {
   font-size: 13px;
@@ -322,12 +357,8 @@ const handlePaymentSuccess = (msg: string) => {
   border-radius: 50%;
   background: radial-gradient(circle, rgba(28,79,214,0.32) 0%, rgba(28,79,214,0) 70%);
   filter: blur(10px);
-  animation: pulseGlow 6s ease-in-out infinite;
   pointer-events: none;
 }
-
-@keyframes pulseGlow { 0%, 100% { opacity: 0.28; } 50% { opacity: 0.5; } }
-@keyframes fadeUp { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
 
 .top-bar {
   width: 100%;
@@ -337,40 +368,6 @@ const handlePaymentSuccess = (msg: string) => {
   box-sizing: border-box;
   position: relative;
 }
-
-.top-brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; }
-
-
-.logo-text {
-  font-family: 'Anton', sans-serif;
-  font-size: clamp(20px, 5vw, 24px);
-  letter-spacing: 1px;
-  display: inline-block;
-  animation: floatText 3s ease-in-out infinite;
-}
-.text-accent {
-  background: linear-gradient(135deg, #60a5fa 0%, #3a6bd6 50%, #1d4ed8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 2px 8px rgba(58, 107, 214, 0.4));
-  display: inline-block;
-}
-
-@keyframes floatText {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-4px); }
-  100% { transform: translateY(0px); }
-}
-.hamburger.is-active span:nth-child(1) {
-  transform: translateY(8px) rotate(45deg);
-}
-.hamburger.is-active span:nth-child(2) {
-  opacity: 0;
-}
-.hamburger.is-active span:nth-child(3) {
-  transform: translateY(-8px) rotate(-45deg);
-}
-
 
 .main-content {
   display: flex;
@@ -391,7 +388,6 @@ const handlePaymentSuccess = (msg: string) => {
   padding: clamp(28px, 3vw, 48px);
   box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55);
   box-sizing: border-box;
-  animation: fadeUp 0.6s ease both;
 }
 
 .header-section { text-align: center; margin-bottom: 32px; }
@@ -430,28 +426,12 @@ const handlePaymentSuccess = (msg: string) => {
 .form-column { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 
 @media (min-width: 1200px) {
-  .rg-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  
-  .rg-col3 {
-    grid-column: auto;
-    max-width: none;
-    margin: 0;
-  }
+  .rg-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
 @media (min-width: 1024px) and (max-width: 1199px) {
-  .rg-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .rg-col3 {
-    grid-column: 1 / -1;
-    max-width: 700px;
-    margin: 0 auto;
-    width: 100%;
-  }
+  .rg-grid { grid-template-columns: repeat(2, 1fr); }
+  .rg-col3 { grid-column: 1 / -1; max-width: 700px; margin: 0 auto; width: 100%; }
 }
 
 .section-divider {
@@ -506,7 +486,7 @@ const handlePaymentSuccess = (msg: string) => {
 
 .upload-placeholder span { font-size: 9px; font-weight: 700; text-transform: uppercase; }
 
-.upload-info { font-size: 13px; font-weight: 400; color: rgba(245, 245, 244, 0.55); margin: 0; line-height: 1.4; }
+.upload-info { font-size: 13px; color: rgba(245, 245, 244, 0.55); margin: 0; line-height: 1.4; }
 
 .stack-gap { display: flex; flex-direction: column; gap: 14px; }
 
@@ -533,11 +513,9 @@ input, select {
   font-size: 14.5px;
   min-height: 48px;
   box-sizing: border-box;
-  transition: border-color 0.2s ease;
 }
 
 input::placeholder { color: rgba(245, 245, 244, 0.4); }
-
 input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.6; cursor: pointer; }
 
 input:focus, select:focus {
@@ -548,34 +526,20 @@ input:focus, select:focus {
 }
 
 .input-wrapper { position: relative; }
-
 .input-wrapper input { padding-right: 46px; }
 
 .toggle-password-btn {
-  position: absolute;
-  right: 0;
-  top: 0;
-  height: 100%;
-  width: 44px;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: absolute; right: 0; top: 0; height: 100%; width: 44px;
+  background: transparent; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
   color: rgba(245, 245, 244, 0.4);
 }
 
 .select-wrapper { position: relative; }
-
 .select-wrapper::after {
   content: '';
-  position: absolute;
-  right: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  border: 5px solid transparent;
-  border-top-color: rgba(245, 245, 244, 0.5);
+  position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+  border: 5px solid transparent; border-top-color: rgba(245, 245, 244, 0.5);
   pointer-events: none;
 }
 
@@ -604,50 +568,22 @@ select option { background: #161616; color: #f5f5f4; }
   box-shadow: 0 4px 12px rgba(28, 79, 214, 0.3);
 }
 
-.price-row { 
-  margin-top: 14px; 
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
+.price-row { margin-top: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
 .label-help { display: inline-flex; align-items: center; gap: 6px; position: relative; margin-bottom: 8px; }
 
 .help-icon {
-  width: 16px;
-  height: 16px;
-  background: rgba(255, 255, 255, 0.14);
-  color: #f5f5f4;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 10px;
-  font-weight: 700;
-  cursor: help;
-  position: relative;
+  width: 16px; height: 16px; background: rgba(255, 255, 255, 0.14);
+  color: #f5f5f4; border-radius: 50%; display: flex; align-items: center;
+  justify-content: center; font-size: 10px; font-weight: 700; cursor: help; position: relative;
 }
 
 .tooltip {
-  visibility: hidden;
-  opacity: 0;
-  width: 190px;
-  background: #161616;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #f5f5f4;
-  text-align: center;
-  border-radius: 8px;
-  padding: 8px 12px;
-  position: absolute;
-  z-index: 50;
-  bottom: 135%;
-  left: 50%;
-  transform: translateX(-50%);
-  transition: opacity 0.15s ease;
-  font-family: 'Inter', sans-serif;
-  font-size: 11.5px;
-  font-weight: 400;
-  line-height: 1.35;
+  visibility: hidden; opacity: 0; width: 190px; background: #161616;
+  border: 1px solid rgba(255, 255, 255, 0.12); color: #f5f5f4; text-align: center;
+  border-radius: 8px; padding: 8px 12px; position: absolute; z-index: 50;
+  bottom: 135%; left: 50%; transform: translateX(-50%);
+  font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 400;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
 }
 
@@ -656,46 +592,113 @@ select option { background: #161616; color: #f5f5f4; }
 .actions-section { margin-top: 30px; display: flex; flex-direction: column; gap: 14px; }
 
 .btn-primary {
-  width: 100%;
-  padding: 16px;
-  background: #1c4fd6;
-  color: #ffffff;
-  border: none;
-  border-radius: 12px;
-  font-family: 'Oswald', sans-serif;
-  font-weight: 700;
-  font-size: 14.5px;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-  min-height: 52px;
-  box-shadow: 0 10px 24px rgba(28, 79, 214, 0.3);
-  transition: all 0.25s ease;
+  width: 100%; padding: 16px; background: #1c4fd6; color: #ffffff;
+  border: none; border-radius: 12px; font-family: 'Oswald', sans-serif;
+  font-weight: 700; font-size: 14.5px; text-transform: uppercase; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 9px;
+  min-height: 52px; box-shadow: 0 10px 24px rgba(28, 79, 214, 0.3);
 }
-
-.btn-primary:hover { background: #123ba0; transform: translateY(-2px); }
 
 .footer-link {
-  text-align: center;
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
-  font-size: 13.5px;
-  color: rgba(245, 245, 244, 0.55);
+  text-align: center; font-family: 'Inter', sans-serif;
+  font-weight: 600; font-size: 13.5px; color: rgba(245, 245, 244, 0.55);
 }
-
 .footer-link a { color: #5b8bf0; text-decoration: none; font-weight: 700; }
-.footer-link a:hover { text-decoration: underline; }
 
-@media (max-width: 768px) {
-  .price-row { grid-template-columns: 1fr; }
+/* HORARIOS DINÁMICOS */
+.daily-schedules-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
 }
 
-@media (max-width: 480px) {
-  .rg-row { grid-template-columns: 1fr; }
-  .upload-container { flex-direction: column; text-align: center; }
+.day-schedule-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.day-label {
+  min-width: 42px;
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  color: #f5f5f4;
+  letter-spacing: 0.4px;
+}
+
+.time-inputs-wrapper {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.time-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 140px;
+  flex: 1;
+}
+
+.time-input-group label {
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(245, 245, 244, 0.5);
+  text-transform: uppercase;
+}
+
+.time-input-group input[type="time"] {
+  width: 100%;
+  padding: 8px 10px;
+  background: #141414;
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  color: #f5f5f4;
+  font-weight: 600;
+  font-size: 13px;
+  min-height: 40px;
+  box-sizing: border-box;
+}
+
+/* REGLAS RESPONSIVAS PARA MÓVILES (TODOS LOS INPUTS Y HORARIOS EN COLUMNA) */
+@media (max-width: 768px) {
+  .rg-row {
+    grid-template-columns: 1fr; /* Fuerza a todos los inputs dobles (Apellidos, Fecha/Teléfono, Contraseñas, Ubicación, Precios) a una sola columna vertical */
+  }
+
+  .day-schedule-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .day-label {
+    min-width: unset;
+    text-align: left;
+    font-size: 14px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .time-inputs-wrapper {
+    display: flex;
+    flex-direction: column; /* Apertura y cierre uno debajo del otro */
+    gap: 8px;
+    width: 100%;
+  }
+
+  .time-input-group {
+    max-width: none;
+    width: 100%;
+  }
 }
 </style>

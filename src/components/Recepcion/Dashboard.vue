@@ -133,16 +133,26 @@
     </div>
   </HeadingAdmin>
 </template>
+
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
-import { useLang } from './useLang.js'; 
-import { traducciones } from './i18n.js';   
+import { ref, computed, onMounted, onBeforeUnmount, onUnmounted } from 'vue';
+import { traducciones } from './i18n.js'; 
 import AddScheduleModal from '../Modals/AddScheduleModal.vue';
 import ViewScheduleModal from '../Modals/ViewScheduleModal.vue';
 import HeadingAdmin from './HeadingRecepcion.vue';
 
-const { lang } = useLang();
-const t = computed(() => traducciones[lang.value] || traducciones.es);
+const currentLang = ref(localStorage.getItem('recepcion-idioma') || 'es');
+
+const t = computed(() => {
+  const langTable = traducciones[currentLang.value] || traducciones.es;
+  const fallbackTable = traducciones.es;
+  
+  return new Proxy({}, {
+    get(_, key) {
+      return langTable[key] !== undefined ? langTable[key] : fallbackTable[key];
+    }
+  });
+});
 
 const activeModal = ref(null);
 const videoPlayer = ref(null);
@@ -162,11 +172,22 @@ const billingStatusText = computed(() => {
   return t.value.bloqueadoPago;
 });
 
+const handleLangChange = (e) => {
+  if (e.detail && e.detail.idioma) {
+    currentLang.value = e.detail.idioma;
+  }
+};
+
 onMounted(() => {
   const savedGymStatus = localStorage.getItem('isGymOpen');
   if (savedGymStatus !== null) {
     isGymOpen.value = JSON.parse(savedGymStatus);
   }
+  window.addEventListener('idioma-changed', handleLangChange);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('idioma-changed', handleLangChange);
 });
 
 const openCamera = async (type) => {
