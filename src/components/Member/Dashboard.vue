@@ -1,5 +1,5 @@
 <template>
-  <HeadingAdmin :isGymOpen="isGymOpen" :billingStatus="billingStatus">
+  <HeadingMember :isGymOpen="isGymOpen" :billingStatus="billingStatus">
     <div class="saas-dashboard-wrapper">
      
       <main class="dashboard-main-container">
@@ -122,13 +122,13 @@
       </transition>
 
     </div>
-  </HeadingAdmin>
+  </HeadingMember>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { traducciones } from './i18n.js'; 
-import HeadingAdmin from './HeadingMember.vue';
+import HeadingMember from './HeadingMember.vue';
 
 import MyAccessQrModal from './Modals/MyAccessQrModal.vue';
 import MyRoutineModal from './Modals/MyRoutineModal.vue';

@@ -34,14 +34,14 @@
         </div>
         <p>{{ steps[activeStep].description }}</p>
         <div class="modal-footer">
-          <span class="step-badge">{{ activeStep + 1 }} de {{ steps.length }}</span>
+          <span class="step-badge">{{ activeStep + 1 }} {{ t('of') }} {{ steps.length }}</span>
           <div class="buttons-group">
             <button v-if="isMobile && !textRevealed" class="nav-btn secondary" @click="revealTextNow">
-              Mostrar texto
+              {{ t('showText') }}
             </button>
-            <button v-if="activeStep > 0" class="nav-btn secondary" @click="prevStep">Anterior</button>
+            <button v-if="activeStep > 0" class="nav-btn secondary" @click="prevStep">{{ t('prev') }}</button>
             <button class="nav-btn primary" @click="nextStep">
-              {{ activeStep < steps.length - 1 ? 'Siguiente →' : 'Finalizar' }}
+              {{ activeStep < steps.length - 1 ? t('next') : t('finish') }}
             </button>
           </div>
         </div>
@@ -51,7 +51,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed, nextTick } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 
 const route = useRoute();
@@ -61,7 +61,10 @@ const tutorialEnabled = ref(localStorage.getItem('tutorialActivo') === 'true');
 const targetRect = ref(null);
 const windowWidth = ref(window.innerWidth);
 
-// Control de revelación de texto en móvil tras 10 segundos
+// Estado para el idioma actual sincronizado con localStorage
+const currentLang = ref(localStorage.getItem('member-idioma') || 'es');
+
+// Control de revelación de texto en móvil tras 1.5 segundos
 const textRevealed = ref(false);
 let revealTimer = null;
 
@@ -74,572 +77,373 @@ const handleResize = () => {
   }
 };
 
-// Diccionario de tutoriales
-const tutoriales = {
-  'Owner-dashboard': [
-    { 
-      title: "Encabezado y Estatus", 
-      description: "Este es el nombre del gimnasio registrado y la sucursal. Cuenta con botones para definir si está abierto o cerrado, y muestra tu estatus de pago al corriente.",
-      selector: '#tutorial-step-0' 
-    },
-    { 
-      title: "Métricas de Actividad", 
-      description: "Visualiza rápidamente las entradas del día, las personas que se encuentran actualmente en las instalaciones y las membresías por vencer.",
-      selector: '#tutorial-step-1' 
-    },
-    { 
-      title: "Control de Acceso", 
-      description: "Gestiona el ingreso mediante asistencia facial con reconocimiento biométrico por IA o utilizando el escáner de códigos QR para validar pases digitales.",
-      selector: '#tutorial-step-2' 
-    },
-    { 
-      title: "Administración y Turnos", 
-      description: "Configura turnos, clases y consulta el calendario activo que opera de lunes a domingo.",
-      selector: '#tutorial-step-3' 
-    }
-  ],
-  'register-clients': [
-    { 
-      title: "Fotografía del Cliente", 
-      description: "Sube o captura una fotografía reciente del cliente. Esto es fundamental para identificarlo rápidamente en el sistema al momento de registrar su asistencia.",
-      selector: '#tutorial-step-0' 
-    },
-    { 
-      title: "Datos Personales", 
-      description: "Ingresa la información básica de identificación del nuevo miembro, incluyendo su nombre completo, fecha de nacimiento, número celular y correo electrónico.",
-      selector: '#tutorial-step-1' 
-    },
-    { 
-      title: "Registro Físico", 
-      description: "Captura las medidas corporales iniciales del cliente como su peso en kilogramos y su altura para llevar un seguimiento de su progreso.",
-      selector: '#tutorial-step-2' 
-    },
-    { 
-      title: "Datos de Membresía y Vigencia", 
-      description: "Selecciona el esquema de cobro (por mes o semana), define las fechas de inscripción y el día de corte correspondiente para mantener sus accesos activos.",
-      selector: '#tutorial-step-3' 
-    }
-  ],
-  'register-staff': [
-    { 
-      title: "Fotografía del Empleado", 
-      description: "Sube una fotografía oficial o reciente para integrarla al expediente del colaborador dentro de la plataforma.",
-      selector: '#tutorial-step-0' 
-    },
-    { 
-      title: "Credenciales y Rol", 
-      description: "Define el rol que desempeñará en el sistema (permisos de acceso) y asigna el correo electrónico con el que iniciará sesión.",
-      selector: '#tutorial-step-1' 
-    },
-    { 
-      title: "Datos del Empleado", 
-      description: "Captura la información oficial y de contacto del colaborador, incluyendo su CURP, nombre completo, fecha de nacimiento, teléfono y perfiles de redes sociales.",
-      selector: '#tutorial-step-2' 
-    },
-    { 
-      title: "Horario de Trabajo", 
-      description: "Establece las horas de entrada y salida correspondientes para llevar el control de asistencia y turnos del personal.",
-      selector: '#tutorial-step-3' 
-    }
-  ],
-  'view-clients': [
-    { 
-      title: "Filtros y Búsqueda General", 
-      description: "Filtra la lista de usuarios por tipo de membresía, su estatus actual (Activo/Inactivo), envía notificaciones masivas o busca a un cliente por su nombre de forma rápida.",
-      selector: '#tutorial-step-0' 
-    },
-    { 
-      title: "Listado de Clientes", 
-      description: "Visualiza la información resumida de cada usuario: foto de perfil, nombre completo, correo electrónico, número de celular y su estatus vigente.",
-      selector: '#tutorial-step-1' 
-    },
-    { 
-      title: "Acciones por Usuario", 
-      description: "Realiza acciones específicas para cada cliente: enviar correos individuales, cambiar estatus, ver su código QR de acceso, editar sus datos o eliminar el registro.",
-      selector: '#tutorial-step-2' 
-    }
-  ],
-  'view-staff': [
-    { 
-      title: "Filtros y Búsqueda de Personal", 
-      description: "Filtra al personal por su rol en el sistema (Recepcionista, Entrenador), envía correos masivos o busca rápidamente a un empleado por su nombre.",
-      selector: '#tutorial-step-0' 
-    },
-    { 
-      title: "Listado de Personal", 
-      description: "Visualiza la información clave de cada empleado: foto de perfil, nombre completo, correo electrónico, número celular y el rol asignado.",
-      selector: '#tutorial-step-1' 
-    },
-    { 
-      title: "Acciones por Empleado", 
-      description: "Gestiona las acciones individuales para cada miembro del personal: enviar correo, cambiar estatus, editar su información o eliminar el registro.",
-      selector: '#tutorial-step-2' 
-    }
-  ],
-  'payments': [
-    { 
-      title: "Filtros y Búsqueda de Pagos", 
-      description: "Filtra el listado por tipo de mensualidad, su estatus actual (Activo, Pendiente, Inactivo), envía correos masivos o busca usuarios por su nombre de forma rápida.", 
-      selector: '#tutorial-step-0' 
-    },
-    { 
-      title: "Listado de Pagos", 
-      description: "Visualiza la información general de cada registro: foto de perfil, nombre completo, correo electrónico, fecha a vencer y el estatus actual de su pago.", 
-      selector: '#tutorial-step-1' 
-    },
-    { 
-      title: "Acciones de Pago", 
-      description: "Realiza acciones específicas para cada registro: registrar un pago, editar los datos del usuario o eliminar el registro.", 
-      selector: '#tutorial-step-2' 
-    }
-  ],
-  'pricing-management': [
-    { 
-      title: "Promociones", 
-      description: "Visualiza y administra las promociones vigentes (como Promocion Amigos o Paquete entrenador), con opciones para editarlas, eliminarlas o agregar nuevas mediante el botón flotante.", 
-      selector: '#tutorial-step-0' 
-    },
-    { 
-      title: "Cambios de Precios", 
-      description: "Administra y modifica los costos de las mensualidades y tarifas del sistema (como la Mensualidad Fija o el Costo Semanal).", 
-      selector: '#tutorial-step-1' 
-    }
-  ],
-  'fees-management': [
-    { 
-      title: "Estatus: Pendientes", 
-      description: "Activa o desactiva la aplicación automática de recargos para usuarios con pago vencido pero que aún se mantienen activos.", 
-      selector: '#tutorial-step-0' 
-    },
-    { 
-      title: "Estatus: Inactivos", 
-      description: "Define si el sistema debe cambiar automáticamente a estatus inactivo a los usuarios con cuenta suspendida por falta de pago.", 
-      selector: '#tutorial-step-1' 
-    },
-    { 
-      title: "Bloqueo en Torniquete", 
-      description: "Habilita el bloqueo automático para denegar el ingreso al gimnasio en la puerta o torniquete por motivos de morosidad.", 
-      selector: '#tutorial-step-2' 
-    },
-    { 
-      title: "Periodo de Gracia", 
-      description: "Configura los días de tolerancia otorgados después de la fecha de vencimiento antes de aplicar multas o restricciones.", 
-      selector: '#tutorial-step-3' 
-    },
-    { 
-      title: "Tipo de Servicio Afectado", 
-      description: "Selecciona a qué membresías, clases, casilleros o conceptos generales aplican estas reglas de morosidad.", 
-      selector: '#tutorial-step-4' 
-    },
-    { 
-      title: "Monto de la Multa", 
-      description: "Establece la cantidad monetaria fija que se cobrará por concepto de retraso o penalización.", 
-      selector: '#tutorial-step-5' 
-    },
-    { 
-      title: "Frecuencia del Recargo", 
-      description: "Determina si el cargo por mora se aplica una sola vez por vencimiento o si se acumula de forma diaria, semanal o mensual.", 
-      selector: '#tutorial-step-6' 
-    },
-    { 
-      title: "Límite Máximo de Multas", 
-      description: "Establece el tope máximo acumulable que una multa o recargo puede alcanzar en la cuenta del usuario.", 
-      selector: '#tutorial-step-7' 
-    }
-  ],
-  'revenue-log': [
-    { 
-      title: "Filtros y Resumen de Ingresos", 
-      description: "Filtra los pagos por tipo de membresía, consulta el total recaudado en tiempo real o busca a un usuario específico mediante la barra de búsqueda.", 
-      selector: '#tutorial-step-0' 
-    },
-    { 
-      title: "Tabla de Ingresos", 
-      description: "Visualiza el detalle completo de cada transacción: foto del usuario, nombre completo, correo electrónico, fecha de vencimiento, tipo de membresía adquirida y el monto pagado.", 
-      selector: '#tutorial-step-1' 
-    }
-  ],
-  'debtors-list': [
-    { 
-      title: "Filtros y Búsqueda", 
-      description: "Filtra los deudores por tipo de membresía o estatus, realiza búsquedas específicas y envía correos masivos de cobranza.", 
-      selector: '#tutorial-step-0' 
-    },
-    { 
-      title: "Listado de Deudores", 
-      description: "Visualiza la información clave de cada usuario con adeudo: nombre, correo, fecha de vencimiento y el monto pendiente.", 
-      selector: '#tutorial-step-1' 
-    },
-    { 
-      title: "Acciones Rápidas", 
-      description: "Comunícate de inmediato con el deudor enviándole un correo electrónico o un mensaje directo por WhatsApp.", 
-      selector: '#tutorial-step-2' 
-    }
-  ],
-  'attendance-log': [
-    { 
-      title: "Filtros y Reportes de Asistencia", 
-      description: "Filtra la asistencia por día de la semana, consulta la gráfica de reportes o busca a un usuario específico mediante la barra de búsqueda.", 
-      selector: '#tutorial-step-0' 
-    },
-    { 
-      title: "Listado de Asistencia", 
-      description: "Visualiza la información clave de cada usuario: foto, nombre completo, correo electrónico, tipo de membresía, fecha a vencer y su estatus actual.", 
-      selector: '#tutorial-step-1' 
-    }
-  ],
-  'renewals': [
-    { 
-      title: "Búsqueda de Usuarios", 
-      description: "Busca de forma específica a los usuarios que necesitan renovación mediante la barra de búsqueda.", 
-      selector: '#tutorial-step-0' 
-    },
-    { 
-      title: "Listado de Renovaciones", 
-      description: "Visualiza la información clave de cada usuario con membresía vencida o próxima a vencer: foto, nombre completo, correo, fecha de vencimiento y su adeudo.", 
-      selector: '#tutorial-step-1' 
-    },
-    { 
-      title: "Acciones Rápidas", 
-      description: "Gestiona las cuentas realizando la renovación inmediata de la membresía o eliminando el registro del usuario según sea necesario.", 
-      selector: '#tutorial-step-2' 
-    }
-  ],
-  'Owner-settings': [
-    { 
-      title: "Guardar Cambios", 
-      description: "Aplica y almacena de forma permanente todas las modificaciones realizadas en la configuración del sitio.", 
-      selector: '#btn-guardar-cambios' 
-    },
-    { 
-      title: "Temas y Combinaciones", 
-      description: "Selecciona rápidamente entre 24 estilos y combinaciones predefinidas para cambiar la apariencia visual de todo el sistema.", 
-      selector: '#panel-temas' 
-    },
-    { 
-      title: "Notificaciones", 
-      description: "Activa o desactiva la recepción y envío automático de alertas y preferencias de notificación.", 
-      selector: '#row-notificaciones' 
-    },
-    { 
-      title: "Tutorial", 
-      description: "Habilita o deshabilita la guía interactiva para aprender a utilizar todas las funcionalidades de la plataforma.", 
-      selector: '#row-tutorial' 
-    },
-    { 
-      title: "Idioma de la Interfaz", 
-      description: "Selecciona el idioma principal en el que se mostrarán los textos y menús del sistema.", 
-      selector: '#row-idioma' 
-    },
-    { 
-      title: "Paleta de Colores Detallada", 
-      description: "Personaliza de forma independiente el color de cada componente de la interfaz, tablas, botones y encabezados.", 
-      selector: '#row-paleta-colores' 
-    },
-    { 
-      title: "Densidad de la Interfaz", 
-      description: "Elige el espaciado general entre los elementos para una vista espaciosa, normal o más compacta.", 
-      selector: '#row-densidad' 
-    },
-    { 
-      title: "Estilo de Bordes", 
-      description: "Define el nivel de curvatura y redondeo visual para los paneles, botones y contenedores de la aplicación.", 
-      selector: '#row-border-radius' 
-    },
-    { 
-      title: "Exportación de Datos", 
-      description: "Descarga respaldos y bitácoras completas del sistema en formatos compatibles como Excel o YML.", 
-      selector: '#panel-exportacion' 
-    }
-  ],
-  'profile': [
-    { 
-      title: "Logotipo del Gimnasio", 
-      description: "Sube o cambia la imagen del logotipo oficial del establecimiento que se muestra en el perfil y encabezados.", 
-      selector: '#tutor-5' 
-    },
-    { 
-      title: "Información del Establecimiento", 
-      description: "Modifica el nombre oficial del gimnasio y consulta información de registro intransferible como el CURP.", 
-      selector: '#tutor-13' 
-    },
-    { 
-      title: "Membresía del Sitio", 
-      description: "Consulta el plan activo actual, actualiza tu suscripción o realiza la cancelación del servicio si lo requieres.", 
-      selector: '#tutor-20' 
-    },
-    { 
-      title: "Acciones Pro", 
-      description: "Agrega nuevas sedes de operación o interactúa con el asistente de inteligencia artificial exclusivo para cuentas Pro.", 
-      selector: '#tutor-23' 
-    },
-    { 
-      title: "Datos del Administrador", 
-      description: "Actualiza la información personal, datos de contacto, correo electrónico y credenciales de acceso del administrador.", 
-      selector: '#tutor-27' 
-    },
-    { 
-      title: "Ubicación del Gimnasio", 
-      description: "Configura la dirección física completa del establecimiento incluyendo entidad, municipio, colonia y código postal.", 
-      selector: '#tutor-40' 
-    },
-    { 
-      title: "Configuración de Operación", 
-      description: "Define los días de apertura de la semana y establece las tarifas predeterminadas para mensualidades y semanas.", 
-      selector: '#tutor-50' 
-    },
-    { 
-      title: "Guardar Cambios", 
-      description: "Aplica y almacena de forma definitiva todas las modificaciones realizadas en el perfil del gimnasio y del administrador.", 
-      selector: '#tutor-64' 
-    }
-  ],
-  'pay': [
-    { 
-      title: "Búsqueda de Cliente", 
-      description: "Busca rápidamente al cliente por su nombre o ID de usuario para gestionar su estado de cuenta y pagos.", 
-      selector: '#tutorial-step-0' 
-    },
-    { 
-      title: "Detalles del Pago y Fechas", 
-      description: "Consulta y modifica los cortes de fechas, revisa el estado de cuenta actual, calcula recargos e ingresa los datos del tipo de pago y folio.", 
-      selector: '#tutorial-step-1' 
-    },
-    { 
-      title: "Acciones de Confirmación", 
-      description: "Confirma el registro del pago una vez completados los datos obligatorios o descarga el recibo correspondiente.", 
-      selector: '#tutorial-step-2' 
-    }
-  ],
-  'edit-user': [
-    { 
-      title: "Búsqueda de Cliente", 
-      description: "Localiza rápidamente a cualquier cliente registrado mediante su nombre o número de identificación.", 
-      selector: '#tutor-0' 
-    },
-    { 
-      title: "Perfil del Cliente", 
-      description: "Visualiza la información general, el avatar, el estado de actividad y accede a las acciones rápidas del usuario.", 
-      selector: '#tutor-1' 
-    },
-    { 
-      title: "Fotografía de Perfil", 
-      description: "Muestra la imagen oficial actual del cliente en el sistema.", 
-      selector: '#tutor-2' 
-    },
-    { 
-      title: "Estadísticas del Usuario", 
-      description: "Consulta el historial detallado y las métricas de rendimiento o asistencia del cliente.", 
-      selector: '#tutor-3' 
-    },
-    { 
-      title: "Cambiar Fotografía", 
-      description: "Sube o actualiza la imagen de perfil del cliente desde tus archivos locales.", 
-      selector: '#tutor-4' 
-    },
-    { 
-      title: "Identificador Único", 
-      description: "Muestra el código de registro intransferible asignado al cliente en el sistema.", 
-      selector: '#tutor-5' 
-    },
-    { 
-      title: "Estado de Actividad", 
-      description: "Indica si la membresía o el estatus actual del cliente se encuentra activo.", 
-      selector: '#tutor-6' 
-    },
-    { 
-      title: "Datos Personales", 
-      description: "Consulta y edita la información general, nombres, apellidos y datos de contacto del cliente.", 
-      selector: '#tutor-7' 
-    },
-    { 
-      title: "Seguimiento Físico", 
-      description: "Registra y monitorea los cambios en el peso y la altura inicial del usuario.", 
-      selector: '#tutor-14' 
-    },
-    { 
-      title: "Membresía", 
-      description: "Administra la sede asignada y el estado actual del plan contratado por el cliente.", 
-      selector: '#tutor-17' 
-    },
-    { 
-      title: "Guardar Cambios", 
-      description: "Aplica y almacena de forma definitiva todas las modificaciones realizadas en el perfil y datos del cliente.", 
-      selector: '#tutor-20' 
-    }
-  ],
-  'edit-staff': [
-    { 
-      title: "Búsqueda de Personal", 
-      description: "Localiza rápidamente a cualquier colaborador registrado mediante su nombre o número de identificación.", 
-      selector: '#tutor-0' 
-    },
-    { 
-      title: "Perfil del Personal", 
-      description: "Visualiza la información general, el avatar y el estado de actividad del colaborador.", 
-      selector: '#tutor-1' 
-    },
-    { 
-      title: "Fotografía de Perfil", 
-      description: "Muestra la imagen oficial actual del colaborador en el sistema.", 
-      selector: '#tutor-2' 
-    },
-    { 
-      title: "Cambiar Fotografía", 
-      description: "Sube o actualiza la imagen de perfil del colaborador desde tus archivos locales.", 
-      selector: '#tutor-3' 
-    },
-    { 
-      title: "Identificador Único", 
-      description: "Muestra el código de registro intransferible asignado al personal en el sistema.", 
-      selector: '#tutor-4' 
-    },
-    { 
-      title: "Estado de Actividad", 
-      description: "Indica si el estatus actual del colaborador se encuentra activo.", 
-      selector: '#tutor-5' 
-    },
-    { 
-      title: "Datos Personales", 
-      description: "Consulta y edita la información general, CURP, nombres, apellidos y redes sociales del colaborador.", 
-      selector: '#tutor-6' 
-    },
-    { 
-      title: "Credenciales", 
-      description: "Administra el correo, la sede asignada, el rol en el sistema y la especialidad.", 
-      selector: '#tutor-7' 
-    },
-    { 
-      title: "Horario de trabajo", 
-      description: "Configura las horas de entrada y salida de la jornada laboral.", 
-      selector: '#tutor-8' 
-    },
-    { 
-      title: "Guardar Cambios", 
-      description: "Aplica y almacena de forma definitiva todas las modificaciones realizadas en el perfil del personal.", 
-      selector: '#tutor-9' 
-    }
-  ],
-  'statistics': [
-    { 
-      title: "Búsqueda de Usuario", 
-      description: "Localiza rápidamente a cualquier usuario registrado mediante su nombre o número de identificación.", 
-      selector: '#tutor-0' 
-    },
-    { 
-      title: "Perfil del Usuario", 
-      description: "Visualiza la tarjeta general de información, estado y métricas principales del usuario.", 
-      selector: '#tutor-1' 
-    },
-    { 
-      title: "Avatar del Usuario", 
-      description: "Muestra el identificador visual o icono del usuario en el sistema.", 
-      selector: '#tutor-2' 
-    },
-    { 
-      title: "Porcentaje de Asistencia", 
-      description: "Indica el nivel general de asistencia acumulada del usuario.", 
-      selector: '#tutor-3' 
-    },
-    { 
-      title: "Nombre del Usuario", 
-      description: "Muestra el nombre completo registrado del usuario.", 
-      selector: '#tutor-4' 
-    },
-    { 
-      title: "Identificador Único", 
-      description: "Muestra el código de registro del usuario en el sistema.", 
-      selector: '#tutor-5' 
-    },
-    { 
-      title: "Composición Corporal Principal", 
-      description: "Contiene las métricas clave como peso inicial, actual, estatura, porcentaje de grasa, masa muscular y calorías.", 
-      selector: '#tutor-6' 
-    },
-    { 
-      title: "Peso Inicial", 
-      description: "Muestra el peso registrado al inicio del seguimiento.", 
-      selector: '#tutor-7' 
-    },
-    { 
-      title: "Peso Actual", 
-      description: "Muestra el peso más reciente del usuario.", 
-      selector: '#tutor-8' 
-    },
-    { 
-      title: "Estatura", 
-      description: "Indica la altura registrada del usuario.", 
-      selector: '#tutor-9' 
-    },
-    { 
-      title: "Porcentaje de Grasa", 
-      description: "Muestra el nivel de grasa corporal estimado.", 
-      selector: '#tutor-10' 
-    },
-    { 
-      title: "Masa Muscular", 
-      description: "Muestra el valor de la masa muscular en kilogramos.", 
-      selector: '#tutor-11' 
-    },
-    { 
-      title: "Calorías Promedio", 
-      description: "Muestra el estimado de calorías quemadas o consumidas por día.", 
-      selector: '#tutor-12' 
-    },
-    { 
-      title: "Indicadores Avanzados", 
-      description: "Muestra métricas detalladas de agua corporal, índice IMC y aumento de fuerza.", 
-      selector: '#tutor-13' 
-    },
-    { 
-      title: "Agua Corporal", 
-      description: "Indica el porcentaje de agua corporal del usuario.", 
-      selector: '#tutor-14' 
-    },
-    { 
-      title: "Índice IMC", 
-      description: "Muestra el Índice de Masa Corporal calculado.", 
-      selector: '#tutor-15' 
-    },
-    { 
-      title: "Aumento de Fuerza", 
-      description: "Muestra el progreso en la ganancia de fuerza.", 
-      selector: '#tutor-16' 
-    },
-    { 
-      title: "Eficiencia de Ganancia Muscular", 
-      description: "Gráfica y barra de progreso que detalla el rendimiento mensual.", 
-      selector: '#tutor-17' 
-    },
-    { 
-      title: "Información de Contacto e Inscripción", 
-      description: "Muestra los detalles de fecha de alta, celular y correo electrónico.", 
-      selector: '#tutor-18' 
-    },
-    { 
-      title: "Próximo Corte", 
-      description: "Muestra la fecha límite del siguiente pago o renovación.", 
-      selector: '#tutor-19' 
-    },
-    { 
-      title: "Saldo a Pagar", 
-      description: "Indica la cantidad monetaria pendiente del usuario.", 
-      selector: '#tutor-20' 
-    },
-    { 
-      title: "Calendario de Asistencia", 
-      description: "Vista detallada de los días del mes con los estados de asistencia (asistió, faltó, hoy).", 
-      selector: '#tutor-21' 
-    },
-    { 
-      title: "Mascota y Racha", 
-      description: "Muestra la evolución de la mascota virtual y los días seguidos de racha del usuario.", 
-      selector: '#tutor-22' 
-    }
-  ]
+// Diccionarios de textos traducidos para la interfaz del tutorial
+const tutorialUiTranslations = {
+  es: {
+    of: 'de',
+    showText: 'Mostrar texto',
+    prev: 'Anterior',
+    next: 'Siguiente →',
+    finish: 'Finalizar'
+  },
+  en: {
+    of: 'of',
+    showText: 'Show text',
+    prev: 'Previous',
+    next: 'Next →',
+    finish: 'Finish'
+  }
 };
 
-const steps = computed(() => tutoriales[route.name] || []);
+const t = (key) => {
+  const table = tutorialUiTranslations[currentLang.value] || tutorialUiTranslations.es;
+  return table[key] || tutorialUiTranslations.es[key] || key;
+};
+
+// Diccionario de tutoriales bilingües
+const tutoriales = {
+  'Member-dashboard': {
+    es: [
+      { 
+        title: "Identidad y Estatus", 
+        description: "Visualiza el nombre de la sucursal, el estado actual del gimnasio (abierto o cerrado) y tu estatus de suscripción de pago.", 
+        selector: '#turtor1' 
+      },
+      { 
+        title: "Métricas Personales", 
+        description: "Consulta de un vistazo tus días restantes de membresía, las asistencias acumuladas en el mes y tus clases reservadas.", 
+        selector: '#turtor2' 
+      },
+      { 
+        title: "Categoría de Accesos", 
+        description: "Sección principal que agrupa las herramientas de acceso rápido y control personal del miembro.", 
+        selector: '#turtor3' 
+      },
+      { 
+        title: "Código QR de Acceso", 
+        description: "Genera y muestra tu código QR digital personal para agilizar tu ingreso directo a las instalaciones del gimnasio.", 
+        selector: '#turtor4' 
+      },
+      { 
+        title: "Mi Rutina", 
+        description: "Consulta el detalle de los ejercicios, series y repeticiones asignadas en tu plan de entrenamiento actual.", 
+        selector: '#turtor5' 
+      },
+      { 
+        title: "Categoría de Clases y Salud", 
+        description: "Apartado destinado a la gestión de actividades grupales, disciplinas y bienestar nutricional.", 
+        selector: '#turtor6' 
+      },
+      { 
+        title: "Reservación de Clases", 
+        description: "Aparta tu lugar de forma rápida en las diferentes clases y disciplinas disponibles en el horario del gimnasio.", 
+        selector: '#turtor7' 
+      },
+      { 
+        title: "Plan de Nutrición", 
+        description: "Revisa tu guía nutricional y recomendaciones dietéticas personalizadas para complementar tus objetivos físicos.", 
+        selector: '#turtor8' 
+      }
+    ],
+    en: [
+      { 
+        title: "Identity and Status", 
+        description: "View the branch name, current gym status (open or closed), and your payment subscription status.", 
+        selector: '#turtor1' 
+      },
+      { 
+        title: "Personal Metrics", 
+        description: "Quickly check your remaining membership days, monthly accumulated attendances, and booked classes.", 
+        selector: '#turtor2' 
+      },
+      { 
+        title: "Access Category", 
+        description: "Main section grouping quick access tools and personal member controls.", 
+        selector: '#turtor3' 
+      },
+      { 
+        title: "Access QR Code", 
+        description: "Generate and display your personal digital QR code to streamline your direct entry into the gym facilities.", 
+        selector: '#turtor4' 
+      },
+      { 
+        title: "My Routine", 
+        description: "Check the details of the exercises, sets, and repetitions assigned in your current training plan.", 
+        selector: '#turtor5' 
+      },
+      { 
+        title: "Classes & Health Category", 
+        description: "Section dedicated to managing group activities, disciplines, and nutritional wellness.", 
+        selector: '#turtor6' 
+      },
+      { 
+        title: "Class Booking", 
+        description: "Quickly reserve your spot in the different classes and disciplines available in the gym schedule.", 
+        selector: '#turtor7' 
+      },
+      { 
+        title: "Nutrition Plan", 
+        description: "Review your personalized nutritional guide and dietary recommendations to complement your fitness goals.", 
+        selector: '#turtor8' 
+      }
+    ]
+  },
+  'member-gyms-list': {
+    es: [
+      { 
+        title: "Título de la Sección", 
+        description: "Encabezado principal que introduce el listado de sedes y gimnasios disponibles para el miembro.", 
+        selector: '#turtor1' 
+      },
+      { 
+        title: "Sede Principal", 
+        description: "Apartado que agrupa tu sede principal o registrada en el sistema.", 
+        selector: '#turtor2' 
+      },
+      { 
+        title: "Tarjeta de Sede Principal", 
+        description: "Muestra la información en tiempo real de tu gimnasio base, incluyendo estatus de apertura, afluencia en vivo y detalles de ubicación.", 
+        selector: '#turtor3' 
+      },
+      { 
+        title: "Gimnasios Locales", 
+        description: "Listado de sucursales y centros de entrenamiento disponibles dentro de tu localidad para entrenar de forma directa.", 
+        selector: '#turtor4' 
+      },
+      { 
+        title: "Gimnasios Nacionales", 
+        description: "Sección de sedes ubicadas en otras ciudades del país, las cuales se encuentran protegidas y requieren una actualización de plan.", 
+        selector: '#turtor5' 
+      }
+    ],
+    en: [
+      { 
+        title: "Section Title", 
+        description: "Main header introducing the list of branches and gyms available to the member.", 
+        selector: '#turtor1' 
+      },
+      { 
+        title: "Main Branch", 
+        description: "Section grouping your main or registered branch in the system.", 
+        selector: '#turtor2' 
+      },
+      { 
+        title: "Main Branch Card", 
+        description: "Displays real-time information of your base gym, including opening status, live attendance, and location details.", 
+        selector: '#turtor3' 
+      },
+      { 
+        title: "Local Gyms", 
+        description: "List of branches and training centers available within your location to train directly.", 
+        selector: '#turtor4' 
+      },
+      { 
+        title: "National Gyms", 
+        description: "Section of locations in other cities of the country, which are protected and require a plan upgrade.", 
+        selector: '#turtor5' 
+      }
+    ]
+  },
+  'member-gym-detail': {
+    es: [
+      { 
+        title: "Navegación", 
+        description: "Utiliza este botón para regresar al listado general de sucursales y explorar otras opciones.", 
+        selector: '#tutor-back-btn' 
+      },
+      { 
+        title: "Información de la Sede", 
+        description: "Aquí verás el nombre, logo, categoría y la ubicación exacta de la sucursal seleccionada.", 
+        selector: '#tutor-hero-card' 
+      },
+      { 
+        title: "Mapa Interactivo", 
+        description: "Visualiza la ubicación en el mapa. Puedes solicitar la ruta GPS directa hacia el gimnasio desde tu posición actual.", 
+        selector: '#tutor-map-panel' 
+      },
+      { 
+        title: "Ruta GPS", 
+        description: "Al presionar este botón, el sistema calculará la mejor ruta para llegar a la sucursal usando tu ubicación en tiempo real.", 
+        selector: '#tutor-route-btn' 
+      },
+      { 
+        title: "Acerca del Gimnasio", 
+        description: "Aquí encontrarás una breve descripción del gimnasio, su enfoque y lo que ofrece a sus miembros.", 
+        selector: '#tutor-about-box' 
+      },
+      { 
+        title: "Servicios y Amenidades", 
+        description: "Conoce todas las comodidades que ofrece esta sede, como estacionamiento, áreas de sauna y conexión Wi-Fi.", 
+        selector: '#tutor-amenities-box' 
+      },
+      { 
+        title: "Contacto Directo", 
+        description: "Información de contacto, teléfono y el responsable a cargo de esta sucursal para cualquier duda.", 
+        selector: '#tutor-contact-card' 
+      },
+      { 
+        title: "Cambio de Sucursal", 
+        description: "Selecciona entre las diferentes sedes disponibles para ver la información específica de cada una.", 
+        selector: '#tutor-branches-box' 
+      },
+      { 
+        title: "Horarios de Atención", 
+        description: "Consulta los horarios de apertura y cierre vigentes para días laborales y fines de semana.", 
+        selector: '#tutor-schedule-box' 
+      },
+      { 
+        title: "Inscripción", 
+        description: "Haz clic aquí para iniciar el proceso de inscripción y comenzar a entrenar en esta sede.", 
+        selector: '#tutor-join-btn' 
+      }
+    ],
+    en: [
+      { 
+        title: "Navigation", 
+        description: "Use this button to return to the general list of branches and explore other options.", 
+        selector: '#tutor-back-btn' 
+      },
+      { 
+        title: "Branch Information", 
+        description: "Here you will see the name, logo, category, and exact location of the selected branch.", 
+        selector: '#tutor-hero-card' 
+      },
+      { 
+        title: "Interactive Map", 
+        description: "View the location on the map. You can request direct GPS routing to the gym from your current position.", 
+        selector: '#tutor-map-panel' 
+      },
+      { 
+        title: "GPS Route", 
+        description: "By pressing this button, the system will calculate the best route to reach the branch using your real-time location.", 
+        selector: '#tutor-route-btn' 
+      },
+      { 
+        title: "About the Gym", 
+        description: "Here you will find a brief description of the gym, its focus, and what it offers to its members.", 
+        selector: '#tutor-about-box' 
+      },
+      { 
+        title: "Services & Amenities", 
+        description: "Discover all the comforts this location offers, such as parking, sauna areas, and Wi-Fi connection.", 
+        selector: '#tutor-amenities-box' 
+      },
+      { 
+        title: "Direct Contact", 
+        description: "Contact info, phone number, and the manager in charge of this branch for any questions.", 
+        selector: '#tutor-contact-card' 
+      },
+      { 
+        title: "Branch Switch", 
+        description: "Select among the different available locations to view specific details for each one.", 
+        selector: '#tutor-branches-box' 
+      },
+      { 
+        title: "Opening Hours", 
+        description: "Check current opening and closing times valid for weekdays and weekends.", 
+        selector: '#tutor-schedule-box' 
+      },
+      { 
+        title: "Registration", 
+        description: "Click here to start the registration process and begin training at this location.", 
+        selector: '#tutor-join-btn' 
+      }
+    ]
+  },
+
+  'member-settings': {
+    es: [
+  { 
+    title: "Guardar Cambios", 
+    description: "Aplica y almacena de forma permanente todas las modificaciones realizadas en la configuración del sitio.", 
+    selector: '#btn-guardar-cambios' 
+  },
+  { 
+    title: "Temas y Combinaciones", 
+    description: "Selecciona rápidamente entre 24 estilos y combinaciones predefinidas para cambiar la apariencia visual de todo el sistema.", 
+    selector: '#panel-temas' 
+  },
+  { 
+    title: "Notificaciones", 
+    description: "Activa o desactiva la recepción y envío automático de alertas y preferencias de notificación.", 
+    selector: '#row-notificaciones' 
+  },
+  { 
+    title: "Tutorial", 
+    description: "Habilita o deshabilita la guía interactiva para aprender a utilizar todas las funcionalidades de la plataforma.", 
+    selector: '#row-tutorial' 
+  },
+  { 
+    title: "Idioma de la Interfaz", 
+    description: "Selecciona el idioma principal en el que se mostrarán los textos y menús del sistema.", 
+    selector: '#row-idioma' 
+  },
+  { 
+    title: "Paleta de Colores Detallada", 
+    description: "Personaliza de forma independiente el color de cada componente de la interfaz, tablas, botones y encabezados.", 
+    selector: '#row-paleta-colores' 
+  },
+  { 
+    title: "Densidad de la Interfaz", 
+    description: "Elige el espaciado general entre los elementos para una vista espaciosa, normal o más compacta.", 
+    selector: '#row-densidad' 
+  },
+  { 
+    title: "Estilo de Bordes", 
+    description: "Define el nivel de curvatura y redondeo visual para los paneles, botones y contenedores de la aplicación.", 
+    selector: '#row-border-radius' 
+  }
+],
+  en: [
+{ 
+    title: "Save Changes", 
+    description: "Apply and permanently store all modifications made to the site configuration.", 
+    selector: '#btn-guardar-cambios' 
+  },
+  { 
+    title: "Themes and Combinations", 
+    description: "Quickly select from 24 predefined styles and combinations to change the visual appearance of the entire system.", 
+    selector: '#panel-temas' 
+  },
+  { 
+    title: "Notifications", 
+    description: "Enable or disable the automatic reception and sending of alerts and notification preferences.", 
+    selector: '#row-notificaciones' 
+  },
+  { 
+    title: "Tutorial", 
+    description: "Enable or disable the interactive guide to learn how to use all the platform's features.", 
+    selector: '#row-tutorial' 
+  },
+  { 
+    title: "Interface Language", 
+    description: "Select the main language in which system texts and menus will be displayed.", 
+    selector: '#row-idioma' 
+  },
+  { 
+    title: "Detailed Color Palette", 
+    description: "Independently customize the color of each interface component, tables, buttons, and headers.", 
+    selector: '#row-paleta-colores' 
+  },
+  { 
+    title: "Interface Density", 
+    description: "Choose the general spacing between elements for a spacious, normal, or more compact view.", 
+    selector: '#row-densidad' 
+  },
+  { 
+    title: "Border Style", 
+    description: "Define the level of curvature and visual rounding for application panels, buttons, and containers.", 
+    selector: '#row-border-radius' 
+  }
+  ]
+  },
+};
+
+const steps = computed(() => {
+  const routeTutorials = tutoriales[route.name];
+  if (!routeTutorials) return [];
+  return routeTutorials[currentLang.value] || routeTutorials.es;
+});
 
 const setupStepTimer = () => {
   textRevealed.value = false;
@@ -766,14 +570,21 @@ const updateTutorialStatus = () => {
   tutorialEnabled.value = localStorage.getItem('tutorialActivo') === 'true';
 };
 
+// Listener para actualizar el idioma en tiempo real si se modifica en la app
+const handleLanguageUpdate = () => {
+  currentLang.value = localStorage.getItem('member-idioma') || 'es';
+};
+
 onMounted(() => {
   window.addEventListener('tutorial-updated', updateTutorialStatus);
+  window.addEventListener('language-updated', handleLanguageUpdate);
   window.addEventListener('resize', handleResize);
 });
 
 onUnmounted(() => {
   if (revealTimer) clearTimeout(revealTimer);
   window.removeEventListener('tutorial-updated', updateTutorialStatus);
+  window.removeEventListener('language-updated', handleLanguageUpdate);
   window.removeEventListener('resize', handleResize);
 });
 </script>

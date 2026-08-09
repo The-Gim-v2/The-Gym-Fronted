@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router';
 import { RouterView } from 'vue-router';
 import HelpButton from './components/Owner/HelpButton.vue';
 import HelpButton2 from './components/Recepcion/HelpButton.vue';
+import HelpButton3 from './components/Member/HelpButton.vue';
 
 const router = useRouter();
 
@@ -131,6 +132,7 @@ onUnmounted(() => {
   <RouterView />
   <HelpButton v-if="userRole === 'Owner'" />
   <HelpButton2 v-if="userRole === 'Recepcion'" />
+  <HelpButton3 v-if="userRole === 'Member'" />
   
   <transition name="fade">
     <div v-if="mostrarAvisoInactividad" class="inactivity-overlay">
