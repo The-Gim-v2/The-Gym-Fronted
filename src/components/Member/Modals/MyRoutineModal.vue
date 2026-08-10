@@ -248,8 +248,8 @@ const completedCount = computed(() => {
 }
 
 .tab-btn.active {
-  background: var(--color-highlight, #3b82f6);
-  color: #ffffff;
+   background: var(--color-botones, #1c4fd6); 
+  color: var(--color-texto-botones, #ffffff); 
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
@@ -440,8 +440,8 @@ const completedCount = computed(() => {
 }
 
 .btn-primary {
-  background: var(--color-highlight, #3b82f6);
-  color: white;
+   background: var(--color-botones, #1c4fd6); 
+  color: var(--color-texto-botones, #ffffff); 
   border: none;
   padding: 10px 20px;
   border-radius: 10px;

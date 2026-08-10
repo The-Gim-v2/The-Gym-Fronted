@@ -413,6 +413,7 @@ onUnmounted(() => {
 }
 
 .category-section {
+  
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -444,9 +445,10 @@ onUnmounted(() => {
 }
 
 .glass-card {
-  background: linear-gradient(145deg, #161619 0%, #101013 100%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  
+  background: var(--bg-cards, #121212);
   border-radius: var(--app-border-radius, 20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   padding: 22px;
   box-shadow: 0 16px 32px rgba(0,0,0,0.4);
   display: flex;
@@ -467,8 +469,8 @@ onUnmounted(() => {
 }
 
 .primary-registered-card {
-  border: 2px solid var(--color-highlight, #3b82f6);
-  background: linear-gradient(145deg, #161922 0%, #0d111a 100%);
+  background: var(--bg-cards, #121212);
+  border-radius: var(--app-border-radius, 20px);
   box-shadow: 0 20px 40px rgba(59, 130, 246, 0.15);
 }
 
@@ -488,9 +490,10 @@ onUnmounted(() => {
 }
 
 .badge-pill {
-  background: rgba(59, 130, 246, 0.15);
+   background: var(--color-botones, #1c4fd6); 
+  color: var(--color-texto-botones, #ffffff); 
   border: 1px solid rgba(59, 130, 246, 0.4);
-  color: #60a5fa;
+
   padding: 4px 10px;
   border-radius: 8px;
   font-size: 0.65rem;
@@ -513,7 +516,9 @@ onUnmounted(() => {
 .membership-lock-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(10, 10, 14, 0.88);
+  
+  background: var(--bg-cards, #121212);
+  border-radius: var(--app-border-radius, 20px);
   backdrop-filter: blur(6px);
   z-index: 10;
   display: flex;
@@ -556,8 +561,8 @@ onUnmounted(() => {
 
 .btn-unlock-action {
   margin-top: 8px;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-  color: #fff;
+   background: var(--color-botones, #1c4fd6); 
+  color: var(--color-texto-botones, #ffffff); 
   border: none;
   padding: 10px 20px;
   border-radius: 12px;

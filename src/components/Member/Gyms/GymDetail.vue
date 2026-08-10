@@ -476,15 +476,15 @@ onUnmounted(() => {
   font-family: 'Inter', sans-serif;
   color: #f5f5f4;
   box-sizing: border-box;
-  background-color: #08080a;
+  background: var(--bg-custom, var(--color-interfaz, #0a0a0c));
   min-height: 100vh;
   position: relative;
 }
 
 .back-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(245, 245, 244, 0.8);
+ background: var(--color-botones, #1c4fd6); 
+  color: var(--color-texto-botones, #ffffff); 
+  border: none; 
   padding: 8px 16px;
   border-radius: 10px;
   display: inline-flex;
@@ -633,7 +633,7 @@ onUnmounted(() => {
 }
 
 .panel-box {
-  background: linear-gradient(145deg, #141418 0%, #0d0d10 100%);
+  background: var(--bg-cards, #121212);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 18px;
@@ -798,8 +798,8 @@ onUnmounted(() => {
 }
 
 .headinadmin-card {
-  background: linear-gradient(145deg, #181822 0%, #0f0f14 100%) !important;
-  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+  background: var(--bg-cards, #121212);
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
 }
 
 .headinadmin-header {
@@ -959,8 +959,8 @@ onUnmounted(() => {
 
 .cta-main-btn {
   width: 100%;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-  color: #fff;
+   background: var(--color-botones, #1c4fd6); 
+  color: var(--color-texto-botones, #ffffff); 
   border: none;
   padding: 14px;
   border-radius: 14px;

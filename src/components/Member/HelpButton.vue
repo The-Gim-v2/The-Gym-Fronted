@@ -437,6 +437,350 @@ const tutoriales = {
   }
   ]
   },
+  'member-routines': {
+  es: [
+    { 
+      title: "Panel Principal y Resumen", 
+      description: "Aquí visualizas el catálogo oficial de ejercicios y el contador en tiempo real de tus rutinas guardadas.", 
+      selector: '#tutorial-1' 
+    },
+    { 
+      title: "Perfil Antropométrico", 
+      description: "Ingresa tus datos físicos actuales (edad, peso, altura, género y objetivo) para calcular métricas clave como tu IMC y somatotipo.", 
+      selector: '#tutorial-2' 
+    },
+    { 
+      title: "Parámetros Físicos", 
+      description: "Modifica estos valores numéricos y desplegables para adaptar las recomendaciones de entrenamiento a tu condición exacta.", 
+      selector: '#tutorial-3' 
+    },
+    { 
+      title: "Calcular Rutinas", 
+      description: "Haz clic en este botón para procesar tus datos antropométricos y generar una selección de ejercicios óptima para ti.", 
+      selector: '#tutorial-4' 
+    },
+    { 
+      title: "Filtros Avanzados", 
+      description: "Filtra el catálogo de manera rápida seleccionando partes específicas del cuerpo, niveles de dificultad o equipo disponible.", 
+      selector: '#tutorial-5' 
+    },
+    { 
+      title: "Catálogo Segmentado", 
+      description: "Explora los bloques de ejercicios divididos por grupos musculares y recomendaciones personalizadas según tu perfil.", 
+      selector: '#tutorial-6' 
+    },
+    { 
+      title: "Tarjeta de Ejercicio", 
+      description: "Cada tarjeta muestra la vista previa, series sugeridas, repeticiones adaptadas y un botón rápido para guardar la rutina.", 
+      selector: '#tutorial-7' 
+    },
+    { 
+      title: "Detalles Completos", 
+      description: "Presiona este botón para abrir una vista detallada con instrucciones paso a paso, tiempos de descanso óptimos y multimedia.", 
+      selector: '#tutorial-8' 
+    },
+    { 
+      title: "Contador de Guardados", 
+      description: "Lleva el control exacto de cuántas rutinas tienes almacenadas en tu lista personal de entrenamientos.", 
+      selector: '#tutorial-9' 
+    }
+  ],
+  en: [
+    { 
+      title: "Main Panel & Summary", 
+      description: "Here you view the official exercise catalog and a real-time counter of your saved routines.", 
+      selector: '#tutorial-1' 
+    },
+    { 
+      title: "Anthropometric Profile", 
+      description: "Enter your current physical data (age, weight, height, gender, and goal) to calculate key metrics like BMI and somatotype.", 
+      selector: '#tutorial-2' 
+    },
+    { 
+      title: "Physical Parameters", 
+      description: "Modify these numeric values and dropdowns to tailor training recommendations to your exact condition.", 
+      selector: '#tutorial-3' 
+    },
+    { 
+      title: "Calculate Routines", 
+      description: "Click this button to process your anthropometric data and generate an optimal selection of exercises for you.", 
+      selector: '#tutorial-4' 
+    },
+    { 
+      title: "Advanced Filters", 
+      description: "Quickly filter the catalog by selecting specific body parts, difficulty levels, or available equipment.", 
+      selector: '#tutorial-5' 
+    },
+    { 
+      title: "Segmented Catalog", 
+      description: "Explore exercise blocks divided by muscle groups along with personalized recommendations based on your profile.", 
+      selector: '#tutorial-6' 
+    },
+    { 
+      title: "Exercise Card", 
+      description: "Each card displays a preview, suggested sets, adapted repetitions, and a quick button to save the routine.", 
+      selector: '#tutorial-7' 
+    },
+    { 
+      title: "Full Details", 
+      description: "Press this button to open a detailed view featuring step-by-step instructions, optimal rest times, and media.", 
+      selector: '#tutorial-8' 
+    },
+    { 
+      title: "Saved Counter", 
+      description: "Keep track of exactly how many routines you have stored in your personal workout list.", 
+      selector: '#tutorial-9' 
+    }
+  ]
+},
+'member-my-routines': {
+    es: [
+      { 
+        title: "Encabezado y Panel General", 
+        description: "Visualiza el estado actual de tu planificación semanal, el título principal y las notificaciones de guardado en tiempo real.", 
+        selector: '#tutorial-1' 
+      },
+      { 
+        title: "Resumen Semanal", 
+        description: "Lleva el conteo exacto de tus días de entrenamiento, días de descanso y el total de ejercicios programados para la semana.", 
+        selector: '#tutorial-2' 
+      },
+      { 
+        title: "Acciones del Plan", 
+        description: "Utiliza estos botones para generar una semana de entrenamiento automáticamente o guardar todos los cambios realizados.", 
+        selector: '#tutorial-3' 
+      },
+      { 
+        title: "Biblioteca de Rutinas", 
+        description: "Explora tu repertorio guardado, filtra por nombre y arrastra las rutinas directamente hacia los días de la semana.", 
+        selector: '#tutorial-4' 
+      },
+      { 
+        title: "Selector de Días", 
+        description: "Alterna de manera rápida entre los diferentes días de la semana mediante la barra de navegación o fichas deslizables.", 
+        selector: '#tutorial-5' 
+      },
+      { 
+        title: "Detalle del Día", 
+        description: "Panel principal donde administras los ejercicios asignados a la jornada actual o configuras el día como descanso.", 
+        selector: '#tutorial-6' 
+      },
+      { 
+        title: "Cuadrícula de Rutinas", 
+        description: "Visualiza las tarjetas de ejercicio cargadas en el día activo con sus series, repeticiones, y opciones de administración.", 
+        selector: '#tutorial-7' 
+      },
+      { 
+        title: "Estado Global Vacío", 
+        description: "Mensaje de aviso que aparece cuando aún no dispones de rutinas guardadas en tu cuenta para planificar la semana.", 
+        selector: '#tutorial-8' 
+      }
+    ],
+    en: [
+      { 
+        title: "Header & General Panel", 
+        description: "View the current status of your weekly planning, main title, and real-time save notifications.", 
+        selector: '#tutorial-1' 
+      },
+      { 
+        title: "Weekly Summary", 
+        description: "Keep an exact count of your training days, rest days, and total exercises scheduled for the week.", 
+        selector: '#tutorial-2' 
+      },
+      { 
+        title: "Plan Actions", 
+        description: "Use these buttons to automatically generate a training week or save all changes made.", 
+        selector: '#tutorial-3' 
+      },
+      { 
+        title: "Routine Library", 
+        description: "Explore your saved repertory, filter by name, and drag routines directly into the days of the week.", 
+        selector: '#tutorial-4' 
+      },
+      { 
+        title: "Day Selector", 
+        description: "Quickly switch between different days of the week using the navigation bar or swipe chips.", 
+        selector: '#tutorial-5' 
+      },
+      { 
+        title: "Day Detail", 
+        description: "Main panel where you manage exercises assigned to the current day or configure it as a rest day.", 
+        selector: '#tutorial-6' 
+      },
+      { 
+        title: "Routine Grid", 
+        description: "View exercise cards loaded into the active day with their sets, reps, and management options.", 
+        selector: '#tutorial-7' 
+      },
+      { 
+        title: "Global Empty State", 
+        description: "Warning message displayed when you don't have saved routines in your account yet to plan the week.", 
+        selector: '#tutorial-8' 
+      }
+    ]
+  },
+  'member-trainer-routines': {
+  es: [
+    { 
+      title: "Encabezado de Entrenadores", 
+      description: "Visualiza la sección general de entrenadores y la descripción informativa del programa seleccionado.", 
+      selector: '#tutorial-1' 
+    },
+    { 
+      title: "Tu Entrenador Asignado", 
+      description: "Consulta los datos de contacto, biografía y rutinas principales asignadas por tu profesional principal.", 
+      selector: '#tutorial-2' 
+    },
+    { 
+      title: "Otros Entrenadores", 
+      description: "Explora otros profesionales del gimnasio. Requiere membresía activa para desbloquear y ver sus programas.", 
+      selector: '#tutorial-3' 
+    },
+    { 
+      title: "Biblioteca de Rutinas del Entrenador", 
+      description: "Filtra y arrastra las rutinas especializadas del entrenador seleccionado hacia tus días de la semana.", 
+      selector: '#tutorial-4' 
+    },
+    { 
+      title: "Selector de Días", 
+      description: "Navega rápidamente entre los días de la semana para organizar tu distribución de entrenamiento.", 
+      selector: '#tutorial-5' 
+    },
+    { 
+      title: "Detalle del Día Seleccionado", 
+      description: "Administra los ejercicios del día activo o marca la jornada como día de descanso.", 
+      selector: '#tutorial-6' 
+    },
+    { 
+      title: "Cuadrícula de Rutinas Asignadas", 
+      description: "Visualiza el detalle de cada rutina cargada en el día, marca tus avances y consulta los estados.", 
+      selector: '#tutorial-7' 
+    },
+    { 
+      title: "Estado Vacío o Descanso", 
+      description: "Mensaje indicador cuando la jornada está configurada como descanso o no contiene rutinas agregadas.", 
+      selector: '#tutorial-8' 
+    }
+  ],
+  en: [
+    { 
+      title: "Trainers Header", 
+      description: "View the general trainers section and the informative description of the selected program.", 
+      selector: '#tutorial-1' 
+    },
+    { 
+      title: "Your Assigned Trainer", 
+      description: "Check the contact info, bio, and main routines assigned by your primary professional.", 
+      selector: '#tutorial-2' 
+    },
+    { 
+      title: "Other Trainers", 
+      description: "Explore other gym professionals. Requires an active membership to unlock and view their programs.", 
+      selector: '#tutorial-3' 
+    },
+    { 
+      title: "Trainer Routine Library", 
+      description: "Filter and drag specialized routines from the selected trainer directly into your days of the week.", 
+      selector: '#tutorial-4' 
+    },
+    { 
+      title: "Day Selector", 
+      description: "Quickly navigate between days of the week to organize your training schedule.", 
+      selector: '#tutorial-5' 
+    },
+    { 
+      title: "Selected Day Detail", 
+      description: "Manage exercises for the active day or configure the schedule as a rest day.", 
+      selector: '#tutorial-6' 
+    },
+    { 
+      title: "Assigned Routines Grid", 
+      description: "View details for each routine loaded into the day, track your progress, and check statuses.", 
+      selector: '#tutorial-7' 
+    },
+    { 
+      title: "Empty State or Rest", 
+      description: "Indicator message when the day is configured as rest or contains no added routines.", 
+      selector: '#tutorial-8' 
+    }
+  ]
+},
+'member-profile': {
+  es: [
+    { 
+      title: "Resumen del Perfil", 
+      description: "Visualiza tu foto de perfil, nombre completo y el estatus actual de tu cuenta dentro de la plataforma.", 
+      selector: '#tutorial-profile-sidebar' 
+    },
+    { 
+      title: "Credenciales y Sistema", 
+      description: "Consulta tu rol asignado dentro del sistema y actualiza tu dirección de correo electrónico de acceso.", 
+      selector: '#tutorial-credentials-card' 
+    },
+    { 
+      title: "Datos Personales y Antropometría", 
+      description: "Edita tu número celular, datos de ubicación y mantén al día tus medidas físicas y corporales (peso, grasa, medidas).", 
+      selector: '#tutorial-personal-data-card' 
+    },
+    { 
+      title: "Membresía del Gimnasio", 
+      description: "Consulta el historial de tu tipo de membresía presencial, fechas de inscripción, cortes y montos pagados.", 
+      selector: '#tutorial-gym-membership-card' 
+    },
+    { 
+      title: "Suscripción Web y Sincronización", 
+      description: "Revisa tu plan web activo actual y utiliza el botón de sincronización o gestiona la cancelación de tu suscripción.", 
+      selector: '#tutorial-web-subscription-card' 
+    },
+    { 
+      title: "Seguridad y Contraseña", 
+      description: "Establece una nueva contraseña de acceso segura para proteger tu cuenta de atleta.", 
+      selector: '#tutorial-security-card' 
+    },
+    { 
+      title: "Guardar Cambios", 
+      description: "Presiona este botón para aplicar y guardar de forma permanente todas las modificaciones realizadas en tu perfil.", 
+      selector: '#tutorial-save-btn' 
+    }
+  ],
+  en: [
+    { 
+      title: "Profile Summary", 
+      description: "View your profile picture, full name, and the current status of your account within the platform.", 
+      selector: '#tutorial-profile-sidebar' 
+    },
+    { 
+      title: "Credentials and System", 
+      description: "Check your assigned system role and update your account login email address.", 
+      selector: '#tutorial-credentials-card' 
+    },
+    { 
+      title: "Personal Data & Anthropometry", 
+      description: "Edit your mobile number, location data, and keep your body measurements up to date (weight, body fat, dimensions).", 
+      selector: '#tutorial-personal-data-card' 
+    },
+    { 
+      title: "Gym Membership", 
+      description: "Review your gym membership type history, enrollment dates, cutoff dates, and paid amounts.", 
+      selector: '#tutorial-gym-membership-card' 
+    },
+    { 
+      title: "Web Subscription & Sync", 
+      description: "Check your active web plan and use the sync button or manage your subscription cancellation.", 
+      selector: '#tutorial-web-subscription-card' 
+    },
+    { 
+      title: "Security & Password", 
+      description: "Set a new secure access password to keep your athlete account protected.", 
+      selector: '#tutorial-security-card' 
+    },
+    { 
+      title: "Save Changes", 
+      description: "Click this button to permanently apply and save all modifications made to your profile.", 
+      selector: '#tutorial-save-btn' 
+    }
+  ]
+},
 };
 
 const steps = computed(() => {

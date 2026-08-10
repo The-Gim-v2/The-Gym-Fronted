@@ -321,10 +321,12 @@ const toggleGroup = (section: string) => {
   openSection.value = openSection.value === section ? null : section;
 };
 
-const handleLogout = () => {
+const handleLogout = (): void => {
+  localStorage.removeItem('user_role');
   localStorage.removeItem('token'); 
   localStorage.removeItem('user');
-  router.push('/login'); 
+  
+  router.replace({ name: 'login' }); 
 };
 
 

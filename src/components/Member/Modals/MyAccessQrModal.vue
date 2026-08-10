@@ -184,8 +184,8 @@ const t = computed(() => traducciones[lang.value] || traducciones.es);
   justify-content: flex-end;
 }
 .btn-primary {
-  background: var(--color-highlight, #3b82f6);
-  color: white;
+   background: var(--color-botones, #1c4fd6); 
+  color: var(--color-texto-botones, #ffffff); 
   border: none;
   padding: 10px 20px;
   border-radius: 10px;

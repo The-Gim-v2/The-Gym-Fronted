@@ -1,14 +1,25 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, onUnmounted } from 'vue';
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router'; 
 import HeadingRecepcion from '../HeadingRecepcion.vue';
-import { traducciones } from '../i18n.js';
+
 
 const currentLang = ref(localStorage.getItem('recepcion-idioma') || 'es');
 const router = useRouter();
 
-// Diccionario local extendido para asegurar las traducciones de esta vista
-const localTraducciones: Record<string, Record<string, string>> = {
+const t = (key: string) => {
+  const langTable = translations[currentLang.value as keyof typeof translations] || translations.es;
+  return langTable[key as keyof typeof langTable] || translations.es[key as keyof typeof translations.es] || key;
+};
+
+const handleLangChange = (e: Event) => {
+  const customEvent = e as CustomEvent<{ idioma?: string }>;
+  if (customEvent.detail && customEvent.detail.idioma) {
+    currentLang.value = customEvent.detail.idioma;
+  }
+};
+// Diccionario integrado con las traducciones completas para evitar llaves sueltas
+const translations = {
   es: {
     profileTitle: "MI PERFIL DE RECEPCIÓN",
     uploadPhotoTooltip: "Subir fotografía oficial",
@@ -33,16 +44,15 @@ const localTraducciones: Record<string, Record<string, string>> = {
     confirmPasswordPlaceholder: "Confirmar contraseña",
     saveChangesBtn: "Guardar Cambios",
     credentialsUpdateModalTitle: "Actualización de Credenciales",
-    emailChangeWarningText: "Has cambiado tu correo electrónico. Por motivos de seguridad y control de acceso, es obligatorio ingresar y confirmar una nueva contraseña en este momento.",
+    emailChangeWarningText: "Has modificado tu correo electrónico. Por seguridad y control de acceso, es obligatorio ingresar y confirmar una nueva contraseña.",
     newAccessPasswordLabel: "Nueva Contraseña de Acceso",
-    enterNewPasswordPlaceholder: "Ingresa contraseña nueva",
-    confirmNewPasswordPlaceholder: "Confirma contraseña nueva",
+    enterNewPasswordPlaceholder: "Ingresa la nueva contraseña",
     cancelBtn: "Cancelar",
     confirmChangeBtn: "Confirmar Cambio",
     photoUpdatedMsg: "Fotografía actualizada correctamente",
     savedSuccessMsg: "Cambios guardados con éxito",
     passwordWarningMsg: "Debes ingresar y confirmar una nueva contraseña por seguridad al cambiar el correo.",
-    emailChangedMsg: "Correo anterior eliminado. Se ha enviado un correo nuevo de acceso al nuevo correo."
+    emailChangedMsg: "Correo actualizado correctamente. Redirigindo..."
   },
   en: {
     profileTitle: "RECEPTION PROFILE",
@@ -68,32 +78,21 @@ const localTraducciones: Record<string, Record<string, string>> = {
     confirmPasswordPlaceholder: "Confirm password",
     saveChangesBtn: "Save Changes",
     credentialsUpdateModalTitle: "Credentials Update",
-    emailChangeWarningText: "You have changed your email address. For security and access control reasons, you must enter and confirm a new password at this time.",
+    emailChangeWarningText: "You have changed your email address. For security and access control reasons, you must enter and confirm a new password.",
     newAccessPasswordLabel: "New Access Password",
     enterNewPasswordPlaceholder: "Enter new password",
-    confirmNewPasswordPlaceholder: "Confirm new password",
     cancelBtn: "Cancel",
     confirmChangeBtn: "Confirm Change",
     photoUpdatedMsg: "Photograph updated successfully",
     savedSuccessMsg: "Changes saved successfully",
     passwordWarningMsg: "You must enter and confirm a new password for security when changing your email.",
-    emailChangedMsg: "Previous email deleted. A new access email has been sent to your new address."
+    emailChangedMsg: "Email updated successfully. Redirecting..."
   }
 };
 
-const t = (key: string) => {
-  const dict = traducciones as Record<string, Record<string, string>>;
-  const langTable = dict[currentLang.value] || localTraducciones[currentLang.value] || {};
-  const fallbackTable = dict['es'] || localTraducciones['es'] || {};
-  return langTable[key] || fallbackTable[key] || key;
-};
 
-const handleLangChange = (e: Event) => {
-  const customEvent = e as CustomEvent<{ idioma?: string }>;
-  if (customEvent.detail && customEvent.detail.idioma) {
-    currentLang.value = customEvent.detail.idioma;
-  }
-};
+
+
 
 onMounted(() => {
   window.addEventListener('idioma-changed', handleLangChange as EventListener);
@@ -110,7 +109,6 @@ const previewImage = ref<string | null>(null);
 const showPassword = ref(false);
 const showEmailModal = ref(false);
 
-// Sistema de notificaciones
 const notification = reactive({
   show: false,
   message: '',
@@ -139,11 +137,9 @@ const handleScroll = () => {
   }
 };
 
-// Datos del formulario de la recepcionista
 const form = reactive({
   rol: 'Recepción',
   email: 'recepcion@ironfitness.com',
-  nuevoEmail: 'recepcion@ironfitness.com',
   curp: 'IFCR010101HDF000',
   nombres: 'María Fernanda',
   apellidoP: 'López',
@@ -172,8 +168,6 @@ const handleSaveChanges = () => {
     showEmailModal.value = true;
     return;
   }
-
-  console.log('Guardar cambios de perfil:', form);
   showNotification(t('savedSuccessMsg'), 'success');
 };
 
@@ -184,12 +178,15 @@ const confirmEmailAndPasswordChange = () => {
   }
 
   showEmailModal.value = false;
-  
-  showNotification(t('emailChangedMsg'), 'info', 5000);
+  showNotification(t('emailChangedMsg'), 'info', 4000);
 
   setTimeout(() => {
-    router.push('/login'); 
-  }, 2500);
+  localStorage.removeItem('user_role');
+  localStorage.removeItem('token'); 
+  localStorage.removeItem('user');
+  
+  router.replace({ name: 'login' }); 
+  }, 2000);
 };
 </script>
 
@@ -197,7 +194,6 @@ const confirmEmailAndPasswordChange = () => {
   <HeadingRecepcion>
     <main class="main-content">
       
-      <!-- Notificación flotante tipo Toast -->
       <transition name="toast">
         <div v-if="notification.show" class="floating-toast" :class="notification.type">
           <svg v-if="notification.type === 'success'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
@@ -209,7 +205,6 @@ const confirmEmailAndPasswordChange = () => {
 
       <div class="profile-card">
         
-        <!-- Sección Izquierda: Avatar y Títulos -->
         <div 
           class="profile-section" 
           :style="{ transform: `translateY(${profileTranslateY}px)` }"
@@ -231,11 +226,9 @@ const confirmEmailAndPasswordChange = () => {
           <p class="profile-hint">{{ t('profileHintText') }}</p>
         </div>
 
-        <!-- Columna Derecha: Formularios -->
         <div class="forms-wrapper">
           <form @submit.prevent="handleSaveChanges">
             
-            <!-- Credenciales y Rol -->
             <div class="login-card">
               <h3 class="section-title">{{ t('credentialsAndRoleTitle') }}</h3>
               <div class="form-grid">
@@ -250,7 +243,6 @@ const confirmEmailAndPasswordChange = () => {
               </div>
             </div>
 
-            <!-- Datos del Empleado (Bloqueados) -->
             <div class="login-card">
               <h3 class="section-title">{{ t('employeeDataTitle') }}</h3>
               <div class="form-grid">
@@ -281,7 +273,6 @@ const confirmEmailAndPasswordChange = () => {
               </div>
             </div>
 
-            <!-- Horario de Trabajo (Bloqueado) -->
             <div class="login-card">
               <h3 class="section-title">{{ t('workScheduleTitle') }}</h3>
               <div class="form-grid">
@@ -296,7 +287,6 @@ const confirmEmailAndPasswordChange = () => {
               </div>
             </div>
 
-            <!-- Contraseña y Seguridad -->
             <div class="login-card">
               <h3 class="section-title">{{ t('securityAndPasswordTitle') }}</h3>
               <div class="form-grid">
@@ -322,7 +312,7 @@ const confirmEmailAndPasswordChange = () => {
         </div>
       </div>
 
-      <!-- Modal para Cambio Obligatorio de Contraseña al Modificar Correo -->
+      <!-- Modal con textos traducidos correctamente -->
       <div v-if="showEmailModal" class="modal-overlay" @click.self="showEmailModal = false">
         <div class="modal-container modal-small animate-modal">
           <div class="modal-header">
@@ -342,7 +332,7 @@ const confirmEmailAndPasswordChange = () => {
             </div>
             <div class="input-group mb-4 text-left" style="text-align: left;">
               <label>{{ t('confirmPasswordLabel') }}</label>
-              <input type="password" v-model="form.confirmPassword" :placeholder="t('confirmNewPasswordPlaceholder')" required />
+              <input type="password" v-model="form.confirmPassword" :placeholder="t('confirmPasswordPlaceholder')" required />
             </div>
             <div class="modal-actions">
               <button type="button" class="btn-secondary-modal" @click="showEmailModal = false">{{ t('cancelBtn') }}</button>

@@ -7,7 +7,6 @@ import AIChatModal from '../../Record/Record-Staff.vue';
 import MembershipModal from '../../Modals/MembershipModal.vue';
 import { traducciones } from '../i18n.js';
 
-// Sistema de idioma reactivo igual que en tu ejemplo
 const currentLang = ref(localStorage.getItem('owner-idioma') || 'es');
 const router = useRouter();
 
@@ -15,7 +14,6 @@ const t = (key: string) => {
   const dict = traducciones as Record<string, Record<string, string>>;
   const langTable = dict[currentLang.value] || dict['es'] || {};
   const fallbackTable = dict['es'] || {};
-  
   return langTable[key] || fallbackTable[key] || key;
 };
 
@@ -39,15 +37,17 @@ onUnmounted(() => {
 const allDays = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 const fileInput = ref<HTMLInputElement | null>(null);
 const previewImage = ref<string | null>(null);
+
+const coverFileInput = ref<HTMLInputElement | null>(null);
+const previewCoverImage = ref<string | null>(null);
+
 const showPassword = ref(false);
 
-// Control de modales
 const showAddSedeModal = ref(false);
 const showAIModal = ref(false);
 const showPaymentModal = ref(false); 
 const showCancelModal = ref(false);
 
-// Sistema de notificaciones (tipo toast flotante)
 const notification = reactive({
   show: false,
   message: '',
@@ -63,7 +63,6 @@ const showNotification = (msg: string, type: 'success' | 'warning' | 'info' = 's
   }, 4000);
 };
 
-// Control para el desplazamiento fluido
 const scrollY = ref(0);
 const profileTranslateY = ref(0);
 
@@ -88,10 +87,10 @@ const form = reactive({
   entidad: 'San Luis Potosí',
   municipio: 'Ciudad Valles',
   cp: '79000',
-  colonia: 'Centro',
-  calle: 'Blvd. Hidalgo',
-  numExt: '120',
-  numInt: 'B',
+  colonia: 'Zona Centro',
+  calle: 'Av. Universitaria',
+  numExt: '420',
+  numInt: '',
   selectedDays: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
   precioMes: '450',
   precioSem: '150',
@@ -99,7 +98,28 @@ const form = reactive({
   password: '',
   confirmPassword: '',
   membresiaActual: 'Plan Pro - Sede Principal (Activa)',
-  tipoMembresia: 'pro'
+  tipoMembresia: 'pro',
+  descripcionGimnasio: 'Instalaciones de clase mundial con tecnología de seguimiento biomecánico y áreas especializadas para entrenamiento de alto rendimiento.',
+  nuevaAmenidadTexto: '',
+  amenidades: [
+    { id: 1, nombre: 'Estacionamiento Gratuito' },
+    { id: 2, nombre: 'Regaderas y Lockers' },
+    { id: 3, nombre: 'Wi-Fi de Alta Velocidad' },
+    { id: 4, nombre: 'Zona de Sauna' },
+    { id: 5, nombre: 'Bebidas Energéticas' }
+  ],
+  horariosCompletos: {
+    'Lun': { abierto: '06:00', cerrado: '23:00', activo: true },
+    'Mar': { abierto: '06:00', cerrado: '23:00', activo: true },
+    'Mié': { abierto: '06:00', cerrado: '23:00', activo: true },
+    'Jue': { abierto: '06:00', cerrado: '23:00', activo: true },
+    'Vie': { abierto: '06:00', cerrado: '23:00', activo: true },
+    'Sáb': { abierto: '07:00', cerrado: '20:00', activo: true },
+    'Dom': { abierto: '08:00', cerrado: '16:00', activo: true }
+  },
+  latitud: '21.9903',
+  longitud: '-99.0152',
+  mapZoomLevel: 15
 });
 
 const isProMember = computed(() => {
@@ -112,18 +132,41 @@ const toggleDay = (day: string) => {
   else form.selectedDays.push(day);
 };
 
+const agregarAmenidad = () => {
+  if (!form.nuevaAmenidadTexto.trim()) return;
+  form.amenidades.push({
+    id: Date.now(),
+    nombre: form.nuevaAmenidadTexto.trim()
+  });
+  form.nuevaAmenidadTexto = '';
+  showNotification('Amenidad agregada correctamente', 'success');
+};
+
+const eliminarAmenidad = (id: number) => {
+  form.amenidades = form.amenidades.filter(a => a.id !== id);
+  showNotification('Amenidad eliminada', 'info');
+};
+
 const triggerFileInput = () => fileInput.value?.click();
 const onFileSelected = (event: Event) => {
   const file = (event.target as HTMLInputElement).files?.[0];
   if (file) {
     previewImage.value = URL.createObjectURL(file);
-    showNotification(t('toastLogoUpdated'), 'info');
+    showNotification(t('toastLogoUpdated') || 'Logo actualizado correctamente', 'info');
+  }
+};
+
+const triggerCoverFileInput = () => coverFileInput.value?.click();
+const onCoverFileSelected = (event: Event) => {
+  const file = (event.target as HTMLInputElement).files?.[0];
+  if (file) {
+    previewCoverImage.value = URL.createObjectURL(file);
+    showNotification('Foto de portada actualizada correctamente', 'info');
   }
 };
 
 const handleSaveChanges = () => {
-  console.log('Guardar cambios:', form);
-  showNotification(t('toastChangesSaved'), 'success');
+  showNotification(t('toastChangesSaved') || 'Cambios guardados exitosamente', 'success');
 };
 
 const handleUpdateMembership = () => {
@@ -141,12 +184,12 @@ const handleCancelSubscription = () => {
 
 const confirmCancelSubscription = () => {
   showCancelModal.value = false;
-  showNotification(t('toastCancelRequested'), 'warning');
+  showNotification(t('toastCancelRequested') || 'Solicitud de cancelación procesada', 'warning');
 };
 
 const handleAddSede = () => {
   if (!isProMember.value) {
-    showNotification(t('toastProOnlySede'), 'warning');
+    showNotification(t('toastProOnlySede') || 'Función exclusiva para miembros Pro', 'warning');
     return;
   }
   showAddSedeModal.value = true;
@@ -154,10 +197,22 @@ const handleAddSede = () => {
 
 const handleInteractAI = () => {
   if (!isProMember.value) {
-    showNotification(t('toastProOnlyAI'), 'warning');
+    showNotification(t('toastProOnlyAI') || 'Función exclusiva para miembros Pro', 'warning');
     return;
   }
   showAIModal.value = true;
+};
+
+const centrarSedeMapa = () => {
+  showNotification('Mapa centrado en la sede principal', 'info');
+};
+
+const zoomInMap = () => {
+  if (form.mapZoomLevel < 18) form.mapZoomLevel++;
+};
+
+const zoomOutMap = () => {
+  if (form.mapZoomLevel > 10) form.mapZoomLevel--;
 };
 </script>
 
@@ -165,7 +220,6 @@ const handleInteractAI = () => {
   <HeadingOwner>
     <main class="main-content" id="tutor-0">
       
-      <!-- Notificación flotante tipo Toast -->
       <transition name="toast">
         <div v-if="notification.show" class="floating-toast" :class="notification.type" id="tutor-1">
           <svg v-if="notification.type === 'success'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
@@ -177,12 +231,7 @@ const handleInteractAI = () => {
 
       <div class="profile-card" id="tutor-2">
         
-        <!-- Sección Izquierda -->
-        <div 
-          class="profile-section" 
-          :style="{ transform: `translateY(${profileTranslateY}px)` }"
-          id="tutor-3"
-        >
+        <div class="profile-section" :style="{ transform: `translateY(${profileTranslateY}px)` }" id="tutor-3">
           <h1 class="main-title" id="tutor-4" v-html="t('profileMainTitle')"></h1>
           
           <div class="avatar-wrapper" @click="triggerFileInput" :title="t('avatarUploadTitle')" id="tutor-5">
@@ -200,13 +249,26 @@ const handleInteractAI = () => {
           <p class="profile-hint" id="tutor-10">{{ t('profileHintText') }}</p>
         </div>
 
-        <!-- Columna Derecha: Formularios -->
         <div class="forms-wrapper" id="tutor-11">
           <form @submit.prevent="handleSaveChanges" id="tutor-12">
             
             <!-- Datos del Gimnasio y Membresía -->
             <div class="login-card" id="tutor-13">
               <h3 class="section-title" id="tutor-14">{{ t('sectionGymInfo') }}</h3>
+
+              <!-- Subida de Foto de Portada / Banner -->
+              <div class="input-group mb-4">
+                <label>{{ t('labelCoverPhoto') }}</label>
+                <div class="cover-upload-container" @click="triggerCoverFileInput">
+                  <img v-if="previewCoverImage" :src="previewCoverImage" :alt="t('coverPreviewAlt')" class="cover-preview-img" />
+                  <div v-else class="cover-placeholder-content">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    <span>{{ t('coverPlaceholderText') }}</span>
+                  </div>
+                  <input type="file" ref="coverFileInput" @change="onCoverFileSelected" accept="image/*" style="display: none" />
+                </div>
+              </div>
+
               <div class="form-grid" id="tutor-15">
                 <div class="input-group" id="tutor-16">
                   <label for="nombreGimnasio">{{ t('labelGymName') }}</label>
@@ -235,22 +297,10 @@ const handleInteractAI = () => {
                 <div class="input-group special-buttons-group" id="tutor-23">
                   <label>&nbsp;</label>
                   <div class="dual-action-buttons" id="tutor-24">
-                    <button 
-                      type="button" 
-                      class="btn-custom-action btn-sede" 
-                      :class="{ 'btn-disabled': !isProMember }"
-                      @click="handleAddSede"
-                      id="tutor-25"
-                    >
+                    <button type="button" class="btn-custom-action btn-sede" :class="{ 'btn-disabled': !isProMember }" @click="handleAddSede" id="tutor-25">
                       {{ t('btnAddBranch') }}
                     </button>
-                    <button 
-                      type="button" 
-                      class="btn-custom-action btn-ai" 
-                      :class="{ 'btn-disabled': !isProMember }"
-                      @click="handleInteractAI"
-                      id="tutor-26"
-                    >
+                    <button type="button" class="btn-custom-action btn-ai" :class="{ 'btn-disabled': !isProMember }" @click="handleInteractAI" id="tutor-26">
                       {{ t('btnInteractAI') }}
                     </button>
                   </div>
@@ -258,7 +308,33 @@ const handleInteractAI = () => {
               </div>
             </div>
 
-            <!-- Datos del Administrador -->
+            <!-- ACERCA DEL GIMNASIO Y AMENIDADES -->
+            <div class="login-card" id="tutor-gym-details">
+              <h3 class="section-title">{{ t('sectionGymDetailsTitle') }}</h3>
+              <div class="form-grid vertical-stack gap-4">
+                <div class="input-group">
+                  <label for="descripcionGimnasio">{{ t('labelGymDescription') }}</label>
+                  <textarea id="descripcionGimnasio" v-model="form.descripcionGimnasio" rows="3" class="textarea-custom" :placeholder="t('placeholderGymDescription')"></textarea>
+                </div>
+
+                <div class="input-group mt-2">
+                  <label>{{ t('labelAmenitiesServices') }}</label>
+                  <div class="add-amenity-row">
+                    <input type="text" v-model="form.nuevaAmenidadTexto" :placeholder="t('placeholderNewAmenity')" @keyup.enter="agregarAmenidad" />
+                    <button type="button" class="btn-add-amenity" @click="agregarAmenidad">{{ t('btnAddAmenity') }}</button>
+                  </div>
+
+                  <div class="amenities-tags-container mt-3">
+                    <div v-for="amenidad in form.amenidades" :key="amenidad.id" class="amenity-tag-pill">
+                      <input type="text" v-model="amenidad.nombre" class="amenity-tag-input" />
+                      <button type="button" class="btn-remove-amenity-tag" @click="eliminarAmenidad(amenidad.id)" :title="t('titleRemoveAmenity')">&times;</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- DATOS DEL ADMINISTRADOR -->
             <div class="login-card" id="tutor-27">
               <h3 class="section-title" id="tutor-28">{{ t('sectionAdminData') }}</h3>
               <div class="form-grid" id="tutor-29">
@@ -283,8 +359,8 @@ const handleInteractAI = () => {
                   <input id="celular" type="tel" v-model="form.celular" required />
                 </div>
                 <div class="input-group" id="tutor-35">
-                  <label for="email">{{ t('labelEmail') }}</label>
-                  <input id="email" type="email" v-model="form.email" required />
+                  <label for="email">{{ t('labelEmailModifiable') }}</label>
+                  <input id="email" type="email" v-model="form.email" required placeholder="correo@ejemplo.com" />
                 </div>
                 <div class="input-group" id="tutor-36">
                   <label for="password">{{ t('labelNewPassword') }}</label>
@@ -303,10 +379,13 @@ const handleInteractAI = () => {
               </div>
             </div>
 
-            <!-- Ubicación del Gimnasio -->
+            <!-- UBICACIÓN DEL ESTABLECIMIENTO -->
             <div class="login-card" id="tutor-40">
-              <h3 class="section-title" id="tutor-41">{{ t('sectionLocation') }}</h3>
-              <div class="form-grid" id="tutor-42">
+              <div class="map-card-header-bar">
+                <h3 class="section-title mb-0" id="tutor-41">{{ t('sectionGeographicLocation') }}</h3>
+              </div>
+
+              <div class="form-grid mt-3" id="tutor-42">
                 <div class="input-group" id="tutor-43">
                   <label for="entidad">{{ t('labelState') }}</label>
                   <input id="entidad" type="text" v-model="form.entidad" required />
@@ -336,12 +415,57 @@ const handleInteractAI = () => {
                   <input id="numInt" type="text" v-model="form.numInt" />
                 </div>
               </div>
+
+              <!-- Mapa interactivo -->
+              <div class="map-container-box mt-4">
+                <div class="map-controls-top-right">
+                  <button type="button" class="btn-center-sede" @click="centrarSedeMapa">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"></circle><circle cx="12" cy="12" r="9"></circle></svg>
+                    {{ t('btnCenterBranch') }}
+                  </button>
+                </div>
+
+                <div class="interactive-map-canvas-v3">
+                  <div class="map-street-grid-lines"></div>
+                  <div class="map-simulated-roads">
+                    <div class="road r-1"></div>
+                    <div class="road r-2"></div>
+                    <div class="road r-3"></div>
+                    <div class="road-label rl-1">Boulevard Lázaro Cárdenas</div>
+                    <div class="road-label rl-2">Río Valles</div>
+                    <div class="road-label rl-3">COLONIA TETUÁN</div>
+                  </div>
+
+                  <div class="map-floating-popup-card">
+                    <div class="popup-card-content">
+                      <span class="popup-title-text">{{ form.nombreGimnasio }} {{ t('mapCentersSuffix') }}</span>
+                      <span class="popup-subtitle-text">{{ form.calle }} #{{ form.numExt }}, {{ form.colonia }}</span>
+                    </div>
+                    <button type="button" class="popup-close-x" @click="centrarSedeMapa">&times;</button>
+                  </div>
+
+                  <div class="map-active-pin-dot">
+                    <div class="pin-blue-core"></div>
+                  </div>
+
+                  <div class="map-zoom-controls-v3">
+                    <button type="button" class="zoom-btn-v3" @click="zoomInMap">+</button>
+                    <div class="zoom-divider"></div>
+                    <button type="button" class="zoom-btn-v3" @click="zoomOutMap">-</button>
+                  </div>
+
+                  <div class="map-bottom-left-badge">
+                    {{ form.nombreGimnasio }} {{ t('mapCenterBadgeSuffix') }}
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <!-- Configuración de Operación -->
+            <!-- CONFIGURACIÓN DE OPERACIÓN -->
             <div class="login-card" id="tutor-50">
               <h3 class="section-title" id="tutor-51">{{ t('sectionOperationConfig') }}</h3>
-              <div class="input-group mb-3" id="tutor-52">
+              
+              <div class="input-group mb-4" id="tutor-52">
                 <label>{{ t('labelOpeningDays') }}</label>
                 <div class="days-container" id="tutor-53">
                   <button
@@ -358,7 +482,42 @@ const handleInteractAI = () => {
                 </div>
               </div>
 
-              <div class="form-grid" id="tutor-61">
+              <!-- Horarios distribuidos exactamente en 3 columnas -->
+            <div class="operational-schedules-wrapper mb-4" v-if="form.selectedDays.length > 0">
+                <label class="mb-2 block-label">{{ t('labelSchedulesPerDay') }}</label>
+                <div class="schedules-grid-multi-column">
+                  <div v-for="dia in form.selectedDays" :key="dia" class="schedule-card-box-item" :class="{ inactive: !form.horariosCompletos[dia as keyof typeof form.horariosCompletos]?.activo }">
+                    <div class="schedule-card-header-row">
+                      <span class="schedule-day-pill">{{ dia }}</span>
+                      <label class="switch-toggle">
+                        <input type="checkbox" v-model="form.horariosCompletos[dia as keyof typeof form.horariosCompletos].activo" />
+                        <span class="slider-round"></span>
+                      </label>
+                    </div>
+
+                    <div class="schedule-times-stack" v-if="form.horariosCompletos[dia as keyof typeof form.horariosCompletos]?.activo">
+                      <div class="time-block-compact">
+                        <span class="lbl-small">{{ t('labelOpens') }}</span>
+                        <div class="time-input-pill">
+                          <input type="time" v-model="form.horariosCompletos[dia as keyof typeof form.horariosCompletos].abierto" />
+                        </div>
+                      </div>
+                      <div class="time-block-compact">
+                        <span class="lbl-small">{{ t('labelCloses') }}</span>
+                        <div class="time-input-pill">
+                          <input type="time" v-model="form.horariosCompletos[dia as keyof typeof form.horariosCompletos].cerrado" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="schedule-closed-label" v-else>
+                      <span>{{ t('labelClosed') }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-grid mt-3" id="tutor-61">
                 <div class="input-group" id="tutor-62">
                   <label for="precioMes">{{ t('labelMonthlyPrice') }}</label>
                   <input id="precioMes" type="number" v-model="form.precioMes" required />
@@ -375,7 +534,7 @@ const handleInteractAI = () => {
         </div>
       </div>
 
-      <!-- Modal Personalizado de Confirmación de Baja -->
+      <!-- Modales -->
       <div v-if="showCancelModal" class="modal-overlay" @click.self="showCancelModal = false" id="tutor-65">
         <div class="modal-container modal-small animate-modal" id="tutor-66">
           <div class="modal-header" id="tutor-67">
@@ -395,15 +554,8 @@ const handleInteractAI = () => {
         </div>
       </div>
 
-      <!-- Componente Modular Externo de Pago -->
-      <MembershipModal 
-        v-if="showPaymentModal" 
-        @close="showPaymentModal = false" 
-        @success="handlePaymentSuccess" 
-        id="tutor-76"
-      />
+      <MembershipModal v-if="showPaymentModal" @close="showPaymentModal = false" @success="handlePaymentSuccess" id="tutor-76" />
 
-      <!-- Modal para Agregar Sede -->
       <div v-if="showAddSedeModal" class="modal-overlay" @click.self="showAddSedeModal = false" id="tutor-77">
         <div class="modal-container animate-modal" id="tutor-78">
           <div class="modal-header" id="tutor-79">
@@ -416,7 +568,6 @@ const handleInteractAI = () => {
         </div>
       </div>
 
-      <!-- Modal para Interactuar con la IA -->
       <div v-if="showAIModal" class="modal-overlay" @click.self="showAIModal = false" id="tutor-84">
         <div class="modal-container animate-modal" id="tutor-85">
           <div class="modal-header" id="tutor-86">
@@ -432,6 +583,7 @@ const handleInteractAI = () => {
     </main>
   </HeadingOwner>
 </template>
+
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;600;700&display=swap');
 
@@ -444,8 +596,6 @@ const handleInteractAI = () => {
   position: relative;
   color: var(--color-texto-general, #e5e5e5);
 }
-
-.highlight { color: var(--color-highlight, #3b82f6); }
 
 .animate-modal {
   animation: modalScale 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -472,21 +622,9 @@ const handleInteractAI = () => {
   box-shadow: 0 10px 30px rgba(0,0,0,0.5);
   backdrop-filter: blur(10px);
 }
-.floating-toast.success {
-  background: rgba(16, 185, 129, 0.9);
-  color: #fff;
-  border: 1px solid rgba(52, 211, 153, 0.4);
-}
-.floating-toast.warning {
-  background: rgba(245, 158, 11, 0.9);
-  color: #fff;
-  border: 1px solid rgba(251, 191, 36, 0.4);
-}
-.floating-toast.info {
-  background: rgba(59, 130, 246, 0.9);
-  color: #fff;
-  border: 1px solid rgba(96, 165, 250, 0.4);
-}
+.floating-toast.success { background: rgba(16, 185, 129, 0.9); color: #fff; border: 1px solid rgba(52, 211, 153, 0.4); }
+.floating-toast.warning { background: rgba(245, 158, 11, 0.9); color: #fff; border: 1px solid rgba(251, 191, 36, 0.4); }
+.floating-toast.info { background: rgba(59, 130, 246, 0.9); color: #fff; border: 1px solid rgba(96, 165, 250, 0.4); }
 
 .toast-enter-active, .toast-leave-active { transition: all 0.3s ease; }
 .toast-enter-from, .toast-leave-to { opacity: 0; transform: translateY(-20px); }
@@ -514,7 +652,6 @@ const handleInteractAI = () => {
   position: sticky;
   top: 30px;
   transition: transform 0.1s cubic-bezier(0, 0, 0.2, 1);
-  will-change: transform;
 }
 
 .main-title { 
@@ -524,422 +661,453 @@ const handleInteractAI = () => {
   margin: 0 0 24px 0; 
   line-height: 1.1; 
   text-transform: uppercase; 
-  letter-spacing: 0.5px;
 }
 
-.gym-name-display {
-  font-family: 'Anton', sans-serif;
-  font-size: 1.3rem;
-  color: var(--color-titulos, #fff);
-  margin: 16px 0 6px;
-  letter-spacing: 0.5px;
+.avatar-wrapper { position: relative; cursor: pointer; margin-bottom: 16px; }
+.avatar-circle {
+  width: 110px; height: 110px; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06); border: 2px solid rgba(255, 255, 255, 0.15);
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
 }
-
-.profile-hint {
-  font-family: 'Inter', sans-serif;
-  color: var(--color-highlight, #94a3b8);
-  font-size: 0.85rem;
-  line-height: 1.4;
-  margin-top: 6px;
+.avatar-img { width: 100%; height: 100%; object-fit: cover; }
+.avatar-circle svg { width: 50px; height: 50px; opacity: 0.6; }
+.avatar-action {
+  position: absolute; bottom: 0; right: 0; background: #3b82f6; border: none;
+  width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff;
 }
+.avatar-action svg { width: 16px; height: 16px; }
 
-.forms-wrapper { 
-  display: flex; 
-  flex-direction: column; 
-  gap: 32px; 
-  width: 100%; 
-}
+.gym-name-display { font-family: 'Anton', sans-serif; font-size: 1.3rem; color: #fff; margin: 16px 0 6px; }
+.profile-hint { font-family: 'Inter', sans-serif; color: #94a3b8; font-size: 0.85rem; margin-top: 6px; }
 
+.forms-wrapper { display: flex; flex-direction: column; gap: 32px; width: 100%; min-width: 0; }
 .login-card { 
   background: var(--bg-cards, rgba(18, 18, 18, 0.75)); 
   backdrop-filter: blur(12px);
-  padding: 36px; 
-  margin-top: 25px;
+  padding: 36px; margin-top: 25px;
   border-radius: var(--app-border-radius, 24px); 
   border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.12)); 
   box-sizing: border-box;
-}
-
-.form-grid { 
-  display: grid; 
-  grid-template-columns: repeat(2, 1fr); 
-  gap: 24px; 
-}
-
-.span-2 { grid-column: span 2; }
-.mt-3 { margin-top: 24px; }
-.mb-3 { margin-bottom: 24px; }
-
-.input-group { 
-  display: flex; 
-  flex-direction: column; 
-  gap: 8px; 
-}
-
-label { 
-  font-family: 'Oswald', sans-serif; 
-  color: var(--color-etiquetas, var(--color-texto-general, #f5f5f4)); 
-  font-size: 0.85rem; 
-  font-weight: 600; 
-  letter-spacing: 0.5px;
-}
-
-input { 
-  background: var(--bg-input, var(--bg-cards, #141414)); 
-  border: 1.5px solid var(--border-input, rgba(255, 255, 255, 0.12)); 
-  border-radius: var(--app-border-radius, 12px); 
-  color: var(--color-texto-input, var(--color-texto-general, #fff)); 
-  padding: 12px 14px; 
-  width: 100%; 
-  box-sizing: border-box; 
-  font-family: 'Inter', sans-serif;
-  font-size: 0.95rem;
-  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s, color 0.2s;
-}
-
-input:focus {
-  border-color: var(--color-highlight, #3b82f6);
-  outline: none;
-  background: var(--bg-input-focus, var(--bg-cards, #141414));
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-}
-
-.input-disabled {
-  background: #0d0d0d;
-  color: #71717a;
-  border-color: rgba(255, 255, 255, 0.06);
-  cursor: not-allowed;
-}
-
-.section-title { 
-  font-family: 'Oswald', sans-serif; 
-  color: var(--color-highlight, #5b8bf0); 
-  font-size: 0.95rem; 
-  margin: 0 0 24px 0; 
-  text-transform: uppercase; 
-  letter-spacing: 0.5px;
-  border-bottom: 1px solid var(--border-line, rgba(255, 255, 255, 0.08)); 
-  padding-bottom: 12px; 
-}
-
-.avatar-circle { 
-  width: 150px; 
-  height: 150px; 
-  background: var(--bg-cards, #141414); 
-  border-radius: 50%; 
-  border: 4px solid var(--color-highlight, #3b82f6); 
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
+  width: 100%;
+  min-width: 0;
   overflow: hidden;
-  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2);
 }
 
-.avatar-img {
+.section-title {
+  font-family: 'Anton', sans-serif; font-size: 1.35rem; color: #fff; margin-bottom: 24px; text-transform: uppercase;
+}
+.section-title.mb-0 { margin-bottom: 0; }
+
+.form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+.vertical-stack { grid-template-columns: 1fr; }
+.span-2 { grid-column: span 2; }
+.mt-2 { margin-top: 12px; }
+.mt-3 { margin-top: 24px; }
+.mt-4 { margin-top: 24px; }
+.mb-2 { margin-bottom: 8px; }
+.mb-4 { margin-bottom: 24px; }
+.block-label { display: block; }
+
+.input-group { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+label { font-family: 'Oswald', sans-serif; color: #f5f5f4; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.5px; }
+
+input, textarea { 
+  background: var(--bg-cards, rgba(18, 18, 18, 0.75));  border: 1.5px solid rgba(255, 255, 255, 0.12); border-radius: 12px; 
+  color: #fff; padding: 12px 14px; width: 100%; box-sizing: border-box; font-family: 'Inter', sans-serif; font-size: 0.95rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  min-width: 0;
+}
+input:focus, textarea:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
+.input-disabled { background: rgba(255, 255, 255, 0.03); color: #94a3b8; cursor: not-allowed; border-color: rgba(255, 255, 255, 0.06); }
+
+/* Estilos para el campo de Foto de Portada / Banner */
+.cover-upload-container {
+  width: 100%;
+  height: 160px;
+  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.12)); 
+  border: 1.5px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+  transition: border-color 0.2s, background 0.2s;
+}
+.cover-upload-container:hover {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.03);
+}
+.cover-preview-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-
-.avatar-wrapper { 
-  position: relative; 
-  margin-bottom: 10px; 
-  cursor: pointer;
-}
-
-.avatar-action { 
-  position: absolute; 
-  width: 42px; 
-  height: 42px; 
-  border-radius: 50%; 
-  background: var(--color-botones, #3b82f6); 
-  border: 2px solid var(--bg-cards, #121212); 
-  cursor: pointer; 
-  bottom: 0; 
-  right: 0; 
-  display: flex; 
-  align-items: center; 
-  justify-content: center;
-  color: var(--color-texto-botones, white);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-}
-
-.avatar-action svg { width: 20px; height: 20px; }
-
-.membership-inline-row {
+.cover-placeholder-content {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 8px;
-  align-items: center;
+  color: #94a3b8;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 0 16px;
 }
-
-.action-btn {
-  width: 46px;
-  height: 46px;
-  border-radius: var(--app-border-radius, 12px);
-  background: rgba(59, 130, 246, 0.15);
-  border: 1px solid rgba(59, 130, 246, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
+.cover-placeholder-content svg {
   color: #60a5fa;
-  flex-shrink: 0;
-  transition: all 0.2s ease;
 }
 
-.action-btn:hover {
-  background: var(--color-botones, #3b82f6);
-  color: white;
+.membership-inline-row { display: flex; gap: 10px; align-items: center; min-width: 0; }
+.membership-inline-row input { flex: 1; min-width: 0; }
+.action-btn {
+  background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 12px;
+  color: #fff; width: 46px; height: 46px; display: flex; align-items: center; justify-content: center; cursor: pointer;
+  transition: background 0.2s; flex-shrink: 0;
 }
-
+.action-btn:hover { background: rgba(255, 255, 255, 0.15); }
 .action-btn svg { width: 20px; height: 20px; }
 
 .btn-cancel-subscription {
-  background: transparent;
-  border: none;
-  color: #ef4444;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.8rem;
-  font-weight: 500;
-  text-align: left;
-  padding: 4px 0 0 2px;
-  cursor: pointer;
-  width: fit-content;
-  transition: color 0.2s ease;
+  background: transparent; border: none; color: #ef4444; font-family: 'Inter', sans-serif;
+  font-size: 0.82rem; font-weight: 600; cursor: pointer; text-align: left; padding: 4px 0; width: fit-content;
 }
+.btn-cancel-subscription:hover { text-decoration: underline; }
 
-.btn-cancel-subscription:hover {
-  color: #f87171;
-  text-decoration: underline;
-}
-
-.dual-action-buttons {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
+.dual-action-buttons { display: flex; gap: 12px; }
 .btn-custom-action {
-  padding: 12px 14px;
-  border-radius: var(--app-border-radius, 12px);
-  font-family: 'Oswald', sans-serif;
-  font-weight: 600;
-  font-size: 0.85rem;
-  letter-spacing: 0.5px;
-  cursor: pointer;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  text-transform: uppercase;
-  transition: all 0.2s ease;
-  text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  flex: 1; padding: 12px 16px; border-radius: 12px; font-family: 'Oswald', sans-serif; font-weight: 600;
+  font-size: 0.9rem; text-transform: uppercase; cursor: pointer; border: none; transition: filter 0.2s;
 }
+.btn-sede {   background: var(--color-botones, #1c4fd6); 
+  color: var(--color-texto-botones, #ffffff); }
+.btn-ai {   background: var(--color-botones, #1c4fd6); 
+  color: var(--color-texto-botones, #ffffff);  }
+.btn-custom-action:hover { filter: brightness(1.1); }
+.btn-disabled { opacity: 0.5; filter: grayscale(0.5); cursor: not-allowed; pointer-events: none; }
 
-.btn-sede, .btn-ai {
-  background: var(--color-botones, #1c4fd6);
-  color: #e2e8f0;
-  border-color: rgba(96, 165, 250, 0.4);
-}
+.textarea-custom { resize: vertical; min-height: 80px; }
 
-.btn-sede:hover:not(.btn-disabled), .btn-ai:hover:not(.btn-disabled) {
-  background: var(--color-botones, #1c4fd6);
-  color: #ffffff;
+/* AMENIDADES: Distribución adaptativa en móviles y escritorio */
+.add-amenity-row { display: flex; gap: 10px; min-width: 0; }
+.add-amenity-row input { flex: 1; min-width: 0; }
+.btn-add-amenity {
+    background: var(--color-botones, #1c4fd6); 
+  color: var(--color-texto-botones, #ffffff);  border: none; border-radius: 12px; padding: 0 18px;
+  font-family: 'Oswald', sans-serif; font-weight: 600; cursor: pointer; white-space: nowrap; transition: background 0.2s;
 }
+.btn-add-amenity:hover { background: #059669; }
 
-.btn-disabled {
-  background: rgba(255, 255, 255, 0.03) !important;
-  color: #71717a !important;
-  border-color: rgba(255, 255, 255, 0.06) !important;
-  cursor: not-allowed !important;
+.amenities-tags-container { display: flex; flex-wrap: wrap; gap: 12px; }
+.amenity-tag-pill {
+  display: inline-flex; align-items: center; background: var(--bg-cards, rgba(18, 18, 18, 0.75)); 
+  border: 1.5px solid rgba(255, 255, 255, 0.12); border-radius: 14px; padding: 6px 12px; gap: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: border-color 0.2s;
 }
+.amenity-tag-pill:focus-within { border-color: #3b82f6; }
+.amenity-tag-input {
+  background: transparent; border: none; color: #fff; font-family: 'Inter', sans-serif; font-size: 0.9rem; padding: 2px; width: 170px;
+}
+.amenity-tag-input:focus { box-shadow: none; border-color: transparent; outline: none; }
+.btn-remove-amenity-tag {
+  background: transparent; border: none; color: #ef4444; font-size: 1.25rem; font-weight: 700; cursor: pointer; padding: 0; line-height: 1; transition: opacity 0.2s;
+}
+.btn-remove-amenity-tag:hover { opacity: 0.75; }
 
-.days-container { display: flex; gap: 6px; flex-wrap: wrap; }
-.day-chip {
-  padding: 8px 14px;
-  border-radius: var(--app-border-radius, 10px);
-  font-family: 'Oswald', sans-serif;
-  font-weight: 600;
-  font-size: 0.8rem;
-  cursor: pointer;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.04);
-  color: #f5f5f4;
-  transition: all 0.2s ease;
-}
-.day-chip.active {
-  border-color: var(--color-highlight, #3b82f6);
-  background: var(--color-highlight, #3b82f6);
-  color: #ffffff;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-}
-
-.input-wrapper { position: relative; }
+.input-wrapper { position: relative; width: 100%; min-width: 0; }
 .toggle-password-btn {
-  position: absolute; right: 0; top: 0; height: 100%; width: 44px;
-  background: transparent; border: none; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  color: rgba(245, 245, 244, 0.4);
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  background: transparent; border: none; color: #94a3b8; cursor: pointer; display: flex; align-items: center;
 }
 
-.btn-primary {
-  width: 100%;
+.map-card-header-bar { display: flex; justify-content: space-between; align-items: center; }
+
+.map-container-box { position: relative; border-radius: 16px; overflow: hidden; border: 1.5px solid rgba(255, 255, 255, 0.12); }
+.map-controls-top-right { position: absolute; top: 12px; right: 12px; z-index: 10; }
+.btn-center-sede {
+  background: rgba(18, 18, 18, 0.85); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff; padding: 8px 14px; border-radius: 10px; font-size: 0.82rem; font-weight: 600;
+  display: flex; align-items: center; gap: 8px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+.btn-center-sede:hover { background: rgba(30, 30, 30, 0.95); }
+
+.interactive-map-canvas-v3 {
+  width: 100%; height: 380px; background: #0a0d14; position: relative; overflow: hidden;
+}
+.map-street-grid-lines {
+  position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+.map-simulated-roads { position: absolute; inset: 0; pointer-events: none; }
+.road { position: absolute; background: rgba(255, 255, 255, 0.05); }
+.road.r-1 { top: 35%; left: 0; right: 0; height: 36px; transform: rotate(-5deg); }
+.road.r-2 { top: 0; bottom: 0; left: 55%; width: 44px; transform: rotate(15deg); }
+.road.r-3 { bottom: 15%; left: 0; right: 0; height: 28px; }
+.road-label { position: absolute; font-size: 0.7rem; color: rgba(255, 255, 255, 0.25); font-family: 'Inter', sans-serif; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+.road-label.rl-1 { top: 28%; left: 10%; transform: rotate(-5deg); }
+.road-label.rl-2 { top: 20%; left: 60%; transform: rotate(15deg); }
+.road-label.rl-3 { bottom: 18%; left: 30%; }
+
+.map-floating-popup-card {
+  position: absolute; top: 45%; left: 42%; transform: translate(-50%, -120%);
+  background: #181b22; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 12px;
+  padding: 10px 14px; display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.6); z-index: 5;
+}
+.popup-card-content { display: flex; flex-direction: column; }
+.popup-title-text { font-size: 0.85rem; font-weight: 700; color: #fff; }
+.popup-subtitle-text { font-size: 0.75rem; color: #94a3b8; }
+.popup-close-x { background: transparent; border: none; color: #94a3b8; font-size: 1.1rem; cursor: pointer; }
+
+.map-active-pin-dot {
+  position: absolute; top: 45%; left: 42%; transform: translate(-50%, -50%);
+  width: 24px; height: 24px; background: rgba(59, 130, 246, 0.3); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; z-index: 4;
+}
+.pin-blue-core { width: 10px; height: 10px; background: #3b82f6; border-radius: 50%; box-shadow: 0 0 10px #3b82f6; }
+
+.map-zoom-controls-v3 {
+  position: absolute; bottom: 16px; right: 16px; background: #181b22;
+  border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; z-index: 5;
+}
+.zoom-btn-v3 { background: transparent; border: none; color: #fff; width: 32px; height: 32px; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.zoom-btn-v3:hover { background: rgba(255, 255, 255, 0.1); }
+.zoom-divider { height: 1px; background: rgba(255, 255, 255, 0.1); }
+
+.map-bottom-left-badge {
+  position: absolute; bottom: 16px; left: 16px; background: rgba(18, 18, 18, 0.8); backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.1); padding: 6px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; color: #fff; z-index: 5;
+}
+
+.days-container { display: flex; gap: 8px; flex-wrap: wrap; }
+.day-chip {
+  background: #141414; border: 1.5px solid rgba(255, 255, 255, 0.12); color: #94a3b8;
+  padding: 8px 14px; border-radius: 10px; font-family: 'Oswald', sans-serif; font-weight: 600; cursor: pointer; transition: all 0.2s;
+}
+.day-chip.active { background: var(--color-botones, #1c4fd6);  border-color: var(--color-botones, #1c4fd6);  color: #fff; }
+
+/* Horarios distribuidos exactamente en 3 columnas adaptativas */
+.schedules-grid-multi-column {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.schedule-card-box-item {
+  background: var(--bg-cards, rgba(18, 18, 18, 0.75)); 
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
   padding: 16px;
-  background: var(--color-botones, #1c4fd6);
-  color: var(--color-texto-botones, white);
-  border: none;
-  border-radius: var(--app-border-radius, 14px);
-  font-family: 'Oswald', sans-serif;
-  font-weight: 700;
-  font-size: 1rem;
-  letter-spacing: 0.5px;
-  cursor: pointer;
-  text-transform: uppercase;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 14px rgba(28, 79, 214, 0.35);
-  margin-top: 10px;
-}
-
-.btn-primary:hover {
-  background: var(--color-botones, #1742be);
-  transform: translateY(-2px);
-  filter: brightness(0.95);
-}
-
-.modal-overlay {
-  position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(8px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-  padding: 20px;
-}
-
-.modal-container {
-  background: var(--bg-cards, #161616);
-  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.15));
-  border-radius: var(--app-border-radius, 20px);
-  width: 100%;
-  max-width: 1000px;
-  max-height: 90vh;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+  gap: 12px;
+  transition: border-color 0.2s;
+  min-width: 0;
+}
+.schedule-card-box-item.inactive {
+  opacity: 0.5;
+  background: rgba(20, 20, 20, 0.4);
 }
 
-.modal-small {
-  max-width: 440px !important;
-}
-
-.modal-header {
-  padding: 20px 24px;
-  border-bottom: 1px solid var(--border-line, rgba(255, 255, 255, 0.08));
+.schedule-card-header-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.modal-header h3 {
+.schedule-day-pill {
   font-family: 'Oswald', sans-serif;
-  color: var(--color-titulos, #fff);
-  font-size: 1.2rem;
-  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
   letter-spacing: 0.5px;
 }
 
-.close-btn {
-  background: transparent;
-  border: none;
-  color: #aaa;
-  font-size: 1.8rem;
+.switch-toggle {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
   cursor: pointer;
-  line-height: 1;
+  flex-shrink: 0;
 }
-
-.close-btn:hover { color: #fff; }
-
-.modal-body {
-  padding: 24px;
-  overflow-y: auto;
+.switch-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
 }
-
-.text-center { text-align: center; }
-
-.warning-icon-wrapper {
-  width: 64px;
-  height: 64px;
+.slider-round {
+  position: absolute;
+  inset: 0;
+  background-color: #2a2e39;
+  transition: 0.3s;
+  border-radius: 20px;
+}
+.slider-round:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
   border-radius: 50%;
-  background: rgba(239, 68, 68, 0.12);
+}
+.switch-toggle input:checked + .slider-round {
+  background-color: #3b82f6;
+}
+.switch-toggle input:checked + .slider-round:before {
+  transform: translateX(16px);
+}
+
+.schedule-times-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.time-block-compact {
   display: flex;
   align-items: center;
-  justify-content: center;
-  margin: 0 auto 16px auto;
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  gap: 6px;
+  min-width: 0;
 }
 
-.modal-text {
+.lbl-small {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  font-family: 'Oswald', sans-serif;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.time-input-pill {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.time-input-pill input {
+  background: var(--bg-cards, rgba(18, 18, 18, 0.75)); 
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 6px 8px;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 0.82rem;
+  width: 100%;
+  max-width: 110px;
+}
+
+.schedule-closed-label {
   font-family: 'Inter', sans-serif;
-  color: #cbd5e1;
-  font-size: 0.95rem;
-  line-height: 1.5;
-  margin-bottom: 24px;
+  font-size: 0.85rem;
+  color: #ef4444;
+  font-weight: 600;
+  text-align: center;
+  padding: 10px 0;
 }
 
-.modal-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+.btn-primary {
+  margin-top: 32px;
+  width: 100%;   background: var(--color-botones, #1c4fd6); 
+  color: var(--color-texto-botones, #ffffff); border: none; border-radius: 14px; padding: 16px;
+  font-family: 'Oswald', sans-serif; font-size: 1.1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: background 0.2s;
 }
+.btn-primary:hover { background: #2563eb; }
 
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center; z-index: 1100; padding: 20px;
+}
+.modal-container {
+  background: #141414; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 20px;
+  width: 100%; max-width: 1100px; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden;
+}
+.modal-small { max-width: 420px; }
+.modal-header { padding: 20px 24px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); display: flex; justify-content: space-between; align-items: center; }
+.modal-header h3 { font-family: 'Anton', sans-serif; font-size: 1.25rem; color: #fff; margin: 0; }
+.close-btn { background: transparent; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer; }
+.modal-body { padding: 24px; overflow-y: auto; }
+.text-center { text-align: center; }
+.warning-icon-wrapper { margin-bottom: 16px; }
+.modal-text { font-family: 'Inter', sans-serif; font-size: 0.95rem; color: #cbd5e1; margin-bottom: 24px; line-height: 1.5; }
+.modal-actions { display: flex; gap: 12px; justify-content: center; }
 .btn-secondary-modal {
-  padding: 12px;
-  border-radius: var(--app-border-radius, 12px);
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #fff;
-  font-family: 'Oswald', sans-serif;
-  font-weight: 600;
-  font-size: 0.9rem;
-  cursor: pointer;
-  text-transform: uppercase;
-  transition: background 0.2s;
+  background: rgba(255, 255, 255, 0.08); border: none; color: #fff; padding: 12px 20px;
+  border-radius: 12px; font-family: 'Oswald', sans-serif; font-weight: 600; cursor: pointer;
 }
-
-.btn-secondary-modal:hover {
-  background: rgba(255, 255, 255, 0.12);
-}
-
 .btn-danger-modal {
-  padding: 12px;
-  border-radius: var(--app-border-radius, 12px);
-  background: #ef4444;
-  border: none;
-  color: #fff;
-  font-family: 'Oswald', sans-serif;
-  font-weight: 600;
-  font-size: 0.9rem;
-  cursor: pointer;
-  text-transform: uppercase;
-  transition: background 0.2s;
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  background: #ef4444; border: none; color: #fff; padding: 12px 20px;
+  border-radius: 12px; font-family: 'Oswald', sans-serif; font-weight: 600; cursor: pointer;
 }
 
-.btn-danger-modal:hover {
-  background: #dc2626;
-}
+/* RESPONSIVE DESIGN MEJORADO PARA MÓVILES */
+@media (max-width: 1024px) {
+  .profile-card { 
+    grid-template-columns: 1fr; 
+    gap: 20px;
+  }
+  .profile-section { 
+    position: relative; 
+    top: 0; 
+    transform: none !important;
+    width: 100%;
+    padding: 24px 16px;
+  }
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .span-2 {
+    grid-column: span 1;
+  }
+  .schedules-grid-multi-column {
+    grid-template-columns: 1fr;
+  }
+  .dual-action-buttons {
+    flex-direction: column;
+  }
+  .membership-inline-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .action-btn {
+    width: 100%;
+    height: 42px;
+  }
+  .login-card {
+    padding: 20px 16px;
+  }
+  .main-content {
+    padding: 16px 10px;
+  }
 
-@media (max-width: 1024px) { 
-  .profile-card { grid-template-columns: 1fr; } 
-  .profile-section { position: static; transform: none !important; }
-}
-
-@media (max-width: 768px) {
-  .form-grid { grid-template-columns: 1fr; gap: 14px; }
-  .span-2 { grid-column: span 1; }
-  .dual-action-buttons { grid-template-columns: 1fr; }
+  /* Corrección específica para que la barra de añadir amenidades y las etiquetas fluyan verticalmente en móviles */
+  .add-amenity-row {
+    flex-direction: column;
+  }
+  .btn-add-amenity {
+    width: 100%;
+    padding: 12px;
+  }
+  .amenities-tags-container {
+    flex-direction: column;
+  }
+  .amenity-tag-pill {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .amenity-tag-input {
+    width: 100%;
+  }
 }
 </style>
