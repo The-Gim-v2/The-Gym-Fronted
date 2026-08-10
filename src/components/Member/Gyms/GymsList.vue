@@ -284,9 +284,9 @@ const nationalGyms = ref([
   }
 ]);
 
-const showMembershipModal = ref(false);
 const isGymOpen = ref(true);
 const billingStatus = ref('active');
+const showMembershipModal = ref(false);
 
 const openMembershipModal = () => {
   showMembershipModal.value = true;
