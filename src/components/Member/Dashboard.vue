@@ -211,8 +211,8 @@ onUnmounted(() => {
 }
 
 .glass-card {
-  background: var(--bg-cards, #121212);
   border: 1px solid rgba(255, 255, 255, 0.09);
+  background: var(--bg-cards, #121212);
   border-radius: var(--app-border-radius, 20px);
   padding: 28px;
   box-shadow: 0 20px 40px rgba(0,0,0,0.5);
