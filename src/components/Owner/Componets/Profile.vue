@@ -1,14 +1,31 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, onUnmounted, computed } from 'vue';
-import { useRouter } from 'vue-router'; 
+import { ref, reactive, onMounted, onUnmounted, computed, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import HeadingOwner from '../HeadingOwner.vue';
-import RegisterGymModal from '../../Record/Record-Gym.vue'; 
-import AIChatModal from '../../Record/Record-Staff.vue'; 
+import RegisterGymModal from '../../Record/Record-Gym.vue';
+import AIChatModal from '../../Record/Record-Staff.vue';
 import MembershipModal from '../../Modals/MembershipModal.vue';
 import { traducciones } from '../i18n.js';
 
+// --- MAPA REAL (Leaflet + OpenStreetMap) ---
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+// Arregla el problema conocido de Leaflet con bundlers (Vite/Webpack) donde
+// no encuentra los íconos por defecto del marcador.
+delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: markerIcon2x,
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+});
+
 const currentLang = ref(localStorage.getItem('owner-idioma') || 'es');
 const router = useRouter();
+const originalEmail = ref('contacto@ironfitness.com');
 
 const t = (key: string) => {
   const dict = traducciones as Record<string, Record<string, string>>;
@@ -27,11 +44,14 @@ const handleLangChange = (e: Event) => {
 onMounted(() => {
   window.addEventListener('idioma-changed', handleLangChange as EventListener);
   window.addEventListener('scroll', handleScroll, { passive: true });
+  initMap();
 });
 
 onUnmounted(() => {
   window.removeEventListener('idioma-changed', handleLangChange as EventListener);
   window.removeEventListener('scroll', handleScroll);
+  mapInstance?.remove();
+  mapInstance = null;
 });
 
 const allDays = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
@@ -45,8 +65,13 @@ const showPassword = ref(false);
 
 const showAddSedeModal = ref(false);
 const showAIModal = ref(false);
-const showPaymentModal = ref(false); 
+const showPaymentModal = ref(false);
 const showCancelModal = ref(false);
+const showEmailModal = ref(false);
+
+const emailChangePassword = ref('');
+const emailChangeConfirmPassword = ref('');
+const initialEmail = ref('contacto@ironfitness.com');
 
 const notification = reactive({
   show: false,
@@ -54,14 +79,14 @@ const notification = reactive({
   type: 'success' as 'success' | 'warning' | 'info'
 });
 
-const showNotification = (msg: string, type: 'success' | 'warning' | 'info' = 'success') => {
-  notification.message = msg;
-  notification.type = type;
-  notification.show = true;
-  setTimeout(() => {
-    notification.show = false;
-  }, 4000);
+const handleSaveChanges = () => {
+  if (form.email !== originalEmail.value) {
+    showEmailModal.value = true;
+  } else {
+    showNotification(t('Guardado Correctamente'), 'success');
+  }
 };
+
 
 const scrollY = ref(0);
 const profileTranslateY = ref(0);
@@ -87,8 +112,11 @@ const form = reactive({
   entidad: 'San Luis Potosí',
   municipio: 'Ciudad Valles',
   cp: '79000',
+  status: 'activo',
+
   colonia: 'Zona Centro',
   calle: 'Av. Universitaria',
+  otrasCalles: '',
   numExt: '420',
   numInt: '',
   selectedDays: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
@@ -156,6 +184,17 @@ const onFileSelected = (event: Event) => {
   }
 };
 
+
+const showNotification = (msg: string, type: 'success' | 'warning' | 'info' = 'success', duration = 4000) => {
+  notification.message = msg;
+  notification.type = type;
+  notification.show = true;
+  setTimeout(() => {
+    notification.show = false;
+  }, duration);
+};
+
+
 const triggerCoverFileInput = () => coverFileInput.value?.click();
 const onCoverFileSelected = (event: Event) => {
   const file = (event.target as HTMLInputElement).files?.[0];
@@ -165,8 +204,24 @@ const onCoverFileSelected = (event: Event) => {
   }
 };
 
-const handleSaveChanges = () => {
-  showNotification(t('toastChangesSaved') || 'Cambios guardados exitosamente', 'success');
+
+
+const confirmEmailAndPasswordChange = () => {
+  if (!form.password || form.password !== form.confirmPassword) {
+    showNotification(t('passwordWarningMsg'), 'warning');
+    return;
+  }
+  // Lógica de guardado...
+  showEmailModal.value = false;
+  showNotification(t('emailChangedMsg'), 'info', 5000);
+
+  setTimeout(() => {
+  localStorage.removeItem('user_role');
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+
+  router.replace({ name: 'login' });
+  }, 2000);
 };
 
 const handleUpdateMembership = () => {
@@ -203,23 +258,159 @@ const handleInteractAI = () => {
   showAIModal.value = true;
 };
 
-const centrarSedeMapa = () => {
-  showNotification('Mapa centrado en la sede principal', 'info');
-};
+/* =========================================================
+   MAPA REAL: Leaflet + OpenStreetMap
+   - Clic en el mapa o arrastrar el marcador = fija la ubicación del local
+   - Las coordenadas quedan guardadas en form.latitud / form.longitud
+     (viajan con el resto del formulario cuando se guarda el registro)
+   ========================================================= */
+const mapContainer = ref<HTMLElement | null>(null);
+let mapInstance: L.Map | null = null;
+let marker: L.Marker | null = null;
 
-const zoomInMap = () => {
-  if (form.mapZoomLevel < 18) form.mapZoomLevel++;
-};
+const mapCargando = ref(true);
+const direccionBusqueda = ref('');
+const buscandoDireccion = ref(false);
 
-const zoomOutMap = () => {
-  if (form.mapZoomLevel > 10) form.mapZoomLevel--;
-};
+function initMap() {
+  if (!mapContainer.value) return;
+
+  const lat = parseFloat(form.latitud) || 21.9903;
+  const lng = parseFloat(form.longitud) || -99.0152;
+
+  mapInstance = L.map(mapContainer.value, {
+    center: [lat, lng],
+    zoom: form.mapZoomLevel,
+    zoomControl: false,
+    attributionControl: true,
+  });
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>',
+    maxZoom: 19,
+  }).addTo(mapInstance);
+
+  marker = L.marker([lat, lng], { draggable: true }).addTo(mapInstance);
+  actualizarPopupMarcador();
+
+  marker.on('dragend', () => {
+    const pos = marker!.getLatLng();
+    guardarCoordenadas(pos.lat, pos.lng);
+  });
+
+  mapInstance.on('click', (e: L.LeafletMouseEvent) => {
+    marker!.setLatLng(e.latlng);
+    guardarCoordenadas(e.latlng.lat, e.latlng.lng);
+  });
+
+  mapInstance.on('zoomend', () => {
+    form.mapZoomLevel = mapInstance!.getZoom();
+  });
+
+  // Leaflet necesita recalcular su tamaño una vez que el contenedor
+  // ya tiene sus dimensiones finales (transiciones, layout, etc.)
+  setTimeout(() => {
+    mapInstance?.invalidateSize();
+    mapCargando.value = false;
+  }, 150);
+}
+
+function guardarCoordenadas(lat: number, lng: number) {
+  form.latitud = lat.toFixed(6);
+  form.longitud = lng.toFixed(6);
+  actualizarPopupMarcador();
+  showNotification(t('toastLocationUpdated') || 'Ubicación del local actualizada', 'success');
+}
+
+function actualizarPopupMarcador() {
+  if (!marker) return;
+  marker
+    .bindPopup(`<strong>${form.nombreGimnasio}</strong><br>${form.calle} #${form.numExt}, ${form.colonia}`)
+    .openPopup();
+}
+
+// Si cambian estos campos, el texto del pin del mapa se mantiene al día
+watch(
+  () => [form.nombreGimnasio, form.calle, form.numExt, form.colonia],
+  () => actualizarPopupMarcador()
+);
+
+function centrarSedeMapa() {
+  if (!mapInstance || !marker) return;
+  mapInstance.setView(marker.getLatLng(), Math.max(form.mapZoomLevel, 16));
+  marker.openPopup();
+}
+
+function zoomInMap() {
+  mapInstance?.zoomIn();
+}
+
+function zoomOutMap() {
+  mapInstance?.zoomOut();
+}
+
+// Aplica coordenadas escritas a mano en los campos de Latitud/Longitud
+function aplicarCoordenadasManuales() {
+  const lat = parseFloat(form.latitud);
+  const lng = parseFloat(form.longitud);
+  if (Number.isNaN(lat) || Number.isNaN(lng)) {
+    showNotification(t('toastInvalidCoords') || 'Coordenadas inválidas', 'warning');
+    return;
+  }
+  mapInstance?.setView([lat, lng], form.mapZoomLevel);
+  marker?.setLatLng([lat, lng]);
+  actualizarPopupMarcador();
+}
+
+// Centra el mapa en la ubicación actual del dispositivo (con permiso del usuario)
+function usarMiUbicacion() {
+  if (!navigator.geolocation) {
+    showNotification(t('toastGeoNotSupported') || 'Tu navegador no soporta geolocalización', 'warning');
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const { latitude, longitude } = pos.coords;
+      mapInstance?.setView([latitude, longitude], 17);
+      marker?.setLatLng([latitude, longitude]);
+      guardarCoordenadas(latitude, longitude);
+    },
+    () => {
+      showNotification(t('toastGeoDenied') || 'No se pudo obtener tu ubicación', 'warning');
+    }
+  );
+}
+
+// Busca una dirección con el geocodificador gratuito de OpenStreetMap (Nominatim)
+async function buscarDireccion() {
+  const consulta = direccionBusqueda.value.trim();
+  if (!consulta) return;
+  buscandoDireccion.value = true;
+  try {
+    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(consulta)}`;
+    const resp = await fetch(url);
+    const resultados = await resp.json();
+    if (resultados && resultados.length > 0) {
+      const lat = parseFloat(resultados[0].lat);
+      const lng = parseFloat(resultados[0].lon);
+      mapInstance?.setView([lat, lng], 17);
+      marker?.setLatLng([lat, lng]);
+      guardarCoordenadas(lat, lng);
+    } else {
+      showNotification(t('toastAddressNotFound') || 'No se encontró esa dirección', 'warning');
+    }
+  } catch {
+    showNotification(t('toastAddressSearchError') || 'No se pudo buscar la dirección', 'warning');
+  } finally {
+    buscandoDireccion.value = false;
+  }
+}
 </script>
 
 <template>
   <HeadingOwner>
     <main class="main-content" id="tutor-0">
-      
+
       <transition name="toast">
         <div v-if="notification.show" class="floating-toast" :class="notification.type" id="tutor-1">
           <svg v-if="notification.type === 'success'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
@@ -230,10 +421,10 @@ const zoomOutMap = () => {
       </transition>
 
       <div class="profile-card" id="tutor-2">
-        
+
         <div class="profile-section" :style="{ transform: `translateY(${profileTranslateY}px)` }" id="tutor-3">
           <h1 class="main-title" id="tutor-4" v-html="t('profileMainTitle')"></h1>
-          
+
           <div class="avatar-wrapper" @click="triggerFileInput" :title="t('avatarUploadTitle')" id="tutor-5">
             <div class="avatar-circle" id="tutor-6">
               <img v-if="previewImage" :src="previewImage" :alt="t('avatarPreviewAlt')" class="avatar-img" />
@@ -245,13 +436,18 @@ const zoomOutMap = () => {
             <input type="file" ref="fileInput" @change="onFileSelected" accept="image/*" style="display: none" id="tutor-8" />
           </div>
 
-          <h3 class="gym-name-display" id="tutor-9">{{ form.nombreGimnasio || t('gymDefaultName') }}</h3>
+          <div class="status-badge-container" id="tutorial-status-badge">
+            <span class="status-pill" :class="form.status">
+              <span class="status-dot"></span>
+              {{ form.status === 'activo' ? t('statusActive') : form.status === 'pendiente' ? t('statusPending') : t('statusSuspended') }}
+            </span>
+          </div>
           <p class="profile-hint" id="tutor-10">{{ t('profileHintText') }}</p>
         </div>
 
         <div class="forms-wrapper" id="tutor-11">
           <form @submit.prevent="handleSaveChanges" id="tutor-12">
-            
+
             <!-- Datos del Gimnasio y Membresía -->
             <div class="login-card" id="tutor-13">
               <h3 class="section-title" id="tutor-14">{{ t('sectionGymInfo') }}</h3>
@@ -384,6 +580,9 @@ const zoomOutMap = () => {
               <div class="map-card-header-bar">
                 <h3 class="section-title mb-0" id="tutor-41">{{ t('sectionGeographicLocation') }}</h3>
               </div>
+              <p class="map-instructions">
+                {{ t('mapInstructions') || 'Haz clic en el mapa o arrastra el marcador para fijar la ubicación exacta de tu local.' }}
+              </p>
 
               <div class="form-grid mt-3" id="tutor-42">
                 <div class="input-group" id="tutor-43">
@@ -402,9 +601,13 @@ const zoomOutMap = () => {
                   <label for="cp">{{ t('labelZipCode') }}</label>
                   <input id="cp" type="text" v-model="form.cp" required />
                 </div>
-                <div class="input-group span-2" id="tutor-47">
+                <div class="input-group" id="tutor-47">
                   <label for="calle">{{ t('labelStreet') }}</label>
                   <input id="calle" type="text" v-model="form.calle" required />
+                </div>
+                <div class="input-group">
+                  <label for="otrasCalles">Otras Calles</label>
+                  <input id="otrasCalles" type="text" v-model="form.otrasCalles" placeholder="Entre qué calles se encuentra" />
                 </div>
                 <div class="input-group" id="tutor-48">
                   <label for="numExt">{{ t('labelExtNumber') }}</label>
@@ -416,46 +619,53 @@ const zoomOutMap = () => {
                 </div>
               </div>
 
-              <!-- Mapa interactivo -->
+              <!-- Mapa interactivo real (Leaflet / OpenStreetMap) -->
               <div class="map-container-box mt-4">
+
+                <div class="map-search-bar">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                  <input
+                    type="text"
+                    v-model="direccionBusqueda"
+                    :placeholder="t('mapSearchPlaceholder') || 'Buscar dirección o lugar...'"
+                    @keyup.enter="buscarDireccion"
+                  />
+                  <button type="button" class="btn-search-map" @click="buscarDireccion" :disabled="buscandoDireccion">
+                    <span v-if="buscandoDireccion" class="map-spinner"></span>
+                    <span v-else>{{ t('btnSearch') || 'Buscar' }}</span>
+                  </button>
+                </div>
+
                 <div class="map-controls-top-right">
+                  <button type="button" class="btn-map-tool" @click="usarMiUbicacion" :title="t('btnUseMyLocation') || 'Usar mi ubicación'">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path></svg>
+                  </button>
                   <button type="button" class="btn-center-sede" @click="centrarSedeMapa">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"></circle><circle cx="12" cy="12" r="9"></circle></svg>
                     {{ t('btnCenterBranch') }}
                   </button>
                 </div>
 
-                <div class="interactive-map-canvas-v3">
-                  <div class="map-street-grid-lines"></div>
-                  <div class="map-simulated-roads">
-                    <div class="road r-1"></div>
-                    <div class="road r-2"></div>
-                    <div class="road r-3"></div>
-                    <div class="road-label rl-1">Boulevard Lázaro Cárdenas</div>
-                    <div class="road-label rl-2">Río Valles</div>
-                    <div class="road-label rl-3">COLONIA TETUÁN</div>
-                  </div>
+                <div ref="mapContainer" class="real-map-canvas"></div>
 
-                  <div class="map-floating-popup-card">
-                    <div class="popup-card-content">
-                      <span class="popup-title-text">{{ form.nombreGimnasio }} {{ t('mapCentersSuffix') }}</span>
-                      <span class="popup-subtitle-text">{{ form.calle }} #{{ form.numExt }}, {{ form.colonia }}</span>
-                    </div>
-                    <button type="button" class="popup-close-x" @click="centrarSedeMapa">&times;</button>
-                  </div>
+                <div v-if="mapCargando" class="map-loading-overlay">
+                  <span class="map-spinner big"></span>
+                </div>
 
-                  <div class="map-active-pin-dot">
-                    <div class="pin-blue-core"></div>
-                  </div>
+                <div class="map-zoom-controls-v3">
+                  <button type="button" class="zoom-btn-v3" @click="zoomInMap">+</button>
+                  <div class="zoom-divider"></div>
+                  <button type="button" class="zoom-btn-v3" @click="zoomOutMap">-</button>
+                </div>
 
-                  <div class="map-zoom-controls-v3">
-                    <button type="button" class="zoom-btn-v3" @click="zoomInMap">+</button>
-                    <div class="zoom-divider"></div>
-                    <button type="button" class="zoom-btn-v3" @click="zoomOutMap">-</button>
+                <div class="map-coords-bar">
+                  <div class="coord-field">
+                    <label>{{ t('labelLat') || 'Latitud' }}</label>
+                    <input type="text" v-model="form.latitud" @change="aplicarCoordenadasManuales" />
                   </div>
-
-                  <div class="map-bottom-left-badge">
-                    {{ form.nombreGimnasio }} {{ t('mapCenterBadgeSuffix') }}
+                  <div class="coord-field">
+                    <label>{{ t('labelLng') || 'Longitud' }}</label>
+                    <input type="text" v-model="form.longitud" @change="aplicarCoordenadasManuales" />
                   </div>
                 </div>
               </div>
@@ -464,7 +674,7 @@ const zoomOutMap = () => {
             <!-- CONFIGURACIÓN DE OPERACIÓN -->
             <div class="login-card" id="tutor-50">
               <h3 class="section-title" id="tutor-51">{{ t('sectionOperationConfig') }}</h3>
-              
+
               <div class="input-group mb-4" id="tutor-52">
                 <label>{{ t('labelOpeningDays') }}</label>
                 <div class="days-container" id="tutor-53">
@@ -483,7 +693,7 @@ const zoomOutMap = () => {
               </div>
 
               <!-- Horarios distribuidos exactamente en 3 columnas -->
-            <div class="operational-schedules-wrapper mb-4" v-if="form.selectedDays.length > 0">
+              <div class="operational-schedules-wrapper mb-4" v-if="form.selectedDays.length > 0">
                 <label class="mb-2 block-label">{{ t('labelSchedulesPerDay') }}</label>
                 <div class="schedules-grid-multi-column">
                   <div v-for="dia in form.selectedDays" :key="dia" class="schedule-card-box-item" :class="{ inactive: !form.horariosCompletos[dia as keyof typeof form.horariosCompletos]?.activo }">
@@ -554,6 +764,40 @@ const zoomOutMap = () => {
         </div>
       </div>
 
+      <!-- Modal para Cambio Obligatorio de Contraseña -->
+      <div v-if="showEmailModal" class="modal-overlay" @click.self="showEmailModal = false">
+        <div class="modal-container modal-small animate-modal">
+          <div class="modal-header">
+            <!-- CORRECCIÓN: Usar función t() -->
+            <h3>{{ t('credentialsUpdateModalTitle') }}</h3>
+            <button class="close-btn" @click="showEmailModal = false">&times;</button>
+          </div>
+          <div class="modal-body text-center">
+            <div class="warning-icon-wrapper">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            </div>
+            <p class="modal-text">
+              {{ t('emailChangeWarningText') }}
+            </p>
+
+            <!-- Campos de contraseña dentro del modal -->
+            <div class="input-group mb-3 text-left">
+              <label>{{ t('newAccessPasswordLabel') }}</label>
+              <input type="password" v-model="form.password" :placeholder="t('enterNewPasswordPlaceholder')" required />
+            </div>
+            <div class="input-group mb-4 text-left">
+              <label>{{ t('confirmPasswordLabel') }}</label>
+              <input type="password" v-model="form.confirmPassword" :placeholder="t('confirmNewPasswordPlaceholder')" required />
+            </div>
+
+            <div class="modal-actions">
+              <button type="button" class="btn-secondary-modal" @click="showEmailModal = false">{{ t('cancelBtn') }}</button>
+              <button type="button" class="btn-primary-modal" @click="confirmEmailAndPasswordChange">{{ t('confirmChangeBtn') }}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <MembershipModal v-if="showPaymentModal" @close="showPaymentModal = false" @success="handlePaymentSuccess" id="tutor-76" />
 
       <div v-if="showAddSedeModal" class="modal-overlay" @click.self="showAddSedeModal = false" id="tutor-77">
@@ -587,14 +831,57 @@ const zoomOutMap = () => {
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;600;700&display=swap');
 
-.main-content { 
-  display: flex; 
-  justify-content: center; 
-  width: 100%; 
-  padding: 40px clamp(16px, 3vw, 40px); 
-  box-sizing: border-box; 
+.main-content {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: 40px clamp(16px, 3vw, 40px);
+  box-sizing: border-box;
   position: relative;
   color: var(--color-texto-general, #e5e5e5);
+}
+
+
+.status-badge-container {
+  margin-bottom: 16px;
+}
+
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-pill.activo {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.status-pill.pendiente {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.status-pill.suspendido {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
 }
 
 .animate-modal {
@@ -629,45 +916,51 @@ const zoomOutMap = () => {
 .toast-enter-active, .toast-leave-active { transition: all 0.3s ease; }
 .toast-enter-from, .toast-leave-to { opacity: 0; transform: translateY(-20px); }
 
-.profile-card { 
-  display: grid; 
-  grid-template-columns: 340px minmax(0, 1fr); 
-  gap: 30px; 
-  width: 100%; 
+.profile-card {
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr);
+  gap: 30px;
+  width: 100%;
   max-width: 1250px;
-  margin: 0 auto;    
-  align-items: start; 
+  margin: 0 auto;
+  align-items: start;
 }
 
-.profile-section { 
-  background: var(--bg-cards, rgba(18, 18, 18, 0.75)); 
+.profile-section {
+  background: var(--bg-cards, rgba(18, 18, 18, 0.75));
   backdrop-filter: blur(12px);
-  padding: 40px 24px; 
-  border-radius: var(--app-border-radius, 24px); 
+  padding: 40px 24px;
+  border-radius: var(--app-border-radius, 24px);
   border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.09));
-  display: flex; 
-  flex-direction: column; 
-  align-items: center; 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
   position: sticky;
   top: 30px;
   transition: transform 0.1s cubic-bezier(0, 0, 0.2, 1);
 }
 
-.main-title { 
-  font-family: 'Anton', sans-serif; 
-  font-size: 2.2rem; 
-  color: var(--color-titulos, #fff); 
-  margin: 0 0 24px 0; 
-  line-height: 1.1; 
-  text-transform: uppercase; 
+.main-title {
+  font-family: 'Anton', sans-serif;
+  font-size: 2.2rem;
+  color: var(--color-titulos, #fff);
+  margin: 0 0 24px 0;
+  line-height: 1.1;
+  text-transform: uppercase;
 }
 
 .avatar-wrapper { position: relative; cursor: pointer; margin-bottom: 16px; }
 .avatar-circle {
   width: 110px; height: 110px; border-radius: 50%;
-  background: rgba(255, 255, 255, 0.06); border: 2px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06); border: 2px dashed rgba(255, 255, 255, 0.15);
   display: flex; align-items: center; justify-content: center; overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.avatar-wrapper:hover .avatar-circle {
+  border-color: #2563eb;
+  background: rgba(37, 99, 235, 0.05);
 }
 .avatar-img { width: 100%; height: 100%; object-fit: cover; }
 .avatar-circle svg { width: 50px; height: 50px; opacity: 0.6; }
@@ -681,12 +974,12 @@ const zoomOutMap = () => {
 .profile-hint { font-family: 'Inter', sans-serif; color: #94a3b8; font-size: 0.85rem; margin-top: 6px; }
 
 .forms-wrapper { display: flex; flex-direction: column; gap: 32px; width: 100%; min-width: 0; }
-.login-card { 
-  background: var(--bg-cards, rgba(18, 18, 18, 0.75)); 
+.login-card {
+  background: var(--bg-cards, rgba(18, 18, 18, 0.75));
   backdrop-filter: blur(12px);
   padding: 36px; margin-top: 25px;
-  border-radius: var(--app-border-radius, 24px); 
-  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.12)); 
+  border-radius: var(--app-border-radius, 24px);
+  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.12));
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
@@ -694,9 +987,16 @@ const zoomOutMap = () => {
 }
 
 .section-title {
-  font-family: 'Anton', sans-serif; font-size: 1.35rem; color: #fff; margin-bottom: 24px; text-transform: uppercase;
+  font-family: 'Anton', sans-serif; font-size: 1.6rem; color: #fff; margin-bottom: 24px; text-transform: uppercase;
 }
 .section-title.mb-0 { margin-bottom: 0; }
+
+.map-instructions {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  margin: 6px 0 0;
+}
 
 .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
 .vertical-stack { grid-template-columns: 1fr; }
@@ -711,8 +1011,8 @@ const zoomOutMap = () => {
 .input-group { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 label { font-family: 'Oswald', sans-serif; color: #f5f5f4; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.5px; }
 
-input, textarea { 
-  background: var(--bg-cards, rgba(18, 18, 18, 0.75));  border: 1.5px solid rgba(255, 255, 255, 0.12); border-radius: 12px; 
+input, textarea {
+  background: var(--bg-cards, rgba(18, 18, 18, 0.75));  border: 1.5px solid rgba(255, 255, 255, 0.12); border-radius: 12px;
   color: #fff; padding: 12px 14px; width: 100%; box-sizing: border-box; font-family: 'Inter', sans-serif; font-size: 0.95rem;
   transition: border-color 0.2s, box-shadow 0.2s;
   min-width: 0;
@@ -724,7 +1024,6 @@ input:focus, textarea:focus { border-color: #3b82f6; outline: none; box-shadow: 
 .cover-upload-container {
   width: 100%;
   height: 160px;
-  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.12)); 
   border: 1.5px dashed rgba(255, 255, 255, 0.2);
   border-radius: 14px;
   display: flex;
@@ -780,20 +1079,191 @@ input:focus, textarea:focus { border-color: #3b82f6; outline: none; box-shadow: 
   flex: 1; padding: 12px 16px; border-radius: 12px; font-family: 'Oswald', sans-serif; font-weight: 600;
   font-size: 0.9rem; text-transform: uppercase; cursor: pointer; border: none; transition: filter 0.2s;
 }
-.btn-sede {   background: var(--color-botones, #1c4fd6); 
+.btn-sede {   background: var(--color-botones, #1c4fd6);
   color: var(--color-texto-botones, #ffffff); }
-.btn-ai {   background: var(--color-botones, #1c4fd6); 
+.btn-ai {   background: var(--color-botones, #1c4fd6);
   color: var(--color-texto-botones, #ffffff);  }
 .btn-custom-action:hover { filter: brightness(1.1); }
 .btn-disabled { opacity: 0.5; filter: grayscale(0.5); cursor: not-allowed; pointer-events: none; }
 
 .textarea-custom { resize: vertical; min-height: 80px; }
 
-/* AMENIDADES: Distribución adaptativa en móviles y escritorio */
+/* ==========================================
+   ESTILOS DE MODALES (CORREGIDOS PARA MÓVILES)
+   ========================================== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999; /* Súper alto para evitar interferencia del profile-section sticky */
+  padding: 16px;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.modal-container {
+  background: var(--bg-cards, #161616);
+  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.12));
+  border-radius: 20px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+  animation: modalAppear 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-small {
+  max-width: 420px !important;
+}
+
+@keyframes modalAppear {
+  from {
+    opacity: 0;
+    transform: translateY(15px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-cards, #161616);
+  flex-shrink: 0;
+  z-index: 2;
+}
+
+.modal-header h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-sizing: border-box;
+}
+
+.warning-icon-wrapper {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 2px auto;
+  flex-shrink: 0;
+}
+
+.modal-text {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin: 0 auto;
+  text-align: center;
+  max-width: 340px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+  justify-content: center;
+  width: 100%;
+}
+
+.btn-secondary-modal,
+.btn-danger-modal,
+.btn-primary-modal {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  text-align: center;
+}
+
+.btn-secondary-modal {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.btn-secondary-modal:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.btn-danger-modal {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+.btn-danger-modal:hover {
+  background: #dc2626;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+.btn-primary-modal {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.btn-primary-modal:hover {
+  background: #1d4ed8;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+}
+
+
+/* AMENIDADES */
 .add-amenity-row { display: flex; gap: 10px; min-width: 0; }
 .add-amenity-row input { flex: 1; min-width: 0; }
 .btn-add-amenity {
-    background: var(--color-botones, #1c4fd6); 
+  background: var(--color-botones, #1c4fd6);
   color: var(--color-texto-botones, #ffffff);  border: none; border-radius: 12px; padding: 0 18px;
   font-family: 'Oswald', sans-serif; font-weight: 600; cursor: pointer; white-space: nowrap; transition: background 0.2s;
 }
@@ -801,7 +1271,7 @@ input:focus, textarea:focus { border-color: #3b82f6; outline: none; box-shadow: 
 
 .amenities-tags-container { display: flex; flex-wrap: wrap; gap: 12px; }
 .amenity-tag-pill {
-  display: inline-flex; align-items: center; background: var(--bg-cards, rgba(18, 18, 18, 0.75)); 
+  display: inline-flex; align-items: center; background: var(--bg-cards, rgba(18, 18, 18, 0.75));
   border: 1.5px solid rgba(255, 255, 255, 0.12); border-radius: 14px; padding: 6px 12px; gap: 8px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: border-color 0.2s;
 }
@@ -823,61 +1293,160 @@ input:focus, textarea:focus { border-color: #3b82f6; outline: none; box-shadow: 
 
 .map-card-header-bar { display: flex; justify-content: space-between; align-items: center; }
 
-.map-container-box { position: relative; border-radius: 16px; overflow: hidden; border: 1.5px solid rgba(255, 255, 255, 0.12); }
-.map-controls-top-right { position: absolute; top: 12px; right: 12px; z-index: 10; }
+/* ==========================================
+   MAPA REAL (Leaflet + OpenStreetMap)
+   ========================================== */
+.map-container-box {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  background: #0a0d14;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.real-map-canvas {
+  width: 100%;
+  height: 420px;
+  background: #0a0d14;
+}
+
+.map-loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 13, 20, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+}
+
+.map-spinner {
+  width: 15px;
+  height: 15px;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-top-color: #fff;
+  border-radius: 50%;
+  display: inline-block;
+  animation: girarSpinner 0.7s linear infinite;
+}
+.map-spinner.big { width: 38px; height: 38px; border-width: 3px; }
+
+@keyframes girarSpinner {
+  to { transform: rotate(360deg); }
+}
+
+.map-search-bar {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 200px;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(18, 18, 18, 0.92);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 6px 8px 6px 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+.map-search-bar svg { color: #94a3b8; flex-shrink: 0; }
+.map-search-bar input {
+  border: none;
+  background: transparent;
+  padding: 6px 0;
+  font-size: 0.85rem;
+  min-width: 0;
+}
+.map-search-bar input:focus { box-shadow: none; outline: none; }
+.btn-search-map {
+  background: var(--color-botones, #1c4fd6);
+  color: var(--color-texto-botones, #ffffff);
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: 'Oswald', sans-serif;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 60px;
+}
+.btn-search-map:disabled { opacity: 0.65; cursor: wait; }
+
+.map-controls-top-right {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 15;
+  display: flex;
+  gap: 8px;
+}
+.btn-map-tool {
+  background: rgba(18, 18, 18, 0.9);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  flex-shrink: 0;
+}
+.btn-map-tool:hover { background: rgba(30, 30, 30, 0.95); }
+
 .btn-center-sede {
-  background: rgba(18, 18, 18, 0.85); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(18, 18, 18, 0.9); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.2);
   color: #fff; padding: 8px 14px; border-radius: 10px; font-size: 0.82rem; font-weight: 600;
   display: flex; align-items: center; gap: 8px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  white-space: nowrap;
 }
 .btn-center-sede:hover { background: rgba(30, 30, 30, 0.95); }
 
-.interactive-map-canvas-v3 {
-  width: 100%; height: 380px; background: #0a0d14; position: relative; overflow: hidden;
-}
-.map-street-grid-lines {
-  position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-  background-size: 40px 40px;
-}
-.map-simulated-roads { position: absolute; inset: 0; pointer-events: none; }
-.road { position: absolute; background: rgba(255, 255, 255, 0.05); }
-.road.r-1 { top: 35%; left: 0; right: 0; height: 36px; transform: rotate(-5deg); }
-.road.r-2 { top: 0; bottom: 0; left: 55%; width: 44px; transform: rotate(15deg); }
-.road.r-3 { bottom: 15%; left: 0; right: 0; height: 28px; }
-.road-label { position: absolute; font-size: 0.7rem; color: rgba(255, 255, 255, 0.25); font-family: 'Inter', sans-serif; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
-.road-label.rl-1 { top: 28%; left: 10%; transform: rotate(-5deg); }
-.road-label.rl-2 { top: 20%; left: 60%; transform: rotate(15deg); }
-.road-label.rl-3 { bottom: 18%; left: 30%; }
-
-.map-floating-popup-card {
-  position: absolute; top: 45%; left: 42%; transform: translate(-50%, -120%);
-  background: #181b22; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 12px;
-  padding: 10px 14px; display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.6); z-index: 5;
-}
-.popup-card-content { display: flex; flex-direction: column; }
-.popup-title-text { font-size: 0.85rem; font-weight: 700; color: #fff; }
-.popup-subtitle-text { font-size: 0.75rem; color: #94a3b8; }
-.popup-close-x { background: transparent; border: none; color: #94a3b8; font-size: 1.1rem; cursor: pointer; }
-
-.map-active-pin-dot {
-  position: absolute; top: 45%; left: 42%; transform: translate(-50%, -50%);
-  width: 24px; height: 24px; background: rgba(59, 130, 246, 0.3); border-radius: 50%;
-  display: flex; align-items: center; justify-content: center; z-index: 4;
-}
-.pin-blue-core { width: 10px; height: 10px; background: #3b82f6; border-radius: 50%; box-shadow: 0 0 10px #3b82f6; }
-
 .map-zoom-controls-v3 {
-  position: absolute; bottom: 16px; right: 16px; background: #181b22;
-  border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; z-index: 5;
+  position: absolute; bottom: 74px; right: 16px; background: #181b22;
+  border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; z-index: 15;
 }
 .zoom-btn-v3 { background: transparent; border: none; color: #fff; width: 32px; height: 32px; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 .zoom-btn-v3:hover { background: rgba(255, 255, 255, 0.1); }
 .zoom-divider { height: 1px; background: rgba(255, 255, 255, 0.1); }
 
-.map-bottom-left-badge {
-  position: absolute; bottom: 16px; left: 16px; background: rgba(18, 18, 18, 0.8); backdrop-filter: blur(6px);
-  border: 1px solid rgba(255, 255, 255, 0.1); padding: 6px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; color: #fff; z-index: 5;
+.map-coords-bar {
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--bg-cards, rgba(18, 18, 18, 0.75));
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
+.coord-field { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.coord-field label { font-size: 0.7rem; text-transform: uppercase; }
+.coord-field input { padding: 8px 10px; font-size: 0.82rem; }
+
+/* Tema oscuro para los elementos propios de Leaflet, para que combinen con la app */
+:deep(.leaflet-popup-content-wrapper) {
+  background: #181b22;
+  color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+:deep(.leaflet-popup-content) { font-family: 'Inter', sans-serif; font-size: 0.82rem; margin: 10px 12px; }
+:deep(.leaflet-popup-tip) { background: #181b22; }
+:deep(.leaflet-control-attribution) {
+  background: rgba(10, 13, 20, 0.75) !important;
+  color: #94a3b8 !important;
+  font-size: 0.62rem !important;
+}
+:deep(.leaflet-control-attribution a) { color: #60a5fa !important; }
 
 .days-container { display: flex; gap: 8px; flex-wrap: wrap; }
 .day-chip {
@@ -886,7 +1455,7 @@ input:focus, textarea:focus { border-color: #3b82f6; outline: none; box-shadow: 
 }
 .day-chip.active { background: var(--color-botones, #1c4fd6);  border-color: var(--color-botones, #1c4fd6);  color: #fff; }
 
-/* Horarios distribuidos exactamente en 3 columnas adaptativas */
+/* Horarios */
 .schedules-grid-multi-column {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -894,7 +1463,7 @@ input:focus, textarea:focus { border-color: #3b82f6; outline: none; box-shadow: 
 }
 
 .schedule-card-box-item {
-  background: var(--bg-cards, rgba(18, 18, 18, 0.75)); 
+  background: var(--bg-cards, rgba(18, 18, 18, 0.75));
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 14px;
   padding: 16px;
@@ -997,7 +1566,7 @@ input:focus, textarea:focus { border-color: #3b82f6; outline: none; box-shadow: 
 }
 
 .time-input-pill input {
-  background: var(--bg-cards, rgba(18, 18, 18, 0.75)); 
+  background: var(--bg-cards, rgba(18, 18, 18, 0.75));
   border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 6px 8px;
   border-radius: 6px;
@@ -1018,12 +1587,13 @@ input:focus, textarea:focus { border-color: #3b82f6; outline: none; box-shadow: 
 
 .btn-primary {
   margin-top: 32px;
-  width: 100%;   background: var(--color-botones, #1c4fd6); 
+  width: 100%;   background: var(--color-botones, #1c4fd6);
   color: var(--color-texto-botones, #ffffff); border: none; border-radius: 14px; padding: 16px;
   font-family: 'Oswald', sans-serif; font-size: 1.1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: background 0.2s;
 }
 .btn-primary:hover { background: #2563eb; }
 
+/* Estilos de Modales (Incluido el modal de correo) */
 .modal-overlay {
   position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(6px);
   display: flex; align-items: center; justify-content: center; z-index: 1100; padding: 20px;
@@ -1050,15 +1620,15 @@ input:focus, textarea:focus { border-color: #3b82f6; outline: none; box-shadow: 
   border-radius: 12px; font-family: 'Oswald', sans-serif; font-weight: 600; cursor: pointer;
 }
 
-/* RESPONSIVE DESIGN MEJORADO PARA MÓVILES */
+/* RESPONSIVE DESIGN */
 @media (max-width: 1024px) {
-  .profile-card { 
-    grid-template-columns: 1fr; 
+  .profile-card {
+    grid-template-columns: 1fr;
     gap: 20px;
   }
-  .profile-section { 
-    position: relative; 
-    top: 0; 
+  .profile-section {
+    position: relative;
+    top: 0;
     transform: none !important;
     width: 100%;
     padding: 24px 16px;
@@ -1091,7 +1661,6 @@ input:focus, textarea:focus { border-color: #3b82f6; outline: none; box-shadow: 
     padding: 16px 10px;
   }
 
-  /* Corrección específica para que la barra de añadir amenidades y las etiquetas fluyan verticalmente en móviles */
   .add-amenity-row {
     flex-direction: column;
   }
@@ -1108,6 +1677,17 @@ input:focus, textarea:focus { border-color: #3b82f6; outline: none; box-shadow: 
   }
   .amenity-tag-input {
     width: 100%;
+  }
+
+  .map-search-bar {
+    right: 12px;
+    flex-wrap: wrap;
+  }
+  .map-controls-top-right {
+    top: 66px;
+  }
+  .map-coords-bar {
+    flex-direction: column;
   }
 }
 </style>

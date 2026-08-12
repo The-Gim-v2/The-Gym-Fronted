@@ -746,13 +746,7 @@ const confirmEmailAndPasswordChange = () => {
   gap: 24px;
 }
 
-.login-card {
-  background: var(--bg-cards, #161616);
-  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.08));
-  border-radius: 20px;
-  padding: 28px;
-  margin-bottom: 24px;
-}
+.login-card { background: var(--bg-cards, #161616); border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.08)); border-radius: 20px; padding: 28px; margin-bottom: 24px;}
 
 .section-title {
   font-size: 1.05rem;

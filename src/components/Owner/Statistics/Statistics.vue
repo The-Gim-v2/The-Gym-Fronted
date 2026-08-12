@@ -48,9 +48,9 @@ const user = ref({
 });
 
 const rachaInfo = ref({
-  dias: 10, 
+  dias:390, 
   nombreMascota: 'Foxy el perro fitness',
-  nivelMascota: 'Nivel 2',
+  nivelMascota: 'Nivel 5',
   tipoMascota: 'perro' 
 });
 
