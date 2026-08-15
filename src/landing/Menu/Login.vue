@@ -32,7 +32,7 @@ const handleSubmit = () => {
     errorMessage.value = 'Contraseña incorrecta. Intenta de nuevo.';
     return;
   }
-  
+
   if (!userInfo) {
     errorMessage.value = 'Usuario no reconocido o sin privilegios de acceso.';
     return;
@@ -68,7 +68,23 @@ const handleSubmit = () => {
       <div class="login-card">
         <div class="card-header">
           <h1 class="title">INICIA <span class="highlight">SESIÓN</span></h1>
-          <p class="subtitle">Gestiona tu gimnasio de forma inteligente</p>
+          <p class="subtitle">Un solo acceso para todo tu equipo</p>
+
+          <!-- Franja de roles: deja claro que este login sirve para todos, no solo dueños de gimnasio -->
+          <!--<div class="role-badges">
+            <span class="role-badge">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"></path><path d="M6 21V8l6-4 6 4v13"></path><path d="M10 21v-6h4v6"></path></svg>
+              Gimnasios
+            </span>
+            <span class="role-badge">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5 17.5 17.5"></path><circle cx="5" cy="5" r="2.5"></circle><circle cx="19" cy="19" r="2.5"></circle></svg>
+              Entrenadores
+            </span>
+            <span class="role-badge">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 4.5 9 7l-1.5 3.5L9 13l-2 7"></path><circle cx="14.5" cy="4.5" r="1.6"></circle><path d="M11 10.5 14 9l3 2.5 3.5-1.5"></path><path d="M13.5 12 12 20"></path></svg>
+              Atletas
+            </span>
+          </div>-->
         </div>
 
         <form @submit.prevent="handleSubmit" class="login-form">
@@ -118,7 +134,7 @@ const handleSubmit = () => {
 
           <div class="divider"><span>¿ERES NUEVO?</span></div>
 
-          <router-link to="/Record" class="btn-secondary">Registrar tu gimnasio</router-link>
+          <router-link to="/Record" class="btn-secondary">Registrarme en la plataforma</router-link>
         </form>
       </div>
     </main>
@@ -126,6 +142,8 @@ const handleSubmit = () => {
 </template>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;600;700&display=swap');
+
 .login-page {
   min-height: 100vh;
   background: #0a0a0a;
@@ -154,14 +172,14 @@ const handleSubmit = () => {
 
 .highlight { color: #3b82f6; }
 
-@keyframes pulseGlow { 
-  0%, 100% { opacity: 0.28; } 
-  50% { opacity: 0.5; } 
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.28; }
+  50% { opacity: 0.5; }
 }
 
-@keyframes fadeUp { 
-  from { opacity: 0; transform: translateY(22px); } 
-  to { opacity: 1; transform: translateY(0); } 
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(22px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes shake {
@@ -180,7 +198,7 @@ const handleSubmit = () => {
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 24px clamp(20px, 4vw, 60px);
+  padding: 20px clamp(18px, 4vw, 60px);
   box-sizing: border-box;
   position: relative;
 }
@@ -192,10 +210,9 @@ const handleSubmit = () => {
   text-decoration: none;
 }
 
-
 .logo-text {
   font-family: 'Anton', sans-serif;
-  font-size: clamp(20px, 5vw, 24px);
+  font-size: clamp(19px, 5vw, 24px);
   letter-spacing: 1px;
   display: inline-block;
   animation: floatText 3s ease-in-out infinite;
@@ -213,22 +230,13 @@ const handleSubmit = () => {
   50% { transform: translateY(-4px); }
   100% { transform: translateY(0px); }
 }
-.hamburger.is-active span:nth-child(1) {
-  transform: translateY(8px) rotate(45deg);
-}
-.hamburger.is-active span:nth-child(2) {
-  opacity: 0;
-}
-.hamburger.is-active span:nth-child(3) {
-  transform: translateY(-8px) rotate(-45deg);
-}
 
 .login-container {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px 16px 60px;
+  padding: 12px 16px 48px;
   position: relative;
 }
 
@@ -240,30 +248,57 @@ const handleSubmit = () => {
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 24px;
-  padding: clamp(32px, 5vw, 50px);
+  padding: clamp(30px, 5vw, 50px);
   box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55);
   box-sizing: border-box;
   animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-.card-header { text-align: center; margin-bottom: 32px; }
+.card-header { text-align: center; margin-bottom: 28px; }
 
 .title {
   font-family: 'Anton', sans-serif;
-  font-size: clamp(1.9rem, 5vw, 2.6rem);
+  font-size: clamp(1.75rem, 6vw, 2.6rem);
   letter-spacing: -1px;
   text-transform: uppercase;
   margin: 0 0 8px;
   color: #f5f5f4;
 }
 
-.subtitle { font-size: 14px; color: rgba(245, 245, 244, 0.55); margin: 0; }
+.subtitle { font-size: 14px; color: rgba(245, 245, 244, 0.55); margin: 0 0 16px; }
 
-.login-form { display: flex; flex-direction: column; gap: 22px; }
+/* Franja de roles: comunica que el mismo login sirve para gimnasios, entrenadores y atletas */
+.role-badges {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 11px;
+  border-radius: 50px;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  color: #8fb4f8;
+  font-family: 'Oswald', sans-serif;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.role-badge svg { flex-shrink: 0; opacity: 0.85; }
+
+.login-form { display: flex; flex-direction: column; gap: 20px; }
 
 .input-group { display: flex; flex-direction: column; gap: 8px; }
 
-.label-row { display: flex; justify-content: space-between; align-items: center; }
+.label-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; }
 
 label {
   font-family: 'Oswald', sans-serif;
@@ -299,6 +334,18 @@ input:focus {
   border-color: #1c4fd6;
   box-shadow: 0 0 0 4px rgba(28, 79, 214, 0.25);
   background: #161616;
+}
+
+/* El navegador rellena estos campos con fondo blanco por defecto (autocompletado);
+   forzamos que respete el tema oscuro de la tarjeta. */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #f5f5f4;
+  -webkit-box-shadow: 0 0 0 1000px #141414 inset;
+  box-shadow: 0 0 0 1000px #141414 inset;
+  caret-color: #f5f5f4;
+  transition: background-color 9999s ease-in-out 0s;
 }
 
 .input-icon {
@@ -345,7 +392,7 @@ input:focus {
   background: rgba(28, 79, 214, 0.15);
   border: 1px solid rgba(28, 79, 214, 0.4);
   color: #8fb4f8;
-  animation: fadeInScale 0.3s ease; /* Animación de aparición para el éxito */
+  animation: fadeInScale 0.3s ease;
 }
 
 .btn-primary {
@@ -371,12 +418,13 @@ input:focus {
 }
 
 .btn-primary:hover { background: #123ba0; transform: translateY(-2px); }
+.btn-primary:active { transform: translateY(0); }
 
 .divider {
   position: relative;
   text-align: center;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 .divider span {
@@ -418,8 +466,20 @@ input:focus {
   color: #5b8bf0;
 }
 
+/* ===== Responsive ===== */
 @media (max-width: 480px) {
-  .login-card { padding: 35px 25px; }
-  .title { font-size: 2.2rem; }
+  .top-bar { padding: 16px 16px 4px; }
+  .login-container { padding: 8px 12px 40px; align-items: flex-start; }
+  .login-card { padding: 28px 20px; border-radius: 20px; }
+  .card-header { margin-bottom: 22px; }
+  .title { font-size: 1.7rem; }
+  .subtitle { font-size: 13px; }
+  .login-form { gap: 16px; }
+}
+
+@media (max-width: 360px) {
+  .role-badges { gap: 5px; }
+  .role-badge { padding: 5px 8px; font-size: 9.5px; }
+  input { font-size: 13.5px; padding: 13px 42px 13px 14px; }
 }
 </style>

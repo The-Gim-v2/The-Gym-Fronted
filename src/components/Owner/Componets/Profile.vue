@@ -1184,7 +1184,7 @@ input:focus, textarea:focus { border-color: #3b82f6; outline: none; box-shadow: 
   border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.12));
   border-radius: 20px;
   width: 100%;
-  max-width: 520px;
+  max-width:1020px;
   max-height: 85vh;
   display: flex;
   flex-direction: column;

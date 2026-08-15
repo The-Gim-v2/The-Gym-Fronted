@@ -319,7 +319,7 @@ const confirmEmailAndPasswordChange = () => {
             <input type="file" ref="fileInput" @change="onFileSelected" accept="image/*" style="display: none" />
           </div>
 
-          <h3 class="gym-name-display" id="tutorial-athlete-name">{{ form.nombres }} {{ form.apellidoP }}</h3>
+          <h2 class="gym-name-display" id="tutorial-athlete-name">{{ form.nombres }} {{ form.apellidoP }}</h2>
           
           <div class="status-badge-container" id="tutorial-status-badge">
             <span class="status-pill" :class="form.status">
@@ -551,29 +551,38 @@ const confirmEmailAndPasswordChange = () => {
 </template>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;600;700&display=swap');
+
 /* ==========================================
    ESTILOS GENERALES Y DEL PERFIL DE ATLETA
+   Mismo lenguaje visual que Profile-Owner.vue y
+   Profile-Recepcion.vue: tipografías, tarjetas,
+   acentos en degradado, z-index de modales, etc.
    ========================================== */
 .main-content {
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   width: 100%;
-  max-width: 1300px;
-  margin: 0 auto;
-  padding: 24px;
+  padding: 40px clamp(16px, 3vw, 40px);
   box-sizing: border-box;
+  position: relative;
+  color: var(--color-texto-general, #e5e5e5);
 }
 
 .profile-card {
   display: grid;
-  grid-template-columns: 320px 1fr;
-  gap: 32px;
+  grid-template-columns: 340px minmax(0, 1fr);
+  gap: 30px;
+  width: 100%;
+  max-width: 1250px;
+  margin: 0 auto;
   align-items: start;
 }
 
 @media (max-width: 1024px) {
   .profile-card {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
 }
 
@@ -600,25 +609,40 @@ const confirmEmailAndPasswordChange = () => {
 }
 
 .profile-section {
-  background: var(--bg-cards, #161616);
-  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.08));
-  border-radius: 20px;
-  padding: 32px 24px;
+  background: var(--bg-cards, rgba(18, 18, 18, 0.75));
+  backdrop-filter: blur(12px);
+  padding: 40px 24px;
+  border-radius: var(--app-border-radius, 24px);
+  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.09));
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   position: sticky;
-  top: 24px;
-  transition: transform 0.1s ease-out;
+  top: 30px;
+  transition: transform 0.1s cubic-bezier(0, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+/* Misma franja de acento que en el resto de los perfiles */
+.profile-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-botones, #1c4fd6), #60a5fa, var(--color-botones, #1c4fd6));
 }
 
 .main-title {
-  font-size: 1.25rem;
-  font-weight: 800;
-  color: #ffffff;
+  font-family: 'Anton', sans-serif;
+  font-size: 2rem;
+  color: var(--color-titulos, #fff);
+  margin: 0 0 24px 0;
+  line-height: 1.1;
+  text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 24px;
 }
 
 .avatar-wrapper {
@@ -633,24 +657,26 @@ const confirmEmailAndPasswordChange = () => {
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.05);
-  border: 2px dashed rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+  border: 2px dashed rgba(255, 255, 255, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1), 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
 .avatar-wrapper:hover .avatar-circle {
   border-color: #2563eb;
   background: rgba(37, 99, 235, 0.05);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.22), 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
 .avatar-circle svg {
   width: 48px;
   height: 48px;
-  fill: rgba(255, 255, 255, 0.4);
+  opacity: 0.6;
 }
 
 .avatar-img {
@@ -666,30 +692,33 @@ const confirmEmailAndPasswordChange = () => {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: #2563eb;
-  border: 2px solid var(--bg-cards, #161616);
+  background: var(--color-botones, #3b82f6);
+  border: 2px solid var(--bg-cards, #121212);
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: transform 0.2s ease;
+  transition: transform 0.15s ease, background 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
-.avatar-action.btn-camera:hover {
-  transform: scale(1.1);
+.avatar-wrapper:hover .avatar-action.btn-camera {
+  transform: scale(1.08);
 }
 
 .avatar-action.btn-camera svg {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
 }
 
 .gym-name-display {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #ffffff;
-  margin-bottom: 12px;
+  font-family: 'Anton', sans-serif;
+  font-size: 1.3rem;
+  color: var(--color-titulos, #fff);
+  margin: 4px 0 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
 }
 
 .status-badge-container {
@@ -734,101 +763,138 @@ const confirmEmailAndPasswordChange = () => {
 }
 
 .profile-hint {
+  font-family: 'Inter', sans-serif;
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.5);
+  color: #94a3b8;
   line-height: 1.4;
-  margin: 0;
+  margin: 6px 0 0;
 }
 
+/* ==========================================
+   TARJETAS: el "gap" del contenedor es lo que
+   le da a cada card su propio margen de altura,
+   en vez de márgenes sueltos en cada tarjeta.
+   ========================================== */
 .forms-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 32px;
+  width: 100%;
+  min-width: 0;
 }
 
-.login-card { background: var(--bg-cards, #161616); border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.08)); border-radius: 20px; padding: 28px; margin-bottom: 24px;}
+.login-card {
+  background: var(--bg-cards, rgba(18, 18, 18, 0.75));
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.12));
+  border-radius: var(--app-border-radius, 24px);
+  padding: 36px;
+  box-sizing: border-box;
+  width: 100%;
+  margin-top: 2%;
+  min-width: 0;
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.login-card:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+}
 
 .section-title {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: #ffffff;
-  margin-bottom: 20px;
+  font-family: 'Anton', sans-serif;
+  font-size: 1.5rem;
+  color: var(--color-titulos, #fff);
+  margin: 0 0 24px 0;
+  text-transform: uppercase;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+}
+.section-title::before {
+  content: '';
+  width: 4px;
+  height: 20px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, var(--color-botones, #1c4fd6), rgba(37, 99, 235, 0.25));
 }
 
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
 }
 
 .input-group {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  min-width: 0;
 }
 
 .input-group label {
+  font-family: 'Oswald', sans-serif;
   font-size: 0.85rem;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.7);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: #f5f5f4;
 }
 
 .input-group input,
 .input-group select {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-cards, rgba(18, 18, 18, 0.75));
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
   border-radius: 12px;
-  padding: 12px 16px;
-  color: #ffffff;
+  padding: 12px 14px;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
   font-size: 0.95rem;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s, box-shadow 0.2s;
   width: 100%;
   box-sizing: border-box;
+  min-width: 0;
 }
 
 .input-group input:focus,
 .input-group select:focus {
   outline: none;
-  border-color: #2563eb;
-  background: rgba(37, 99, 235, 0.04);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
 .input-disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  background: rgba(255, 255, 255, 0.02) !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  color: #94a3b8 !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
+  cursor: not-allowed !important;
 }
 
 .input-wrapper {
   position: relative;
-  display: flex;
-  align-items: center;
+  width: 100%;
+  min-width: 0;
 }
 
 .input-wrapper input {
-  padding-right: 48px;
+  padding-right: 44px;
 }
 
 .toggle-password-btn {
   position: absolute;
   right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
   background: transparent;
   border: none;
-  color: rgba(255, 255, 255, 0.5);
+  color: #94a3b8;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 4px;
 }
-
-.toggle-password-btn:hover {
-  color: #ffffff;
-}
+.toggle-password-btn:hover { color: #fff; }
 
 .web-plan-container {
   display: flex;
@@ -836,20 +902,20 @@ const confirmEmailAndPasswordChange = () => {
   gap: 12px;
 }
 
-.flex-grow {
-  flex-grow: 1;
-}
+.flex-grow { flex-grow: 1; }
 
 .plan-display-row {
   display: flex;
   gap: 12px;
   align-items: center;
+  min-width: 0;
 }
+.plan-display-row input { flex: 1; min-width: 0; }
 
 .btn-icon-action {
-  background: rgba(37, 99, 235, 0.1);
-  border: 1px solid rgba(37, 99, 235, 0.2);
-  color: #3b82f6;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
   border-radius: 12px;
   width: 46px;
   height: 46px;
@@ -857,54 +923,62 @@ const confirmEmailAndPasswordChange = () => {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s, transform 0.15s ease, box-shadow 0.15s ease;
   flex-shrink: 0;
 }
-
 .btn-icon-action:hover {
-  background: #2563eb;
-  color: #ffffff;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
 }
+
+.mt-3 { margin-top: 20px; }
+.mb-3 { margin-bottom: 16px; }
+.mb-4 { margin-bottom: 24px; }
+.text-left { text-align: left; }
 
 .btn-text-danger {
   background: transparent;
   border: none;
   color: #ef4444;
-  font-size: 0.9rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
   padding: 0;
   transition: color 0.2s ease;
 }
-
 .btn-text-danger:hover {
-  color: #dc2626;
+  color: #f87171;
   text-decoration: underline;
 }
 
 .btn-primary {
-  background: #2563eb;
-  color: #ffffff;
-  border: none;
-  border-radius: 12px;
-  padding: 14px 28px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
   width: 100%;
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+  
+  margin-top: 2%;
+  background: var(--color-botones, #1c4fd6);
+  color: var(--color-texto-botones, #ffffff);
+  border: none;
+  border-radius: 14px;
+  padding: 16px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 4px 14px rgba(28, 79, 214, 0.35);
 }
-
 .btn-primary:hover {
-  background: #1d4ed8;
-  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
-  transform: translateY(-1px);
+  background: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.35);
 }
 
 /* ==========================================
-   ESTILOS DE MODALES (CORREGIDOS PARA MÓVILES)
+   ESTILOS DE MODALES
    ========================================== */
 .modal-overlay {
   position: fixed;
@@ -964,10 +1038,11 @@ const confirmEmailAndPasswordChange = () => {
 }
 
 .modal-header h3 {
+  font-family: 'Anton', sans-serif;
   font-size: 1.1rem;
-  font-weight: 700;
   color: #ffffff;
   margin: 0;
+  text-transform: uppercase;
 }
 
 .close-btn {
@@ -1000,6 +1075,8 @@ const confirmEmailAndPasswordChange = () => {
   box-sizing: border-box;
 }
 
+.text-center { text-align: center; }
+
 .warning-icon-wrapper {
   width: 56px;
   height: 56px;
@@ -1014,8 +1091,9 @@ const confirmEmailAndPasswordChange = () => {
 
 .modal-text {
   color: rgba(255, 255, 255, 0.8);
+  font-family: 'Inter', sans-serif;
   font-size: 0.9rem;
-  line-height: 1.4;
+  line-height: 1.5;
   margin: 0 auto;
   text-align: center;
   max-width: 340px;
@@ -1035,12 +1113,14 @@ const confirmEmailAndPasswordChange = () => {
   flex: 1;
   padding: 12px 16px;
   border-radius: 12px;
+  font-family: 'Oswald', sans-serif;
   font-weight: 600;
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.2s ease;
   border: none;
   text-align: center;
+  text-transform: uppercase;
 }
 
 .btn-secondary-modal {
@@ -1048,16 +1128,12 @@ const confirmEmailAndPasswordChange = () => {
   color: #ffffff;
   border: 1px solid rgba(255, 255, 255, 0.15);
 }
-
-.btn-secondary-modal:hover {
-  background: rgba(255, 255, 255, 0.15);
-}
+.btn-secondary-modal:hover { background: rgba(255, 255, 255, 0.15); }
 
 .btn-danger-modal {
   background: #ef4444;
   color: #ffffff;
 }
-
 .btn-danger-modal:hover {
   background: #dc2626;
   box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
@@ -1067,7 +1143,6 @@ const confirmEmailAndPasswordChange = () => {
   background: #2563eb;
   color: #ffffff;
 }
-
 .btn-primary-modal:hover {
   background: #1d4ed8;
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
@@ -1075,19 +1150,22 @@ const confirmEmailAndPasswordChange = () => {
 
 /* ==========================================
    ESTILOS TOAST DE NOTIFICACIÓN
+   (misma posición y z-index que en los otros
+   perfiles, para que se comporte igual)
    ========================================== */
 .floating-toast {
   position: fixed;
-  bottom: 24px;
+  top: 24px;
   right: 24px;
   z-index: 3000;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 16px 20px;
+  padding: 14px 22px;
   border-radius: 14px;
   color: #ffffff;
-  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
   font-size: 0.95rem;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(10px);
@@ -1095,49 +1173,59 @@ const confirmEmailAndPasswordChange = () => {
 
 .floating-toast.success {
   background: rgba(16, 185, 129, 0.9);
-  border: 1px solid rgba(16, 185, 129, 0.4);
+  border: 1px solid rgba(52, 211, 153, 0.4);
 }
 
 .floating-toast.warning {
   background: rgba(245, 158, 11, 0.9);
-  border: 1px solid rgba(245, 158, 11, 0.4);
+  border: 1px solid rgba(251, 191, 36, 0.4);
 }
 
 .floating-toast.info {
-  background: rgba(37, 99, 235, 0.9);
-  border: 1px solid rgba(37, 99, 235, 0.4);
+  background: rgba(59, 130, 246, 0.9);
+  border: 1px solid rgba(96, 165, 250, 0.4);
 }
 
 .toast-enter-active,
 .toast-leave-active {
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.3s ease;
 }
 
 .toast-enter-from,
 .toast-leave-to {
   opacity: 0;
-  transform: translateY(20px) scale(0.95);
+  transform: translateY(-20px);
 }
 
 /* ==========================================
    AJUSTES PARA MÓVILES Y RESPONSIVE
    ========================================== */
-@media (max-width: 768px) {
-  .main-content {
-    padding: 12px;
-  }
-
+@media (max-width: 1024px) {
   .profile-section {
-    position: static;
-    padding: 20px 14px;
+    position: relative;
+    top: 0;
+    transform: none !important;
+    width: 100%;
+    padding: 24px 16px;
   }
 
   .login-card {
     padding: 20px 16px;
   }
 
+  .main-content {
+    padding: 16px 10px;
+  }
+
+  .forms-wrapper {
+    gap: 24px;
+  }
+}
+
+@media (max-width: 768px) {
   .form-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
 
   /* Modales impecables en dispositivos móviles */

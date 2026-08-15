@@ -1,192 +1,5 @@
-<template>
-  <HeadingAdmin :isGymOpen="isGymOpen" :billingStatus="billingStatus">
-    <div class="saas-dashboard-wrapper">
-      
-      <main class="dashboard-main-container">
-        
-        <!-- HEADER DE LA SECCIÓN -->
-        <div class="section-header-box">
-          <div>
-            <h1 class="main-heading" id="turtor1">{{ t('gymsListTitle') }}</h1>
-            <p class="hero-desc">{{ t('gymsListDesc') }}</p>
-          </div>
-        </div>
-
-        <!-- SECCIÓN 1: SEDE PRINCIPAL / REGISTRADA -->
-        <div class="category-section" id="turtor2">
-          <div class="category-header">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-            <h2>{{ t('registeredGymTitle') }}</h2>
-          </div>
-          
-          <div class="gyms-grid-container">
-            <router-link 
-              v-if="registeredGym" 
-              :to="{ name: 'member-gym-detail', params: { id: registeredGym.id } }"
-              class="glass-card gym-item-card primary-registered-card" 
-              id="turtor3"
-              style="text-decoration: none;"
-            >
-              <div class="card-3d-perspective">
-                <div class="gym-item-image">
-                  <img :src="registeredGym.image" :alt="registeredGym.name" />
-                  <div class="image-gradient-overlay"></div>
-                  <span class="drawer-tag" :class="{ open: registeredGym.isOpen }">
-                    <span class="pulse-dot"></span>
-                    {{ registeredGym.isOpen ? t('statusOpen') : t('statusClosed') }}
-                  </span>
-                  <div class="map-preview-badge">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2"></polygon><line x1="8" y1="18" x2="8" y2="2"></line><line x1="16" y1="22" x2="16" y2="6"></line></svg>
-                    Radar 3D Activo
-                  </div>
-                </div>
-              </div>
-
-              <div class="gym-item-content">
-                <div class="card-title-row">
-                  <h3>{{ registeredGym.name }}</h3>
-                  <span class="badge-pill main-badge">Base Principal</span>
-                </div>
-                <p class="drawer-text-item">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                  <span>{{ registeredGym.address }}</span>
-                </p>
-                <p class="drawer-text-item">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                  <span>{{ registeredGym.schedule }}</span>
-                </p>
-                
-                <div class="card-mini-capacity">
-                  <div class="mini-cap-info">
-                    <span>Afluencia en vivo</span>
-                    <span :style="{ color: registeredGym.occupancy > 75 ? '#ef4444' : '#10b981' }">{{ registeredGym.occupancy }}%</span>
-                  </div>
-                  <div class="progress-bar">
-                    <div class="progress-fill" :style="{ width: registeredGym.occupancy + '%', background: registeredGym.occupancy > 75 ? '#ef4444' : '#3b82f6' }"></div>
-                  </div>
-                </div>
-              </div>
-            </router-link>
-          </div>
-        </div>
-
-        <!-- SECCIÓN 2: GIMNASIOS EN CIUDAD VALLES -->
-        <div class="category-section" id="turtor4">
-          <div class="category-header">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-            <h2>{{ t('localGymsTitle') }}</h2>
-          </div>
-
-          <div class="gyms-grid-container">
-            <router-link 
-              v-for="gym in localGyms" 
-              :key="gym.id" 
-              :to="{ name: 'member-gym-detail', params: { id: gym.id } }"
-              class="glass-card gym-item-card"
-              style="text-decoration: none;"
-            >
-              <div class="card-3d-perspective">
-                <div class="gym-item-image">
-                  <img :src="gym.image" :alt="gym.name" />
-                  <div class="image-gradient-overlay"></div>
-                  <span class="drawer-tag" :class="{ open: gym.isOpen }">
-                    <span class="pulse-dot"></span>
-                    {{ gym.isOpen ? t('statusOpen') : t('statusClosed') }}
-                  </span>
-                  <div class="map-preview-badge">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2"></polygon><line x1="8" y1="18" x2="8" y2="2"></line><line x1="16" y1="22" x2="16" y2="6"></line></svg>
-                    Vista 3D Interactiva
-                  </div>
-                </div>
-              </div>
-
-              <div class="gym-item-content">
-                <h3>{{ gym.name }}</h3>
-                <p class="drawer-text-item">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                  <span>{{ gym.address }}</span>
-                </p>
-                <p class="drawer-text-item">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                  <span>{{ gym.schedule }}</span>
-                </p>
-                
-                <div class="card-mini-capacity">
-                  <div class="mini-cap-info">
-                    <span>Afluencia en vivo</span>
-                    <span :style="{ color: gym.occupancy > 75 ? '#ef4444' : '#10b981' }">{{ gym.occupancy }}%</span>
-                  </div>
-                  <div class="progress-bar">
-                    <div class="progress-fill" :style="{ width: gym.occupancy + '%', background: gym.occupancy > 75 ? '#ef4444' : '#3b82f6' }"></div>
-                  </div>
-                </div>
-              </div>
-            </router-link>
-          </div>
-        </div>
-
-        <!-- SECCIÓN 3: GIMNASIOS FUERA DE CIUDAD VALLES (BLOQUEADOS / REQUIEREN MENSUALIDAD PLUS) -->
-        <div class="category-section" id="turtor5">
-          <div class="category-header">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-            <h2>{{ t('nationalGymsTitle') }}</h2>
-          </div>
-
-          <div class="gyms-grid-container">
-            <div 
-              v-for="gym in nationalGyms" 
-              :key="gym.id" 
-              class="glass-card gym-item-card locked-gym-card"
-            >
-              <!-- Overlay de Bloqueo por Membresía Plus -->
-              <div class="membership-lock-overlay">
-                <div class="lock-icon-badge">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                </div>
-                <span class="lock-title">Exclusivo Membresía Plus</span>
-                <p class="lock-desc">Entrena en cualquier ciudad del país y desbloquea mapas 3D avanzados actualizando tu plan.</p>
-                <button class="btn-unlock-action" @click="openMembershipModal">
-                  Ver Planes y Actualizar
-                </button>
-              </div>
-
-              <div class="card-3d-perspective blurred-content">
-                <div class="gym-item-image">
-                  <img :src="gym.image" :alt="gym.name" />
-                  <div class="image-gradient-overlay"></div>
-                </div>
-              </div>
-
-              <div class="gym-item-content blurred-content">
-                <h3>{{ gym.name }}</h3>
-                <p class="drawer-text-item">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                  <span>{{ gym.address }}</span>
-                </p>
-                <p class="drawer-text-item">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                  <span>{{ gym.schedule }}</span>
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </main>
-
-      <!-- MODAL DE MEMBRESÍAS / PAGOS EXTERNO -->
-      <transition name="pop">
-        <div v-if="showMembershipModal" class="modal-wrapper" @click.self="closeMembershipModal">
-          <UpgradeMembershipModal @close="closeMembershipModal" />
-        </div>
-      </transition>
-
-    </div>
-  </HeadingAdmin>
-</template>
-
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import HeadingAdmin from '../HeadingMember.vue';
 import UpgradeMembershipModal from '../Modals/UpgradeMembershipModal.vue';
@@ -203,6 +16,8 @@ const registeredGym = ref({
   isOpen: true,
   occupancy: 45,
   image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80',
+  ciudad: 'Ciudad Valles',
+  estado: 'San Luis Potosí',
   coords: 'LAT: 21.9902° N / LON: 99.0301° W'
 });
 
@@ -216,6 +31,8 @@ const localGyms = ref([
     isOpen: true,
     occupancy: 82,
     image: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=800&q=80',
+    ciudad: 'Ciudad Valles',
+    estado: 'San Luis Potosí',
     coords: 'LAT: 22.0050° N / LON: 99.0210° W'
   },
   {
@@ -227,6 +44,8 @@ const localGyms = ref([
     isOpen: false,
     occupancy: 15,
     image: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
+    ciudad: 'Ciudad Valles',
+    estado: 'San Luis Potosí',
     coords: 'LAT: 21.9850° N / LON: 99.0450° W'
   },
   {
@@ -238,6 +57,8 @@ const localGyms = ref([
     isOpen: true,
     occupancy: 60,
     image: 'https://images.unsplash.com/photo-1571902943202-507f2718ea0d?auto=format&fit=crop&w=800&q=80',
+    ciudad: 'Ciudad Valles',
+    estado: 'San Luis Potosí',
     coords: 'LAT: 21.9700° N / LON: 99.0150° W'
   },
   {
@@ -249,6 +70,8 @@ const localGyms = ref([
     isOpen: true,
     occupancy: 30,
     image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80',
+    ciudad: 'Ciudad Valles',
+    estado: 'San Luis Potosí',
     coords: 'LAT: 21.9500° N / LON: 99.0000° W'
   }
 ]);
@@ -259,30 +82,95 @@ const nationalGyms = ref([
     name: 'IronFit CDMX Polanco (Plus)',
     address: 'Campos Elíseos #204, Polanco',
     schedule: '24 Horas',
-    image: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80'
+    image: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80',
+    ciudad: 'Polanco',
+    estado: 'Ciudad de México'
   },
   {
     id: 5,
     name: 'IronFit Monterrey San Pedro (Plus)',
     address: 'Av. Vasconcelos #400, Del Valle',
     schedule: '24 Horas',
-    image: 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?auto=format&fit=crop&w=800&q=80'
+    image: 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?auto=format&fit=crop&w=800&q=80',
+    ciudad: 'San Pedro Garza García',
+    estado: 'Nuevo León'
   },
   {
     id: 8,
     name: 'IronFit Guadalajara Andares (Plus)',
     address: 'Boulevard Puerta de Hierro #4965',
     schedule: '24 Horas',
-    image: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=800&q=80'
+    image: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=800&q=80',
+    ciudad: 'Zapopan',
+    estado: 'Jalisco'
   },
   {
     id: 9,
     name: 'IronFit Querétaro Antea (Plus)',
     address: 'Carretera Pista Panamericana #10200',
     schedule: '24 Horas',
-    image: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80'
+    image: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
+    ciudad: 'Querétaro',
+    estado: 'Querétaro'
   }
 ]);
+
+// Abreviaciones cortas para las insignias de ubicación sobre las fotos,
+// donde el espacio es reducido (sobre todo en móvil).
+const estadoAbrevMap = {
+  'San Luis Potosí': 'SLP',
+  'Ciudad de México': 'CDMX',
+  'Nuevo León': 'NL',
+  'Jalisco': 'JAL',
+  'Querétaro': 'QRO'
+};
+const abreviarEstado = (estado) => estadoAbrevMap[estado] || estado;
+
+// Agrupa la red nacional por estado, para que la sección "fuera de Ciudad
+// Valles" se sienta como un verdadero directorio nacional en vez de una
+// sola cuadrícula plana.
+const nationalGymsByState = computed(() => {
+  const groups = {};
+  for (const gym of nationalGyms.value) {
+    if (!groups[gym.estado]) groups[gym.estado] = [];
+    groups[gym.estado].push(gym);
+  }
+  return groups;
+});
+
+const statesCount = computed(() => Object.keys(nationalGymsByState.value).length);
+
+// Buscador simple por nombre, ciudad, estado o dirección.
+const searchQuery = ref('');
+const normalize = (str) => (str || '').toString().toLowerCase();
+
+const matchesQuery = (gym, q) =>
+  normalize(gym.name).includes(q) ||
+  normalize(gym.ciudad).includes(q) ||
+  normalize(gym.estado).includes(q) ||
+  normalize(gym.address).includes(q);
+
+const filteredLocalGyms = computed(() => {
+  const q = normalize(searchQuery.value);
+  if (!q) return localGyms.value;
+  return localGyms.value.filter((gym) => matchesQuery(gym, q));
+});
+
+const filteredNationalByState = computed(() => {
+  const q = normalize(searchQuery.value);
+  if (!q) return nationalGymsByState.value;
+  const result = {};
+  for (const [estado, gyms] of Object.entries(nationalGymsByState.value)) {
+    const matches = gyms.filter((gym) => matchesQuery(gym, q));
+    if (matches.length) result[estado] = matches;
+  }
+  return result;
+});
+
+const hasNoResults = computed(() => {
+  if (!searchQuery.value.trim()) return false;
+  return filteredLocalGyms.value.length === 0 && Object.keys(filteredNationalByState.value).length === 0;
+});
 
 const isGymOpen = ref(true);
 const billingStatus = ref('active');
@@ -310,6 +198,16 @@ const traducciones = {
     currentCapacity: 'Estado del Aforo',
     occupancyLevel: 'Ocupación Actual',
     gymPhotoLabel: 'Fotografía de la Instalación',
+    mainBaseBadge: 'Base Principal',
+    liveOccupancyLabel: 'Afluencia en vivo',
+    lockTitle: 'Exclusivo Membresía Plus',
+    lockDesc: 'Entrena en cualquier ciudad del país y desbloquea esta sede actualizando tu plan.',
+    lockBtn: 'Ver Planes y Actualizar',
+    statsLocalLabel: 'sedes en Ciudad Valles',
+    statsStatesLabel: 'estados con cobertura Plus',
+    searchPlaceholder: 'Busca por gimnasio, ciudad o estado...',
+    noResultsTitle: 'No encontramos sedes con ese criterio',
+    noResultsDesc: 'Intenta buscar por otra ciudad, estado o el nombre del gimnasio.',
     tutorialIds: {
       title: 'gestion-sedes-title',
       registeredGymSection: 'sec-sede-registrada',
@@ -333,6 +231,16 @@ const traducciones = {
     currentCapacity: 'Capacity Status',
     occupancyLevel: 'Current Occupancy',
     gymPhotoLabel: 'Facility Photograph',
+    mainBaseBadge: 'Home Base',
+    liveOccupancyLabel: 'Live occupancy',
+    lockTitle: 'Plus Membership Exclusive',
+    lockDesc: 'Train in any city nationwide and unlock this branch by upgrading your plan.',
+    lockBtn: 'View Plans & Upgrade',
+    statsLocalLabel: 'branches in Ciudad Valles',
+    statsStatesLabel: 'states with Plus coverage',
+    searchPlaceholder: 'Search by gym, city or state...',
+    noResultsTitle: "We couldn't find any branches matching that",
+    noResultsDesc: 'Try searching a different city, state, or gym name.',
     tutorialIds: {
       title: 'gestion-sedes-title',
       registeredGymSection: 'sec-sede-registrada',
@@ -378,6 +286,236 @@ onUnmounted(() => {
 });
 </script>
 
+
+<template>
+  <HeadingAdmin :isGymOpen="isGymOpen" :billingStatus="billingStatus">
+    <div class="saas-dashboard-wrapper">
+      
+      <main class="dashboard-main-container">
+        
+        <!-- HEADER DE LA SECCIÓN CON BUSCADOR INTEGRADO -->
+        <div class="section-header-box">
+          <div class="header-text-content">
+            <h1 class="main-heading" id="turtor1">{{ t('gymsListTitle') }}</h1>
+            <p class="hero-desc">{{ t('gymsListDesc') }}</p>
+
+            <div class="stats-strip">
+              <div class="stat-chip">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                <span><strong>{{ localGyms.length + 1 }}</strong> {{ t('statsLocalLabel') }}</span>
+              </div>
+              <div class="stat-chip">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                <span><strong>{{ statesCount }}</strong> {{ t('statsStatesLabel') }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- BUSCADOR -->
+          <div class="gym-search-bar">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input
+              type="text"
+              v-model="searchQuery"
+              :placeholder="t('searchPlaceholder')"
+            />
+            <button v-if="searchQuery" type="button" class="btn-clear-search" @click="searchQuery = ''" aria-label="Limpiar búsqueda">
+              &times;
+            </button>
+          </div>
+        </div>
+
+        <!-- SECCIÓN 1: SEDE PRINCIPAL / REGISTRADA -->
+        <div class="category-section" id="turtor2">
+          <div class="category-header">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            <h2>{{ t('registeredGymTitle') }}</h2>
+          </div>
+          
+          <div class="gyms-grid-container">
+            <router-link 
+              v-if="registeredGym" 
+              :to="{ name: 'member-gym-detail', params: { id: registeredGym.id } }"
+              class="glass-card gym-item-card primary-registered-card" 
+              id="turtor3"
+              style="text-decoration: none;"
+            >
+              <div class="card-3d-perspective">
+                <div class="gym-item-image">
+                  <img :src="registeredGym.image" :alt="registeredGym.name" />
+                  <div class="image-gradient-overlay"></div>
+                  <span class="drawer-tag" :class="{ open: registeredGym.isOpen }">
+                    <span class="pulse-dot"></span>
+                    {{ registeredGym.isOpen ? t('statusOpen') : t('statusClosed') }}
+                  </span>
+                  <div class="map-preview-badge">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    {{ registeredGym.ciudad }}, {{ abreviarEstado(registeredGym.estado) }}
+                  </div>
+                </div>
+              </div>
+
+              <div class="gym-item-content">
+                <div class="card-title-row">
+                  <h3>{{ registeredGym.name }}</h3>
+                  <span class="badge-pill main-badge">{{ t('mainBaseBadge') }}</span>
+                </div>
+                <p class="drawer-text-item">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                  <span>{{ registeredGym.address }}</span>
+                </p>
+                <p class="drawer-text-item">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                  <span>{{ registeredGym.schedule }}</span>
+                </p>
+                
+                <div class="card-mini-capacity">
+                  <div class="mini-cap-info">
+                    <span>{{ t('liveOccupancyLabel') }}</span>
+                    <span :style="{ color: registeredGym.occupancy > 75 ? '#ef4444' : '#10b981' }">{{ registeredGym.occupancy }}%</span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-fill" :style="{ width: registeredGym.occupancy + '%', background: registeredGym.occupancy > 75 ? '#ef4444' : '#3b82f6' }"></div>
+                  </div>
+                </div>
+              </div>
+            </router-link>
+          </div>
+        </div>
+
+        <!-- SECCIÓN 2: GIMNASIOS LOCALES -->
+        <div class="category-section" id="turtor4">
+          <div class="category-header">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+            <h2>{{ t('localGymsTitle') }}</h2>
+          </div>
+
+          <div v-if="filteredLocalGyms.length" class="gyms-grid-container">
+            <router-link 
+              v-for="gym in filteredLocalGyms" 
+              :key="gym.id" 
+              :to="{ name: 'member-gym-detail', params: { id: gym.id } }"
+              class="glass-card gym-item-card"
+              style="text-decoration: none;"
+            >
+              <div class="card-3d-perspective">
+                <div class="gym-item-image">
+                  <img :src="gym.image" :alt="gym.name" />
+                  <div class="image-gradient-overlay"></div>
+                  <span class="drawer-tag" :class="{ open: gym.isOpen }">
+                    <span class="pulse-dot"></span>
+                    {{ gym.isOpen ? t('statusOpen') : t('statusClosed') }}
+                  </span>
+                  <div class="map-preview-badge">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    {{ gym.ciudad }}, {{ abreviarEstado(gym.estado) }}
+                  </div>
+                </div>
+              </div>
+
+              <div class="gym-item-content">
+                <h3>{{ gym.name }}</h3>
+                <p class="drawer-text-item">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                  <span>{{ gym.address }}</span>
+                </p>
+                <p class="drawer-text-item">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                  <span>{{ gym.schedule }}</span>
+                </p>
+                
+                <div class="card-mini-capacity">
+                  <div class="mini-cap-info">
+                    <span>{{ t('liveOccupancyLabel') }}</span>
+                    <span :style="{ color: gym.occupancy > 75 ? '#ef4444' : '#10b981' }">{{ gym.occupancy }}%</span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-fill" :style="{ width: gym.occupancy + '%', background: gym.occupancy > 75 ? '#ef4444' : '#3b82f6' }"></div>
+                  </div>
+                </div>
+              </div>
+            </router-link>
+          </div>
+        </div>
+
+        <!-- SECCIÓN 3: GIMNASIOS NACIONALES -->
+        <div class="category-section" id="turtor5">
+          <div class="category-header">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+            <h2>{{ t('nationalGymsTitle') }}</h2>
+          </div>
+
+          <div
+            v-for="(gyms, estado) in filteredNationalByState"
+            :key="estado"
+            class="state-subsection"
+          >
+            <h3 class="state-subheading">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              {{ estado }}
+              <span class="state-count-pill">{{ gyms.length }}</span>
+            </h3>
+
+            <div class="gyms-grid-container">
+              <div 
+                v-for="gym in gyms" 
+                :key="gym.id" 
+                class="glass-card gym-item-card locked-gym-card"
+              >
+                <div class="membership-lock-overlay">
+                  <div class="lock-icon-badge">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                  </div>
+                  <span class="lock-title">{{ t('lockTitle') }}</span>
+                  <p class="lock-desc">{{ t('lockDesc') }}</p>
+                  <button class="btn-unlock-action" @click="openMembershipModal">
+                    {{ t('lockBtn') }}
+                  </button>
+                </div>
+
+                <div class="card-3d-perspective blurred-content">
+                  <div class="gym-item-image">
+                    <img :src="gym.image" :alt="gym.name" />
+                    <div class="image-gradient-overlay"></div>
+                  </div>
+                </div>
+
+                <div class="gym-item-content blurred-content">
+                  <h3>{{ gym.name }}</h3>
+                  <p class="drawer-text-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    <span>{{ gym.address }}</span>
+                  </p>
+                  <p class="drawer-text-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    <span>{{ gym.schedule }}</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ESTADO VACÍO DE BÚSQUEDA -->
+        <div v-if="hasNoResults" class="no-results-box">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <h3>{{ t('noResultsTitle') }}</h3>
+          <p>{{ t('noResultsDesc') }}</p>
+        </div>
+
+      </main>
+
+      <!-- MODAL DE MEMBRESÍAS -->
+      <transition name="pop">
+        <div v-if="showMembershipModal" class="modal-wrapper" @click.self="closeMembershipModal">
+          <UpgradeMembershipModal @close="closeMembershipModal" />
+        </div>
+      </transition>
+
+    </div>
+  </HeadingAdmin>
+</template>
+
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;700&display=swap');
 
@@ -399,21 +537,95 @@ onUnmounted(() => {
   padding: 40px 32px;
   display: flex;
   flex-direction: column;
-  gap: 44px;
+  gap: 36px;
 }
 
 .section-header-box {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-end;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 24px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   padding-bottom: 24px;
 }
 
+.header-text-content {
+  flex: 1;
+  min-width: 280px;
+}
+
+/* Franja de estadísticas rápidas */
+.stats-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.stat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50px;
+  padding: 7px 14px;
+  font-size: 0.8rem;
+  color: rgba(245, 245, 244, 0.75);
+}
+.stat-chip svg { color: var(--color-highlight, #3b82f6); flex-shrink: 0; }
+.stat-chip strong { color: #fff; font-weight: 700; }
+
+/* Buscador principal integrado en el header */
+.gym-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-cards, #121212);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--app-border-radius, 14px);
+  padding: 10px 16px;
+  width: 340px;
+  max-width: 100%;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.gym-search-bar:focus-within {
+  border-color: rgba(59, 130, 246, 0.6);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+.gym-search-bar svg { color: #94a3b8; flex-shrink: 0; }
+.gym-search-bar input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  padding: 4px 0;
+}
+.gym-search-bar input:focus { outline: none; }
+.gym-search-bar input::placeholder { color: rgba(245, 245, 244, 0.4); }
+.btn-clear-search {
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: #fff;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.btn-clear-search:hover { background: rgba(255, 255, 255, 0.16); }
+
 .category-section {
-  
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -438,6 +650,42 @@ onUnmounted(() => {
   color: var(--color-highlight, #3b82f6);
 }
 
+/* Subsecciones por estado dentro de la red nacional */
+.state-subsection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.state-subsection + .state-subsection {
+  margin-top: 8px;
+  padding-top: 24px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+.state-subheading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-family: 'Oswald', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  color: rgba(245, 245, 244, 0.85);
+  text-transform: uppercase;
+}
+.state-subheading svg { color: var(--color-highlight, #3b82f6); flex-shrink: 0; }
+.state-count-pill {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(245, 245, 244, 0.7);
+  border-radius: 50px;
+  padding: 1px 9px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
 .gyms-grid-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
@@ -445,7 +693,6 @@ onUnmounted(() => {
 }
 
 .glass-card {
-  
   background: var(--bg-cards, #121212);
   border-radius: var(--app-border-radius, 20px);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -478,7 +725,8 @@ onUnmounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 10px;
   margin-bottom: 12px;
 }
 
@@ -490,16 +738,17 @@ onUnmounted(() => {
 }
 
 .badge-pill {
-   background: var(--color-botones, #1c4fd6); 
+  background: var(--color-botones, #1c4fd6); 
   color: var(--color-texto-botones, #ffffff); 
   border: 1px solid rgba(59, 130, 246, 0.4);
-
   padding: 4px 10px;
   border-radius: 8px;
   font-size: 0.65rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .locked-gym-card {
@@ -516,7 +765,6 @@ onUnmounted(() => {
 .membership-lock-overlay {
   position: absolute;
   inset: 0;
-  
   background: var(--bg-cards, #121212);
   border-radius: var(--app-border-radius, 20px);
   backdrop-filter: blur(6px);
@@ -561,7 +809,7 @@ onUnmounted(() => {
 
 .btn-unlock-action {
   margin-top: 8px;
-   background: var(--color-botones, #1c4fd6); 
+  background: var(--color-botones, #1c4fd6); 
   color: var(--color-texto-botones, #ffffff); 
   border: none;
   padding: 10px 20px;
@@ -663,7 +911,9 @@ onUnmounted(() => {
   align-items: center;
   gap: 6px;
   z-index: 2;
+  max-width: calc(100% - 24px);
 }
+.map-preview-badge svg { flex-shrink: 0; }
 
 .gym-item-content h3 {
   margin: 0 0 12px 0;
@@ -734,7 +984,30 @@ onUnmounted(() => {
   max-width: 600px;
 }
 
-/* Modales y Drawer */
+.no-results-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  padding: 48px 24px;
+  color: rgba(245, 245, 244, 0.5);
+  border: 1.5px dashed rgba(255, 255, 255, 0.1);
+  border-radius: var(--app-border-radius, 20px);
+}
+.no-results-box svg { opacity: 0.5; }
+.no-results-box h3 {
+  margin: 4px 0 0;
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.1rem;
+  color: rgba(245, 245, 244, 0.8);
+}
+.no-results-box p {
+  margin: 0;
+  font-size: 0.85rem;
+  max-width: 320px;
+}
+
 .modal-wrapper {
   position: fixed;
   inset: 0;
@@ -749,155 +1022,10 @@ onUnmounted(() => {
 .pop-enter-active, .pop-leave-active { transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
 .pop-enter-from, .pop-leave-to { opacity: 0; transform: scale(0.95); }
 
-/* --- MAPA 3D HOLOGRÁFICO --- */
-.map-3d-container {
-  width: 100%;
-  height: 220px;
-  border-radius: 14px;
-  overflow: hidden;
-  margin-bottom: 20px;
-  position: relative;
-  border: 1px solid rgba(59, 130, 246, 0.4);
-  box-shadow: inset 0 0 25px rgba(59, 130, 246, 0.25), 0 10px 30px rgba(0,0,0,0.5);
-}
-
-.map-3d-viewport {
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle at center, #111827 0%, #06090f 100%);
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transform: perspective(700px) rotateX(20deg);
-}
-
-.isometric-grid-bg {
-  position: absolute;
-  inset: -50%;
-  background-image: 
-    linear-gradient(rgba(59, 130, 246, 0.15) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(59, 130, 246, 0.15) 1px, transparent 1px);
-  background-size: 28px 28px;
-  transform: rotate(45deg);
-  animation: gridMove 15s linear infinite;
-}
-
-@keyframes gridMove {
-  0% { background-position: 0 0; }
-  100% { background-position: 56px 56px; }
-}
-
-.iso-building {
-  position: absolute;
-  background: rgba(30, 58, 138, 0.4);
-  border: 1px solid rgba(59, 130, 246, 0.5);
-  border-radius: 4px;
-}
-
-.building-1 { width: 45px; height: 70px; top: 25px; left: 35px; transform: skewX(-15deg); }
-.building-2 { width: 60px; height: 50px; bottom: 20px; right: 40px; transform: skewX(15deg); }
-.building-3 { width: 35px; height: 80px; top: 15px; right: 70px; transform: skewY(-10deg); opacity: 0.7; }
-
-.map-marker-pin {
-  position: relative;
-  z-index: 5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.pin-core {
-  width: 40px;
-  height: 40px;
-  background: var(--color-highlight, #3b82f6);
-  color: #fff;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 25px #3b82f6;
-  border: 2px solid #fff;
-}
-
-.pin-pulse {
-  position: absolute;
-  width: 70px;
-  height: 70px;
-  border: 2px solid #3b82f6;
-  border-radius: 50%;
-  animation: radarPulse 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
-}
-
-@keyframes radarPulse {
-  0% { transform: scale(0.4); opacity: 1; }
-  100% { transform: scale(2.2); opacity: 0; }
-}
-
-.map-hud-overlay {
-  position: absolute;
-  bottom: 8px; left: 8px; right: 8px;
-  display: flex; justify-content: space-between;
-  font-size: 0.65rem; color: #93c5fd;
-  background: rgba(10, 15, 30, 0.9);
-  padding: 6px 10px; border-radius: 6px; z-index: 6;
-  border: 1px solid rgba(59, 130, 246, 0.3); font-family: monospace;
-}
-
-/* Drawer styles */
-.drawer-overlay {
-  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-  background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(4px); z-index: 4000;
-}
-
-.gym-drawer {
-  position: fixed; top: 0; right: 0; width: 480px; max-width: 100vw; height: 100vh;
-  background: var(--bg-cards, #121216); border-left: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: -15px 0 40px rgba(0, 0, 0, 0.8); z-index: 4001; display: flex; flex-direction: column; border-radius: 0;
-}
-
-.drawer-header {
-  padding: 24px; border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  display: flex; justify-content: space-between; align-items: flex-start;
-}
-
-.drawer-title-wrapper { display: flex; flex-direction: column; gap: 8px; }
-.drawer-title-wrapper h2 { margin: 0; font-size: 1.4rem; color: var(--color-titulos, #fff); font-family: 'Oswald', sans-serif; }
-
-.close-btn {
-  background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center;
-  justify-content: center; color: var(--color-texto-general, #fff); cursor: pointer; transition: background 0.2s;
-}
-.close-btn:hover { background: rgba(255, 255, 255, 0.15); }
-
-.drawer-body {
-  padding: 24px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 24px;
-}
-
-.drawer-image-section { display: flex; flex-direction: column; gap: 10px; }
-.drawer-image-section h4, .info-block h4 { margin: 0 0 10px 0; font-family: 'Oswald', sans-serif; font-size: 1.1rem; color: var(--color-titulos, #fff); }
-.drawer-image { width: 100%; height: 180px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); }
-.drawer-image img { width: 100%; height: 100%; object-fit: cover; }
-
-.info-block { display: flex; flex-direction: column; gap: 8px; }
-.amenities-grid { display: flex; flex-wrap: wrap; gap: 8px; }
-.amenity-chip { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; color: rgba(245,245,244,0.8); display: flex; align-items: center; gap: 6px; }
-.amenity-chip svg { color: var(--color-highlight, #3b82f6); }
-
-.capacity-bar-container { background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
-.capacity-info { display: flex; justify-content: space-between; font-size: 0.8rem; color: rgba(245,245,244,0.7); }
-.capacity-percentage { font-weight: 600; color: #fff; }
-
-.drawer-footer { padding: 20px 24px; border-top: 1px solid rgba(255,255,255,0.08); background: rgba(0,0,0,0.2); }
-.btn-primary { width: 100%; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: #fff; border: none; padding: 14px; border-radius: 12px; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 16px rgba(59,130,246,0.4); }
-.btn-primary:hover { opacity: 0.95; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59,130,246,0.6); }
-
-/* RESPONSIVE MEDIA QUERIES PARA MÓVILES */
 @media (max-width: 768px) {
   .dashboard-main-container {
     padding: 20px 16px;
-    gap: 32px;
+    gap: 28px;
   }
   .main-heading {
     font-size: 1.6rem;
@@ -906,25 +1034,44 @@ onUnmounted(() => {
   .hero-desc {
     font-size: 0.85rem;
   }
+  .stats-strip {
+    gap: 8px;
+  }
+  .stat-chip {
+    font-size: 0.75rem;
+    padding: 6px 12px;
+  }
+  .gym-search-bar {
+    width: 100%;
+    padding: 10px 14px;
+  }
   .gyms-grid-container {
     grid-template-columns: 1fr;
     gap: 16px;
   }
-  .gym-drawer {
-    width: 100vw;
-    height: 100vh;
+  .gym-item-image {
+    height: 170px;
+    margin-bottom: 14px;
   }
-  .drawer-header {
-    padding: 16px 20px;
+  .glass-card {
+    padding: 16px;
   }
-  .drawer-body {
-    padding: 16px 20px;
-  }
-  .drawer-footer {
-    padding: 16px 20px;
+  .card-title-row h3,
+  .gym-item-content h3 {
+    font-size: 1.1rem;
   }
   .category-header h2 {
     font-size: 1.2rem;
+  }
+  .state-subheading {
+    font-size: 0.9rem;
+  }
+  .lock-desc {
+    max-width: 100%;
+  }
+  .map-preview-badge {
+    font-size: 0.65rem;
+    padding: 4px 8px;
   }
 }
 </style>

@@ -8,6 +8,7 @@
         <div class="header-top-row">
           <span class="gym-badge-tag">{{ t.officialCatalog }} • 1,324 {{ t.exercisesLabel }}</span>
           <div id="tutorial-9" class="athlete-counter-pill">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
             <span class="counter-num">{{ mySavedRoutines.length }}</span>
             <span class="counter-text">{{ t.savedLabel }}</span>
           </div>
@@ -23,35 +24,53 @@
         <!-- PANEL DE DATOS ANTROPOMÉTRICOS Y BOTÓN DE CÁLCULO -->
         <div id="tutorial-2" class="anthropometric-panel">
           <div class="panel-title-row">
-            <span class="panel-title">{{ t.profileTitle }}</span>
+            <span class="panel-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              {{ t.profileTitle }}
+            </span>
             <div class="badges-row" v-if="calculatedIMC">
-              <span class="imc-badge">{{ t.imcLabel }}: {{ calculatedIMC }} ({{ imcCategory }})</span>
-              <span class="somatotype-badge">{{ t.somatotypeLabel }}: {{ somatotype }}</span>
+              <span class="imc-badge">{{ t.imcLabel }}: <strong>{{ calculatedIMC }}</strong> · {{ imcCategory }}</span>
+              <span class="somatotype-badge">{{ t.somatotypeLabel }}: <strong>{{ somatotype }}</strong></span>
             </div>
           </div>
           
           <div id="tutorial-3" class="anthropometric-grid">
             <div class="input-group">
-              <label>{{ t.ageLabel }}</label>
+              <label>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                {{ t.ageLabel }}
+              </label>
               <input type="number" v-model.number="userProfile.age" min="10" max="100" class="styled-input" />
             </div>
             <div class="input-group">
-              <label>{{ t.weightLabel }} (kg)</label>
+              <label>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6.5 6.5h11L21 21H3z"></path><path d="M8.5 6.5a3.5 3.5 0 0 1 7 0"></path></svg>
+                {{ t.weightLabel }} (kg)
+              </label>
               <input type="number" v-model.number="userProfile.weight" min="30" max="250" class="styled-input" />
             </div>
             <div class="input-group">
-              <label>{{ t.heightLabel }} (cm)</label>
+              <label>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="2" x2="12" y2="22"></line><polyline points="8 6 12 2 16 6"></polyline><polyline points="8 18 12 22 16 18"></polyline></svg>
+                {{ t.heightLabel }} (cm)
+              </label>
               <input type="number" v-model.number="userProfile.height" min="100" max="230" class="styled-input" />
             </div>
             <div class="input-group">
-              <label>{{ t.genderLabel }}</label>
+              <label>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="8" r="5"></circle><path d="M20 21a8 8 0 1 0-16 0"></path></svg>
+                {{ t.genderLabel }}
+              </label>
               <select v-model="userProfile.gender" class="styled-select">
                 <option value="male">{{ t.genderMale }}</option>
                 <option value="female">{{ t.genderFemale }}</option>
               </select>
             </div>
             <div class="input-group">
-              <label>{{ t.goalLabel }}</label>
+              <label>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+                {{ t.goalLabel }}
+              </label>
               <select v-model="userProfile.goal" class="styled-select">
                 <option value="hypertrophy">{{ t.goalHypertrophy }}</option>
                 <option value="strength">{{ t.goalStrength }}</option>
@@ -73,33 +92,52 @@
         <div class="header-divider"></div>
 
         <!-- FILTROS GENERALES -->
-        <div id="tutorial-5" class="filters-toolbar-grid">
-          <div class="filter-field">
-            <label for="bodypart-select" class="filter-group-title">{{ t.bodyPartFilterLabel }}</label>
-            <div class="select-wrapper">
-              <select id="bodypart-select" v-model="activeBodyPartFilter" class="styled-select">
-                <option value="all">{{ t.bodyPartAll }}</option>
-                <option v-for="bp in targetCategoriesKeys" :key="bp" :value="bp">
-                  {{ t.cats[bp] || bp }}
-                </option>
-              </select>
+        <div id="tutorial-5" class="filters-toolbar">
+          <div class="filter-block">
+            <span class="filter-block-title">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+              {{ t.bodyPartFilterLabel }}
+            </span>
+            <div class="chip-filter-row">
+              <button
+                type="button"
+                class="filter-chip"
+                :class="{ active: activeBodyPartFilter === 'all' }"
+                @click="activeBodyPartFilter = 'all'"
+              >{{ t.bodyPartAll }}</button>
+              <button
+                v-for="bp in targetCategoriesKeys"
+                :key="bp"
+                type="button"
+                class="filter-chip"
+                :class="{ active: activeBodyPartFilter === bp }"
+                @click="activeBodyPartFilter = bp"
+              >{{ t.cats[bp] || bp }}</button>
             </div>
           </div>
 
-          <div class="filter-field">
-            <label for="level-select" class="filter-group-title">{{ t.difficultyLabel }}</label>
-            <div class="select-wrapper">
-              <select id="level-select" v-model="activeLevel" class="styled-select">
-                <option value="Todos">{{ t.levelAll }}</option>
-                <option value="Principiante">{{ t.levelBeginner }}</option>
-                <option value="Intermedio">{{ t.levelIntermediate }}</option>
-                <option value="Avanzado">{{ t.levelAdvanced }}</option>
-              </select>
+          <div class="filter-block">
+            <span class="filter-block-title">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+              {{ t.difficultyLabel }}
+            </span>
+            <div class="chip-filter-row">
+              <button
+                v-for="opt in levelOptions"
+                :key="opt.value"
+                type="button"
+                class="filter-chip"
+                :class="{ active: activeLevel === opt.value }"
+                @click="activeLevel = opt.value"
+              >{{ opt.label }}</button>
             </div>
           </div>
 
-          <div class="filter-field">
-            <label for="equipment-select" class="filter-group-title">{{ t.equipmentLabel }}</label>
+          <div class="filter-block equipment-block">
+            <label for="equipment-select" class="filter-block-title">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+              {{ t.equipmentLabel }}
+            </label>
             <div class="select-wrapper">
               <select id="equipment-select" v-model="activeEquipment" class="styled-select">
                 <option value="all">{{ t.equipmentAll }}</option>
@@ -114,7 +152,9 @@
 
       <!-- ESTADO DE ESPERA ANTES DE CALCULAR -->
       <div v-if="!hasCalculated" class="waiting-calculation-box glass-card">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        <div class="waiting-icon-ring">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        </div>
         <h3>{{ t.waitingTitle }}</h3>
         <p>{{ t.waitingDesc }}</p>
         <button class="btn-primary-action" @click="calculateRoutines">{{ t.calculateBtnText }}</button>
@@ -122,6 +162,7 @@
 
       <!-- ESTADO DE CARGA -->
       <div v-else-if="loadingExercises" class="loading-state-box glass-card">
+        <span class="loading-spinner"></span>
         <p class="hero-desc">{{ t.loadingText }}</p>
       </div>
 
@@ -172,6 +213,7 @@
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
                     <span><strong>{{ getPrescribedSets(routine) }}</strong> series</span>
                   </div>
+                  <div class="pill-divider"></div>
                   <div class="pill-item">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
                     <span><strong>{{ getPrescribedReps(routine) }}</strong></span>
@@ -186,7 +228,8 @@
                 </div>
 
                 <button id="tutorial-8" class="btn-explore" @click="viewRoutineDetails(routine)">
-                  {{ t.viewDetails }} &rarr;
+                  {{ t.viewDetails }}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                 </button>
               </div>
 
@@ -416,6 +459,13 @@ const activeLevel = ref('Todos');
 const activeBodyPartFilter = ref('all');
 const selectedRoutine = ref(null);
 
+const levelOptions = computed(() => [
+  { value: 'Todos', label: t.value.levelAll },
+  { value: 'Principiante', label: t.value.levelBeginner },
+  { value: 'Intermedio', label: t.value.levelIntermediate },
+  { value: 'Avanzado', label: t.value.levelAdvanced }
+]);
+
 const mySavedRoutines = ref([]);
 const routineLibrary = ref([]);
 const loadingExercises = ref(true);
@@ -591,7 +641,7 @@ const viewRoutineDetails = (routine) => {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;600;700&display=swap');
 
 .saas-dashboard-wrapper {
   background: var(--bg-custom, #0a0a0a);
@@ -607,24 +657,41 @@ const viewRoutineDetails = (routine) => {
   max-width: 1280px;
   margin: 0 auto;
   width: 100%;
-  padding: 36px 24px;
+  padding: 40px clamp(16px, 3vw, 32px);
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 36px;
 }
 
 .glass-card {
   background: var(--bg-cards, #121212);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: var(--app-border-radius, 20px);
-  padding: 24px 28px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.08));
+  border-radius: var(--app-border-radius, 22px);
+  padding: 30px 32px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.45);
+  position: relative;
+  overflow: hidden;
 }
 
+/* ==========================================
+   HEADER PRINCIPAL
+   ========================================== */
 .header-card {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 24px;
+}
+
+/* Franja de acento en degradado, misma identidad visual que el resto
+   de las tarjetas "hero" de la app. */
+.header-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-botones, #1c4fd6), #60a5fa, var(--color-botones, #1c4fd6));
 }
 
 .header-top-row {
@@ -632,54 +699,61 @@ const viewRoutineDetails = (routine) => {
   justify-content: space-between;
   align-items: center;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .gym-badge-tag {
-  font-size: 0.65rem;
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.68rem;
   background: rgba(59, 130, 246, 0.1);
   border: 1px solid rgba(59, 130, 246, 0.3);
   color: var(--color-highlight, #60a5fa);
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 50px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
 }
 
 .header-titles {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
 }
 
 .main-heading {
-  font-family: 'Archivo Black', sans-serif;
-  font-size: 1.65rem;
-  font-weight: 800;
+  font-family: 'Anton', sans-serif;
+  font-size: 2.3rem;
+  font-weight: 400;
   margin: 0;
   color: var(--color-titulos, #ffffff);
-  letter-spacing: -0.5px;
-  line-height: 1.2;
+  letter-spacing: 0.3px;
+  line-height: 1.1;
+  text-transform: uppercase;
 }
 
 .highlight-color { color: var(--color-highlight, #3b82f6); }
 
 .hero-desc {
-  font-size: 0.85rem;
+  font-size: 0.92rem;
   color: rgba(245, 245, 244, 0.6);
   margin: 0;
   font-weight: 500;
-  line-height: 1.4;
+  line-height: 1.5;
+  max-width: 620px;
 }
 
+/* ==========================================
+   PANEL ANTROPOMÉTRICO
+   ========================================== */
 .anthropometric-panel {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 14px;
-  padding: 18px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--app-border-radius, 16px);
+  padding: 22px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 18px;
 }
 
 .panel-title-row {
@@ -687,16 +761,21 @@ const viewRoutineDetails = (routine) => {
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
 }
 
 .panel-title {
-  font-size: 0.75rem;
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.78rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: rgba(245, 245, 244, 0.7);
+  letter-spacing: 0.6px;
+  color: rgba(245, 245, 244, 0.75);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
+.panel-title svg { color: var(--color-highlight, #3b82f6); }
 
 .badges-row {
   display: flex;
@@ -705,14 +784,15 @@ const viewRoutineDetails = (routine) => {
 }
 
 .imc-badge, .somatotype-badge {
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   background: rgba(16, 185, 129, 0.1);
   border: 1px solid rgba(16, 185, 129, 0.3);
   color: #34d399;
-  padding: 3px 8px;
-  border-radius: 6px;
-  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-weight: 500;
 }
+.imc-badge strong, .somatotype-badge strong { font-weight: 700; }
 
 .somatotype-badge {
   background: rgba(59, 130, 246, 0.1);
@@ -722,104 +802,162 @@ const viewRoutineDetails = (routine) => {
 
 .anthropometric-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 14px;
   align-items: flex-end;
 }
 
 .input-group {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   width: 100%;
+  min-width: 0;
 }
 
 .input-group label {
-  font-size: 0.65rem;
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.68rem;
   font-weight: 600;
-  color: rgba(245, 245, 244, 0.5);
+  color: rgba(245, 245, 244, 0.55);
   text-transform: uppercase;
+  letter-spacing: 0.3px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
+.input-group label svg { color: var(--color-highlight, #3b82f6); flex-shrink: 0; }
 
 .styled-input {
   width: 100%;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.035);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
   color: #fff;
-  padding: 9px 12px;
-  border-radius: 8px;
-  font-size: 0.8rem;
+  padding: 11px 14px;
+  border-radius: 10px;
+  font-size: 0.88rem;
   font-weight: 600;
   outline: none;
   box-sizing: border-box;
-  transition: all 0.2s;
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
 }
 
-.styled-input:hover, .styled-input:focus {
+.styled-input:hover { border-color: rgba(59, 130, 246, 0.4); }
+.styled-input:focus {
   border-color: var(--color-highlight, #3b82f6);
-  background-color: rgba(59, 130, 246, 0.04);
+  background-color: rgba(59, 130, 246, 0.05);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
 .calculate-action-row {
   display: flex;
   justify-content: flex-end;
-  margin-top: 4px;
 }
 
 .btn-calculate-routines {
   background: var(--color-botones, #3b82f6);
   color: var(--color-texto-botones, white);
   border: none;
-  padding: 10px 18px;
-  border-radius: 10px;
+  padding: 13px 24px;
+  border-radius: 12px;
+  font-family: 'Oswald', sans-serif;
   font-weight: 700;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+  transition: filter 0.2s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 6px 18px rgba(59, 130, 246, 0.35);
+}
+.btn-calculate-routines:hover {
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(59, 130, 246, 0.45);
+}
+
+.athlete-counter-pill {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 7px 16px;
+  border-radius: 50px;
   display: flex;
   align-items: center;
   gap: 8px;
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
-.btn-calculate-routines:hover { opacity: 0.9; }
-
-.athlete-counter-pill {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 6px 14px;
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   flex-shrink: 0;
 }
-.counter-num { font-family: 'Oswald', sans-serif; font-size: 1.1rem; font-weight: 700; color: #fff; line-height: 1.1; }
-.counter-text { font-size: 0.55rem; color: rgba(245, 245, 244, 0.5); text-transform: uppercase; font-weight: 600; }
+.athlete-counter-pill svg { color: var(--color-highlight, #3b82f6); }
+.counter-num { font-family: 'Oswald', sans-serif; font-size: 1rem; font-weight: 700; color: #fff; line-height: 1; }
+.counter-text { font-size: 0.68rem; color: rgba(245, 245, 244, 0.55); text-transform: uppercase; font-weight: 600; }
 
 .header-divider {
   height: 1px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.08);
   width: 100%;
 }
 
-.filters-toolbar-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-
-.filter-field {
+/* ==========================================
+   FILTROS
+   ========================================== */
+.filters-toolbar {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 18px;
 }
 
-.filter-group-title {
-  font-size: 0.68rem;
+.filter-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.filter-block-title {
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
-  color: rgba(245, 245, 244, 0.5);
+  color: rgba(245, 245, 244, 0.55);
   letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
 }
+.filter-block-title svg { color: var(--color-highlight, #3b82f6); }
+
+.chip-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filter-chip {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  color: rgba(245, 245, 244, 0.7);
+  padding: 8px 15px;
+  border-radius: 50px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+.filter-chip:hover {
+  border-color: rgba(59, 130, 246, 0.5);
+  color: #fff;
+  transform: translateY(-1px);
+}
+.filter-chip.active {
+  background: var(--color-botones, #1c4fd6);
+  border-color: var(--color-botones, #1c4fd6);
+  color: var(--color-texto-botones, #fff);
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+}
+
+.equipment-block { max-width: 320px; }
 
 .select-wrapper {
   position: relative;
@@ -828,12 +966,12 @@ const viewRoutineDetails = (routine) => {
 
 .styled-select {
   width: 100%;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.035);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
   color: #fff;
-  padding: 9px 12px;
+  padding: 11px 14px;
   border-radius: 10px;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 600;
   outline: none;
   cursor: pointer;
@@ -841,14 +979,14 @@ const viewRoutineDetails = (routine) => {
   box-sizing: border-box;
   background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.364%22%20height%3D%22292.364%22%3E%3Cpath%20fill%3D%22%2360a5fa%22%20d%3D%22M287.9 69.8c-4.3-4.3-11.3-4.3-15.6 0L146.1 195.8 20 69.8c-4.3-4.3-11.3-4.3-15.6 0s-4.3 11.3 0 15.6l133.4 133.4c4.3 4.3 11.3 4.3 15.6 0l133.5-133.4c4.3-4.3 4.3-11.3 0-15.6z%22%2F%3E%3C%2Fsvg%3E");
   background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 8px auto;
-  transition: all 0.2s;
+  background-position: right 14px center;
+  background-size: 9px auto;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
 .styled-select:hover, .styled-select:focus {
   border-color: var(--color-highlight, #3b82f6);
-  background-color: rgba(59, 130, 246, 0.04);
+  background-color: rgba(59, 130, 246, 0.05);
 }
 
 .styled-select option {
@@ -857,103 +995,176 @@ const viewRoutineDetails = (routine) => {
   padding: 10px;
 }
 
+/* ==========================================
+   ESTADOS DE ESPERA / CARGA
+   ========================================== */
 .waiting-calculation-box {
   text-align: center;
-  padding: 50px 20px;
+  padding: 60px 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
   color: rgba(245, 245, 244, 0.6);
 }
-.waiting-calculation-box svg { color: var(--color-highlight, #3b82f6); }
-.waiting-calculation-box h3 { margin: 0; color: #fff; font-family: 'Oswald', sans-serif; font-size: 1.3rem; }
-.waiting-calculation-box p { margin: 0; font-size: 0.85rem; max-width: 400px; }
+.waiting-icon-ring {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  color: var(--color-highlight, #3b82f6);
+}
+.waiting-calculation-box h3 { margin: 0; color: #fff; font-family: 'Anton', sans-serif; font-size: 1.4rem; text-transform: uppercase; letter-spacing: 0.3px; }
+.waiting-calculation-box p { margin: 0; font-size: 0.88rem; max-width: 420px; line-height: 1.5; }
 
+.loading-state-box {
+  padding: 50px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(59, 130, 246, 0.2);
+  border-top-color: var(--color-highlight, #3b82f6);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.btn-primary-action {
+  background: var(--color-botones, #3b82f6);
+  color: var(--color-texto-botones, white);
+  border: none;
+  padding: 13px 24px;
+  border-radius: 12px;
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: filter 0.2s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 6px 18px rgba(59, 130, 246, 0.35);
+}
+.btn-primary-action:hover {
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(59, 130, 246, 0.45);
+}
+
+/* ==========================================
+   SECCIONES POR PARTE DEL CUERPO
+   ========================================== */
 .body-parts-container {
   display: flex;
   flex-direction: column;
-  gap: 36px;
+  gap: 40px;
 }
 
 .body-part-section {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  background: rgba(255, 255, 255, 0.01);
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  padding: 20px;
-  border-radius: 20px;
+  gap: 18px;
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 24px;
+  border-radius: var(--app-border-radius, 22px);
 }
 
 .category-section-header {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  padding-bottom: 10px;
+  padding-bottom: 14px;
 }
 
 .cat-title-wrapper {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .section-category-title {
   font-family: 'Oswald', sans-serif;
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   margin: 0;
   color: #fff;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.section-category-title::before {
+  content: '';
+  width: 4px;
+  height: 20px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, var(--color-botones, #1c4fd6), rgba(37, 99, 235, 0.25));
 }
 
 .section-count-badge {
-  font-size: 0.72rem;
-  font-weight: 600;
+  font-size: 0.74rem;
+  font-weight: 700;
   background: rgba(59, 130, 246, 0.1);
   color: var(--color-highlight, #60a5fa);
-  padding: 4px 10px;
-  border-radius: 8px;
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  padding: 5px 12px;
+  border-radius: 50px;
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  white-space: nowrap;
 }
 
 .cat-recommendation-note {
-  font-size: 0.75rem;
-  color: rgba(245, 245, 244, 0.45);
+  font-size: 0.8rem;
+  color: rgba(245, 245, 244, 0.5);
   margin: 0;
+  line-height: 1.5;
 }
 
 .routines-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 20px;
 }
 
+/* ==========================================
+   TARJETA DE RUTINA
+   ========================================== */
 .routine-card {
   background: var(--bg-cards, #121212);
-  border-radius: var(--app-border-radius, 16px);
+  border-radius: var(--app-border-radius, 18px);
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.08));
   display: flex;
   flex-direction: column;
-  transition: all 0.2s ease;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
 }
 
 .routine-card:hover {
   border-color: var(--color-highlight, #3b82f6);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 34px rgba(0,0,0,0.45);
 }
 
 .card-media {
   position: relative;
-  height: 160px;
+  height: 180px;
   width: 100%;
   overflow: hidden;
-  background: #000;
+  background: #050505;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -963,81 +1174,86 @@ const viewRoutineDetails = (routine) => {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  padding: 10px;
+  padding: 14px;
+  transition: transform 0.35s ease;
 }
+.routine-card:hover .card-media img { transform: scale(1.04); }
 
 .media-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, transparent 40%, rgba(18,18,18,0.85) 100%);
+  background: linear-gradient(180deg, rgba(0,0,0,0.15) 0%, transparent 45%, rgba(18,18,18,0.9) 100%);
   pointer-events: none;
 }
 
 .badge-container {
   position: absolute;
-  top: 10px;
-  left: 10px;
+  top: 12px;
+  left: 12px;
   display: flex;
   gap: 6px;
   z-index: 2;
+  flex-wrap: wrap;
 }
 
 .badge-level, .badge-goal {
-  font-size: 0.6rem;
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.62rem;
   font-weight: 700;
-  padding: 3px 8px;
+  padding: 4px 9px;
   border-radius: 6px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.badge-level { background: var(--color-botones, #3b82f6); color: #fff; }
-.badge-goal { background: rgba(0, 0, 0, 0.7); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.1); }
+.badge-level { background: var(--color-botones, #3b82f6); color: var(--color-texto-botones, #fff); }
+.badge-goal { background: rgba(0, 0, 0, 0.75); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.12); }
 
 .media-actions {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 12px;
+  right: 12px;
   z-index: 2;
 }
 
 .icon-action-btn {
-  background: rgba(0, 0, 0, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   color: #fff;
-  padding: 5px 10px;
+  padding: 6px 11px;
   border-radius: 8px;
   font-size: 0.7rem;
-  font-weight: 600;
+  font-weight: 700;
   display: flex;
   align-items: center;
   gap: 5px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s ease, transform 0.15s ease;
 }
-.icon-action-btn:hover { background: rgba(59, 130, 246, 0.8); }
+.icon-action-btn:hover { background: rgba(59, 130, 246, 0.85); transform: translateY(-1px); }
 .icon-action-btn.is-saved { background: #10b981; border-color: #10b981; }
 
 .card-body {
-  padding: 16px;
+  padding: 18px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   flex-grow: 1;
 }
 
 .card-title-routine {
   margin: 0;
   font-family: 'Oswald', sans-serif;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   color: var(--color-titulos, #ffffff);
+  line-height: 1.3;
 }
 
 .routine-desc {
   margin: 0;
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   color: rgba(245, 245, 244, 0.55);
-  line-height: 1.4;
+  line-height: 1.5;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -1046,12 +1262,13 @@ const viewRoutineDetails = (routine) => {
 
 .quick-prescription-pill {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  background: rgba(59, 130, 246, 0.05);
-  border: 1px solid rgba(59, 130, 246, 0.15);
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 0.72rem;
+  background: rgba(59, 130, 246, 0.06);
+  border: 1px solid rgba(59, 130, 246, 0.18);
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 0.75rem;
   color: var(--color-highlight, #60a5fa);
 }
 
@@ -1060,72 +1277,89 @@ const viewRoutineDetails = (routine) => {
   align-items: center;
   gap: 6px;
 }
-.pill-item svg { color: var(--color-highlight, #60a5fa); }
+.pill-item svg { color: var(--color-highlight, #60a5fa); flex-shrink: 0; }
+.pill-divider {
+  width: 1px;
+  height: 16px;
+  background: rgba(59, 130, 246, 0.25);
+  flex-shrink: 0;
+}
 
 .routine-stats {
   display: flex;
   gap: 10px;
-  font-size: 0.72rem;
+  font-size: 0.74rem;
   color: rgba(245, 245, 244, 0.6);
-  background: rgba(0, 0, 0, 0.2);
-  padding: 6px 10px;
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .stat-item { display: flex; align-items: center; gap: 6px; }
-.stat-item svg { color: var(--color-highlight, #3b82f6); }
+.stat-item svg { color: var(--color-highlight, #3b82f6); flex-shrink: 0; }
 
 .btn-explore {
   background: var(--color-botones, #3b82f6);
   color: var(--color-texto-botones, white);
   border: none;
   width: 100%;
-  padding: 8px;
-  border-radius: 8px;
+  padding: 11px;
+  border-radius: 10px;
+  font-family: 'Oswald', sans-serif;
   font-weight: 700;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
   cursor: pointer;
   margin-top: 2px;
-  transition: opacity 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: filter 0.2s ease, transform 0.15s ease, box-shadow 0.15s ease;
 }
-.btn-explore:hover { opacity: 0.9; }
+.btn-explore:hover {
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(59, 130, 246, 0.35);
+}
 
 .empty-category-box {
-  padding: 20px;
+  padding: 28px;
   text-align: center;
-  background: rgba(255, 255, 255, 0.01);
-  border-radius: 12px;
-  color: rgba(245, 245, 244, 0.35);
-  font-size: 0.8rem;
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  color: rgba(245, 245, 244, 0.4);
+  font-size: 0.85rem;
 }
 
-.loading-state-box {
-  padding: 40px;
-  text-align: center;
-}
-
-.btn-primary-action {
-  background: var(--color-botones, #3b82f6);
-  color: var(--color-texto-botones, white);
-  border: none;
-  padding: 11px 20px;
-  border-radius: 12px;
-  font-weight: 700;
-  font-size: 0.82rem;
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
-.btn-primary-action:hover { opacity: 0.9; }
-
+/* ==========================================
+   RESPONSIVE
+   ========================================== */
 @media (max-width: 900px) {
   .anthropometric-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 768px) {
-  .dashboard-main-container { padding: 16px 12px; }
-  .glass-card { padding: 18px 16px; }
-  .main-heading { font-size: 1.45rem; }
+  .dashboard-main-container { padding: 20px 14px; gap: 28px; }
+  .glass-card { padding: 22px 18px; }
+  .main-heading { font-size: 1.7rem; }
+  .hero-desc { font-size: 0.85rem; }
+  .anthropometric-panel { padding: 16px; }
+  .anthropometric-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .calculate-action-row { justify-content: stretch; }
+  .btn-calculate-routines { width: 100%; justify-content: center; }
+  .filters-toolbar { gap: 16px; }
+  .equipment-block { max-width: 100%; }
+  .body-part-section { padding: 16px; }
+  .section-category-title { font-size: 1.15rem; }
+  .routines-grid { grid-template-columns: 1fr; gap: 16px; }
+  .header-top-row { flex-direction: column; align-items: flex-start; gap: 10px; }
+}
+
+@media (max-width: 480px) {
   .anthropometric-grid { grid-template-columns: 1fr; }
-  .filters-toolbar-grid { grid-template-columns: 1fr; gap: 12px; }
 }
 </style>

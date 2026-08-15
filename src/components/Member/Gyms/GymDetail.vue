@@ -84,7 +84,10 @@
           <div id="tutor-amenities-box" class="panel-box">
             <h3>{{ t('amenities') }}</h3>
             <div class="amenities-grid">
-              <span v-for="a in gymData.amenities" :key="a" class="amenity-item">✓ {{ a }}</span>
+              <span v-for="a in gymData.amenities" :key="a" class="amenity-item">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                {{ a }}
+              </span>
             </div>
           </div>
         </div>
@@ -466,15 +469,15 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;600;700&display=swap');
 
 .gym-detail-wrapper {
   width: 100%;
   max-width: 1300px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 40px clamp(16px, 3vw, 40px);
   font-family: 'Inter', sans-serif;
-  color: #f5f5f4;
+  color: var(--color-texto-general, #f5f5f4);
   box-sizing: border-box;
   background: var(--bg-custom, var(--color-interfaz, #0a0a0c));
   min-height: 100vh;
@@ -482,21 +485,28 @@ onUnmounted(() => {
 }
 
 .back-btn {
- background: var(--color-botones, #1c4fd6); 
-  color: var(--color-texto-botones, #ffffff); 
-  border: none; 
-  padding: 8px 16px;
+  background: var(--color-botones, #1c4fd6);
+  color: var(--color-texto-botones, #ffffff);
+  border: none;
+  padding: 9px 18px;
   border-radius: 10px;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.85rem;
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.82rem;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
   cursor: pointer;
-  margin-bottom: 20px;
-  transition: all 0.2s;
+  margin-bottom: 24px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.2s ease;
 }
-.back-btn:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+.back-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+}
 
 .recenter-map-btn {
   position: absolute;
@@ -509,6 +519,7 @@ onUnmounted(() => {
   color: #fff;
   padding: 6px 12px;
   border-radius: 8px;
+  font-family: 'Oswald', sans-serif;
   font-size: 0.75rem;
   font-weight: 700;
   display: flex;
@@ -516,28 +527,45 @@ onUnmounted(() => {
   gap: 6px;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-  transition: all 0.2s;
+  transition: background 0.2s ease, transform 0.15s ease;
 }
 
 .recenter-map-btn:hover {
   background: rgba(59, 130, 246, 0.25);
   border-color: rgba(59, 130, 246, 0.5);
   color: #60a5fa;
+  transform: translateY(-1px);
 }
 
+/* ==========================================
+   BANNER / HERO DE LA SEDE
+   ========================================== */
 .gym-hero-card {
   position: relative;
   width: 100%;
   min-height: 220px;
-  border-radius: 20px;
+  border-radius: var(--app-border-radius, 20px);
   overflow: hidden;
   display: flex;
   align-items: flex-end;
-  padding: 24px;
+  padding: 28px;
   box-sizing: border-box;
   box-shadow: 0 15px 35px rgba(0,0,0,0.5);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  margin-bottom: 24px;
+  margin-bottom: 28px;
+}
+
+/* Franja de acento en degradado, misma identidad visual que el resto
+   de las tarjetas "hero" de la app. */
+.gym-hero-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  z-index: 3;
+  background: linear-gradient(90deg, var(--color-botones, #1c4fd6), #60a5fa, var(--color-botones, #1c4fd6));
 }
 
 .hero-bg {
@@ -559,19 +587,19 @@ onUnmounted(() => {
   z-index: 2;
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 22px;
   width: 100%;
 }
 
 .gym-logo-box {
-  width: 80px;
-  height: 80px;
-  border-radius: 16px;
+  width: 84px;
+  height: 84px;
+  border-radius: 18px;
   overflow: hidden;
   border: 2px solid rgba(255, 255, 255, 0.2);
   background: #141418;
   flex-shrink: 0;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12), 0 8px 20px rgba(0,0,0,0.6);
 }
 
 .gym-logo-img {
@@ -583,29 +611,31 @@ onUnmounted(() => {
 .hero-texts {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   min-width: 0;
 }
 
 .badge {
-  background: #3b82f6;
-  color: #fff;
+  background: var(--color-botones, #1c4fd6);
+  color: var(--color-texto-botones, #fff);
+  font-family: 'Oswald', sans-serif;
   font-size: 0.65rem;
   font-weight: 700;
-  padding: 3px 8px;
+  padding: 4px 10px;
   border-radius: 6px;
   width: fit-content;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
 }
 
 .hero-texts h1 {
   margin: 0;
-  font-family: 'Oswald', sans-serif;
-  font-size: 2rem;
+  font-family: 'Anton', sans-serif;
+  font-size: 2.1rem;
   color: #fff;
   letter-spacing: 0.5px;
   line-height: 1.1;
+  text-transform: uppercase;
   word-break: break-word;
 }
 
@@ -628,38 +658,58 @@ onUnmounted(() => {
 .left-column, .right-column {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 22px;
   min-width: 0;
 }
 
+/* ==========================================
+   TARJETAS / PANELES
+   ========================================== */
 .panel-box {
   background: var(--bg-cards, #121212);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 18px;
-  padding: 20px;
+  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.08));
+  border-radius: var(--app-border-radius, 18px);
+  padding: 22px;
   box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.panel-box:hover {
+  border-color: rgba(255, 255, 255, 0.16);
 }
 
 .panel-box h3 {
-  margin: 0 0 12px 0;
+  margin: 0 0 14px 0;
   font-family: 'Oswald', sans-serif;
-  font-size: 1.1rem;
-  color: #fff;
-  letter-spacing: 0.5px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-titulos, #fff);
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.panel-box h3::before {
+  content: '';
+  width: 3px;
+  height: 16px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, var(--color-botones, #1c4fd6), rgba(37, 99, 235, 0.25));
 }
 
 .panel-box p {
   margin: 0;
   font-size: 0.86rem;
   color: rgba(245, 245, 244, 0.7);
-  line-height: 1.6;
+  line-height: 1.65;
 }
 
 .map-panel {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .panel-header {
@@ -682,37 +732,41 @@ onUnmounted(() => {
   background: rgba(59, 130, 246, 0.15);
   border: 1px solid rgba(59, 130, 246, 0.4);
   color: #60a5fa;
+  font-family: 'Oswald', sans-serif;
   font-size: 0.75rem;
   font-weight: 700;
-  padding: 6px 12px;
+  padding: 7px 13px;
   border-radius: 8px;
   display: flex;
   align-items: center;
   gap: 6px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
 }
 .route-gps-btn:hover {
   background: rgba(59, 130, 246, 0.25);
   color: #fff;
+  transform: translateY(-1px);
 }
 
 .toggle-instructions-btn {
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.15);
   color: #f5f5f4;
+  font-family: 'Oswald', sans-serif;
   font-size: 0.75rem;
   font-weight: 700;
-  padding: 6px 12px;
+  padding: 7px 13px;
   border-radius: 8px;
   display: flex;
   align-items: center;
   gap: 6px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background 0.2s ease, transform 0.15s ease;
 }
 .toggle-instructions-btn:hover {
   background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-1px);
 }
 
 .map-container-inner {
@@ -798,20 +852,19 @@ onUnmounted(() => {
 }
 
 .headinadmin-card {
-  background: var(--bg-cards, #121212);
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-color: var(--border-cards, rgba(255, 255, 255, 0.12)) !important;
 }
 
 .headinadmin-header {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .admin-icon-wrapper {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   background: rgba(59, 130, 246, 0.15);
   border-radius: 10px;
   display: flex;
@@ -822,16 +875,17 @@ onUnmounted(() => {
 }
 
 .admin-tag {
+  font-family: 'Oswald', sans-serif;
   font-size: 0.65rem;
   font-weight: 700;
   text-transform: uppercase;
-  color: #3b82f6;
+  color: #60a5fa;
   letter-spacing: 0.5px;
 }
 
 .headinadmin-header h4 {
-  margin: 0;
-  font-size: 0.92rem;
+  margin: 2px 0 0;
+  font-size: 0.95rem;
   font-family: 'Oswald', sans-serif;
   color: #fff;
   word-break: break-word;
@@ -840,9 +894,9 @@ onUnmounted(() => {
 .admin-details {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 9px;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
-  padding-top: 10px;
+  padding-top: 12px;
 }
 
 .admin-row {
@@ -855,13 +909,14 @@ onUnmounted(() => {
 .admin-row strong { color: #fff; font-weight: 600; text-align: right; word-break: break-all; }
 
 .whatsapp-contact-btn {
-  margin-top: 10px;
+  margin-top: 12px;
   width: 100%;
   background: rgba(16, 185, 129, 0.15);
   border: 1px solid rgba(16, 185, 129, 0.4);
   color: #34d399;
-  padding: 8px 12px;
+  padding: 10px 12px;
   border-radius: 10px;
+  font-family: 'Oswald', sans-serif;
   font-size: 0.8rem;
   font-weight: 700;
   display: flex;
@@ -869,17 +924,18 @@ onUnmounted(() => {
   justify-content: center;
   gap: 8px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
 }
 .whatsapp-contact-btn:hover {
   background: rgba(16, 185, 129, 0.25);
   color: #fff;
+  transform: translateY(-1px);
 }
 
 .info-split-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 22px;
 }
 
 .amenities-grid {
@@ -888,16 +944,23 @@ onUnmounted(() => {
   gap: 8px;
 }
 .amenity-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 0.82rem;
   color: rgba(245, 245, 244, 0.85);
   background: rgba(255, 255, 255, 0.03);
-  padding: 6px 10px;
+  padding: 8px 10px;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
+.amenity-item svg {
+  color: #10b981;
+  flex-shrink: 0;
+}
 
 .box-sub {
-  margin: -8px 0 12px 0 !important;
+  margin: -8px 0 14px 0 !important;
   font-size: 0.785rem;
   color: rgba(245, 245, 244, 0.5);
 }
@@ -912,15 +975,21 @@ onUnmounted(() => {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
-  padding: 10px 12px;
+  padding: 11px 13px;
   display: flex;
   align-items: center;
   gap: 12px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
 }
-.branch-card-item:hover { background: rgba(255, 255, 255, 0.06); }
-.branch-card-item.selected { background: rgba(59, 130, 246, 0.12); border-color: #3b82f6; }
+.branch-card-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-1px);
+}
+.branch-card-item.selected {
+  background: rgba(59, 130, 246, 0.12);
+  border-color: #3b82f6;
+}
 
 .radio-indicator {
   width: 16px;
@@ -931,6 +1000,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  transition: border-color 0.2s ease;
 }
 .branch-card-item.selected .radio-indicator { border-color: #3b82f6; }
 .radio-dot { width: 8px; height: 8px; background: #3b82f6; border-radius: 50%; }
@@ -947,7 +1017,7 @@ onUnmounted(() => {
 .schedule-item {
   display: flex;
   justify-content: space-between;
-  padding: 8px 12px;
+  padding: 9px 12px;
   background: rgba(255, 255, 255, 0.02);
   border-radius: 8px;
   font-size: 0.82rem;
@@ -959,19 +1029,25 @@ onUnmounted(() => {
 
 .cta-main-btn {
   width: 100%;
-   background: var(--color-botones, #1c4fd6); 
-  color: var(--color-texto-botones, #ffffff); 
+  background: var(--color-botones, #1c4fd6);
+  color: var(--color-texto-botones, #ffffff);
   border: none;
-  padding: 14px;
-  border-radius: 14px;
+  padding: 15px;
+  border-radius: var(--app-border-radius, 14px);
+  font-family: 'Oswald', sans-serif;
   font-size: 0.95rem;
   font-weight: 700;
+  text-transform: uppercase;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: filter 0.2s ease, transform 0.15s ease, box-shadow 0.15s ease;
   box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4);
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
 }
-.cta-main-btn:hover { opacity: 0.92; transform: translateY(-1px); }
+.cta-main-btn:hover {
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(59, 130, 246, 0.45);
+}
 
 /* ESTILOS DE LA NOTIFICACIÓN FLOTANTE (TOAST) */
 .custom-toast-notification {
@@ -987,6 +1063,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 12px;
   box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+  font-family: 'Inter', sans-serif;
   font-size: 0.88rem;
   font-weight: 600;
   max-width: 400px;
@@ -1034,18 +1111,18 @@ onUnmounted(() => {
 
 @media(max-width: 768px) {
   .gym-detail-wrapper {
-    padding: 12px;
+    padding: 16px 12px;
   }
 
   .gym-hero-card {
-    padding: 16px;
+    padding: 18px;
     min-height: auto;
   }
 
   .hero-content-flex {
     flex-direction: column;
     align-items: flex-start;
-    gap: 12px;
+    gap: 14px;
   }
 
   .gym-logo-box {
@@ -1059,10 +1136,24 @@ onUnmounted(() => {
 
   .dashboard-grid {
     grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .left-column, .right-column {
+    gap: 18px;
+  }
+
+  .panel-box {
+    padding: 18px;
+  }
+
+  .map-container-inner {
+    height: 260px;
   }
 
   .info-split-row {
     grid-template-columns: 1fr;
+    gap: 18px;
   }
 
   .panel-header {
