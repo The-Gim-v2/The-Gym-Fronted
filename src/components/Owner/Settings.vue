@@ -19,11 +19,31 @@
           </button>
         </div>
         <div class="presets-grid">
-          <button v-for="(preset, key) in colorPresets" :key="key" :id="`preset-${key}`" class="preset-btn" @click="aplicarPreset(key)">
-            {{ preset.label }}
+          <button
+            v-for="(preset, key) in colorPresets"
+            :key="key"
+            :id="`preset-${key}`"
+            class="preset-card"
+            :class="{ 'is-active': presetActivo === key }"
+            :style="{
+              '--accent': preset.colors.highlight,
+              '--bg1': preset.colors.tarjetas,
+              '--bg2': preset.colors.headingBg,
+            }"
+            @click="aplicarPreset(key)"
+          >
+            <span v-if="presetActivo === key" class="preset-check">✓</span>
+            <span class="preset-swatches">
+              <span class="swatch" :style="{ background: preset.colors.botones }"></span>
+              <span class="swatch" :style="{ background: preset.colors.highlight }"></span>
+              <span class="swatch" :style="{ background: preset.colors.tarjetas }"></span>
+              <span class="swatch" :style="{ background: preset.colors.titulos }"></span>
+            </span>
+            <span class="preset-label">{{ preset.label }}</span>
           </button>
         </div>
       </section>
+
 
       <section class="form-panel" id="panel-general">
         <div class="panel-header"><h2>{{ t('generalSectionTitle') }}</h2></div>
@@ -374,7 +394,6 @@ const defaultColors = {
   textoBotones: '#ffffff',
   svgColor: '#ffffff'
 };
-
 const colorPresets = {
   gymFemenino: { 
     label: '🌸 Fit Femme (Gym)', 
@@ -497,6 +516,9 @@ const colorPresets = {
     colors: { headingBg: '#3b1c05', tablas: '#5c2d08', interfaz: '#1c0d02', botones: '#ea580c', tarjetas: '#2b1403', titulos: '#fff7ed', highlight: '#fb923c', etiquetas: '#ffedd5', textoGeneral: '#fdba74', textoBotones: '#ffffff', svgColor: '#fb923c' } 
   }
 };
+
+
+
 
 
 
@@ -699,42 +721,111 @@ const exportar = async (tipo) => {
   margin: 6px 0 0 0; 
 }
 
+/* ===================================================================
+   Temas / Presets — rediseñados como tarjetas con vista previa real
+   =================================================================== */
 .presets-grid {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  max-height: 240px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+  max-height: 420px;
   overflow-y: auto;
-  padding-right: 4px;
+  padding: 4px 6px 4px 2px;
 }
 
-.presets-grid::-webkit-scrollbar {
-  width: 6px;
-}
-.presets-grid::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
-}
+.presets-grid::-webkit-scrollbar { width: 6px; }
+.presets-grid::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 4px; }
+.presets-grid::-webkit-scrollbar-track { background: transparent; }
 
-.preset-btn {
-  background: var(--bg-custom, #141414);
-  color: var(--color-etiquetas, #fff);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  padding: 8px 14px;
-  border-radius: 8px;
-  font-family: 'Oswald', sans-serif;
-  font-size: 0.85rem;
+.preset-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: linear-gradient(155deg, var(--bg1) 0%, var(--bg2) 100%);
   cursor: pointer;
-  transition: all 0.2s;
-  flex: 1 1 calc(33.333% - 10px);
-  min-width: 140px;
+  font-family: 'Oswald', sans-serif;
   text-align: center;
+  overflow: hidden;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.preset-btn:hover {
-  border-color: var(--color-highlight, #3b82f6);
-  background: rgba(59, 130, 246, 0.1);
+.preset-card::after {
+  /* leve viñeta para que el texto siempre sea legible sobre cualquier color */
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.35) 100%);
+  pointer-events: none;
 }
+
+.preset-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent);
+  box-shadow: 0 10px 24px -8px var(--accent);
+}
+
+.preset-card.is-active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent), 0 10px 24px -8px var(--accent);
+}
+
+.preset-check {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #0b0b0e;
+  font-size: 11px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+
+.preset-swatches {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+  margin-left: -8px;
+  transition: transform 0.2s ease;
+}
+.swatch:first-child { margin-left: 0; }
+.preset-card:hover .swatch { transform: translateY(-2px); }
+.swatch:nth-child(1) { transition-delay: 0s; }
+.swatch:nth-child(2) { transition-delay: 0.03s; }
+.swatch:nth-child(3) { transition-delay: 0.06s; }
+.swatch:nth-child(4) { transition-delay: 0.09s; }
+
+.preset-label {
+  position: relative;
+  z-index: 1;
+  font-size: 0.78rem;
+  line-height: 1.25;
+  color: #ffffff;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+  letter-spacing: 0.2px;
+}
+
 
 .form-panel { 
   background: var(--bg-cards, rgba(18, 18, 18, 0.75)); 
@@ -1043,6 +1134,8 @@ const exportar = async (tipo) => {
   .column-mobile { align-items: flex-start; }
   .export-actions { width: 100%; }
   .btn-export { flex: 1; justify-content: center; } 
+  
+  .presets-grid { grid-template-columns: repeat(2, 1fr); max-height: 360px; }
   .select-wrapper { width: 100%; }
   .preset-btn { flex: 1 1 100%; }
   .main-title { 
