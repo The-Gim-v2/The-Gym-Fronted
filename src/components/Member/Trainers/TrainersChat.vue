@@ -10,7 +10,7 @@
       </button>
 
       <!-- PORTADA + PERFIL -->
-      <div class="cover-card">
+      <div class="cover-card" id="tutorial-trainer-header">
         <div class="cover-photo" :style="{ backgroundImage: `url(${entrenador.fotoPortada})` }"></div>
         <div class="cover-overlay"></div>
 
@@ -49,7 +49,7 @@
       </div>
 
       <!-- STATS RÁPIDAS -->
-      <div class="quick-stats-row">
+      <div class="quick-stats-row" id="tutorial-trainer-stats">
         <div class="stat-box">
           <span class="stat-value">{{ entrenador.aniosExperiencia }}</span>
           <span class="stat-label">{{ t('yearsExp') }}</span>
@@ -73,7 +73,7 @@
 
         <div class="left-column">
 
-          <div class="panel-box">
+          <div class="panel-box" id="tutorial-trainer-bio">
             <h3>{{ t('aboutTitle') }}</h3>
             <p>{{ entrenador.bio }}</p>
           </div>
@@ -96,7 +96,7 @@
           </div>
 
           <!-- UBICACIÓN -->
-          <div class="panel-box map-panel">
+          <div class="panel-box map-panel" id="tutorial-trainer-location">
             <div class="panel-header">
               <h3>{{ t('locationTitle') }}</h3>
               <a class="route-gps-btn" :href="mapsDirectionsUrl" target="_blank" rel="noopener">
@@ -120,7 +120,7 @@
 
         <div class="right-column">
 
-          <div class="panel-box">
+          <div class="panel-box" id="tutorial-trainer-contact">
             <h3>{{ t('contactTitle') }}</h3>
             <div class="contact-list">
               <a v-if="entrenador.celular" :href="`tel:${entrenador.celular}`" class="contact-row">
@@ -160,7 +160,7 @@
       </div>
 
       <!-- RESEÑAS -->
-      <div class="panel-box reviews-panel">
+      <div class="panel-box reviews-panel" id="tutorial-trainer-reviews">
         <div class="panel-header">
           <h3>{{ t('reviewsTitle') }}</h3>
           <div class="rating-row">

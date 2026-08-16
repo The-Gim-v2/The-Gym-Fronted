@@ -3,10 +3,7 @@ import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
 import NotificationSystem from '../../Modals/NotificationSystem.vue';
 import HeadingMember from '../HeadingMember.vue';
 
-/* ---------------- IDIOMA (es/en) ----------------
-   Mismo patrón que el resto de vistas de Member: localStorage + evento
-   global 'idioma-changed'. Autocontenido, sin depender de rutas de
-   import inciertas. */
+/* ---------------- IDIOMA (es/en) ---------------- */
 const currentLang = ref(localStorage.getItem('member-idioma') || 'es');
 const handleLangChange = (e) => {
   if (e.detail && e.detail.idioma) currentLang.value = e.detail.idioma;
@@ -16,9 +13,9 @@ onUnmounted(() => window.removeEventListener('idioma-changed', handleLangChange)
 
 const traducciones = {
   es: {
-    pageTitlePrefix: 'Mi',
-    pageTitleHighlight: 'Membresía',
-    pageSubtitle: 'Consulta tu estado de cuenta y paga tu mensualidad de forma segura.',
+    pageTitlePrefix: 'Portal de',
+    pageTitleHighlight: 'Pagos',
+    pageSubtitle: 'Realiza el pago de tu membresía de forma rápida, segura y mantén tu cuenta al día.',
     statusActive: 'ACTIVA',
     statusExpiringSoon: 'POR VENCER',
     statusExpired: 'VENCIDA',
@@ -26,46 +23,50 @@ const traducciones = {
     daysOverdue: 'días de atraso',
     dueDate: 'Vence el',
     reviewPill: 'Transferencia en revisión',
-    choosePlan: 'Elige tu plan',
+    choosePlan: '1. Selecciona tu plan de pago',
     save: 'AHORRA',
     totalToPay: 'Total a pagar',
     surcharge: 'recargo por atraso',
-    paymentMethod: 'Método de pago',
+    paymentMethod: '2. Elige tu método de pago',
     selectOption: 'Selecciona una opción',
     cardOption: 'Tarjeta de crédito / débito',
     transferOption: 'Transferencia bancaria',
     cardNumberLabel: 'Número de tarjeta',
-    expiryLabel: 'Vencimiento',
-    cvvLabel: 'CVV',
-    viewBankDetailsBtn: 'Ver datos para depósito',
+    expiryLabel: 'Vencimiento (MM/AA)',
+    cvvLabel: 'CVV / CVC',
+    viewBankDetailsBtn: 'Ver datos bancarios para depósito',
     bankDetailsTitle: 'Datos bancarios',
-    bankDetailsSubtitle: 'Realiza tu depósito o transferencia a esta cuenta',
+    bankDetailsSubtitle: 'Realiza tu depósito o transferencia a la siguiente cuenta',
     bankNameLabel: 'Banco',
-    accountHolderLabel: 'Titular',
+    accountHolderLabel: 'Titular de la cuenta',
     accountNumberLabel: 'Número de cuenta',
     clabeLabel: 'CLABE interbancaria',
-    conceptLabel: 'Concepto',
+    conceptLabel: 'Concepto de pago',
     copyBtn: 'Copiar',
     copiedToast: 'Copiado al portapapeles',
     closeBtn: 'Cerrar',
-    gotItBtn: 'Ya tengo los datos',
-    transferReferenceLabel: 'Folio de tu transferencia',
+    gotItBtn: 'Ya realicé la transferencia',
+    transferReferenceLabel: 'Número de folio o referencia',
     transferReferencePlaceholder: 'Ej. 00123456',
-    transferNote: 'Después de depositar, ingresa el folio del comprobante para que el gimnasio verifique tu pago.',
-    submitTransferBtn: 'Enviar comprobante',
-    payButton: 'Pagar mensualidad',
-    processingLabel: 'Procesando…',
+    transferNote: 'Importante: Después de realizar tu transferencia, ingresa el folio o número de autorización para agilizar la validación por parte de administración.',
+    submitTransferBtn: 'Enviar comprobante de pago',
+    payButton: 'Pagar membresía ahora',
+    processingLabel: 'Procesando pago seguro…',
     selectPaymentTypeError: 'Selecciona un método de pago',
-    formInvalidError: 'Revisa los datos de pago antes de continuar',
-    folioRequiredError: 'Ingresa el folio de tu transferencia',
-    paymentConfirmedToast: 'Pago confirmado',
-    transferPendingToast: 'Comprobante enviado. Tu pago quedará pendiente de verificación por el gimnasio.',
-    cashNote: 'Los pagos en efectivo se registran directamente en recepción.',
+    formInvalidError: 'Por favor verifica que los datos de tu tarjeta estén completos y correctos',
+    folioRequiredError: 'Ingresa el número de folio de tu transferencia',
+    paymentConfirmedToast: '¡Pago confirmado con éxito!',
+    transferPendingToast: 'Comprobante enviado. Tu pago se encuentra en proceso de verificación.',
+    cashNote: '¿Prefieres efectivo? Los pagos en efectivo se reciben directamente en recepción del centro deportivo.',
+    accountStatement: 'Resumen de Cuenta',
+    nextCut: 'Próximo Corte',
+    newCut: 'Nuevo Corte (Al Pagar)',
+    pendingBalance: 'Saldo Pendiente',
   },
   en: {
-    pageTitlePrefix: 'My',
-    pageTitleHighlight: 'Membership',
-    pageSubtitle: 'Check your account status and pay your membership securely.',
+    pageTitlePrefix: 'Payment',
+    pageTitleHighlight: 'Portal',
+    pageSubtitle: 'Pay your membership quickly, securely, and keep your account up to date.',
     statusActive: 'ACTIVE',
     statusExpiringSoon: 'EXPIRING SOON',
     statusExpired: 'EXPIRED',
@@ -73,20 +74,20 @@ const traducciones = {
     daysOverdue: 'days overdue',
     dueDate: 'Due on',
     reviewPill: 'Transfer under review',
-    choosePlan: 'Choose your plan',
+    choosePlan: '1. Select your payment plan',
     save: 'SAVE',
     totalToPay: 'Total to pay',
     surcharge: 'late fee',
-    paymentMethod: 'Payment method',
+    paymentMethod: '2. Choose your payment method',
     selectOption: 'Select an option',
     cardOption: 'Credit / debit card',
     transferOption: 'Bank transfer',
     cardNumberLabel: 'Card number',
-    expiryLabel: 'Expiry',
-    cvvLabel: 'CVV',
-    viewBankDetailsBtn: 'View deposit details',
+    expiryLabel: 'Expiry (MM/YY)',
+    cvvLabel: 'CVV / CVC',
+    viewBankDetailsBtn: 'View bank details for deposit',
     bankDetailsTitle: 'Bank details',
-    bankDetailsSubtitle: 'Make your deposit or transfer to this account',
+    bankDetailsSubtitle: 'Make your deposit or transfer to the following account',
     bankNameLabel: 'Bank',
     accountHolderLabel: 'Account holder',
     accountNumberLabel: 'Account number',
@@ -95,27 +96,29 @@ const traducciones = {
     copyBtn: 'Copy',
     copiedToast: 'Copied to clipboard',
     closeBtn: 'Close',
-    gotItBtn: 'I have the details',
-    transferReferenceLabel: 'Your transfer reference',
+    gotItBtn: 'I have made the transfer',
+    transferReferenceLabel: 'Transfer reference or folio',
     transferReferencePlaceholder: 'e.g. 00123456',
-    transferNote: 'After depositing, enter the receipt reference so the gym can verify your payment.',
+    transferNote: 'Important: After making your transfer, enter the reference folio so administration can quickly verify your payment.',
     submitTransferBtn: 'Submit proof of payment',
-    payButton: 'Pay membership',
-    processingLabel: 'Processing…',
+    payButton: 'Pay membership now',
+    processingLabel: 'Processing secure payment…',
     selectPaymentTypeError: 'Select a payment method',
-    formInvalidError: 'Check your payment details before continuing',
-    folioRequiredError: 'Enter your transfer reference',
-    paymentConfirmedToast: 'Payment confirmed',
-    transferPendingToast: 'Proof submitted. Your payment will be pending verification by the gym.',
-    cashNote: 'Cash payments are registered directly at the front desk.',
+    formInvalidError: 'Please check that your card details are complete and correct',
+    folioRequiredError: 'Enter your transfer reference folio',
+    paymentConfirmedToast: 'Payment successfully confirmed!',
+    transferPendingToast: 'Proof submitted. Your payment is pending verification.',
+    cashNote: 'Prefer cash? Cash payments are accepted directly at the facility reception desk.',
+    accountStatement: 'Account Summary',
+    nextCut: 'Next Cut',
+    newCut: 'New Cut (Upon Payment)',
+    pendingBalance: 'Pending Balance',
   },
 };
 
 const t = computed(() => traducciones[currentLang.value] || traducciones.es);
-
 const toastRef = ref(null);
 
-// --- Datos del socio (reemplazar por fetch real / store) ---
 const socio = reactive({
   nombre: 'ANA SOFÍA',
   apellido: 'TORRES',
@@ -128,8 +131,7 @@ const iniciales = computed(() => {
   return (a + b).toUpperCase();
 });
 
-// --- Estado de membresía ---
-const fechaVencimiento = ref(new Date(Date.now() + 6 * 24 * 60 * 60 * 1000)); // demo: vence en 6 días
+const fechaVencimiento = ref(new Date(Date.now() + 6 * 24 * 60 * 60 * 1000));
 const duracionCicloDias = ref(30);
 const transferenciaEnRevision = ref(false);
 
@@ -149,7 +151,13 @@ const fechaFormateada = computed(() =>
   fechaVencimiento.value.toLocaleDateString(localeActual.value, { day: '2-digit', month: 'short', year: 'numeric' })
 );
 
-// --- Anillo de progreso (elemento visual: cuenta regresiva del ciclo) ---
+const nuevoCorteCalculado = computed(() => {
+  const base = diasRestantes.value < 0 ? new Date() : fechaVencimiento.value;
+  const nuevaFecha = new Date(base.getTime());
+  nuevaFecha.setDate(nuevaFecha.getDate() + (plan.value?.dias || 30));
+  return nuevaFecha.toLocaleDateString(localeActual.value, { day: '2-digit', month: 'short', year: 'numeric' });
+});
+
 const RADIO = 54;
 const CIRCUNFERENCIA = 2 * Math.PI * RADIO;
 const progresoRestante = computed(() => {
@@ -158,7 +166,6 @@ const progresoRestante = computed(() => {
 });
 const dashOffset = computed(() => CIRCUNFERENCIA * (1 - progresoRestante.value));
 
-// --- Planes disponibles ---
 const planesBase = [
   { id: 'mensual', nombreEs: 'Mensual', nombreEn: 'Monthly', precio: 450, dias: 30, ahorro: null },
   { id: 'trimestral', nombreEs: 'Trimestral', nombreEn: 'Quarterly', precio: 1230, dias: 90, ahorro: '10%' },
@@ -173,8 +180,8 @@ const plan = computed(() => planes.value.find(p => p.id === planSeleccionado.val
 
 const recargoPorVencida = computed(() => (diasRestantes.value < 0 ? 50 : 0));
 const totalAPagar = computed(() => (plan.value ? plan.value.precio + recargoPorVencida.value : 0));
+const saldoPendiente = computed(() => (diasRestantes.value < 0 ? 50 : 0));
 
-// --- Método de pago ---
 const tipoPago = ref('');
 const numeroTarjeta = ref('');
 const vencimientoTarjeta = ref('');
@@ -191,13 +198,24 @@ const numeroTarjetaFormateado = computed({
   }
 });
 
-// --- Datos bancarios reales para depósito (reemplazar por los del gimnasio) ---
+const vencimientoTarjetaFormateado = computed({
+  get: () => vencimientoTarjeta.value,
+  set: (val) => {
+    let cleaned = val.replace(/\D/g, '').slice(0, 4);
+    if (cleaned.length >= 3) {
+      vencimientoTarjeta.value = cleaned.slice(0, 2) + '/' + cleaned.slice(2);
+    } else {
+      vencimientoTarjeta.value = cleaned;
+    }
+  }
+});
+
 const datosBancarios = computed(() => ({
-  banco: 'BBVA',
-  titular: 'Iron Fit Gym S.A. de C.V.',
+  banco: 'BBVA México',
+  titular: 'Iron Fit Center S.A. de C.V.',
   cuenta: '0123456789',
   clabe: '012180001234567895',
-  concepto: `Mensualidad ${socio.id}`,
+  concepto: `Membresia ${socio.id}`,
 }));
 
 const copiarDato = async (valor, campo) => {
@@ -228,7 +246,6 @@ const seleccionarPlan = (id) => {
   planSeleccionado.value = id;
 };
 
-// Pago con tarjeta: se procesa (simulado) y se refleja de inmediato.
 const pagarConTarjeta = () => {
   if (!formularioTarjetaValido.value) {
     toastRef.value?.notify(t.value.formInvalidError, 'error');
@@ -242,13 +259,10 @@ const pagarConTarjeta = () => {
     vencimientoTarjeta.value = '';
     cvvTarjeta.value = '';
     tipoPago.value = '';
-    toastRef.value?.notify(`${t.value.paymentConfirmedToast} · ${plan.value.nombre}`, 'success');
-  }, 1100);
+    toastRef.value?.notify(`${t.value.paymentConfirmedToast} (${plan.value.nombre})`, 'success');
+  }, 1200);
 };
 
-// Transferencia: es un pago real fuera de la app. Aquí solo se registra el
-// folio del comprobante; el estado queda "en revisión" hasta que el
-// gimnasio lo concilie con el depósito recibido (ver panel de Owner).
 const enviarComprobanteTransferencia = () => {
   if (!folioTransferencia.value.trim()) {
     toastRef.value?.notify(t.value.folioRequiredError, 'error');
@@ -261,7 +275,7 @@ const enviarComprobanteTransferencia = () => {
     folioTransferencia.value = '';
     tipoPago.value = '';
     toastRef.value?.notify(t.value.transferPendingToast, 'success');
-  }, 900);
+  }, 1000);
 };
 
 const aplicarRenovacion = () => {
@@ -274,262 +288,299 @@ const aplicarRenovacion = () => {
 </script>
 
 <template>
-    <HeadingMember>
-          <NotificationSystem ref="toastRef" />
+  <HeadingMember>
+    <NotificationSystem ref="toastRef" />
 
-  <main class="main-content">
-    <div class="page-container">
+    <main class="main-content">
+      <div class="page-container">
 
-      <div class="view-header-flex">
-        <div class="view-header">
-          <h1 class="title">{{ t.pageTitlePrefix }} <span class="highlight-text">{{ t.pageTitleHighlight }}</span></h1>
-          <span class="title-underline"></span>
-          <p class="subtitle">{{ t.pageSubtitle }}</p>
-        </div>
-      </div>
-
-      <div class="membership-grid">
-
-        <!-- Columna Izquierda: Estado actual -->
-        <div class="status-card">
-          <div class="avatar-ring-wrapper">
-            <svg class="progress-ring" viewBox="0 0 120 120">
-              <circle class="progress-ring__bg" cx="60" cy="60" r="54" />
-              <circle
-                class="progress-ring__value"
-                cx="60" cy="60" r="54"
-                :style="{
-                  stroke: estadoMembresia.color,
-                  strokeDasharray: `${2 * Math.PI * 54}px`,
-                  strokeDashoffset: `${dashOffset}px`
-                }"
-              />
-            </svg>
-            <div class="avatar-circle">
-              <span class="avatar-initials">{{ iniciales }}</span>
-            </div>
-          </div>
-
-          <h2 class="member-name">{{ socio.nombre }} <br> <span class="highlight-text">{{ socio.apellido }}</span></h2>
-          <p class="user-id">ID: {{ socio.id }}</p>
-
-          <div class="status-badge" :style="{ background: estadoMembresia.color }">
-            {{ estadoMembresia.label }}
-          </div>
-
-          <div v-if="transferenciaEnRevision" class="review-pill">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <circle cx="12" cy="12" r="10"></circle>
-              <polyline points="12 6 12 12 16 14"></polyline>
-            </svg>
-            {{ t.reviewPill }}
-          </div>
-
-          <div class="dias-restantes">
-            <span class="dias-numero" :style="{ color: estadoMembresia.color }">
-              {{ diasRestantes >= 0 ? diasRestantes : 0 }}
-            </span>
-            <span class="dias-label">{{ diasRestantes >= 0 ? t.daysRemaining : t.daysOverdue }}</span>
-          </div>
-
-          <div class="vencimiento-row">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="4" width="18" height="18" rx="2"></rect>
-              <line x1="16" y1="2" x2="16" y2="6"></line>
-              <line x1="8" y1="2" x2="8" y2="6"></line>
-              <line x1="3" y1="10" x2="21" y2="10"></line>
-            </svg>
-            {{ t.dueDate }} {{ fechaFormateada }}
+        <div class="view-header-flex">
+          <div class="view-header">
+            <h1 class="title">{{ t.pageTitlePrefix }} <span class="highlight-text">{{ t.pageTitleHighlight }}</span></h1>
+            <span class="title-underline"></span>
+            <p class="subtitle">{{ t.pageSubtitle }}</p>
           </div>
         </div>
 
-        <!-- Columna Derecha: Pago -->
-        <div class="payment-card">
-          <div class="section-subtitle-small"><span class="subtitle-dot"></span>{{ t.choosePlan }}</div>
+        <div class="membership-grid">
 
-          <div class="planes-grid">
-            <button
-              v-for="p in planes"
-              :key="p.id"
-              type="button"
-              class="plan-chip"
-              :class="{ active: planSeleccionado === p.id }"
-              @click="seleccionarPlan(p.id)"
-            >
-              <span v-if="p.ahorro" class="plan-tag">{{ t.save }} {{ p.ahorro }}</span>
-              <span class="plan-nombre">{{ p.nombre }}</span>
-              <span class="plan-precio">${{ p.precio.toFixed(2) }}</span>
-            </button>
-          </div>
-
-          <div class="styled-box">
-            <div class="amount-info">
-              <span class="amount-label">{{ t.totalToPay }}</span>
-              <div class="amount-row">
-                <span class="currency">$</span>
-                <span class="amount-val">{{ totalAPagar.toFixed(2) }}</span>
-              </div>
-            </div>
-            <div class="recargo-container">
-              <span v-if="recargoPorVencida" class="red">+ $50 {{ t.surcharge }}</span>
-              <span class="mensual-text">{{ plan?.nombre }}</span>
-            </div>
-          </div>
-
-          <div class="input-group">
-            <label>{{ t.paymentMethod }}</label>
-            <div class="input-wrapper select-wrapper-container">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="input-icon">
-                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
-                <line x1="1" y1="10" x2="23" y2="10"></line>
+          <!-- Columna Izquierda: Estado del Atleta -->
+          <div id="tutorial-member-status-card" class="status-card">
+            <div class="avatar-ring-wrapper">
+              <svg class="progress-ring" viewBox="0 0 120 120">
+                <circle class="progress-ring__bg" cx="60" cy="60" r="54" />
+                <circle
+                  class="progress-ring__value"
+                  cx="60" cy="60" r="54"
+                  :style="{
+                    stroke: estadoMembresia.color,
+                    strokeDasharray: `${2 * Math.PI * 54}px`,
+                    strokeDashoffset: `${dashOffset}px`
+                  }"
+                />
               </svg>
-              <select v-model="tipoPago" class="custom-select">
-                <option disabled value="">{{ t.selectOption }}</option>
-                <option value="Tarjeta">{{ t.cardOption }}</option>
-                <option value="Transferencia">{{ t.transferOption }}</option>
-              </select>
-              <svg class="select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="6 9 12 15 18 9"></polyline>
+              <div class="avatar-circle">
+                <span class="avatar-initials">{{ iniciales }}</span>
+              </div>
+            </div>
+
+            <h2 class="member-name">{{ socio.nombre }} <span class="highlight-text">{{ socio.apellido }}</span></h2>
+            <p class="user-id">ID: {{ socio.id }}</p>
+
+            <div class="status-badge" :style="{ background: estadoMembresia.color }">
+              {{ estadoMembresia.label }}
+            </div>
+
+            <div v-if="transferenciaEnRevision" class="review-pill">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
               </svg>
+              {{ t.reviewPill }}
+            </div>
+
+            <div class="dias-restantes">
+              <span class="dias-numero" :style="{ color: estadoMembresia.color }">
+                {{ diasRestantes >= 0 ? diasRestantes : Math.abs(diasRestantes) }}
+              </span>
+              <span class="dias-label">{{ diasRestantes >= 0 ? t.daysRemaining : t.daysOverdue }}</span>
+            </div>
+
+            <div class="vencimiento-row">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              <span>{{ t.dueDate }} <strong>{{ fechaFormateada }}</strong></span>
             </div>
           </div>
 
-          <transition name="fade-slide">
-            <!-- ===== Flujo tarjeta ===== -->
-            <div v-if="tipoPago === 'Tarjeta'" class="card-fields">
-              <div class="input-group">
-                <label>{{ t.cardNumberLabel }}</label>
-                <input type="text" v-model="numeroTarjetaFormateado" placeholder="0000 0000 0000 0000" maxlength="19" inputmode="numeric">
-              </div>
-              <div class="payment-details-grid">
-                <div class="input-group">
-                  <label>{{ t.expiryLabel }}</label>
-                  <input type="text" v-model="vencimientoTarjeta" placeholder="MM/AA" maxlength="5">
-                </div>
-                <div class="input-group">
-                  <label>{{ t.cvvLabel }}</label>
-                  <input type="text" v-model="cvvTarjeta" placeholder="123" maxlength="4" inputmode="numeric">
-                </div>
-              </div>
+          <!-- Columna Derecha: Panel de Transacción y Pagos -->
+          <div class="payment-card">
 
-              <div class="action-buttons">
-                <button
-                  class="btn-primary"
-                  :disabled="!formularioTarjetaValido || procesando"
-                  :class="{ disabled: !formularioTarjetaValido || procesando }"
-                  @click="pagarConTarjeta"
-                >
-                  <span v-if="!procesando">{{ t.payButton }}</span>
-                  <span v-else>{{ t.processingLabel }}</span>
-                </button>
+            <!-- Fechas de Corte -->
+            <div id="tutorial-billing-cuts" class="account-info-grid">
+              <div class="info-box-date">
+                <span class="info-box-label">{{ t.nextCut }}</span>
+                <div class="info-box-val-row">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  <span>{{ fechaFormateada }}</span>
+                </div>
+              </div>
+              <div class="info-box-date highlight-box">
+                <span class="info-box-label">{{ t.newCut }}</span>
+                <div class="info-box-val-row">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                  <span>{{ nuevoCorteCalculado }}</span>
+                </div>
               </div>
             </div>
 
-            <!-- ===== Flujo transferencia (real): ver datos → depositar → registrar folio ===== -->
-            <div v-else-if="tipoPago === 'Transferencia'" class="card-fields">
-              <button type="button" class="btn-bank-details" @click="modalDatosBancarios = true">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="3" y="10" width="18" height="10" rx="1"></rect>
-                  <path d="M3 10l9-6 9 6"></path>
-                  <line x1="7" y1="14" x2="7" y2="16"></line>
-                  <line x1="12" y1="14" x2="12" y2="16"></line>
-                  <line x1="17" y1="14" x2="17" y2="16"></line>
-                </svg>
-                {{ t.viewBankDetailsBtn }}
+            <!-- Selector de Planes -->
+            <div class="section-subtitle-small">
+              <span class="subtitle-dot"></span>{{ t.choosePlan }}
+            </div>
+
+            <div id="tutorial-payment-plans" class="planes-grid">
+              <button
+                v-for="p in planes"
+                :key="p.id"
+                type="button"
+                class="plan-chip"
+                :class="{ active: planSeleccionado === p.id }"
+                @click="seleccionarPlan(p.id)"
+              >
+                <span v-if="p.ahorro" class="plan-tag">{{ t.save }} {{ p.ahorro }}</span>
+                <span class="plan-nombre">{{ p.nombre }}</span>
+                <span class="plan-precio">${{ p.precio.toFixed(2) }}</span>
               </button>
+            </div>
 
-              <div class="input-group">
-                <label>{{ t.transferReferenceLabel }}</label>
-                <div class="input-wrapper input-with-icon-simple">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="input-icon">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                    <polyline points="7 10 12 15 17 10"></polyline>
-                    <line x1="12" y1="15" x2="12" y2="3"></line>
-                  </svg>
-                  <input type="text" v-model="folioTransferencia" :placeholder="t.transferReferencePlaceholder">
+            <!-- Resumen Financiero y Estado de Cuenta -->
+            <div class="account-statement-header">
+              <span class="statement-title">{{ t.accountStatement }}</span>
+              <span v-if="saldoPendiente > 0" class="badge-pending">{{ t.pendingBalance }}: ${{ saldoPendiente.toFixed(2) }}</span>
+            </div>
+
+            <div id="tutorial-account-summary" class="styled-box">
+              <div class="amount-info">
+                <span class="amount-label">{{ t.totalToPay }}</span>
+                <div class="amount-row">
+                  <span class="currency">$</span>
+                  <span class="amount-val">{{ totalAPagar.toFixed(2) }}</span>
                 </div>
               </div>
-              <p class="transfer-note">{{ t.transferNote }}</p>
-
-              <div class="action-buttons">
-                <button
-                  class="btn-primary"
-                  :disabled="!folioTransferencia.trim() || procesando"
-                  :class="{ disabled: !folioTransferencia.trim() || procesando }"
-                  @click="enviarComprobanteTransferencia"
-                >
-                  <span v-if="!procesando">{{ t.submitTransferBtn }}</span>
-                  <span v-else>{{ t.processingLabel }}</span>
-                </button>
+              <div class="recargo-container">
+                <span v-if="recargoPorVencida" class="red">+ $50 {{ t.surcharge }}</span>
+                <span class="mensual-text">{{ plan?.nombre }}</span>
               </div>
             </div>
-          </transition>
 
-          <p class="cash-note">{{ t.cashNote }}</p>
+            <!-- Selección del Método de Pago -->
+            <div id="tutorial-payment-method-select" class="input-group">
+              <label>{{ t.paymentMethod }}</label>
+              <div class="input-wrapper select-wrapper-container">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="input-icon">
+                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                  <line x1="1" y1="10" x2="23" y2="10"></line>
+                </svg>
+                <select v-model="tipoPago" class="custom-select">
+                  <option disabled value="">{{ t.selectOption }}</option>
+                  <option value="Tarjeta">{{ t.cardOption }}</option>
+                  <option value="Transferencia">{{ t.transferOption }}</option>
+                </select>
+                <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </div>
+            </div>
+
+            <transition name="fade-slide">
+              <!-- Formulario de Tarjeta -->
+              <div v-if="tipoPago === 'Tarjeta'" class="card-fields">
+                <div class="input-group">
+                  <label>{{ t.cardNumberLabel }}</label>
+                  <div class="input-wrapper input-with-icon-simple">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="input-icon">
+                      <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                      <line x1="1" y1="10" x2="23" y2="10"></line>
+                    </svg>
+                    <input type="text" v-model="numeroTarjetaFormateado" placeholder="0000 0000 0000 0000" maxlength="19" inputmode="numeric">
+                  </div>
+                </div>
+
+                <div class="payment-details-grid">
+                  <div class="input-group">
+                    <label>{{ t.expiryLabel }}</label>
+                    <input type="text" v-model="vencimientoTarjetaFormateado" placeholder="MM/AA" maxlength="5" inputmode="numeric">
+                  </div>
+                  <div class="input-group">
+                    <label>{{ t.cvvLabel }}</label>
+                    <input type="password" v-model="cvvTarjeta" placeholder="•••" maxlength="4" inputmode="numeric">
+                  </div>
+                </div>
+
+                <div class="action-buttons">
+                  <button
+                    id="tutorial-pay-action-btn"
+                    class="btn-primary"
+                    :disabled="!formularioTarjetaValido || procesando"
+                    :class="{ disabled: !formularioTarjetaValido || procesando }"
+                    @click="pagarConTarjeta"
+                  >
+                    <span v-if="!procesando">{{ t.payButton }}</span>
+                    <span v-else>{{ t.processingLabel }}</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Formulario de Transferencia Bancaria -->
+              <div v-else-if="tipoPago === 'Transferencia'" class="card-fields">
+                <button type="button" class="btn-bank-details" @click="modalDatosBancarios = true">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="10" width="18" height="10" rx="1"></rect>
+                    <path d="M3 10l9-6 9 6"></path>
+                    <line x1="7" y1="14" x2="7" y2="16"></line>
+                    <line x1="12" y1="14" x2="12" y2="16"></line>
+                    <line x1="17" y1="14" x2="17" y2="16"></line>
+                  </svg>
+                  {{ t.viewBankDetailsBtn }}
+                </button>
+
+                <div class="input-group">
+                  <label>{{ t.transferReferenceLabel }}</label>
+                  <div class="input-wrapper input-with-icon-simple">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="input-icon">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="7 10 12 15 17 10"></polyline>
+                      <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    <input type="text" v-model="folioTransferencia" :placeholder="t.transferReferencePlaceholder">
+                  </div>
+                </div>
+                <p class="transfer-note">{{ t.transferNote }}</p>
+
+                <div class="action-buttons">
+                  <button
+                    id="tutorial-pay-action-btn"
+                    class="btn-primary"
+                    :disabled="!folioTransferencia.trim() || procesando"
+                    :class="{ disabled: !folioTransferencia.trim() || procesando }"
+                    @click="enviarComprobanteTransferencia"
+                  >
+                    <span v-if="!procesando">{{ t.submitTransferBtn }}</span>
+                    <span v-else>{{ t.processingLabel }}</span>
+                  </button>
+                </div>
+              </div>
+            </transition>
+
+            <p class="cash-note">{{ t.cashNote }}</p>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Modal: datos bancarios -->
-    <transition name="pop">
-      <div v-if="modalDatosBancarios" class="modal-wrapper" @click.self="modalDatosBancarios = false">
-        <div class="bank-modal">
-          <h3 class="bank-modal-title">{{ t.bankDetailsTitle }}</h3>
-          <p class="bank-modal-subtitle">{{ t.bankDetailsSubtitle }}</p>
+      <!-- Modal de Datos Bancarios -->
+      <transition name="pop">
+        <div v-if="modalDatosBancarios" class="modal-wrapper" @click.self="modalDatosBancarios = false">
+          <div class="bank-modal">
+            <h3 class="bank-modal-title">{{ t.bankDetailsTitle }}</h3>
+            <p class="bank-modal-subtitle">{{ t.bankDetailsSubtitle }}</p>
 
-          <div class="bank-field">
-            <div class="bank-field-info">
-              <span class="bank-field-label">{{ t.bankNameLabel }}</span>
-              <span class="bank-field-value">{{ datosBancarios.banco }}</span>
+            <div class="bank-field">
+              <div class="bank-field-info">
+                <span class="bank-field-label">{{ t.bankNameLabel }}</span>
+                <span class="bank-field-value">{{ datosBancarios.banco }}</span>
+              </div>
             </div>
-          </div>
-          <div class="bank-field">
-            <div class="bank-field-info">
-              <span class="bank-field-label">{{ t.accountHolderLabel }}</span>
-              <span class="bank-field-value">{{ datosBancarios.titular }}</span>
+            <div class="bank-field">
+              <div class="bank-field-info">
+                <span class="bank-field-label">{{ t.accountHolderLabel }}</span>
+                <span class="bank-field-value">{{ datosBancarios.titular }}</span>
+              </div>
             </div>
-          </div>
-          <div class="bank-field">
-            <div class="bank-field-info">
-              <span class="bank-field-label">{{ t.accountNumberLabel }}</span>
-              <span class="bank-field-value mono">{{ datosBancarios.cuenta }}</span>
+            <div class="bank-field">
+              <div class="bank-field-info">
+                <span class="bank-field-label">{{ t.accountNumberLabel }}</span>
+                <span class="bank-field-value mono">{{ datosBancarios.cuenta }}</span>
+              </div>
+              <button class="btn-copy" @click="copiarDato(datosBancarios.cuenta, 'cuenta')">
+                {{ campoCopiado === 'cuenta' ? '✓' : t.copyBtn }}
+              </button>
             </div>
-            <button class="btn-copy" @click="copiarDato(datosBancarios.cuenta, 'cuenta')">
-              {{ campoCopiado === 'cuenta' ? '✓' : t.copyBtn }}
-            </button>
-          </div>
-          <div class="bank-field">
-            <div class="bank-field-info">
-              <span class="bank-field-label">{{ t.clabeLabel }}</span>
-              <span class="bank-field-value mono">{{ datosBancarios.clabe }}</span>
+            <div class="bank-field">
+              <div class="bank-field-info">
+                <span class="bank-field-label">{{ t.clabeLabel }}</span>
+                <span class="bank-field-value mono">{{ datosBancarios.clabe }}</span>
+              </div>
+              <button class="btn-copy" @click="copiarDato(datosBancarios.clabe, 'clabe')">
+                {{ campoCopiado === 'clabe' ? '✓' : t.copyBtn }}
+              </button>
             </div>
-            <button class="btn-copy" @click="copiarDato(datosBancarios.clabe, 'clabe')">
-              {{ campoCopiado === 'clabe' ? '✓' : t.copyBtn }}
-            </button>
-          </div>
-          <div class="bank-field">
-            <div class="bank-field-info">
-              <span class="bank-field-label">{{ t.conceptLabel }}</span>
-              <span class="bank-field-value mono">{{ datosBancarios.concepto }}</span>
+            <div class="bank-field">
+              <div class="bank-field-info">
+                <span class="bank-field-label">{{ t.conceptLabel }}</span>
+                <span class="bank-field-value mono">{{ datosBancarios.concepto }}</span>
+              </div>
+              <button class="btn-copy" @click="copiarDato(datosBancarios.concepto, 'concepto')">
+                {{ campoCopiado === 'concepto' ? '✓' : t.copyBtn }}
+              </button>
             </div>
-            <button class="btn-copy" @click="copiarDato(datosBancarios.concepto, 'concepto')">
-              {{ campoCopiado === 'concepto' ? '✓' : t.copyBtn }}
-            </button>
-          </div>
 
-          <div class="action-buttons">
-            <button class="btn-primary" @click="modalDatosBancarios = false">{{ t.gotItBtn }}</button>
+            <div class="action-buttons">
+              <button class="btn-primary" @click="modalDatosBancarios = false">{{ t.gotItBtn }}</button>
+            </div>
           </div>
         </div>
-      </div>
-    </transition>
-  </main>
+      </transition>
+    </main>
   </HeadingMember>
-
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;500;600;700&display=swap');
 
 * { box-sizing: border-box; }
 
@@ -546,35 +597,35 @@ const aplicarRenovacion = () => {
 
 .view-header-flex { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
 .view-header { flex: 1; min-width: 240px; }
-.title { font-family: 'Anton', sans-serif; font-size: clamp(1.7rem, 5vw, 2.4rem); color: var(--color-titulos, #fff); margin: 0; letter-spacing: 1px; text-transform: uppercase; }
+.title { font-family: 'Anton', sans-serif; font-size: clamp(1.8rem, 5vw, 2.5rem); color: var(--color-titulos, #fff); margin: 0; letter-spacing: 1px; text-transform: uppercase; }
 .highlight-text { color: var(--color-highlight, #3b82f6); }
 .title-underline {
   display: block;
-  width: 64px;
+  width: 70px;
   height: 4px;
-  margin: 4px 0 8px;
+  margin: 6px 0 10px;
   border-radius: 4px;
   background: linear-gradient(90deg, var(--color-highlight, #3b82f6), transparent);
 }
-.subtitle { font-size: 0.85rem; color: rgba(245, 245, 244, 0.6); margin: 0; line-height: 1.4; font-weight: 400; }
+.subtitle { font-size: 0.95rem; color: rgba(245, 245, 244, 0.85); margin: 0; line-height: 1.5; font-weight: 500; }
 
 @keyframes floatCard {
   0% { transform: translateY(0px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(59, 130, 246, 0.1); }
-  50% { transform: translateY(-10px); box-shadow: 0 30px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(59, 130, 246, 0.25); }
+  50% { transform: translateY(-8px); box-shadow: 0 25px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(59, 130, 246, 0.2); }
   100% { transform: translateY(0px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(59, 130, 246, 0.1); }
 }
 
 .membership-grid {
   display: grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: 340px 1fr;
   gap: 24px;
   align-items: start;
 }
 
 .status-card, .payment-card {
-  background: var(--bg-cards, rgba(18, 18, 18, 0.75));
+  background: var(--bg-cards, rgba(18, 18, 18, 0.85));
   backdrop-filter: blur(20px);
-  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.12));
+  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.15));
   border-radius: var(--app-border-radius, 24px);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
   position: relative;
@@ -592,7 +643,7 @@ const aplicarRenovacion = () => {
 
 .avatar-ring-wrapper { position: relative; width: 160px; height: 160px; margin-bottom: 20px; }
 .progress-ring { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
-.progress-ring__bg { fill: none; stroke: rgba(255,255,255,0.08); stroke-width: 6; }
+.progress-ring__bg { fill: none; stroke: rgba(255,255,255,0.1); stroke-width: 6; }
 .progress-ring__value { fill: none; stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 0.6s ease, stroke 0.3s ease; }
 
 .avatar-circle {
@@ -607,8 +658,17 @@ const aplicarRenovacion = () => {
 }
 .avatar-initials { font-family: 'Anton', sans-serif; font-size: 2.4rem; color: var(--color-highlight, #3b82f6); letter-spacing: 1px; }
 
-.member-name { font-family: 'Anton', sans-serif; font-size: 1.6rem; color: var(--color-titulos, #fff); margin: 0 0 6px 0; line-height: 1.1; letter-spacing: 1px; text-transform: uppercase; }
-.user-id { margin: 0 0 16px 0; color: rgba(245, 245, 244, 0.6); font-weight: 600; font-size: 0.9rem; letter-spacing: 0.5px; }
+.member-name { 
+  font-family: 'Inter', sans-serif; 
+  font-size: 1.35rem; 
+  font-weight: 800;
+  color: var(--color-titulos, #fff); 
+  margin: 0 0 6px 0; 
+  line-height: 1.2; 
+  letter-spacing: 0.5px; 
+  text-transform: uppercase; 
+}
+.user-id { margin: 0 0 16px 0; color: rgba(245, 245, 244, 0.9); font-weight: 700; font-size: 0.95rem; letter-spacing: 0.5px; }
 
 .status-badge {
   padding: 8px 28px;
@@ -625,263 +685,357 @@ const aplicarRenovacion = () => {
 .review-pill {
   display: flex;
   align-items: center;
-  gap: 6px;
-  background: rgba(245, 158, 11, 0.12);
+  gap: 8px;
+  background: rgba(245, 158, 11, 0.15);
   color: #f59e0b;
-  border: 1px solid rgba(245, 158, 11, 0.35);
-  padding: 5px 14px;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  padding: 6px 14px;
   border-radius: 20px;
-  font-size: 0.72rem;
+  font-size: 0.8rem;
   font-family: 'Oswald', sans-serif;
   text-transform: uppercase;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.5px;
+  font-weight: 600;
   margin-bottom: 16px;
 }
 
 .dias-restantes { display: flex; flex-direction: column; align-items: center; margin-bottom: 14px; }
-.dias-numero { font-family: 'Anton', sans-serif; font-size: 2.4rem; line-height: 1; }
-.dias-label { font-family: 'Oswald', sans-serif; font-size: 0.82rem; color: rgba(245, 245, 244, 0.55); text-transform: uppercase; letter-spacing: 0.5px; }
+.dias-numero { font-family: 'Anton', sans-serif; font-size: 2.6rem; line-height: 1; }
+.dias-label { font-family: 'Oswald', sans-serif; font-size: 0.9rem; color: rgba(245, 245, 244, 0.8); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
 
-.vencimiento-row { display: flex; align-items: center; gap: 6px; color: rgba(245, 245, 244, 0.6); font-size: 0.85rem; }
+.vencimiento-row { display: flex; align-items: center; gap: 8px; color: rgba(245, 245, 244, 0.85); font-size: 0.9rem; font-weight: 500; }
+.vencimiento-row strong { color: #fff; font-weight: 700; }
 
-.payment-card { padding: 26px; }
+.payment-card { padding: 32px; }
 
-.section-subtitle-small {
+.account-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+.info-box-date {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--border-line, rgba(255, 255, 255, 0.12));
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.highlight-box {
+  border-color: rgba(59, 130, 246, 0.5);
+  background: rgba(59, 130, 246, 0.08);
+}
+.info-box-label {
   font-family: 'Oswald', sans-serif;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: rgba(245, 245, 244, 0.75);
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+.info-box-val-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #fff;
+}
+.info-box-val-row svg { color: var(--color-highlight, #3b82f6); flex-shrink: 0; }
+
+.account-statement-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.statement-title {
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.95rem;
   font-weight: 600;
   text-transform: uppercase;
   color: var(--color-highlight, #3b82f6);
-  margin-bottom: 12px;
+  letter-spacing: 0.5px;
+}
+.badge-pending {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+}
+
+.section-subtitle-small {
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--color-highlight, #3b82f6);
+  margin-bottom: 14px;
   letter-spacing: 0.5px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
-.subtitle-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--color-highlight, #3b82f6); box-shadow: 0 0 6px var(--color-highlight, #3b82f6); flex-shrink: 0; }
+.subtitle-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--color-highlight, #3b82f6); box-shadow: 0 0 8px var(--color-highlight, #3b82f6); flex-shrink: 0; }
 
-.planes-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+.planes-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 22px; }
 
 .plan-chip {
   position: relative;
-  background: rgba(0, 0, 0, 0.25);
-  border: 1px solid var(--border-line, rgba(255, 255, 255, 0.08));
-  border-radius: var(--app-border-radius, 10px);
-  padding: 14px 8px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--border-line, rgba(255, 255, 255, 0.12));
+  border-radius: var(--app-border-radius, 12px);
+  padding: 16px 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
   color: var(--color-texto-general, #f5f5f4);
 }
 .plan-chip:hover { border-color: var(--color-highlight, #3b82f6); }
-.plan-chip.active { border-color: var(--color-highlight, #3b82f6); background: rgba(59, 130, 246, 0.12); box-shadow: 0 0 0 1px var(--color-highlight, #3b82f6) inset; }
-
-.plan-tag { position: absolute; top: -9px; font-size: 0.58rem; background: #4ade80; color: #052e16; padding: 2px 8px; border-radius: 20px; font-family: 'Oswald', sans-serif; letter-spacing: 0.5px; font-weight: 700; }
-.plan-nombre { font-family: 'Oswald', sans-serif; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.3px; }
-.plan-precio { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 0.95rem; color: var(--color-highlight, #3b82f6); }
-
-.styled-box {
-  background: rgba(0, 0, 0, 0.25);
-  border: 1px solid var(--border-line, rgba(255, 255, 255, 0.08));
-  border-radius: var(--app-border-radius, 8px);
-  padding: 14px 18px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
+.plan-chip.active { border-color: var(--color-highlight, #3b82f6); background: rgba(59, 130, 246, 0.1); }
+.plan-tag {
+  position: absolute;
+  top: -8px;
+  background: var(--color-highlight, #3b82f6);
+  color: #fff;
+  font-size: 0.65rem;
+  font-family: 'Oswald', sans-serif;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+  text-transform: uppercase;
 }
-.amount-info { display: flex; flex-direction: column; }
-.amount-label { font-size: 0.72rem; color: rgba(245, 245, 244, 0.55); font-family: 'Oswald', sans-serif; text-transform: uppercase; margin-bottom: 2px; }
-.amount-row { display: flex; align-items: baseline; gap: 4px; }
-.currency { font-size: 1.2rem; font-weight: 700; }
-.amount-val { font-size: 1.8rem; font-weight: 800; letter-spacing: 0.5px; line-height: 1; }
-.recargo-container { display: flex; flex-direction: column; align-items: flex-end; }
-.red { color: #f87171; font-weight: 700; font-size: 0.82rem; }
-.mensual-text { font-family: 'Oswald', sans-serif; font-size: 0.88rem; color: var(--color-titulos, #fff); }
+.plan-nombre { font-size: 0.85rem; font-weight: 600; text-transform: uppercase; color: rgba(245, 245, 244, 0.8); }
+.plan-precio { font-family: 'Anton', sans-serif; font-size: 1.15rem; color: #fff; letter-spacing: 0.5px; }
 
-.input-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; }
-.input-group label { font-family: 'Oswald', sans-serif; color: var(--color-titulos, #fff); font-size: 13px; }
+/* Caja de Total a Pagar */
+.styled-box {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--border-line, rgba(255, 255, 255, 0.12));
+  border-radius: var(--app-border-radius, 14px);
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 22px;
+}
+.amount-info { display: flex; flex-direction: column; gap: 2px; }
+.amount-label { font-family: 'Oswald', sans-serif; font-size: 0.85rem; text-transform: uppercase; color: rgba(245, 245, 244, 0.75); letter-spacing: 0.5px; }
+.amount-row { display: flex; align-items: flex-start; gap: 4px; }
+.currency { font-family: 'Anton', sans-serif; font-size: 1.2rem; color: var(--color-highlight, #3b82f6); margin-top: 2px; }
+.amount-val { font-family: 'Anton', sans-serif; font-size: 2rem; color: #fff; line-height: 1; letter-spacing: 1px; }
+.recargo-container { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.red { color: #f87171; font-size: 0.8rem; font-weight: 700; font-family: 'Oswald', sans-serif; text-transform: uppercase; }
+.mensual-text { font-size: 0.85rem; font-weight: 600; color: rgba(245, 245, 244, 0.7); text-transform: uppercase; }
 
-.select-wrapper-container, .input-with-icon-simple { position: relative; display: flex; align-items: center; width: 100%; }
-.input-icon { position: absolute; left: 12px; color: rgba(245, 245, 244, 0.45); pointer-events: none; z-index: 2; }
-
+/* Grupos de Inputs y Select */
+.input-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+.input-group label { font-family: 'Oswald', sans-serif; font-size: 0.9rem; font-weight: 600; text-transform: uppercase; color: var(--color-highlight, #3b82f6); letter-spacing: 0.5px; }
+.input-wrapper { position: relative; display: flex; align-items: center; }
+.input-icon { position: absolute; left: 14px; color: rgba(245, 245, 244, 0.4); pointer-events: none; }
+.select-wrapper-container { position: relative; width: 100%; }
 .custom-select {
   width: 100%;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--border-line, rgba(255, 255, 255, 0.1));
-  border-radius: var(--app-border-radius, 8px);
+  background: var(--bg-input, #09090b);
+  border: 1px solid var(--border-line, rgba(255, 255, 255, 0.15));
+  border-radius: 12px;
+  padding: 12px 14px 12px 44px;
   color: var(--color-texto-general, #f5f5f4);
-  padding: 10px 32px 10px 36px;
   font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
-  outline: none;
+  font-size: 0.95rem;
   appearance: none;
-  -webkit-appearance: none;
   cursor: pointer;
-  box-sizing: border-box;
+  transition: border-color 0.2s ease;
 }
-.custom-select option { background-color: #18181b; color: #fff; }
-.select-arrow { position: absolute; right: 12px; color: rgba(245, 245, 244, 0.45); pointer-events: none; }
+.custom-select:focus { outline: none; border-color: var(--color-highlight, #3b82f6); }
+.select-arrow { position: absolute; right: 14px; color: rgba(245, 245, 244, 0.5); pointer-events: none; }
 
-.input-with-icon-simple input {
+.card-fields { display: flex; flex-direction: column; gap: 14px; animation: fadeIn 0.3s ease; }
+.input-with-icon-simple input { padding-left: 44px !important; }
+.payment-details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.card-fields input {
   width: 100%;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--border-line, rgba(255, 255, 255, 0.1));
-  border-radius: var(--app-border-radius, 8px);
+  background: var(--bg-input, #09090b);
+  border: 1px solid var(--border-line, rgba(255, 255, 255, 0.15));
+  border-radius: 12px;
+  padding: 12px 14px;
   color: var(--color-texto-general, #f5f5f4);
-  padding: 10px 10px 10px 36px !important;
   font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
-  outline: none;
-  box-sizing: border-box;
+  font-size: 0.95rem;
 }
-
-.card-fields input:not(.input-with-icon-simple input) {
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--border-line, rgba(255, 255, 255, 0.1));
-  border-radius: var(--app-border-radius, 8px);
-  color: var(--color-texto-general, #f5f5f4);
-  padding: 10px;
-  font-family: 'Inter', sans-serif;
-  outline: none;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.payment-details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.card-fields input:focus { outline: none; border-color: var(--color-highlight, #3b82f6); }
 
 .btn-bank-details {
-  width: 100%;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px dashed var(--color-highlight, #3b82f6);
+  color: var(--color-highlight, #3b82f6);
+  padding: 12px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-family: 'Oswald', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: rgba(59, 130, 246, 0.1);
-  border: 1px solid rgba(59, 130, 246, 0.4);
-  color: var(--color-highlight, #3b82f6);
-  border-radius: var(--app-border-radius, 10px);
-  padding: 12px;
-  font-family: 'Oswald', sans-serif;
-  font-weight: 600;
-  font-size: 0.9rem;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-bottom: 16px;
+  transition: background 0.2s ease;
 }
-.btn-bank-details:hover { background: rgba(59, 130, 246, 0.18); }
+.btn-bank-details:hover { background: rgba(59, 130, 246, 0.2); }
+.transfer-note { font-size: 0.8rem; color: rgba(245, 245, 244, 0.7); line-height: 1.4; margin: 0; }
 
-.transfer-note { font-size: 0.78rem; color: rgba(245, 245, 244, 0.5); line-height: 1.4; margin: -6px 0 16px; }
-.cash-note { font-size: 0.75rem; color: rgba(245, 245, 244, 0.4); text-align: center; margin: 18px 0 0; font-style: italic; }
-
-.fade-slide-enter-active, .fade-slide-leave-active { transition: all 0.25s ease; }
-.fade-slide-enter-from, .fade-slide-leave-to { opacity: 0; transform: translateY(-6px); }
-
-.action-buttons { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
-
+.action-buttons { display: flex; gap: 12px; margin-top: 6px; }
 .btn-primary {
-  padding: 15px 32px;
-  background: var(--color-botones, #1c4fd6);
-  color: var(--color-texto-botones, white);
+  flex: 1;
+  background: var(--color-highlight, #3b82f6);
+  color: #fff;
   border: none;
-  border-radius: var(--app-border-radius, 12px);
+  border-radius: 12px;
+  padding: 14px;
   font-family: 'Oswald', sans-serif;
-  font-weight: 700;
   font-size: 1rem;
-  cursor: pointer;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  box-shadow: 0 4px 16px rgba(28, 79, 214, 0.4);
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: background 0.2s ease, opacity 0.2s ease;
 }
-.btn-primary.disabled { background: #444; color: #888; cursor: not-allowed; box-shadow: none; }
+.btn-primary:hover:not(.disabled) { background: #2563eb; }
+.btn-primary.disabled { opacity: 0.5; cursor: not-allowed; }
 
-@media (hover: hover) {
-  .btn-primary:hover:not(:disabled) { transform: scale(1.03); }
-  .plan-chip:hover { transform: translateY(-2px); }
-}
-.btn-primary:active:not(:disabled) { transform: scale(0.97); }
+.cash-note { font-size: 0.8rem; color: rgba(245, 245, 244, 0.6); text-align: center; margin-top: 18px; line-height: 1.4; }
 
-/* --- Modal datos bancarios --- */
+/* Modal de Datos Bancarios */
 .modal-wrapper {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
-  backdrop-filter: blur(6px);
-  padding: 16px;
+  z-index: 1000;
+  padding: 20px;
 }
-.pop-enter-active, .pop-leave-active { transition: opacity 0.25s ease; }
-.pop-enter-from, .pop-leave-to { opacity: 0; }
-
 .bank-modal {
+  background: var(--bg-cards, #121212);
+  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.2));
+  border-radius: 20px;
+  padding: 28px;
   width: 100%;
-  max-width: 420px;
-  background: var(--bg-cards, #141414);
-  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.14));
-  border-radius: var(--app-border-radius, 20px);
-  padding: 26px;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+  max-width: 440px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
-.bank-modal-title { font-family: 'Anton', sans-serif; color: var(--color-titulos, #fff); font-size: 1.3rem; margin: 0 0 4px; text-transform: uppercase; letter-spacing: 0.5px; }
-.bank-modal-subtitle { font-size: 0.82rem; color: rgba(245, 245, 244, 0.55); margin: 0 0 20px; }
-
+.bank-modal-title { font-family: 'Anton', sans-serif; font-size: 1.5rem; color: #fff; margin: 0; letter-spacing: 0.5px; text-transform: uppercase; }
+.bank-modal-subtitle { font-size: 0.85rem; color: rgba(245, 245, 244, 0.75); margin: 0 0 4px 0; line-height: 1.4; }
 .bank-field {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 10px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  background: rgba(0, 0, 0, 0.25);
-  border: 1px solid var(--border-line, rgba(255, 255, 255, 0.08));
-  border-radius: var(--app-border-radius, 10px);
-  padding: 10px 14px;
-  margin-bottom: 10px;
 }
-.bank-field-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.bank-field-label { font-size: 0.68rem; color: rgba(245, 245, 244, 0.5); font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 0.4px; }
-.bank-field-value { font-size: 0.92rem; color: var(--color-texto-general, #f5f5f4); font-weight: 600; overflow-wrap: anywhere; }
-.bank-field-value.mono { font-family: 'Inter', monospace; letter-spacing: 0.5px; }
-
+.bank-field-info { display: flex; flex-direction: column; gap: 2px; }
+.bank-field-label { font-size: 0.75rem; font-family: 'Oswald', sans-serif; text-transform: uppercase; color: rgba(245, 245, 244, 0.6); letter-spacing: 0.5px; }
+.bank-field-value { font-size: 0.95rem; font-weight: 600; color: #fff; }
+.bank-field-value.mono { font-family: monospace; letter-spacing: 1px; color: var(--color-highlight, #3b82f6); }
 .btn-copy {
-  flex-shrink: 0;
-  background: transparent;
-  border: 1px solid var(--color-highlight, #3b82f6);
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.4);
   color: var(--color-highlight, #3b82f6);
-  border-radius: var(--app-border-radius, 8px);
   padding: 6px 12px;
-  font-family: 'Oswald', sans-serif;
+  border-radius: 6px;
   font-size: 0.75rem;
+  font-family: 'Oswald', sans-serif;
   text-transform: uppercase;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
-  min-width: 44px;
+  transition: background 0.2s ease;
 }
-.btn-copy:hover { background: rgba(59, 130, 246, 0.12); }
+.btn-copy:hover { background: rgba(59, 130, 246, 0.3); }
 
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pop {
+  0% { opacity: 0; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.pop-enter-active { animation: pop 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+.pop-leave-active { animation: pop 0.2s reverse ease-in; }
+
+/* Estilos responsivos */
 @media (max-width: 900px) {
   .membership-grid { grid-template-columns: 1fr; }
-  .status-card { max-width: 420px; margin: 0 auto; width: 100%; }
-}
-
-@media (max-width: 640px) {
-  .main-content { padding: 14px 12px; }
-  .payment-card { padding: 18px; }
-  .status-card { padding: 24px 18px; }
-  .planes-grid { grid-template-columns: 1fr 1fr; }
-  .payment-details-grid { grid-template-columns: 1fr; }
-  .amount-val { font-size: 1.4rem; }
-  .bank-modal { padding: 20px; }
-}
-
-@media (prefers-reduced-motion: reduce) {
   .status-card { animation: none; }
-  .progress-ring__value { transition: none; }
+}
+
+@media (max-width: 600px) {
+  .main-content { padding: 16px 12px; }
+  .payment-card { padding: 20px 16px; }
+  .planes-grid { grid-template-columns: repeat(2, 1fr); }
+  .account-info-grid { grid-template-columns: 1fr; }
+  .member-name { font-size: 1.2rem; }
+}
+/* =========================================
+   ESTILOS RESPONSIVOS PARA MÓVIL
+   ========================================= */
+
+@media (max-width: 768px) {
+  .main-content {
+    padding: 16px 12px;
+  }
+
+  /* La rejilla principal pasa a una sola columna */
+  .membership-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  /* Reducir padding de las tarjetas principales en móvil */
+  .status-card, .payment-card {
+    padding: 20px 16px;
+  }
+
+  /* El selector de planes pasa a 2 columnas en lugar de 4 */
+  .planes-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  /* Las fechas de corte se acomodan mejor */
+  .account-info-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* En pantallas muy pequeñas, los planes pasan a 1 columna o mantienen 2 compactas */
+  .planes-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .payment-details-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

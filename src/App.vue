@@ -189,10 +189,14 @@ onUnmounted(() => {
 
 <template>
   <RouterView />
-  <HelpButton v-if="userRole === 'Owner'" />
-  <HelpButton2 v-if="userRole === 'Recepcion'" />
-  <HelpButton3 v-if="userRole === 'Member'" />
+  <!--<HelpButton v-if="userRole === 'Owner'" />
+  <HelpButton2 v-if="userRole === 'recepcion'" />
+  <HelpButton3 v-if="userRole === 'member'" />-->
 
+  <HelpButton/>
+  <HelpButton2/>
+  <HelpButton3/>
+  
   <transition name="fade">
     <div v-if="mostrarAvisoInactividad" class="inactivity-overlay">
       <div class="inactivity-modal glass-effect">

@@ -163,19 +163,19 @@ const handleNotification = ({ message, type }) => {
       <div class="page-container">
 
         <div class="view-header-flex">
-          <div class="view-header">
+          <div class="view-header" id="tutorial-history-header">
             <h1 class="title">{{ t.pageTitlePrefix }} <span class="highlight-text">{{ t.pageTitleHighlight }}</span></h1>
             <span class="title-underline"></span>
             <p class="subtitle">{{ t.pageSubtitle }}</p>
           </div>
-          <div class="total-chip">
+          <div class="total-chip" id="tutorial-total-period">
             <span class="total-label">{{ t.totalPeriodLabel }}</span>
             <span class="total-value">${{ totalPagado.toFixed(2) }}</span>
           </div>
         </div>
 
         <div class="history-card">
-          <div class="filters-row">
+          <div class="filters-row" id="tutorial-history-filters">
             <div class="input-wrapper search-wrapper">
               <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
@@ -209,7 +209,7 @@ const handleNotification = ({ message, type }) => {
           </div>
 
           <!-- Tabla (desktop) -->
-          <div class="table-wrapper">
+          <div class="table-wrapper" id="tutorial-payments-table">
             <div class="table-head">
               <span>{{ t.colDate }}</span>
               <span>{{ t.colConcept }}</span>
