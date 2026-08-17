@@ -1,137 +1,13 @@
-<template>
-  <HeadingOwner>
-    <main class="main-content">
-      <!-- Barra de búsqueda superior alineada -->
-      <div  class="search-bar-container-top">
-        <div id="tutor-0" class="input-group search-small">
-          <label>{{ t('searchStaffLabel') }}</label>
-          <div class="search-input-wrapper">
-            <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
-            <input type="text" :placeholder="t('searchPlaceholder')" v-model="searchQuery" @keyup.enter="handleSearch">
-          </div>
-        </div>
-      </div>
-
-      <!-- Layout principal optimizado para escritorio -->
-      <div class="profile-card">
-        <!-- Sección Perfil Izquierda -->
-        <div id="tutor-1" class="profile-section">
-          <h1 class="main-title">Carlos Luis <br> <span class="highlight">Ramírez</span></h1>
-          
-          <div class="avatar-wrapper">
-            <div id="tutor-2" class="avatar-circle">
-              <img :src="avatarSrc" :alt="t('avatarAlt')" class="user-avatar-img" />
-            </div>
-            
-            <button id="tutor-3" class="avatar-action btn-camera" @click="triggerFileUpload" :title="t('changePhotoTitle')">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-            </button>
-            <input type="file" ref="fileInput" @change="handleFileChange" accept="image/*" style="display: none" />
-          </div>
-          
-          <p id="tutor-4" class="user-id">ID: GymPer001</p>
-          <div id="tutor-5" class="status-badge">{{ t('statusActive') }}</div>
-        </div>
-
-        <!-- Panel Derecho: Formulario en Grid de Escritorio Avanzado -->
-        <div class="forms-wrapper">
-          <div class="desktop-dashboard-grid">
-            
-            <!-- Tarjeta 1: Datos Personales (Ocupa más espacio) -->
-            <div id="tutor-6" class="login-card span-two">
-              <div class="card-header-flex">
-                <h3 class="section-title">{{ t('personalDataTitle') }}</h3>
-                <span class="card-subtitle">{{ t('personalDataSubtitle') }}</span>
-              </div>
-              <div class="form-grid-3">
-                <div  class="input-group"><label>CURP</label><input type="text" v-model="form.curp"></div>
-                <div  class="input-group"><label>{{ t('namesLabel') }}</label><input type="text" v-model="form.nombres"></div>
-                <div  class="input-group"><label>{{ t('lastNamePaternalLabel') }}</label><input type="text" v-model="form.apellidoPaterno"></div>
-                <div  class="input-group"><label>{{ t('lastNameMaternalLabel') }}</label><input type="text" v-model="form.apellidoMaterno"></div>
-                <div  class="input-group"><label>{{ t('birthDateLabel') }}</label><input type="date" v-model="form.fechaNacimiento"></div>
-                <div  class="input-group"><label>{{ t('phoneLabel') }}</label><input type="text" placeholder="+52" v-model="form.celular"></div>
-                <div  class="input-group"><label>Facebook</label><input type="text" v-model="form.facebook"></div>
-                <div  class="input-group"><label>Instagram</label><input type="text" v-model="form.instagram"></div>
-                <div  class="input-group"><label>Tiktok</label><input type="text" v-model="form.tiktok"></div>
-                <div  class="input-group span-full"><label>{{ t('otherAppsLabel') }}</label><input type="text" v-model="form.otrasApp"></div>
-              </div>
-            </div>
-
-            <!-- Tarjeta 2: Credenciales -->
-            <div id="tutor-7" class="login-card">
-              <div class="card-header-flex">
-                <h3 class="section-title">{{ t('credentialsTitle') }}</h3>
-              </div>
-              <div class="form-grid-1">
-                <div  class="input-group"><label>{{ t('emailLabel') }}</label><input type="email" v-model="form.correo"></div>
-                
-                <!-- SEDES / UBICACIONES PERMITIDAS (Multiselect hacia arriba) -->
-                <div class="input-group">
-                  <label>{{ t('locationLabel') }}</label>
-                  <div class="custom-multiselect" ref="dropdownRef">
-                    <div class="select-box-trigger" @click="isDropdownOpen = !isDropdownOpen">
-                      <span :class="{ 'placeholder-text': form.sedes.length === 0 }">
-                        {{ getSedesDisplayText() }}
-                      </span>
-                      <svg class="dropdown-arrow" :class="{ 'rotate': isDropdownOpen }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                    </div>
-
-                    <!-- Lista desplegable hacia arriba -->
-                    <div class="dropdown-options-list" v-if="isDropdownOpen">
-                      <div 
-                        v-for="sede in listaSedes" 
-                        :key="sede.id" 
-                        class="dropdown-option-item"
-                        :class="{ 'selected': form.sedes.includes(sede.id) }"
-                        @click="toggleSede(sede.id)"
-                      >
-                        <div class="option-checkbox">
-                          <svg v-if="form.sedes.includes(sede.id)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-                        </div>
-                        <span>{{ sede.nombre }}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div  class="input-group"><label>{{ t('systemRoleLabel') }}</label><input type="text" v-model="form.rol"></div>
-                <div  class="input-group"><label>{{ t('specialtyLabel') }}</label><input type="text" v-model="form.especialidad"></div>
-              </div>
-            </div>
-
-            <!-- Tarjeta 3: Horario de trabajo -->
-            <div id="tutor-8" class="login-card">
-              <div class="card-header-flex">
-                <h3 class="section-title">{{ t('workScheduleTitle') }}</h3>
-              </div>
-              <div class="form-grid-1">
-                <div  class="input-group"><label>{{ t('entryTimeLabel') }}</label><input type="time" v-model="form.entrada"></div>
-                <div  class="input-group"><label>{{ t('exitTimeLabel') }}</label><input type="time" v-model="form.salida"></div>
-              </div>
-            </div>
-
-          </div>
-
-          <!-- Botón de acción principal inferior alineado -->
-          <div class="action-footer">
-            <button id="tutor-9" class="btn-primary" @click="saveChanges">{{ t('saveChangesBtn') }}</button>
-          </div>
-        </div>
-      </div>
-    </main>
-  </HeadingOwner>
-</template>
-
 <script setup>
 import { reactive, ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router'; 
 import HeadingOwner from '../HeadingOwner.vue';
 import { traducciones } from '../i18n.js';
+import NotificationSystem from '../../Modals/NotificationSystem.vue'; 
 
 const router = useRouter(); 
 const fileInput = ref(null); 
+const toastRef = ref(null); // Referencia para el componente de notificaciones
 const searchQuery = ref('');
 const isDropdownOpen = ref(false);
 const dropdownRef = ref(null);
@@ -231,8 +107,141 @@ const handleFileChange = (event) => {
 
 const saveChanges = () => {
   console.log("Guardando cambios...", form);
+  
+  // Muestra la notificación de guardado correctamente
+  if (toastRef.value) {
+    toastRef.value.notify('Guardado correctamente', 'success');
+  }
 };
 </script>
+
+<template>
+  <HeadingOwner>
+    <NotificationSystem ref="toastRef" />
+    <main class="main-content">
+      <!-- Barra de búsqueda superior alineada -->
+      <div class="search-bar-container-top">
+        <div id="tutor-0" class="input-group search-small">
+          <label>{{ t('searchStaffLabel') }}</label>
+          <div class="search-input-wrapper">
+            <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" :placeholder="t('searchPlaceholder')" v-model="searchQuery" @keyup.enter="handleSearch">
+          </div>
+        </div>
+      </div>
+
+      <!-- Layout principal optimizado para escritorio -->
+      <div class="profile-card">
+        <!-- Sección Perfil Izquierda -->
+        <div id="tutor-1" class="profile-section">
+          <h1 class="main-title">Carlos Luis <br> <span class="highlight">Ramírez</span></h1>
+          
+          <div class="avatar-wrapper">
+            <div id="tutor-2" class="avatar-circle">
+              <img :src="avatarSrc" :alt="t('avatarAlt')" class="user-avatar-img" />
+            </div>
+            
+            <button id="tutor-3" class="avatar-action btn-camera" @click="triggerFileUpload" :title="t('changePhotoTitle')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            </button>
+            <input type="file" ref="fileInput" @change="handleFileChange" accept="image/*" style="display: none" />
+          </div>
+          
+          <p id="tutor-4" class="user-id">ID: GymPer001</p>
+          <div id="tutor-5" class="status-badge">{{ t('statusActive') }}</div>
+        </div>
+
+        <!-- Panel Derecho: Formulario en Grid de Escritorio Avanzado -->
+        <div class="forms-wrapper">
+          <div class="desktop-dashboard-grid">
+            
+            <!-- Tarjeta 1: Datos Personales (Ocupa más espacio) -->
+            <div id="tutor-6" class="login-card span-two">
+              <div class="card-header-flex">
+                <h3 class="section-title">{{ t('personalDataTitle') }}</h3>
+                <span class="card-subtitle">{{ t('personalDataSubtitle') }}</span>
+              </div>
+              <div class="form-grid-3">
+                <div class="input-group"><label>CURP</label><input type="text" v-model="form.curp"></div>
+                <div class="input-group"><label>{{ t('namesLabel') }}</label><input type="text" v-model="form.nombres"></div>
+                <div class="input-group"><label>{{ t('lastNamePaternalLabel') }}</label><input type="text" v-model="form.apellidoPaterno"></div>
+                <div class="input-group"><label>{{ t('lastNameMaternalLabel') }}</label><input type="text" v-model="form.apellidoMaterno"></div>
+                <div class="input-group"><label>{{ t('birthDateLabel') }}</label><input type="date" v-model="form.fechaNacimiento"></div>
+                <div class="input-group"><label>{{ t('phoneLabel') }}</label><input type="text" placeholder="+52" v-model="form.celular"></div>
+                <div class="input-group"><label>Facebook</label><input type="text" v-model="form.facebook"></div>
+                <div class="input-group"><label>Instagram</label><input type="text" v-model="form.instagram"></div>
+                <div class="input-group"><label>Tiktok</label><input type="text" v-model="form.tiktok"></div>
+                <div class="input-group span-full"><label>{{ t('otherAppsLabel') }}</label><input type="text" v-model="form.otrasApp"></div>
+              </div>
+            </div>
+
+            <!-- Tarjeta 2: Credenciales -->
+            <div id="tutor-7" class="login-card">
+              <div class="card-header-flex">
+                <h3 class="section-title">{{ t('credentialsTitle') }}</h3>
+              </div>
+              <div class="form-grid-1">
+                <div class="input-group"><label>{{ t('emailLabel') }}</label><input type="email" v-model="form.correo"></div>
+                
+                <!-- SEDES / UBICACIONES PERMITIDAS (Multiselect hacia arriba) -->
+                <div class="input-group">
+                  <label>{{ t('locationLabel') }}</label>
+                  <div class="custom-multiselect" ref="dropdownRef">
+                    <div class="select-box-trigger" @click="isDropdownOpen = !isDropdownOpen">
+                      <span :class="{ 'placeholder-text': form.sedes.length === 0 }">
+                        {{ getSedesDisplayText() }}
+                      </span>
+                      <svg class="dropdown-arrow" :class="{ 'rotate': isDropdownOpen }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+
+                    <!-- Lista desplegable hacia arriba -->
+                    <div class="dropdown-options-list" v-if="isDropdownOpen">
+                      <div 
+                        v-for="sede in listaSedes" 
+                        :key="sede.id" 
+                        class="dropdown-option-item"
+                        :class="{ 'selected': form.sedes.includes(sede.id) }"
+                        @click="toggleSede(sede.id)"
+                      >
+                        <div class="option-checkbox">
+                          <svg v-if="form.sedes.includes(sede.id)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                        <span>{{ sede.nombre }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="input-group"><label>{{ t('systemRoleLabel') }}</label><input type="text" v-model="form.rol"></div>
+                <div class="input-group"><label>{{ t('specialtyLabel') }}</label><input type="text" v-model="form.especialidad"></div>
+              </div>
+            </div>
+
+            <!-- Tarjeta 3: Horario de trabajo -->
+            <div id="tutor-8" class="login-card">
+              <div class="card-header-flex">
+                <h3 class="section-title">{{ t('workScheduleTitle') }}</h3>
+              </div>
+              <div class="form-grid-1">
+                <div class="input-group"><label>{{ t('entryTimeLabel') }}</label><input type="time" v-model="form.entrada"></div>
+                <div class="input-group"><label>{{ t('exitTimeLabel') }}</label><input type="time" v-model="form.salida"></div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Botón de acción principal inferior alineado -->
+          <div class="action-footer">
+            <button id="tutor-9" class="btn-primary" @click="saveChanges">{{ t('saveChangesBtn') }}</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </HeadingOwner>
+</template>
+
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;600;700&display=swap');
@@ -260,7 +269,16 @@ const saveChanges = () => {
   width: 100%; 
   max-width: 340px; 
 }
-
+:deep(.notification-container),
+:deep(.toast-container) {
+  width: calc(100% - 32px) !important;
+  max-width: 480px !important;
+  box-sizing: border-box !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  right: auto !important;
+  margin: 0 auto !important;
+}
 .search-input-wrapper {
   position: relative;
   display: flex;

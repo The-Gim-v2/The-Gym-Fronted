@@ -1,5 +1,6 @@
 <template>
   <HeadingOwner>
+    <NotificationSystem ref="toastRef" />
     <main class="main-content">
       <header class="header-section">
         <div class="title-wrapper">
@@ -37,7 +38,7 @@
               <td class="text-muted">{{ user.expiredDate }}</td>
               <td><span class="status-badge" :class="getDebtClass(user.status)">{{ user.debt }}</span></td>
               <td class="actions-cell" :id="!isMobile && index === 0 ? 'tutorial-step-2' : undefined">
-                <button class="icon-btn" :title="t('renewBtn')" @click="activeModal = 'renovacion'; selectedUser = user"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.5 4a3.5 3.5 0 1 0 5 0m-5 0V3m5 6l-5-5-5 5"/></svg></button>
+                <button class="icon-btn" :title="t('renewBtn')" @click="handleOpenRenew(user)"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.5 4a3.5 3.5 0 1 0 5 0m-5 0V3m5 6l-5-5-5 5"/></svg></button>
                 <button class="icon-btn delete-icon-btn" :title="t('deleteBtn')" @click="confirmDelete(user)"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
               </td>
             </tr>
@@ -77,7 +78,7 @@
           </div>
 
           <div class="card-actions" :id="isMobile && index === 0 ? 'tutorial-step-2' : undefined">
-            <button class="action-chip btn-renew-chip" @click="activeModal = 'renovacion'; selectedUser = user">
+            <button class="action-chip btn-renew-chip" @click="handleOpenRenew(user)">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.5 4a3.5 3.5 0 1 0 5 0m-5 0V3m5 6l-5-5-5 5"/></svg>
               <span>{{ t('renewBtn') }}</span>
             </button>
@@ -97,7 +98,7 @@
       <!-- TRANSICIÓN DE RENOVACIÓN (MODAL EXTERNO) -->
       <transition name="pop">
         <div v-if="activeModal === 'renovacion'" class="modal-wrapper" @click.self="activeModal = null">
-          <RenovacionModal :user="selectedUser" @close="activeModal = null" />
+          <RenovacionModal :user="selectedUser" @close="activeModal = null" @renewed="handleRenewSuccess" />
         </div>
       </transition>
 
@@ -125,6 +126,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import HeadingOwner from '../HeadingOwner.vue';
 import ModalComponent from '../../Modals/ModalComponent.vue';
 import RenovacionModal from '../Componets/Account-Recovery.vue';
+import NotificationSystem from '../../Modals/NotificationSystem.vue';
 
 interface User {
   id: number;
@@ -141,6 +143,7 @@ const activeModal = ref<string | null>(null);
 const showDelete = ref<boolean>(false);
 const selectedUser = ref<User | null>(null);
 const searchQuery = ref<string>('');
+const toastRef = ref<any>(null);
 
 // Sistema de Idiomas
 const currentLang = ref<string>(localStorage.getItem('owner-idioma') || 'es');
@@ -168,7 +171,9 @@ const langData: Record<'es' | 'en', Record<string, string>> = {
     deleteMsgPre: '¿Estás seguro de que deseas eliminar a',
     deleteMsgPost: 'permanentemente? Esta acción no se puede deshacer.',
     cancelBtn: 'Cancelar',
-    confirmDeleteBtn: 'Sí, eliminar'
+    confirmDeleteBtn: 'Sí, eliminar',
+    successDeleted: 'Usuario eliminado correctamente',
+    successRenewed: 'Membresía renovada correctamente'
   },
   en: {
     renewalsTitle: 'Renewals',
@@ -188,7 +193,9 @@ const langData: Record<'es' | 'en', Record<string, string>> = {
     deleteMsgPre: 'Are you sure you want to permanently delete',
     deleteMsgPost: '? This action cannot be undone.',
     cancelBtn: 'Cancel',
-    confirmDeleteBtn: 'Yes, delete'
+    confirmDeleteBtn: 'Yes, delete',
+    successDeleted: 'User deleted successfully',
+    successRenewed: 'Membership renewed successfully'
   }
 };
 
@@ -237,7 +244,6 @@ const filteredUsers = computed(() => {
   });
 });
 
-// Iniciales + gradiente de avatar (sin depender de fotos reales)
 const avatarGradients: string[] = [
   'linear-gradient(135deg, #7e22ce, #4c1d95)',
   'linear-gradient(135deg, #ea580c, #9a3412)',
@@ -258,6 +264,11 @@ const getDebtClass = (status: string): string => {
   return 'debt-default';
 };
 
+const handleOpenRenew = (user: User) => {
+  selectedUser.value = user;
+  activeModal.value = 'renovacion';
+};
+
 const confirmDelete = (user: User): void => {
   selectedUser.value = user;
   showDelete.value = true;
@@ -268,8 +279,20 @@ const executeDelete = (): void => {
   users.value = users.value.filter(u => u.id !== selectedUser.value?.id);
   showDelete.value = false;
   selectedUser.value = null;
+
+  if (toastRef.value) {
+    toastRef.value.notify(t('successDeleted'), 'success');
+  }
+};
+
+const handleRenewSuccess = () => {
+  activeModal.value = null;
+  if (toastRef.value) {
+    toastRef.value.notify(t('successRenewed'), 'success');
+  }
 };
 </script>
+
 
 <style scoped>
 .main-content { padding: 30px 40px 60px; max-width: 1400px; margin: 0 auto; color: var(--color-texto-general, #e5e5e5); font-family: 'Inter', sans-serif; }
@@ -304,7 +327,16 @@ const executeDelete = (): void => {
 .debt-pending { color: #f59e0b; border-color: rgba(245, 158, 11, 0.35); background: rgba(245, 158, 11, 0.1); }
 .debt-inactive { color: #ef4444; border-color: rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.1); }
 .debt-default { color: #22c55e; border-color: rgba(34, 197, 94, 0.35); background: rgba(34, 197, 94, 0.1); }
-
+:deep(.notification-container),
+:deep(.toast-container) {
+  width: calc(100% - 32px) !important;
+  max-width: 480px !important;
+  box-sizing: border-box !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  right: auto !important;
+  margin: 0 auto !important;
+}
 @media (max-width: 900px) {
   .desktop-only { display: none; }
   .mobile-only { display: block; }

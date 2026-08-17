@@ -105,7 +105,7 @@ interface CorteItem {
 }
 
 const settings = reactive({
-  idioma: localStorage.getItem('recepcion-idioma') || 'es'
+  idioma: localStorage.getItem('Recepcion-idioma') || 'es'
 });
 
 const translations: Record<string, Record<string, string>> = {

@@ -45,6 +45,9 @@ const traducciones = {
     legendMissed: 'Faltaste',
     legendToday: 'Hoy',
     legendFuture: 'Pendiente',
+    currentStreakLabel: 'Racha actual',
+    bestStreakLabel: 'Mejor racha del mes',
+    weekLabel: 'Sem',
     weeklyCaloriesTitle: 'Calorías quemadas',
     bodyCompositionChartTitle: 'Composición corporal',
     muscleCenterLabel: 'Músculo',
@@ -80,6 +83,9 @@ const traducciones = {
     legendMissed: 'Missed',
     legendToday: 'Today',
     legendFuture: 'Pending',
+    currentStreakLabel: 'Current streak',
+    bestStreakLabel: 'Best streak this month',
+    weekLabel: 'Wk',
     weeklyCaloriesTitle: 'Calories burned',
     bodyCompositionChartTitle: 'Body composition',
     muscleCenterLabel: 'Muscle',
@@ -137,6 +143,31 @@ const celdasCalendario = computed(() => {
   return [...relleno, ...diasCalendario.value];
 });
 
+// Agrupa las celdas (incluyendo relleno) en semanas de 7 para las mini-barras
+// de resumen semanal y para el trazo de "cadena" de racha por fila.
+const semanasCalendario = computed(() => {
+  const celdas = celdasCalendario.value;
+  const semanas = [];
+  for (let i = 0; i < celdas.length; i += 7) {
+    semanas.push(celdas.slice(i, i + 7));
+  }
+  return semanas;
+});
+
+const resumenSemanas = computed(() =>
+  semanasCalendario.value.map((semana, idx) => {
+    const dias = semana.filter(Boolean);
+    const asistidos = dias.filter((d) => d.estado === 'asistio' || d.estado === 'hoy').length;
+    const registrados = dias.filter((d) => d.estado === 'asistio' || d.estado === 'falto' || d.estado === 'hoy').length;
+    return {
+      numero: idx + 1,
+      asistidos,
+      total: dias.length,
+      pct: registrados > 0 ? Math.round((asistidos / registrados) * 100) : 0,
+    };
+  })
+);
+
 // --- Métricas del calendario, usadas en la barra de progreso del encabezado ---
 const diasAsistidosMes = computed(() => diasCalendario.value.filter((d) => d.estado === 'asistio').length);
 const diasFaltoMes = computed(() => diasCalendario.value.filter((d) => d.estado === 'falto').length);
@@ -144,6 +175,35 @@ const diasRegistradosMes = computed(() => diasAsistidosMes.value + diasFaltoMes.
 const porcentajeMes = computed(() =>
   diasRegistradosMes.value > 0 ? Math.round((diasAsistidosMes.value / diasRegistradosMes.value) * 100) : 0
 );
+
+// Racha actual dentro del mes (cuenta hacia atrás desde "hoy") y mejor racha
+// registrada en el mes: dan al calendario contexto extra sin depender de
+// la tarjeta de mascotas.
+const rachaActualMes = computed(() => {
+  const idx = diasCalendario.value.findIndex((d) => d.estado === 'hoy');
+  if (idx === -1) return 0;
+  let racha = rachaInfo.value.activoHoy ? 1 : 0;
+  for (let i = idx - 1; i >= 0; i--) {
+    if (diasCalendario.value[i].estado === 'asistio') racha++;
+    else break;
+  }
+  return racha;
+});
+
+const mejorRachaMes = computed(() => {
+  let max = 0;
+  let actual = 0;
+  diasCalendario.value.forEach((d) => {
+    const cuenta = d.estado === 'asistio' || (d.estado === 'hoy' && rachaInfo.value.activoHoy);
+    if (cuenta) {
+      actual++;
+      max = Math.max(max, actual);
+    } else {
+      actual = 0;
+    }
+  });
+  return Math.max(max, rachaActualMes.value);
+});
 
 const etiquetaMes = computed(() => {
   const hoy = new Date();
@@ -278,6 +338,7 @@ const composicionCorporal = computed(() => [
           <div class="calendar-card area-calendario">
             <div class="calendar-glow glow-1" aria-hidden="true"></div>
             <div class="calendar-glow glow-2" aria-hidden="true"></div>
+            <div class="calendar-grid-pattern" aria-hidden="true"></div>
 
             <div class="calendar-content">
               <div class="calendar-header">
@@ -293,6 +354,18 @@ const composicionCorporal = computed(() => [
                 <span class="year-badge">{{ anioActual }}</span>
               </div>
 
+              <!-- Chips de racha: contexto extra que antes solo vivía en la tarjeta de mascotas -->
+              <div class="calendar-stats-row">
+                <div class="calendar-stat-chip streak">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="#facc15" stroke="#f97316" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c0 4-4 7-4 11a4 4 0 0 0 8 0c0-2-.5-3.5-1.5-5C15.5 10 16 12 16 12s2-2 2-4c0-3.5-3-6-6-6z"/></svg>
+                  <span>{{ t.currentStreakLabel }}: <b>{{ rachaActualMes }}</b></span>
+                </div>
+                <div class="calendar-stat-chip best">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17h4v-2.34"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>
+                  <span>{{ t.bestStreakLabel }}: <b>{{ mejorRachaMes }}</b></span>
+                </div>
+              </div>
+
               <div class="calendar-progress-row">
                 <div class="progress-track">
                   <div class="progress-fill" :style="{ width: porcentajeMes + '%' }"></div>
@@ -303,32 +376,47 @@ const composicionCorporal = computed(() => [
                 </div>
               </div>
 
-              <div class="weekdays-row">
-                <span v-for="(d, i) in t.weekdays" :key="i">{{ d }}</span>
-              </div>
+              <div class="calendar-body-row">
+                <div class="calendar-grid-column">
+                  <div class="weekdays-row">
+                    <span v-for="(d, i) in t.weekdays" :key="i">{{ d }}</span>
+                  </div>
 
-              <div class="days-grid-expanded">
-                <div
-                  v-for="(item, index) in celdasCalendario"
-                  :key="index"
-                  class="day-cell"
-                  :class="item ? item.estado : 'vacio'"
-                >
-                  <template v-if="item">
-                    {{ item.dia }}
-                    <span v-if="item.estado === 'hoy'" class="hoy-ring"></span>
-                    <span v-if="iconoEstado(item.estado)" class="day-icon">
-                      <svg v-if="item.estado === 'asistio'" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                      <svg v-else-if="item.estado === 'falto'" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                    </span>
-                  </template>
+                  <div class="days-grid-expanded">
+                    <div
+                      v-for="(item, index) in celdasCalendario"
+                      :key="index"
+                      class="day-cell"
+                      :class="item ? item.estado : 'vacio'"
+                    >
+                      <template v-if="item">
+                        <span class="day-number">{{ item.dia }}</span>
+                        <span v-if="item.estado === 'hoy'" class="hoy-ring"></span>
+                        <span v-if="iconoEstado(item.estado)" class="day-icon" :class="item.estado">
+                          <svg v-if="item.estado === 'asistio'" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#0a2e18" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                          <svg v-else-if="item.estado === 'falto'" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#3a0d0d" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        </span>
+                      </template>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Mini resumen por semana: densidad de asistencia fila por fila -->
+                <div class="weeks-summary-column">
+                  <span class="weeks-summary-title">{{ t.weekLabel }}</span>
+                  <div v-for="semana in resumenSemanas" :key="semana.numero" class="week-summary-item">
+                    <div class="week-bar-track">
+                      <div class="week-bar-fill" :style="{ height: semana.pct + '%' }"></div>
+                    </div>
+                    <span class="week-summary-pct">{{ semana.pct }}%</span>
+                  </div>
                 </div>
               </div>
 
               <div class="calendar-legend">
-                <div class="legend-item"><span class="dot asistio"></span> {{ t.legendAttended }}</div>
-                <div class="legend-item"><span class="dot falto"></span> {{ t.legendMissed }}</div>
-                <div class="legend-item"><span class="dot hoy"></span> {{ t.legendToday }}</div>
+                <div class="legend-item asistio"><span class="dot asistio"></span> {{ t.legendAttended }} <b>{{ diasAsistidosMes }}</b></div>
+                <div class="legend-item falto"><span class="dot falto"></span> {{ t.legendMissed }} <b>{{ diasFaltoMes }}</b></div>
+                <div class="legend-item hoy"><span class="dot hoy"></span> {{ t.legendToday }}</div>
               </div>
             </div>
           </div>
@@ -604,7 +692,7 @@ const composicionCorporal = computed(() => [
 }
 
 /* ===================================================================
-   Calendario de asistencia — compacto
+   Calendario de asistencia — versión enriquecida
    =================================================================== */
 .calendar-card {
   background: var(--bg-cards, rgba(18, 18, 18, 0.75));
@@ -634,6 +722,17 @@ const composicionCorporal = computed(() => [
 .calendar-glow.glow-2 {
   width: 130px; height: 130px; bottom: -50px; left: -40px;
   background: radial-gradient(circle, rgba(74,222,128,0.2) 0%, transparent 70%);
+}
+.calendar-grid-pattern {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: 16px 16px;
+  -webkit-mask-image: radial-gradient(ellipse at center, black 0%, transparent 75%);
+  mask-image: radial-gradient(ellipse at center, black 0%, transparent 75%);
 }
 
 .calendar-content {
@@ -671,6 +770,26 @@ const composicionCorporal = computed(() => [
   white-space: nowrap;
 }
 
+/* --- Chips de racha actual / mejor racha --- */
+.calendar-stats-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.calendar-stat-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 500;
+  color: rgba(245, 245, 244, 0.75);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 4px 9px;
+  border-radius: 20px;
+}
+.calendar-stat-chip b { font-weight: 800; color: #f5f5f4; }
+.calendar-stat-chip.streak { border-color: rgba(250, 204, 21, 0.25); background: rgba(250, 204, 21, 0.06); }
+.calendar-stat-chip.streak b { color: #facc15; }
+.calendar-stat-chip.best { border-color: rgba(147, 197, 253, 0.25); background: rgba(147, 197, 253, 0.06); }
+.calendar-stat-chip.best b { color: #93c5fd; }
+
 .calendar-progress-row { display: flex; flex-direction: column; gap: 4px; }
 .progress-track { height: 5px; border-radius: 4px; background: rgba(255,255,255,0.06); overflow: hidden; }
 .progress-fill {
@@ -678,9 +797,14 @@ const composicionCorporal = computed(() => [
   border-radius: 4px;
   background: linear-gradient(90deg, var(--color-highlight, #3b82f6), #4ade80);
   transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 0 0 8px rgba(74, 222, 128, 0.35);
 }
 .progress-label { display: flex; justify-content: space-between; font-size: 10px; color: rgba(245, 245, 244, 0.55); font-weight: 500; }
 .progress-percent { color: #4ade80; font-weight: 700; }
+
+/* --- Cuerpo: grid de días + columna de resumen semanal --- */
+.calendar-body-row { display: flex; gap: 8px; flex: 1; min-height: 0; }
+.calendar-grid-column { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
 
 .weekdays-row { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 10px; color: rgba(245, 245, 244, 0.45); font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; }
 
@@ -705,22 +829,45 @@ const composicionCorporal = computed(() => [
   background: rgba(255, 255, 255, 0.03);
   color: rgba(245, 245, 244, 0.75);
   border: 1px solid rgba(255, 255, 255, 0.04);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
-.day-cell.vacio { background: transparent; border-color: transparent; }
-.day-cell:not(.vacio):hover { transform: scale(1.1); box-shadow: 0 4px 12px rgba(0,0,0,0.35); z-index: 2; }
-.day-cell.asistio { background: linear-gradient(145deg, rgba(34, 197, 94, 0.28), rgba(34, 197, 94, 0.08)); color: #4ade80; border-color: rgba(34, 197, 94, 0.4); }
-.day-cell.falto { background: linear-gradient(145deg, rgba(239, 68, 68, 0.26), rgba(239, 68, 68, 0.06)); color: #f87171; border-color: rgba(239, 68, 68, 0.4); }
-.day-cell.hoy { background: linear-gradient(145deg, rgba(234, 179, 8, 0.32), rgba(234, 179, 8, 0.1)); color: #facc15; border-color: rgba(234, 179, 8, 0.55); box-shadow: 0 0 12px rgba(234, 179, 8, 0.3); font-weight: 800; }
-.day-cell.futuro { color: rgba(245, 245, 244, 0.28); }
+.day-number { position: relative; z-index: 1; }
+.day-cell.vacio { background: transparent; border-color: transparent; box-shadow: none; }
+.day-cell:not(.vacio):hover { transform: scale(1.12); box-shadow: 0 4px 14px rgba(0,0,0,0.4); z-index: 3; }
+.day-cell.asistio { background: linear-gradient(145deg, rgba(34, 197, 94, 0.32), rgba(34, 197, 94, 0.08)); color: #86efac; border-color: rgba(34, 197, 94, 0.45); }
+.day-cell.falto { background: linear-gradient(145deg, rgba(239, 68, 68, 0.28), rgba(239, 68, 68, 0.06)); color: #fca5a5; border-color: rgba(239, 68, 68, 0.4); }
+.day-cell.hoy { background: linear-gradient(145deg, rgba(234, 179, 8, 0.34), rgba(234, 179, 8, 0.1)); color: #fde047; border-color: rgba(234, 179, 8, 0.6); box-shadow: 0 0 14px rgba(234, 179, 8, 0.35); font-weight: 800; }
+.day-cell.futuro { color: rgba(245, 245, 244, 0.25); }
+
+/* Cadena visual entre días asistidos consecutivos dentro de la misma fila */
+.day-cell.asistio:not(:nth-child(7n)):has(+ .day-cell.asistio)::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -6px;
+  width: 6px;
+  height: 2px;
+  background: rgba(74, 222, 128, 0.55);
+  z-index: 2;
+  transform: translateY(-1px);
+}
 
 .day-icon {
   position: absolute;
-  bottom: 1px;
+  bottom: 2px;
   right: 2px;
-  line-height: 1;
-  opacity: 0.85;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
 }
+.day-icon.asistio { background: #4ade80; }
+.day-icon.falto { background: #f87171; }
 
 .hoy-ring {
   position: absolute;
@@ -734,6 +881,45 @@ const composicionCorporal = computed(() => [
   0% { transform: scale(1); opacity: 0.9; }
   100% { transform: scale(1.3); opacity: 0; }
 }
+
+/* --- Columna de resumen semanal (mini histograma) --- */
+.weeks-summary-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding-left: 8px;
+  border-left: 1px solid rgba(255, 255, 255, 0.07);
+  flex-shrink: 0;
+  width: 34px;
+}
+.weeks-summary-title { font-size: 8.5px; color: rgba(245, 245, 244, 0.4); text-transform: uppercase; font-weight: 700; letter-spacing: 0.3px; margin-bottom: 2px; }
+.week-summary-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+}
+.week-bar-track {
+  flex: 1;
+  width: 8px;
+  min-height: 12px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+.week-bar-fill {
+  width: 100%;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #4ade80, var(--color-highlight, #3b82f6));
+  transition: height 0.6s ease;
+}
+.week-summary-pct { font-size: 7.5px; color: rgba(245, 245, 244, 0.45); font-weight: 700; }
 
 .calendar-legend {
   display: flex;
@@ -752,10 +938,17 @@ const composicionCorporal = computed(() => [
   border-radius: 16px;
   white-space: nowrap;
 }
+.legend-item b { font-weight: 800; color: #f5f5f4; margin-left: 1px; }
+.legend-item.asistio { border-color: rgba(34, 197, 94, 0.25); }
+.legend-item.falto { border-color: rgba(239, 68, 68, 0.22); }
 .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 .dot.asistio { background: #4ade80; }
 .dot.falto { background: #f87171; }
 .dot.hoy { background: #facc15; }
+
+@media (max-width: 420px) {
+  .weeks-summary-column { display: none; }
+}
 
 /* --- Tarjeta de Racha y Mascotas Enriquecida (Puros SVGs) --- */
 .streak-card {
@@ -881,6 +1074,6 @@ const composicionCorporal = computed(() => [
 @media (prefers-reduced-motion: reduce) {
   .hoy-ring { animation: none; }
   .animate-bounce, .animate-pulse { animation: none; }
-  .progress-fill, .next-pet-fill { transition: none; }
+  .progress-fill, .next-pet-fill, .week-bar-fill { transition: none; }
 }
 </style>

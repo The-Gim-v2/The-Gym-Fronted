@@ -388,6 +388,16 @@ const openWhatsApp = (phone) => window.open(`https://wa.me/${phone.replace(/\D/g
     gap: 6px;
     width: fit-content;
 }
+:deep(.notification-container),
+:deep(.toast-container) {
+  width: calc(100% - 32px) !important;
+  max-width: 480px !important;
+  box-sizing: border-box !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  right: auto !important;
+  margin: 0 auto !important;
+}
 .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; display: inline-block; flex-shrink: 0; }
 
 .status-green { color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.3); background: rgba(34, 197, 94, 0.08); }

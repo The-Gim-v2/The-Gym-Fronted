@@ -291,7 +291,7 @@ const confirmEmailAndPasswordChange = () => {
       <!-- Notificación flotante tipo Toast -->
       <transition name="toast">
         <div v-if="notification.show" class="floating-toast" :class="notification.type">
-          <svg v-if="notification.type === 'success'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <svg v-if="notification.type === 'success'" width="10" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
           <svg v-else-if="notification.type === 'warning'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
           <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
           <span>{{ notification.message }}</span>
@@ -952,7 +952,16 @@ const confirmEmailAndPasswordChange = () => {
   color: #f87171;
   text-decoration: underline;
 }
-
+:deep(.notification-container),
+:deep(.toast-container) {
+  width: calc(100% - 32px) !important;
+  max-width: 480px !important;
+  box-sizing: border-box !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  right: auto !important;
+  margin: 0 auto !important;
+}
 .btn-primary {
   width: 100%;
   

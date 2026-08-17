@@ -894,7 +894,16 @@ const aplicarRenovacion = () => {
 }
 .btn-bank-details:hover { background: rgba(59, 130, 246, 0.2); }
 .transfer-note { font-size: 0.8rem; color: rgba(245, 245, 244, 0.7); line-height: 1.4; margin: 0; }
-
+:deep(.notification-container),
+:deep(.toast-container) {
+  width: calc(100% - 32px) !important;
+  max-width: 480px !important;
+  box-sizing: border-box !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  right: auto !important;
+  margin: 0 auto !important;
+}
 .action-buttons { display: flex; gap: 12px; margin-top: 6px; }
 .btn-primary {
   flex: 1;

@@ -357,6 +357,16 @@ const openWhatsApp = (phone: string): void => {
   border-color: var(--color-highlight, #3b82f6);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
+:deep(.notification-container),
+:deep(.toast-container) {
+  width: calc(100% - 32px) !important;
+  max-width: 480px !important;
+  box-sizing: border-box !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  right: auto !important;
+  margin: 0 auto !important;
+}
 
 .status-select {
   padding-left: 36px;

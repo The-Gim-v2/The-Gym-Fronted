@@ -1538,6 +1538,16 @@ input:focus, textarea:focus { border-color: #3b82f6; outline: none; box-shadow: 
 .coord-field label { font-size: 0.7rem; text-transform: uppercase; }
 .coord-field input { padding: 8px 10px; font-size: 0.82rem; }
 
+:deep(.notification-container),
+:deep(.toast-container) {
+  width: calc(100% - 32px) !important;
+  max-width: 480px !important;
+  box-sizing: border-box !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  right: auto !important;
+  margin: 0 auto !important;
+}
 /* Tema oscuro para los elementos propios de Leaflet, para que combinen con la app */
 :deep(.leaflet-popup-content-wrapper) {
   background: #181b22;

@@ -803,7 +803,16 @@ onUnmounted(() => {
   font-family: 'Oswald', sans-serif;
   letter-spacing: 0.5px;
 }
-
+:deep(.notification-container),
+:deep(.toast-container) {
+  width: calc(100% - 32px) !important;
+  max-width: 480px !important;
+  box-sizing: border-box !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  right: auto !important;
+  margin: 0 auto !important;
+}
 :deep(.leaflet-routing-container) {
   background: #141418 !important;
   color: #f5f5f4 !important;

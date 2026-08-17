@@ -56,7 +56,7 @@ export const OwnerRoutes = [
       {
         path: 'pay/:id',
         name: 'pay',
-        component: () => import('@/components/Owner/Componets/Payments.vue'),
+        component: () => import('@/components/Owner/Payments/Payments.vue'),
         meta: { allowedRole: 'Owner' }
       },
       {
@@ -108,7 +108,7 @@ export const OwnerRoutes = [
       {
         path: 'payments',
         name: 'payments',
-        component: () => import('@/components/Owner/Payments.vue'),
+        component: () => import('@/components/Owner/Payments/PaymentsList.vue'),
         meta: { allowedRole: 'Owner' }
       },
       {
@@ -160,7 +160,7 @@ export const OwnerRoutes = [
       {
         path: 'promos',
         name: 'promos',
-        component: () => import('@/components/Owner/Componets/Promos.vue'),
+        component: () => import('@/components/Owner/Payments/Promos.vue'),
         meta: { allowedRole: 'Owner' }
       },
       {

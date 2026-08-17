@@ -640,6 +640,17 @@ input:focus, .custom-select:focus {
   width: 20px;  
   height: 20px;
 }
+:deep(.notification-container),
+:deep(.toast-container) {
+  width: calc(100% - 32px) !important;
+  max-width: 480px !important;
+  box-sizing: border-box !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  right: auto !important;
+  margin: 0 auto !important;
+}
+
 
 .btn-primary {
   padding: 16px 36px;

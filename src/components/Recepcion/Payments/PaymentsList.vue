@@ -1,13 +1,13 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
-import HeadingOwner from './HeadingOwner.vue';
-import CorreoMasivo from './Componets/Bulk-Email.vue';
-import NotificationSystem from '../Modals/NotificationSystem.vue'; 
-import ModalComponent from '../Modals/ModalComponent.vue';
-import { traducciones } from './i18n.js';
+import HeadingRecepcion from '../HeadingRecepcion.vue';
+import CorreoMasivo from '../Componets/Bulk-Email.vue';
+import NotificationSystem from '../../Modals/NotificationSystem.vue'; 
+import ModalComponent from '../../Modals/ModalComponent.vue';
+import { traducciones } from '../i18n.js';
 
-const currentLang = ref(localStorage.getItem('owner-idioma') || 'es');
+const currentLang = ref(localStorage.getItem('Recepcion-idioma') || 'es');
 
 const t = (key) => {
   const langTable = traducciones[currentLang.value] || traducciones.es;
@@ -115,12 +115,12 @@ const executeDelete = () => {
   toastRef.value.notify(t('userDeletedToast'), 'success');
 };
 
-const goToPayments = (id) => router.push(`/Owner/pay/${id}`);
-const goToEdit = (id) => router.push(`/Owner/editar-usuario/${id}`);
+const goToPayments = (id) => router.push(`/Recepcion/pay/${id}`);
+const goToEdit = (id) => router.push(`/Recepcion/editar-usuario/${id}`);
 </script>
 
 <template>
-  <HeadingOwner>
+  <HeadingRecepcion>
     <NotificationSystem ref="toastRef" />
     <main class="main-content">
       <header class="header-section">
@@ -278,7 +278,7 @@ const goToEdit = (id) => router.push(`/Owner/editar-usuario/${id}`);
         <CorreoMasivo @close="activeModal = null" />
       </div>
     </transition>   
-  </HeadingOwner>
+  </HeadingRecepcion>
 </template>
 
 <style scoped>
@@ -385,7 +385,16 @@ const goToEdit = (id) => router.push(`/Owner/editar-usuario/${id}`);
   background: rgba(56, 189, 248, 0.1);
   display: inline-block;
 }
-
+:deep(.notification-container),
+:deep(.toast-container) {
+  width: calc(100% - 32px) !important;
+  max-width: 480px !important;
+  box-sizing: border-box !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  right: auto !important;
+  margin: 0 auto !important;
+}
 .status-green { color: #34d399; border-color: rgba(6, 78, 59, 0.55); background: rgba(6, 78, 59, 0.22); }
 .status-red { color: #f87171; border-color: rgba(153, 27, 27, 0.55); background: rgba(153, 27, 27, 0.22); }
 .status-orange { color: #fbbf24; border-color: rgba(180, 83, 9, 0.55); background: rgba(180, 83, 9, 0.22); }

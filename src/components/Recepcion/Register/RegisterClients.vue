@@ -510,7 +510,16 @@ input:focus {
   box-shadow: 0 4px 16px rgba(28, 79, 214, 0.4);
   align-self: flex-start;
 }
-
+:deep(.notification-container),
+:deep(.toast-container) {
+  width: calc(100% - 32px) !important;
+  max-width: 480px !important;
+  box-sizing: border-box !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  right: auto !important;
+  margin: 0 auto !important;
+}
 @media (hover: hover) {
   .btn-primary:hover {
     transform: translateY(-2px); 

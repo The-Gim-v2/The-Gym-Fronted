@@ -1,8 +1,83 @@
+<script setup>
+import { reactive, ref, onMounted, onUnmounted } from 'vue';
+import { useRouter } from 'vue-router'; 
+import HeadingOwner from '../HeadingOwner.vue';
+import { traducciones } from '../i18n.js';
+import NotificationSystem from '../../Modals/NotificationSystem.vue'; 
+
+const router = useRouter(); 
+const fileInput = ref(null); 
+const toastRef = ref(null); // Referencia para el componente de notificaciones
+const searchQuery = ref('');
+const avatarSrc = ref('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3');
+
+const currentLang = ref(localStorage.getItem('owner-idioma') || 'es');
+
+const t = (key) => {
+  const langTable = traducciones[currentLang.value] || traducciones.es;
+  return langTable[key] || traducciones.es[key] || key;
+};
+
+const handleLangChange = (e) => {
+  if (e.detail && e.detail.idioma) {
+    currentLang.value = e.detail.idioma;
+  }
+};
+
+onMounted(() => {
+  window.addEventListener('idioma-changed', handleLangChange);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('idioma-changed', handleLangChange);
+});
+
+const form = reactive({
+  nombres: 'José Luis',
+  apellidoPaterno: 'Ramírez',
+  apellidoMaterno: '',
+  fechaNacimiento: '',
+  celular: '',
+  correo: '',
+  peso: '',
+  altura: '',
+  sede: 'Matriz',
+  status: 'Activo'
+});
+
+const handleSearch = () => {
+  if (searchQuery.value.trim()) {
+    console.log("Buscando cliente:", searchQuery.value);
+  }
+};
+
+const goToStatistics = () => router.push({ name: 'statistics', params: { id: 'GymPer001' } });
+const triggerFileUpload = () => fileInput.value.click(); 
+
+const handleFileChange = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    avatarSrc.value = URL.createObjectURL(file);
+    console.log("Archivo seleccionado:", file.name);
+  }
+};
+
+const saveChanges = () => {
+  console.log("Guardando cambios...", form);
+  
+  // Dispara la notificación de éxito (puedes ajustar el texto usando t('tuClave') o directo)
+  if (toastRef.value) {
+    toastRef.value.notify('Guardado correctamente', 'success');
+  }
+};
+</script>
+
 <template>
   <HeadingOwner>
+    <NotificationSystem ref="toastRef" />
     <main class="main-content">
       <!-- Barra de búsqueda superior alineada -->
-      <div  class="search-bar-container-top">
+      <div class="search-bar-container-top">
         <div id="tutor-0" class="input-group search-small">
           <label>{{ t('searchClientLabel') }}</label>
           <div class="search-input-wrapper">
@@ -93,73 +168,6 @@
   </HeadingOwner>
 </template>
 
-<script setup>
-import { reactive, ref, onMounted, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router'; 
-import HeadingOwner from '../HeadingOwner.vue';
-import { traducciones } from '../i18n.js';
-
-const router = useRouter(); 
-const fileInput = ref(null); 
-const searchQuery = ref('');
-const avatarSrc = ref('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3');
-
-const currentLang = ref(localStorage.getItem('owner-idioma') || 'es');
-
-const t = (key) => {
-  const langTable = traducciones[currentLang.value] || traducciones.es;
-  return langTable[key] || traducciones.es[key] || key;
-};
-
-const handleLangChange = (e) => {
-  if (e.detail && e.detail.idioma) {
-    currentLang.value = e.detail.idioma;
-  }
-};
-
-onMounted(() => {
-  window.addEventListener('idioma-changed', handleLangChange);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('idioma-changed', handleLangChange);
-});
-
-const form = reactive({
-  nombres: 'José Luis',
-  apellidoPaterno: 'Ramírez',
-  apellidoMaterno: '',
-  fechaNacimiento: '',
-  celular: '',
-  correo: '',
-  peso: '',
-  altura: '',
-  sede: 'Matriz',
-  status: 'Activo'
-});
-
-const handleSearch = () => {
-  if (searchQuery.value.trim()) {
-    console.log("Buscando cliente:", searchQuery.value);
-  }
-};
-
-const goToStatistics = () => router.push({ name: 'statistics', params: { id: 'GymPer001' } });
-const triggerFileUpload = () => fileInput.value.click(); 
-
-const handleFileChange = (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    avatarSrc.value = URL.createObjectURL(file);
-    console.log("Archivo seleccionado:", file.name);
-  }
-};
-
-const saveChanges = () => {
-  console.log("Guardando cambios...", form);
-};
-</script>
-
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;600;700&display=swap');
 
@@ -227,14 +235,23 @@ const saveChanges = () => {
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
   position: sticky;
   top: 30px;
+  overflow: hidden;
+}
+
+.profile-section::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-botones, #1c4fd6), var(--color-highlight, #60a5fa), var(--color-botones, #1c4fd6));
 }
 
 .main-title { 
   font-family: 'Anton', sans-serif; 
-  font-size: 2.6rem; 
+  font-size: 2.4rem; 
   color: var(--color-titulos, #fff); 
   margin: 0 0 20px 0; 
-  line-height: 1.1; 
+  line-height: 1.15; 
   text-transform: uppercase; 
   letter-spacing: 1px;
 }
@@ -246,19 +263,26 @@ const saveChanges = () => {
 .avatar-wrapper { 
   position: relative; 
   margin-bottom: 20px; 
+  cursor: pointer;
 }
 
 .avatar-circle { 
-  width: 190px; 
-  height: 190px; 
+  width: 180px; 
+  height: 180px; 
   background: var(--bg-cards, #09090b); 
   border-radius: 50%; 
   border: 4px solid var(--color-highlight, #3b82f6); 
   display: flex; 
   align-items: center; 
   justify-content: center; 
-  box-shadow: 0 0 35px rgba(59, 130, 246, 0.25);
+  box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.08), 0 0 35px rgba(59, 130, 246, 0.25);
   overflow: hidden;
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.avatar-wrapper:hover .avatar-circle {
+  box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.14), 0 0 45px rgba(59, 130, 246, 0.4);
+  transform: scale(1.015);
 }
 
 .user-avatar-img {
@@ -279,6 +303,7 @@ const saveChanges = () => {
   align-items: center;
   justify-content: center;
   color: var(--color-texto-botones, #fff);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.35);
   transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.2s;
 }
 
@@ -295,21 +320,33 @@ const saveChanges = () => {
   color: var(--color-highlight, #94a3b8); 
   font-weight: 600; 
   font-family: 'Inter', sans-serif; 
-  font-size: 1.15rem;
+  font-size: 1.1rem;
+  letter-spacing: 0.3px;
 }
 
 .status-badge { 
   margin-top: 14px;
-  background: #22c55e; 
-  padding: 6px 22px; 
+  background: rgba(34, 197, 94, 0.12); 
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  padding: 7px 22px; 
   border-radius: 20px; 
   font-weight: 700; 
   font-family: 'Oswald', sans-serif; 
-  font-size: 0.95rem; 
-  color: #fff; 
-  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+  font-size: 0.9rem; 
+  color: #4ade80; 
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
 }
 
 /* Dashboard Grid para Escritorio */
@@ -329,12 +366,19 @@ const saveChanges = () => {
 .login-card { 
   background: var(--bg-cards, rgba(18, 18, 18, 0.75)); 
   backdrop-filter: blur(20px);
-  padding: 28px; 
+  padding: 30px; 
   border-radius: var(--app-border-radius, 24px); 
   border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.12)); 
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
   height: 100%;
   box-sizing: border-box;
+  position: relative;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.login-card:hover {
+  border-color: rgba(255, 255, 255, 0.22);
+  transform: translateY(-2px);
 }
 
 .login-card.span-two {
@@ -345,22 +389,36 @@ const saveChanges = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 22px;
   border-bottom: 1px solid var(--border-line, rgba(255, 255, 255, 0.08)); 
-  padding-bottom: 12px; 
+  padding-bottom: 14px; 
 }
 
 .section-title { 
-  font-family: 'Oswald', sans-serif; 
-  color: var(--color-highlight, #3b82f6); 
-  font-size: 1.1rem; 
+  font-family: 'Anton', sans-serif; 
+  color: var(--color-titulos, #fff); 
+  font-size: 1.25rem; 
   margin: 0; 
   text-transform: uppercase; 
   letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.section-title::before {
+  content: '';
+  width: 4px;
+  height: 18px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, var(--color-botones, #1c4fd6), rgba(37, 99, 235, 0.25));
 }
 
 .card-subtitle {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: var(--color-highlight, #71717a);
   font-family: 'Inter', sans-serif;
 }
@@ -382,8 +440,18 @@ const saveChanges = () => {
   display: flex; 
   flex-direction: column; 
   gap: 8px; 
+  min-width: 0;
 }
-
+:deep(.notification-container),
+:deep(.toast-container) {
+  width: calc(100% - 32px) !important;
+  max-width: 480px !important;
+  box-sizing: border-box !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  right: auto !important;
+  margin: 0 auto !important;
+}
 label { 
   font-family: 'Oswald', sans-serif; 
   color: var(--color-etiquetas, var(--color-texto-general, #f5f5f4)); 
@@ -404,6 +472,10 @@ input {
   font-size: 0.95rem;
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s, background 0.2s, color 0.2s;
+}
+
+input:hover {
+  border-color: rgba(255, 255, 255, 0.22);
 }
 
 input:focus {
@@ -458,6 +530,7 @@ input:focus {
 @media (max-width: 900px) { 
   .profile-card { 
     grid-template-columns: 1fr; 
+    gap: 20px;
   } 
   .profile-section {
     position: static;
@@ -484,8 +557,14 @@ input:focus {
   .search-small {
     max-width: 100%;
   }
+  .profile-section {
+    padding: 30px 18px;
+  }
+  .main-title {
+    font-size: 1.8rem;
+  }
   .login-card {
-    padding: 18px;
+    padding: 20px;
   }
   .avatar-circle {
     width: 140px;
@@ -501,6 +580,19 @@ input:focus {
   }
   .btn-primary {
     width: 100%;
+  }
+}
+
+@media (max-width: 420px) {
+  .main-content {
+    padding: 12px;
+  }
+  .login-card {
+    padding: 16px;
+    border-radius: var(--app-border-radius, 18px);
+  }
+  .main-title {
+    font-size: 1.5rem;
   }
 }
 </style>

@@ -40,7 +40,7 @@ const preciosSistema = ref([
 
 const modalConfig = reactive({
   isOpen: false,
-  type: '', 
+  type: '',
   title: '',
   isNew: false,
   form: {
@@ -131,20 +131,30 @@ const guardarDatos = () => {
   <HeadingOwner>
     <NotificationSystem ref="toastRef" />
     <main class="main-content-promos">
-      
+
       <!-- CUADRO IZQUIERDO: PROMOCIONES -->
-      <div class="promo-box-container" id="tutorial-step-0">
+      <section class="promo-box-container accent-blue" id="tutorial-step-0">
         <div class="box-header">
-          <h2>{{ t('promotionsTitle') }}</h2>
+          <div class="header-top">
+            <span class="header-icon-badge badge-blue">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z"/></svg>
+            </span>
+            <h2>{{ t('promotionsTitle') }}</h2>
+          </div>
         </div>
-        
+
         <div class="box-content">
-          <div v-for="promo in promociones" :key="promo.id" class="item-row">
+          <div v-for="promo in promociones" :key="promo.id" class="item-row ticket-row">
             <div class="item-info">
-              <svg class="icon-tag" viewBox="0 0 24 24" fill="currentColor"><path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z"/></svg>
-              <div>
+              <div class="row-icon-wrap">
+                <svg class="icon-tag" viewBox="0 0 24 24" fill="currentColor"><path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z"/></svg>
+              </div>
+              <div class="row-text">
                 <h4>{{ promo.nombre }}</h4>
-                <p>{{ promo.meses }} {{ t('monthsLabel') }} ${{ promo.precio }}</p>
+                <div class="chip-row">
+                  <span class="chip chip-duration">{{ promo.meses }} {{ t('monthsLabel') }}</span>
+                  <span class="chip chip-price">${{ promo.precio }}</span>
+                </div>
               </div>
             </div>
             <div class="item-actions">
@@ -158,7 +168,8 @@ const guardarDatos = () => {
           </div>
 
           <div v-if="promociones.length === 0" class="empty-state">
-            {{ t('emptyPromotionsText') }}
+            <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.59 13.41 12 22l-9-9V3h10l7.59 7.59a2 2 0 0 1 0 2.82Z"></path><circle cx="7.5" cy="7.5" r="1.5"></circle></svg>
+            <p>{{ t('emptyPromotionsText') }}</p>
           </div>
         </div>
 
@@ -167,23 +178,30 @@ const guardarDatos = () => {
           <svg class="add-icon-svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
           <span class="add-text-mobile">{{ t('addPromoButtonText') }}</span>
         </button>
-      </div>
+      </section>
 
       <!-- CUADRO DERECHO: CAMBIOS DE PRECIOS -->
-      <div class="promo-box-container" id="tutorial-step-1">
+      <section class="promo-box-container accent-violet" id="tutorial-step-1">
         <div class="box-header">
-          <h2>{{ t('priceChangesTitlePart1') }} <span class="highlight">{{ t('priceChangesTitleHighlight') }}</span></h2>
+          <div class="header-top">
+            <span class="header-icon-badge badge-violet">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+            </span>
+            <h2>{{ t('priceChangesTitlePart1') }} <span class="highlight highlight-violet">{{ t('priceChangesTitleHighlight') }}</span></h2>
+          </div>
         </div>
 
         <div class="box-content">
-          <div v-for="precio in preciosSistema" :key="precio.id" class="item-row">
+          <div v-for="precio in preciosSistema" :key="precio.id" class="item-row ticket-row price-row">
             <div class="item-info">
-              <svg class="icon-tag" viewBox="0 0 24 24" fill="currentColor"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
-              <div>
+              <div class="row-icon-wrap wrap-violet">
+                <svg class="icon-tag icon-violet" viewBox="0 0 24 24" fill="currentColor"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+              </div>
+              <div class="row-text">
                 <h4>{{ precio.concepto }}</h4>
-                <div class="price-details">
-                  <span class="price-val">${{ precio.monto }}</span>
-                  <span v-if="precio.duracion" class="duration-val">{{ precio.duracion }}</span>
+                <div class="chip-row">
+                  <span class="chip chip-price">${{ precio.monto }}</span>
+                  <span v-if="precio.duracion" class="chip chip-duration">{{ precio.duracion }}</span>
                 </div>
               </div>
             </div>
@@ -194,16 +212,21 @@ const guardarDatos = () => {
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
     </main>
 
     <!-- MODAL PARA AGREGAR / EDITAR -->
     <transition name="pop">
       <div v-if="modalConfig.isOpen" class="modal-wrapper" @click.self="cerrarModal">
-        <div class="custom-modal-card">
+        <div class="custom-modal-card" :class="modalConfig.type === 'promo' ? 'modal-accent-blue' : 'modal-accent-violet'">
+          <div class="modal-icon-badge" :class="modalConfig.type === 'promo' ? 'badge-blue' : 'badge-violet'">
+            <svg v-if="modalConfig.type === 'promo'" viewBox="0 0 24 24" fill="currentColor"><path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z"/></svg>
+            <svg v-else viewBox="0 0 24 24" fill="currentColor"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+          </div>
+
           <h3>{{ modalConfig.title }}</h3>
-          
+
           <form @submit.prevent="guardarDatos">
             <template v-if="modalConfig.type === 'promo'">
               <div class="input-group">
@@ -213,11 +236,11 @@ const guardarDatos = () => {
               <div class="form-grid-modal">
                 <div class="input-group">
                   <label>{{ t('monthsFieldLabel') }}</label>
-                  <input type="number" v-model="modalConfig.form.meses" placeholder="Ej. 3" min="1" required>
+                  <input type="number" v-model="modalConfig.form.meses" placeholder="Ej. 3" min="1" required class="mono">
                 </div>
                 <div class="input-group">
                   <label>{{ t('priceFieldLabel') }}</label>
-                  <input type="number" v-model="modalConfig.form.precio" placeholder="Ej. 1800" min="0" required>
+                  <input type="number" v-model="modalConfig.form.precio" placeholder="Ej. 1800" min="0" required class="mono">
                 </div>
               </div>
             </template>
@@ -229,7 +252,7 @@ const guardarDatos = () => {
               </div>
               <div class="input-group">
                 <label>{{ t('newPriceFieldLabel') }}</label>
-                <input type="number" v-model="modalConfig.form.monto" placeholder="0.00" required>
+                <input type="number" v-model="modalConfig.form.monto" placeholder="0.00" required class="mono">
               </div>
               <div class="input-group" v-if="modalConfig.form.duracion !== undefined">
                 <label>{{ t('durationFieldLabel') }}</label>
@@ -249,15 +272,16 @@ const guardarDatos = () => {
     <!-- MODAL DE CONFIRMACIÓN PARA ELIMINAR -->
     <transition name="pop">
       <div v-if="deleteModalConfig.isOpen" class="modal-wrapper" @click.self="deleteModalConfig.isOpen = false">
-        <div class="custom-modal-card text-center">
+        <div class="custom-modal-card text-center modal-accent-danger">
           <div class="warning-icon-wrapper">
+            <span class="warning-ring"></span>
             <svg viewBox="0 0 24 24" fill="currentColor" class="warning-icon">
               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
             </svg>
           </div>
           <h3>{{ t('deleteModalTitle') }}</h3>
           <p class="delete-msg">{{ t('deletePromoMsg') }}</p>
-          
+
           <div class="modal-actions">
             <button type="button" class="btn-secondary" @click="deleteModalConfig.isOpen = false">{{ t('btnCancel') }}</button>
             <button type="button" class="btn-danger" @click="ejecutarEliminacion">{{ t('btnConfirm') }}</button>
@@ -270,21 +294,35 @@ const guardarDatos = () => {
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;700;800&family=Oswald:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap');
 
 .main-content-promos {
+  --accent-blue: var(--color-highlight, #3b82f6);
+  --accent-blue-soft: rgba(59, 130, 246, 0.12);
+  --accent-blue-border: rgba(59, 130, 246, 0.32);
+  --accent-violet: #8b5cf6;
+  --accent-violet-soft: rgba(139, 92, 246, 0.12);
+  --accent-violet-border: rgba(139, 92, 246, 0.32);
+  --accent-green: #22c55e;
+
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-  gap: 40px;
-  padding: 40px;
-  min-height: 80vh;
+  align-items: flex-start;
+  gap: clamp(18px, 3vw, 40px);
+  padding: clamp(16px, 3vw, 40px);
   box-sizing: border-box;
   width: 100%;
   color: var(--color-texto-general, #e5e5e5);
+  font-family: 'Inter', sans-serif;
 }
 
-.highlight { 
-  color: var(--color-highlight, #3b82f6); 
+.highlight {
+  color: var(--color-highlight, #3b82f6);
+}
+
+.highlight-violet {
+  color: var(--accent-violet);
 }
 
 .promo-box-container {
@@ -299,24 +337,68 @@ const guardarDatos = () => {
   flex-direction: column;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.55);
   padding-bottom: 20px;
+}
+
+.promo-box-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--accent-blue), transparent);
+}
+
+.accent-violet::before {
+  background: linear-gradient(90deg, transparent, var(--accent-violet), transparent);
 }
 
 .box-header {
   background: var(--bg-cards, #222);
   padding: 20px;
-  text-align: center;
   border-bottom: 1px solid var(--border-line, rgba(255, 255, 255, 0.08));
 }
 
+.header-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  justify-content: center;
+}
+
+.header-icon-badge {
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  background: var(--accent-blue-soft);
+  border: 1px solid var(--accent-blue-border);
+  color: var(--accent-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.header-icon-badge.badge-violet {
+  background: var(--accent-violet-soft);
+  border-color: var(--accent-violet-border);
+  color: var(--accent-violet);
+}
+
+.header-icon-badge svg {
+  width: 21px;
+  height: 21px;
+}
+
 .box-header h2 {
-  font-family: 'Anton', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
   color: var(--color-titulos, #fff);
-  font-size: 1.8rem;
+  font-size: clamp(1.3rem, 1rem + 1vw, 1.6rem);
+  font-weight: 700;
   margin: 0;
-  letter-spacing: 1px;
-  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
 .box-content {
@@ -325,24 +407,44 @@ const guardarDatos = () => {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 14px;
 }
 
 .item-row {
   background: var(--bg-cards, rgba(25, 25, 25, 0.9));
   border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.08));
   border-radius: var(--app-border-radius, 14px);
-  padding: 15px;
+  padding: 15px 15px 15px 18px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.ticket-row::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--accent-blue);
+}
+
+.price-row::before {
+  background: var(--accent-violet);
 }
 
 .item-row:hover {
-  border-color: var(--color-highlight, rgba(59, 130, 246, 0.4));
+  border-color: var(--accent-blue-border);
   transform: translateY(-2px);
+}
+
+.price-row:hover {
+  border-color: var(--accent-violet-border);
 }
 
 .item-info {
@@ -353,52 +455,79 @@ const guardarDatos = () => {
   flex: 1;
 }
 
-.item-info div {
+.row-text {
   min-width: 0;
 }
 
-.icon-tag {
-  width: 28px;
-  height: 28px;
-  color: var(--color-highlight, #3b82f6);
+.row-icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: var(--accent-blue-soft);
+  border: 1px solid var(--accent-blue-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
 }
 
+.row-icon-wrap.wrap-violet {
+  background: var(--accent-violet-soft);
+  border-color: var(--accent-violet-border);
+}
+
+.icon-tag {
+  width: 20px;
+  height: 20px;
+  color: var(--accent-blue);
+}
+
+.icon-tag.icon-violet {
+  color: var(--accent-violet);
+}
+
 .item-info h4 {
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
   color: var(--color-titulos, #fff);
-  font-size: 1.1rem;
-  margin: 0 0 4px 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 0 0 6px 0;
   word-break: break-word;
 }
 
-.item-info p {
-  font-family: 'Inter', sans-serif;
-  color: var(--color-highlight, #94a3b8);
-  font-size: 0.9rem;
-  margin: 0;
-  word-break: break-word;
-}
-
-.price-details {
+.chip-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
-.price-val {
-  font-family: 'Inter', sans-serif;
-  color: var(--color-texto-general, #fff);
-  font-weight: 800;
-  font-size: 1.1rem;
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.6;
+  white-space: nowrap;
 }
 
-.duration-val {
+.chip-duration {
+  background: var(--accent-blue-soft);
+  color: var(--accent-blue);
   font-family: 'Inter', sans-serif;
-  color: var(--color-highlight, #3b82f6);
-  font-size: 0.85rem;
-  font-weight: 600;
+}
+
+.price-row .chip-duration {
+  background: var(--accent-violet-soft);
+  color: var(--accent-violet);
+}
+
+.chip-price {
+  background: rgba(34, 197, 94, 0.14);
+  color: var(--accent-green);
+  font-family: 'IBM Plex Mono', monospace;
 }
 
 .item-actions {
@@ -430,9 +559,15 @@ const guardarDatos = () => {
   }
 
   .edit-btn:hover {
-    background: rgba(59, 130, 246, 0.2);
-    border-color: var(--color-highlight, #3b82f6);
-    color: var(--color-highlight, #3b82f6);
+    background: var(--accent-blue-soft);
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+  }
+
+  .price-row .edit-btn:hover {
+    background: var(--accent-violet-soft);
+    border-color: var(--accent-violet);
+    color: var(--accent-violet);
   }
 }
 
@@ -450,14 +585,14 @@ const guardarDatos = () => {
   color: var(--color-texto-botones, white);
   border: none;
   border-radius: 50%;
-  width: 55px;
-  height: 55px;
+  width: 56px;
+  height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-  transition: transform 0.2s, background 0.2s;
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.45);
+  transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
   z-index: 10;
 }
 
@@ -466,29 +601,50 @@ const guardarDatos = () => {
 }
 
 .add-icon-svg {
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
 }
 
 @media (hover: hover) {
   .floating-add-btn:hover {
-    filter: brightness(0.95);
+    filter: brightness(0.97);
     transform: scale(1.08);
+    box-shadow: 0 8px 26px rgba(59, 130, 246, 0.55);
   }
 }
 
-.empty-state {
-  text-align: center;
-  color: var(--color-highlight, #777);
-  font-family: 'Inter', sans-serif;
-  margin-top: 50px;
+.floating-add-btn:active {
+  transform: scale(0.95);
 }
 
-/* Ajustes globales/profundos para que las notificaciones no se salgan del margen en móvil */
-:deep(.notification-container),
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  color: var(--color-texto-general, #777);
+  font-family: 'Inter', sans-serif;
+  margin-top: 50px;
+  opacity: 0.75;
+}
 
+.empty-icon {
+  width: 46px;
+  height: 46px;
+  opacity: 0.5;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* Ajustes optimizados para las notificaciones (ancho máximo y centrado en escritorio y móvil) */
+:deep(.notification-container),
 :deep(.toast-container) {
-  max-width: calc(100vw - 30px) !important;
+  width: calc(100% - 32px) !important;
+  max-width: 480px !important;
   box-sizing: border-box !important;
   left: 50% !important;
   transform: translateX(-50%) !important;
@@ -509,16 +665,62 @@ const guardarDatos = () => {
   justify-content: center;
   z-index: 9999;
   backdrop-filter: blur(8px);
+  padding: 16px;
+  box-sizing: border-box;
 }
 
 .custom-modal-card {
   background: var(--bg-cards, #18181b);
   border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.15));
-  border-radius: var(--app-border-radius, 20px);
+  border-radius: var(--app-border-radius, 22px);
   padding: 30px;
   width: 100%;
   max-width: 400px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.65);
+  position: relative;
+  overflow: hidden;
+}
+
+.custom-modal-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--accent-blue);
+}
+
+.modal-accent-violet::before {
+  background: var(--accent-violet);
+}
+
+.modal-accent-danger::before {
+  background: #ef4444;
+}
+
+.modal-icon-badge {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--accent-blue-soft);
+  border: 1px solid var(--accent-blue-border);
+  color: var(--accent-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 14px auto;
+}
+
+.modal-icon-badge.badge-violet {
+  background: var(--accent-violet-soft);
+  border-color: var(--accent-violet-border);
+  color: var(--accent-violet);
+}
+
+.modal-icon-badge svg {
+  width: 24px;
+  height: 24px;
 }
 
 .custom-modal-card.text-center {
@@ -526,31 +728,48 @@ const guardarDatos = () => {
 }
 
 .warning-icon-wrapper {
+  position: relative;
   display: flex;
   justify-content: center;
   margin-bottom: 15px;
+}
+
+.warning-ring {
+  position: absolute;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  border: 2px solid rgba(239, 68, 68, 0.4);
+  animation: pulse-ring 2s ease-out infinite;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(1.8); opacity: 0; }
 }
 
 .warning-icon {
   width: 45px;
   height: 45px;
   color: #ef4444;
+  position: relative;
 }
 
 .delete-msg {
-  color: var(--color-highlight, #94a3b8);
+  color: var(--color-texto-general, #94a3b8);
   font-family: 'Inter', sans-serif;
   font-size: 0.95rem;
   margin-bottom: 20px;
 }
 
 .custom-modal-card h3 {
-  font-family: 'Anton', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
   color: var(--color-titulos, #fff);
-  font-size: 1.5rem;
+  font-size: 1.4rem;
+  font-weight: 700;
   margin-top: 0;
-  margin-bottom: 10px;
-  text-transform: uppercase;
+  margin-bottom: 18px;
+  text-align: center;
 }
 
 .input-group {
@@ -567,9 +786,10 @@ const guardarDatos = () => {
 }
 
 .input-group label {
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
   color: var(--color-etiquetas, var(--color-texto-general, #cbd5e1));
   font-size: 13px;
+  font-weight: 600;
 }
 
 .input-group input {
@@ -586,9 +806,19 @@ const guardarDatos = () => {
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
+.input-group input.mono {
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 600;
+}
+
 .input-group input:focus {
-  border-color: var(--color-highlight, #3b82f6);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px var(--accent-blue-soft);
+}
+
+.input-group input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .modal-actions {
@@ -604,7 +834,7 @@ const guardarDatos = () => {
   color: var(--color-texto-botones, white);
   border: none;
   border-radius: var(--app-border-radius, 10px);
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
   font-weight: 700;
   cursor: pointer;
   transition: filter 0.2s;
@@ -623,7 +853,7 @@ const guardarDatos = () => {
   color: white;
   border: none;
   border-radius: var(--app-border-radius, 10px);
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
   font-weight: 700;
   cursor: pointer;
   transition: background 0.2s;
@@ -640,7 +870,7 @@ const guardarDatos = () => {
   border: 1.5px solid var(--border-input, rgba(255, 255, 255, 0.2));
   color: var(--color-texto-general, #fff);
   border-radius: var(--app-border-radius, 10px);
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
   font-weight: 700;
   cursor: pointer;
   transition: background 0.2s;
@@ -668,7 +898,7 @@ const guardarDatos = () => {
   }
   .item-actions {
     justify-content: flex-end;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: 1px dashed var(--border-input, rgba(255, 255, 255, 0.12));
     padding-top: 10px;
   }
 
@@ -686,7 +916,7 @@ const guardarDatos = () => {
 
   .add-text-mobile {
     display: inline;
-    font-family: 'Oswald', sans-serif;
+    font-family: 'Space Grotesk', sans-serif;
     font-weight: 700;
     font-size: 1rem;
   }
@@ -701,13 +931,18 @@ const guardarDatos = () => {
   .main-content-promos {
     flex-direction: column;
     align-items: center;
-    gap: 20px;
-    padding: 15px;
   }
   .promo-box-container {
     max-width: 100%;
     min-height: auto;
     height: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item-row, .icon-action-btn, .floating-add-btn, .btn-primary, .btn-secondary, .btn-danger, .warning-ring {
+    transition: none !important;
+    animation: none !important;
   }
 }
 </style>

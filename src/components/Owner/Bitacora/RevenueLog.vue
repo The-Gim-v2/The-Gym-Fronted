@@ -324,6 +324,16 @@ const getMembershipClass = (membership: string): string => {
   z-index: 1000;
   backdrop-filter: blur(5px);
 }
+:deep(.notification-container),
+:deep(.toast-container) {
+  width: calc(100% - 32px) !important;
+  max-width: 480px !important;
+  box-sizing: border-box !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  right: auto !important;
+  margin: 0 auto !important;
+}
 
 .actions-bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
 

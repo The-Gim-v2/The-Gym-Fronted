@@ -830,7 +830,16 @@ onUnmounted(() => {
 .card-3d-perspective {
   perspective: 1000px;
 }
-
+:deep(.notification-container),
+:deep(.toast-container) {
+  width: calc(100% - 32px) !important;
+  max-width: 480px !important;
+  box-sizing: border-box !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  right: auto !important;
+  margin: 0 auto !important;
+}
 .gym-item-image {
   width: 100%;
   height: 200px;

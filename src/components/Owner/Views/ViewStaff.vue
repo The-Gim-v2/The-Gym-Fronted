@@ -379,7 +379,16 @@ const openWhatsApp = (phone) => window.open(`https://wa.me/${phone.replace(/\D/g
 .role-entrenador { background: rgba(59, 130, 246, 0.08); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
 .role-Owner { background: rgba(168, 85, 247, 0.08); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
 .role-default { background: #222; color: #ccc; border: 1px solid #444; }
-
+:deep(.notification-container),
+:deep(.toast-container) {
+  width: calc(100% - 32px) !important;
+  max-width: 480px !important;
+  box-sizing: border-box !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  right: auto !important;
+  margin: 0 auto !important;
+}
 .empty-state {
   display: flex;
   flex-direction: column;

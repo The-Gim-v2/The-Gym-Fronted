@@ -44,13 +44,13 @@ export const recepcionRoutes = [
       {
         path: 'payments',
         name: 'recepcion-payments',
-        component: () => import('@/components/Recepcion/Payments.vue'),
+        component: () => import('@/components/Recepcion/Payments/PaymentsList.vue'),
         meta: { allowedRole: 'recepcion' }
       },
       {
         path: 'pay/:id',
         name: 'recepcion-pay',
-        component: () => import('@/components/Recepcion/Componets/Payments.vue'),
+        component: () => import('@/components/Recepcion/Payments/Payments.vue'),
         meta: { allowedRole: 'recepcion' }
       },
 
@@ -66,7 +66,12 @@ export const recepcionRoutes = [
         name: 'recepcion-profile',
         component: () => import('@/components/Recepcion/Componets/Profile.vue'),
         meta: { allowedRole: 'recepcion' }
-      }
+      },{
+        path: 'promos',
+        name: 'promos',
+        component: () => import('@/components/Recepcion/Payments/Promos.vue'),
+        meta: { allowedRole: 'Owner' }
+      },
     ]
   }
 ];

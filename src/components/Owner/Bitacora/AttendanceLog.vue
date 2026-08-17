@@ -391,6 +391,16 @@ const getStatusClass = (status: string): string => {
   font-size: 0.9rem;
   transition: background 0.2s, border-color 0.2s, transform 0.2s;
 }
+:deep(.notification-container),
+:deep(.toast-container) {
+  width: calc(100% - 32px) !important;
+  max-width: 480px !important;
+  box-sizing: border-box !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  right: auto !important;
+  margin: 0 auto !important;
+}
 .btn-bulk-icon {
   width: 32px; height: 32px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
