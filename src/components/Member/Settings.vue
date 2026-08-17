@@ -225,7 +225,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, onMounted } from 'vue';
+import { reactive, computed, onMounted } from 'vue';
 import Headingmember from './HeadingMember.vue';
 import { useLang } from './useLang.js';
 
@@ -340,29 +340,56 @@ const translations = {
   }
 };
 
+// `t` depende de settings.idioma; como es una función no se ejecuta hasta que
+// se llama, así que puede referenciar `settings` aunque se declare antes.
 const t = (key) => {
   return translations[settings.idioma]?.[key] || translations['es'][key] || key;
 };
 
-const settings = reactive({
-  notificaciones: false,
-  tutorial: localStorage.getItem('tutorialActivo') === 'true', 
-  idioma: localStorage.getItem('member-idioma') || 'es',
-  densidad: localStorage.getItem('app-densidad') || 'normal',
-  borderRadius: localStorage.getItem('app-radius') || '16px',
-  colors: JSON.parse(localStorage.getItem('app-colors')) || { ...defaultColors }
-});
+// ============================================================
+// CAMBIO 1: safeJsonParse
+// Antes: JSON.parse(localStorage.getItem('app-colors')) directo en la
+// inicialización de `settings`. Si esa llave tenía un valor corrupto o
+// inválido, JSON.parse lanzaba una excepción dentro de <script setup> y
+// tumbaba el montaje de TODO el componente (pantalla en blanco). Con este
+// helper, si el dato está corrupto se ignora y se usa el valor por defecto.
+// ============================================================
+function safeJsonParse(raw, fallback = null) {
+  if (!raw) return fallback;
+  try {
+    return JSON.parse(raw);
+  } catch (e) {
+    console.warn('localStorage corrupto, usando valores por defecto:', e);
+    return fallback;
+  }
+}
 
-// Guarda qué preset fue el último aplicado, para resaltar su tarjeta con el check.
-const presetActivo = ref(localStorage.getItem('app-preset-activo') || null);
+// ============================================================
+// CAMBIO 2: namespacing por rol (el bug principal)
+// Antes, colores/densidad/borderRadius se guardaban en llaves GLOBALES:
+// 'app-colors', 'app-densidad', 'app-radius'. Como Owner, Member y
+// Recepción compartían esas mismas llaves, guardar cambios en cualquiera
+// de los tres roles sobrescribía el tema de los otros dos.
+// Ahora cada rol guarda/lee bajo su propia llave: app-colors-member,
+// app-densidad-member, app-radius-member (y lo mismo para owner/recepcion).
+// ROLE_KEY usa 'user_role' porque es la misma llave que usa el router y
+// App.vue (antes este archivo usaba 'userRole', que no coincidía con nada
+// y por eso el bloque `if (userRole === 'member')` casi nunca se cumplía).
+// ============================================================
+const ROLE_KEY = 'user_role';
 
-const cambiarIdioma = (event) => {
-  const nuevoIdioma = event.target.value;
-  settings.idioma = nuevoIdioma;
-  setLang(nuevoIdioma);
+const claveColores = () => {
+  const rol = (localStorage.getItem(ROLE_KEY) || '').toLowerCase();
+  return `app-colors-${rol}`; // ej: app-colors-member
 };
-
-const toast = reactive({ visible: false, message: '' });
+const claveRadius = () => {
+  const rol = (localStorage.getItem(ROLE_KEY) || '').toLowerCase();
+  return `app-radius-${rol}`;
+};
+const claveDensidad = () => {
+  const rol = (localStorage.getItem(ROLE_KEY) || '').toLowerCase();
+  return `app-densidad-${rol}`;
+};
 
 const defaultColors = { 
   headingBg: '#0b0b0e',
@@ -501,7 +528,43 @@ const colorPresets = {
   }
 };
 
+// CAMBIO: settings.colors/densidad/borderRadius ahora usan safeJsonParse y
+// las llaves NAMESPACEADAS por rol (claveColores/claveDensidad/claveRadius),
+// en vez de 'app-colors' / 'app-densidad' / 'app-radius' globales.
+const settings = reactive({
+  notificaciones: false,
+  tutorial: localStorage.getItem('tutorialActivo') === 'true', 
+  idioma: localStorage.getItem('member-idioma') || 'es',
+  densidad: localStorage.getItem(claveDensidad()) || 'normal',
+  borderRadius: localStorage.getItem(claveRadius()) || '16px',
+  colors: safeJsonParse(localStorage.getItem(claveColores())) || { ...defaultColors }
+});
 
+// ============================================================
+// CAMBIO 3: presetActivo faltaba estar sincronizado correctamente.
+// Antes era un ref inicializado desde 'app-preset-activo' (llave global,
+// compartida entre roles) y sólo se actualizaba al hacer click en un
+// preset. Si otro rol pisaba esa llave, o si los colores llegaban desde
+// el backend/otra fuente, el check ✓ quedaba desincronizado del tema
+// realmente aplicado. Ahora es un computed: compara los colores actuales
+// contra cada preset y devuelve la llave del que coincide, igual que en
+// owner.
+// ============================================================
+const presetActivo = computed(() => {
+  const actual = JSON.stringify(settings.colors);
+  const key = Object.keys(colorPresets).find(
+    (k) => JSON.stringify(colorPresets[k].colors) === actual
+  );
+  return key || null;
+});
+
+const cambiarIdioma = (event) => {
+  const nuevoIdioma = event.target.value;
+  settings.idioma = nuevoIdioma;
+  setLang(nuevoIdioma);
+};
+
+const toast = reactive({ visible: false, message: '' });
 
 const showToast = (msg) => {
   toast.message = msg;
@@ -511,8 +574,6 @@ const showToast = (msg) => {
 
 const restaurarColoresPorDefecto = () => {
   settings.colors = { ...defaultColors };
-  presetActivo.value = null;
-  localStorage.removeItem('app-preset-activo');
   guardarCambios(); 
   showToast(t('toastColorsRestored'));
 };
@@ -520,9 +581,8 @@ const restaurarColoresPorDefecto = () => {
 const aplicarPreset = (tipoPreset) => {
   if (colorPresets[tipoPreset]) {
     settings.colors = { ...colorPresets[tipoPreset].colors };
-    presetActivo.value = tipoPreset;
-    localStorage.setItem('app-colors', JSON.stringify(settings.colors));
-    localStorage.setItem('app-preset-activo', tipoPreset);
+    // CAMBIO: se guarda en la llave namespaceada por rol, no en 'app-colors' global.
+    localStorage.setItem(claveColores(), JSON.stringify(settings.colors));
     aplicarEstilos();
     window.dispatchEvent(new CustomEvent('app-settings-updated', { detail: settings }));
     showToast(t('toastPresetApplied').replace('{label}', colorPresets[tipoPreset].label));
@@ -531,13 +591,16 @@ const aplicarPreset = (tipoPreset) => {
 
 const guardarCambios = async () => {
   try {
-    const userRole = localStorage.getItem('userRole') || 'member';
+    // CAMBIO: ROLE_KEY ('user_role') en vez de 'userRole', para que coincida
+    // con la llave real que usan el router y App.vue.
+    const userRole = localStorage.getItem(ROLE_KEY) || 'member';
 
     localStorage.setItem('tutorialActivo', settings.tutorial);
     localStorage.setItem('member-idioma', settings.idioma);
-    localStorage.setItem('app-colors', JSON.stringify(settings.colors));
-    localStorage.setItem('app-densidad', settings.densidad);
-    localStorage.setItem('app-radius', settings.borderRadius);
+    // CAMBIO: llaves namespaceadas por rol en vez de 'app-colors' / 'app-densidad' / 'app-radius' globales.
+    localStorage.setItem(claveColores(), JSON.stringify(settings.colors));
+    localStorage.setItem(claveDensidad(), settings.densidad);
+    localStorage.setItem(claveRadius(), settings.borderRadius);
     
     aplicarEstilos();
     
@@ -616,7 +679,8 @@ onMounted(async () => {
     }
   });
 
-  const userRole = localStorage.getItem('userRole') || 'member';
+  // CAMBIO: ROLE_KEY ('user_role') en vez de 'userRole'.
+  const userRole = localStorage.getItem(ROLE_KEY) || 'member';
   if (userRole === 'member') {
     try {
       const res = await fetch('/api/member/configuracion', {

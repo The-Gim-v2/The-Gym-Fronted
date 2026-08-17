@@ -1,192 +1,3 @@
-<script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { RouterView } from 'vue-router';
-import HelpButton from './components/Owner/HelpButton.vue';
-import HelpButton2 from './components/Recepcion/HelpButton.vue';
-import HelpButton3 from './components/Member/HelpButton.vue';
-
-const router = useRouter();
-
-const userRole = ref(localStorage.getItem('user_role') || '');
-
-// --- CONTROL DE INACTIVIDAD Y ADVERTENCIA ---
-let inactivityTimer: number | null = null;
-let countdownTimer: number | null = null;
-
-const INACTIVITY_TIME_LIMIT = 10 * 60 * 1000; // 10 minutos de uso normal
-const COUNTDOWN_TIME_LIMIT = 60; // 60 segundos de advertencia visual
-const LAST_ACTIVITY_KEY = 'last_activity_timestamp';
-
-const mostrarAvisoInactividad = ref(false);
-const segundosRestantes = ref(COUNTDOWN_TIME_LIMIT);
-
-// Progreso del anillo de cuenta regresiva (0 a 1)
-const progresoCountdown = computed(() => segundosRestantes.value / COUNTDOWN_TIME_LIMIT);
-const CIRCUNFERENCIA = 2 * Math.PI * 54; // radio 54
-const dashOffset = computed(() => CIRCUNFERENCIA * (1 - progresoCountdown.value));
-
-const marcarActividad = () => {
-  localStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());
-};
-
-const ejecutarCierreSesion = () => {
-  detenerMonitoreoInactividad();
-
-  // Limpieza total de credenciales y del rol de seguridad
-  localStorage.removeItem('user_role');
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
-  localStorage.removeItem(LAST_ACTIVITY_KEY);
-
-  // Redirección segura reemplazando la ruta para evitar que el botón "Atrás" regrese al panel
-  router.replace({ name: 'login' });
-};
-
-// --- NUEVO: verifica, ANTES de montar el monitoreo normal, si la sesión ya
-// expiró mientras la pestaña estaba cerrada. Esto es lo que faltaba: el
-// setTimeout de abajo se destruye al cerrar la pestaña, así que si el usuario
-// cierra el navegador y vuelve pasados los 10 minutos, hay que detectarlo
-// comparando contra el timestamp guardado, no contra un timer que ya no existe.
-const verificarSesionExpiradaAlCargar = (): boolean => {
-  const hayCredenciales = !!localStorage.getItem('token') || !!localStorage.getItem('user_role');
-  if (!hayCredenciales) return false;
-
-  const ultimaActividadRaw = localStorage.getItem(LAST_ACTIVITY_KEY);
-
-  // Si hay credenciales pero nunca se registró actividad (dato viejo/corrupto),
-  // tratamos la sesión como expirada por seguridad.
-  if (!ultimaActividadRaw) {
-    ejecutarCierreSesion();
-    return true;
-  }
-
-  const ultimaActividad = parseInt(ultimaActividadRaw, 10);
-  const tiempoTranscurrido = Date.now() - ultimaActividad;
-
-  if (tiempoTranscurrido >= INACTIVITY_TIME_LIMIT) {
-    ejecutarCierreSesion();
-    return true;
-  }
-
-  return false;
-};
-
-const iniciarCuentaRegresiva = () => {
-  mostrarAvisoInactividad.value = true;
-  segundosRestantes.value = COUNTDOWN_TIME_LIMIT;
-
-  if (countdownTimer) clearInterval(countdownTimer);
-
-  countdownTimer = window.setInterval(() => {
-    segundosRestantes.value--;
-    if (segundosRestantes.value <= 0) {
-      clearInterval(countdownTimer as number);
-      mostrarAvisoInactividad.value = false;
-      ejecutarCierreSesion();
-    }
-  }, 1000);
-};
-
-const reiniciarTemporizador = () => {
-  marcarActividad();
-
-  // Si el modal de advertencia está abierto y el usuario interactúa, cancelamos el cierre
-  if (mostrarAvisoInactividad.value) {
-    mostrarAvisoInactividad.value = false;
-    if (countdownTimer) clearInterval(countdownTimer);
-  }
-
-  if (inactivityTimer) clearTimeout(inactivityTimer);
-  inactivityTimer = window.setTimeout(iniciarCuentaRegresiva, INACTIVITY_TIME_LIMIT);
-};
-
-const iniciarMonitoreoInactividad = () => {
-  const eventos = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
-  eventos.forEach(evento => {
-    window.addEventListener(evento, reiniciarTemporizador);
-  });
-  reiniciarTemporizador();
-};
-
-const detenerMonitoreoInactividad = () => {
-  const eventos = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
-  eventos.forEach(evento => {
-    window.removeEventListener(evento, reiniciarTemporizador);
-  });
-  if (inactivityTimer) clearTimeout(inactivityTimer);
-  if (countdownTimer) clearInterval(countdownTimer);
-};
-
-// --- NUEVO: sincronización entre pestañas. Si cierras sesión en una pestaña
-// (o expira ahí), las demás pestañas abiertas también deben cerrar sesión.
-const manejarCambioStorage = (evento: StorageEvent) => {
-  if (evento.key === 'user_role' && evento.newValue === null) {
-    ejecutarCierreSesion();
-  }
-};
-// ---------------------------------------------
-
-// Función para tus estilos globales
-const aplicarEstilosGlobales = () => {
-  const savedColors = JSON.parse(localStorage.getItem('app-colors') || '{}');
-  const savedRadius = localStorage.getItem('app-radius');
-  const savedDensidad = localStorage.getItem('app-densidad');
-
-  const root = document.documentElement;
-
-  if (savedColors) {
-    if (savedColors.headingBg) root.style.setProperty('--color-heading-bg', savedColors.headingBg);
-    if (savedColors.tablas) root.style.setProperty('--color-tablas', savedColors.tablas);
-    if (savedColors.interfaz) {
-      root.style.setProperty('--color-interfaz', savedColors.interfaz);
-      root.style.setProperty('--bg-custom', savedColors.interfaz);
-    }
-    if (savedColors.botones) root.style.setProperty('--color-botones', savedColors.botones);
-    if (savedColors.tarjetas) root.style.setProperty('--bg-cards', savedColors.tarjetas);
-    if (savedColors.titulos) root.style.setProperty('--color-titulos', savedColors.titulos);
-    if (savedColors.highlight) root.style.setProperty('--color-highlight', savedColors.highlight);
-    if (savedColors.etiquetas) root.style.setProperty('--color-etiquetas', savedColors.etiquetas);
-    if (savedColors.textoGeneral) root.style.setProperty('--color-texto-general', savedColors.textoGeneral);
-    if (savedColors.textoBotones) root.style.setProperty('--color-texto-botones', savedColors.textoBotones);
-    if (savedColors.svgColor) root.style.setProperty('--color-svg', savedColors.svgColor);
-  }
-
-  if (savedRadius) root.style.setProperty('--app-border-radius', savedRadius);
-
-  if (savedDensidad === 'compacto') {
-    root.style.setProperty('--panel-padding', '16px');
-    root.style.setProperty('--row-padding', '10px 0');
-  } else if (savedDensidad === 'espacioso') {
-    root.style.setProperty('--panel-padding', '38px');
-    root.style.setProperty('--row-padding', '22px 0');
-  } else {
-    root.style.setProperty('--panel-padding', '30px');
-    root.style.setProperty('--row-padding', '16px 0');
-  }
-};
-
-onMounted(() => {
-  aplicarEstilosGlobales();
-  window.addEventListener('app-settings-updated', aplicarEstilosGlobales);
-  window.addEventListener('storage', manejarCambioStorage);
-
-  // Primero verificamos si la sesión ya expiró (pestaña cerrada y reabierta
-  // pasados los 10 min). Si expiró, ejecutarSesionExpiradaAlCargar ya
-  // redirige a login y no hace falta arrancar el monitoreo.
-  const expiro = verificarSesionExpiradaAlCargar();
-  if (!expiro) {
-    iniciarMonitoreoInactividad();
-  }
-});
-
-onUnmounted(() => {
-  window.removeEventListener('app-settings-updated', aplicarEstilosGlobales);
-  window.removeEventListener('storage', manejarCambioStorage);
-  detenerMonitoreoInactividad();
-});
-</script>
-
 <template>
   <RouterView />
   <!--<HelpButton v-if="userRole === 'Owner'" />
@@ -241,9 +52,235 @@ onUnmounted(() => {
   </transition>
 </template>
 
+<script setup lang="ts">
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { RouterView } from 'vue-router';
+import HelpButton from './components/Owner/HelpButton.vue';
+import HelpButton2 from './components/Recepcion/HelpButton.vue';
+import HelpButton3 from './components/Member/HelpButton.vue';
+
+const router = useRouter();
+
+const userRole = ref(localStorage.getItem('user_role') || '');
+
+// ============================================================
+// CAMBIO 1: safeJsonParse
+// Faltaba por completo en App.vue. aplicarEstilosGlobales() la llamaba,
+// así que en cuanto se ejecutaba onMounted, JS lanzaba
+// "ReferenceError: safeJsonParse is not defined" y tumbaba el montaje de
+// TODA la app (pantalla en blanco). Cada componente .vue tiene su propio
+// scope de <script setup>, así que la función definida en las páginas de
+// configuración no estaba disponible aquí.
+// ============================================================
+function safeJsonParse(raw: string | null, fallback: any = null) {
+  if (!raw) return fallback;
+  try {
+    return JSON.parse(raw);
+  } catch (e) {
+    console.warn('localStorage corrupto, usando valores por defecto:', e);
+    return fallback;
+  }
+}
+
+// --- CONTROL DE INACTIVIDAD Y ADVERTENCIA (sin cambios) ---
+let inactivityTimer: number | null = null;
+let countdownTimer: number | null = null;
+
+const INACTIVITY_TIME_LIMIT = 10 * 60 * 1000;
+const COUNTDOWN_TIME_LIMIT = 60;
+const LAST_ACTIVITY_KEY = 'last_activity_timestamp';
+
+const mostrarAvisoInactividad = ref(false);
+const segundosRestantes = ref(COUNTDOWN_TIME_LIMIT);
+
+const progresoCountdown = computed(() => segundosRestantes.value / COUNTDOWN_TIME_LIMIT);
+const CIRCUNFERENCIA = 2 * Math.PI * 54;
+const dashOffset = computed(() => CIRCUNFERENCIA * (1 - progresoCountdown.value));
+
+const marcarActividad = () => {
+  localStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());
+};
+
+const ejecutarCierreSesion = () => {
+  detenerMonitoreoInactividad();
+  localStorage.removeItem('user_role');
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  localStorage.removeItem(LAST_ACTIVITY_KEY);
+  router.replace({ name: 'login' });
+};
+
+const verificarSesionExpiradaAlCargar = (): boolean => {
+  const hayCredenciales = !!localStorage.getItem('token') || !!localStorage.getItem('user_role');
+  if (!hayCredenciales) return false;
+
+  const ultimaActividadRaw = localStorage.getItem(LAST_ACTIVITY_KEY);
+  if (!ultimaActividadRaw) {
+    ejecutarCierreSesion();
+    return true;
+  }
+
+  const ultimaActividad = parseInt(ultimaActividadRaw, 10);
+  const tiempoTranscurrido = Date.now() - ultimaActividad;
+
+  if (tiempoTranscurrido >= INACTIVITY_TIME_LIMIT) {
+    ejecutarCierreSesion();
+    return true;
+  }
+  return false;
+};
+
+const iniciarCuentaRegresiva = () => {
+  mostrarAvisoInactividad.value = true;
+  segundosRestantes.value = COUNTDOWN_TIME_LIMIT;
+  if (countdownTimer) clearInterval(countdownTimer);
+  countdownTimer = window.setInterval(() => {
+    segundosRestantes.value--;
+    if (segundosRestantes.value <= 0) {
+      clearInterval(countdownTimer as number);
+      mostrarAvisoInactividad.value = false;
+      ejecutarCierreSesion();
+    }
+  }, 1000);
+};
+
+const reiniciarTemporizador = () => {
+  marcarActividad();
+  if (mostrarAvisoInactividad.value) {
+    mostrarAvisoInactividad.value = false;
+    if (countdownTimer) clearInterval(countdownTimer);
+  }
+  if (inactivityTimer) clearTimeout(inactivityTimer);
+  inactivityTimer = window.setTimeout(iniciarCuentaRegresiva, INACTIVITY_TIME_LIMIT);
+};
+
+const iniciarMonitoreoInactividad = () => {
+  const eventos = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+  eventos.forEach(evento => window.addEventListener(evento, reiniciarTemporizador));
+  reiniciarTemporizador();
+};
+
+const detenerMonitoreoInactividad = () => {
+  const eventos = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+  eventos.forEach(evento => window.removeEventListener(evento, reiniciarTemporizador));
+  if (inactivityTimer) clearTimeout(inactivityTimer);
+  if (countdownTimer) clearInterval(countdownTimer);
+};
+
+const manejarCambioStorage = (evento: StorageEvent) => {
+  if (evento.key === 'user_role' && evento.newValue === null) {
+    ejecutarCierreSesion();
+  }
+};
+
+// ============================================================
+// CAMBIO 2: CSS por rol cargado dinámicamente (el bug principal)
+// Antes: los 3 archivos (member, recepcion, y faltaba owner) se importaban
+// SIEMPRE con @import estático en <style>, sin scoping por rol. Al ser CSS
+// global, el último importado (o el selector más específico) ganaba sobre
+// los otros, así que un cambio de tema en un rol terminaba pisando la
+// apariencia visual de los otros roles en la misma sesión de navegador.
+//
+// Ahora: un solo <link> en <head>, cuyo href apunta al CSS del ROL ACTIVO
+// únicamente. Al cambiar de rol (logout/login) se reemplaza el <link>, así
+// que solo un stylesheet de rol está cargado en el DOM a la vez.
+// ============================================================
+const ROLE_STYLE_LINK_ID = 'role-stylesheet';
+
+const RUTAS_CSS_POR_ROL: Record<string, string> = {
+  owner: '/src/assets/styles-owner.css',
+  member: '/src/assets/styles-member.css',
+  recepcion: '/src/assets/styles-recepcion.css',
+};
+
+const cargarEstiloDelRol = () => {
+  const rol = (localStorage.getItem('user_role') || '').toLowerCase();
+  const ruta = RUTAS_CSS_POR_ROL[rol];
+
+  let link = document.getElementById(ROLE_STYLE_LINK_ID) as HTMLLinkElement | null;
+
+  if (!ruta) {
+    // Rol desconocido o sin sesión: quitamos cualquier hoja de estilos de rol
+    // para no dejar aplicado el tema de un rol anterior.
+    if (link) link.remove();
+    return;
+  }
+
+  if (!link) {
+    link = document.createElement('link');
+    link.id = ROLE_STYLE_LINK_ID;
+    link.rel = 'stylesheet';
+    document.head.appendChild(link);
+  }
+
+  // Solo reasigna el href si cambió, para evitar parpadeos innecesarios.
+  if (!link.href.endsWith(ruta)) {
+    link.href = ruta;
+  }
+};
+
+const aplicarEstilosGlobales = () => {
+  const rol = (localStorage.getItem('user_role') || '').toLowerCase();
+  const savedColors = safeJsonParse(localStorage.getItem(`app-colors-${rol}`)) || {};
+  const savedRadius = localStorage.getItem(`app-radius-${rol}`);
+  const savedDensidad = localStorage.getItem(`app-densidad-${rol}`);
+
+  const root = document.documentElement;
+
+  if (savedColors) {
+    if (savedColors.headingBg) root.style.setProperty('--color-heading-bg', savedColors.headingBg);
+    if (savedColors.tablas) root.style.setProperty('--color-tablas', savedColors.tablas);
+    if (savedColors.interfaz) {
+      root.style.setProperty('--color-interfaz', savedColors.interfaz);
+      root.style.setProperty('--bg-custom', savedColors.interfaz);
+    }
+    if (savedColors.botones) root.style.setProperty('--color-botones', savedColors.botones);
+    if (savedColors.tarjetas) root.style.setProperty('--bg-cards', savedColors.tarjetas);
+    if (savedColors.titulos) root.style.setProperty('--color-titulos', savedColors.titulos);
+    if (savedColors.highlight) root.style.setProperty('--color-highlight', savedColors.highlight);
+    if (savedColors.etiquetas) root.style.setProperty('--color-etiquetas', savedColors.etiquetas);
+    if (savedColors.textoGeneral) root.style.setProperty('--color-texto-general', savedColors.textoGeneral);
+    if (savedColors.textoBotones) root.style.setProperty('--color-texto-botones', savedColors.textoBotones);
+    if (savedColors.svgColor) root.style.setProperty('--color-svg', savedColors.svgColor);
+  }
+
+  if (savedRadius) root.style.setProperty('--app-border-radius', savedRadius);
+
+  if (savedDensidad === 'compacto') {
+    root.style.setProperty('--panel-padding', '16px');
+    root.style.setProperty('--row-padding', '10px 0');
+  } else if (savedDensidad === 'espacioso') {
+    root.style.setProperty('--panel-padding', '38px');
+    root.style.setProperty('--row-padding', '22px 0');
+  } else {
+    root.style.setProperty('--panel-padding', '30px');
+    root.style.setProperty('--row-padding', '16px 0');
+  }
+};
+
+onMounted(() => {
+  cargarEstiloDelRol();
+  aplicarEstilosGlobales();
+  window.addEventListener('app-settings-updated', aplicarEstilosGlobales);
+  window.addEventListener('storage', manejarCambioStorage);
+
+  const expiro = verificarSesionExpiradaAlCargar();
+  if (!expiro) {
+    iniciarMonitoreoInactividad();
+  }
+});
+
+onUnmounted(() => {
+  window.removeEventListener('app-settings-updated', aplicarEstilosGlobales);
+  window.removeEventListener('storage', manejarCambioStorage);
+  detenerMonitoreoInactividad();
+});
+</script>
+
 <style>
 @import './assets/global-theme.css';
-@import '@/assets/styles-member.css';
+
 
 body {
   margin: 0;

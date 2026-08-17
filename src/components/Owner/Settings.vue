@@ -245,9 +245,10 @@
 </template>
 
 <script setup>
-import { reactive, onMounted } from 'vue';
-import HeadingOwner from './HeadingOwner.vue';
+import { reactive, computed, onMounted } from 'vue';
 import { useLang } from './useLang.js';
+import HeadingOwner from './HeadingOwner.vue';
+
 
 const { setLang } = useLang();
 
@@ -360,26 +361,56 @@ const translations = {
   }
 };
 
+// `t` depende de settings.idioma; como es una función no se ejecuta hasta que
+// se llama, así que puede referenciar `settings` aunque se declare antes.
 const t = (key) => {
   return translations[settings.idioma]?.[key] || translations['es'][key] || key;
 };
 
-const settings = reactive({
-  notificaciones: false,
-  tutorial: localStorage.getItem('tutorialActivo') === 'true', 
-  idioma: localStorage.getItem('owner-idioma') || 'es',
-  densidad: localStorage.getItem('app-densidad') || 'normal',
-  borderRadius: localStorage.getItem('app-radius') || '16px',
-  colors: JSON.parse(localStorage.getItem('app-colors')) || { ...defaultColors }
-});
+// ============================================================
+// CAMBIO 1: safeJsonParse
+// Antes: JSON.parse(localStorage.getItem('app-colors')) directo en la
+// inicialización de `settings`. Si esa llave tenía un valor corrupto o
+// inválido, JSON.parse lanzaba una excepción dentro de <script setup> y
+// tumbaba el montaje de TODO el componente (pantalla en blanco). Con este
+// helper, si el dato está corrupto se ignora y se usa el valor por defecto.
+// ============================================================
+function safeJsonParse(raw, fallback = null) {
+  if (!raw) return fallback;
+  try {
+    return JSON.parse(raw);
+  } catch (e) {
+    console.warn('localStorage corrupto, usando valores por defecto:', e);
+    return fallback;
+  }
+}
 
-const cambiarIdioma = (event) => {
-  const nuevoIdioma = event.target.value;
-  settings.idioma = nuevoIdioma;
-  setLang(nuevoIdioma);
+// ============================================================
+// CAMBIO 2: namespacing por rol (el bug principal que reportaste)
+// Antes, colores/densidad/borderRadius se guardaban en llaves GLOBALES:
+// 'app-colors', 'app-densidad', 'app-radius'. Como Owner, Member y
+// Recepción compartían esas mismas llaves, guardar cambios en cualquiera
+// de los tres roles sobrescribía el tema de los otros dos.
+// Ahora cada rol guarda/lee bajo su propia llave: app-colors-owner,
+// app-densidad-owner, app-radius-owner (y lo mismo para member/recepcion).
+// ROLE_KEY usa 'user_role' porque es la misma llave que usa el router y
+// App.vue (antes este archivo usaba 'userRole', que no coincidía con nada
+// y por eso el bloque `if (userRole === 'owner')` casi nunca se cumplía).
+// ============================================================
+const ROLE_KEY = 'user_role';
+
+const claveColores = () => {
+  const rol = (localStorage.getItem(ROLE_KEY) || '').toLowerCase();
+  return `app-colors-${rol}`; // ej: app-colors-owner
 };
-
-const toast = reactive({ visible: false, message: '' });
+const claveRadius = () => {
+  const rol = (localStorage.getItem(ROLE_KEY) || '').toLowerCase();
+  return `app-radius-${rol}`;
+};
+const claveDensidad = () => {
+  const rol = (localStorage.getItem(ROLE_KEY) || '').toLowerCase();
+  return `app-densidad-${rol}`;
+};
 
 const defaultColors = { 
   headingBg: '#0b0b0e',
@@ -394,6 +425,7 @@ const defaultColors = {
   textoBotones: '#ffffff',
   svgColor: '#ffffff'
 };
+
 const colorPresets = {
   gymFemenino: { 
     label: '🌸 Fit Femme (Gym)', 
@@ -517,10 +549,41 @@ const colorPresets = {
   }
 };
 
+// CAMBIO: settings.colors/densidad/borderRadius ahora usan safeJsonParse y
+// las llaves NAMESPACEADAS por rol (claveColores/claveDensidad/claveRadius),
+// en vez de 'app-colors' / 'app-densidad' / 'app-radius' globales.
+const settings = reactive({
+  notificaciones: false,
+  tutorial: localStorage.getItem('tutorialActivo') === 'true', 
+  idioma: localStorage.getItem('owner-idioma') || 'es',
+  densidad: localStorage.getItem(claveDensidad()) || 'normal',
+  borderRadius: localStorage.getItem(claveRadius()) || '16px',
+  colors: safeJsonParse(localStorage.getItem(claveColores())) || { ...defaultColors }
+});
 
+// ============================================================
+// CAMBIO 3: presetActivo faltaba por completo en este archivo.
+// El template ya lo usaba (:class="{ 'is-active': presetActivo === key }"),
+// pero al no existir en el script, esa comparación siempre daba
+// `undefined === key` (false), y NINGÚN preset se marcaba como activo con
+// el check ✓. Se agrega como computed: compara los colores actuales contra
+// cada preset y devuelve la llave del que coincide.
+// ============================================================
+const presetActivo = computed(() => {
+  const actual = JSON.stringify(settings.colors);
+  const key = Object.keys(colorPresets).find(
+    (k) => JSON.stringify(colorPresets[k].colors) === actual
+  );
+  return key || null;
+});
 
+const cambiarIdioma = (event) => {
+  const nuevoIdioma = event.target.value;
+  settings.idioma = nuevoIdioma;
+  setLang(nuevoIdioma);
+};
 
-
+const toast = reactive({ visible: false, message: '' });
 
 const showToast = (msg) => {
   toast.message = msg;
@@ -537,7 +600,8 @@ const restaurarColoresPorDefecto = () => {
 const aplicarPreset = (tipoPreset) => {
   if (colorPresets[tipoPreset]) {
     settings.colors = { ...colorPresets[tipoPreset].colors };
-    localStorage.setItem('app-colors', JSON.stringify(settings.colors));
+    // CAMBIO: se guarda en la llave namespaceada por rol, no en 'app-colors' global.
+    localStorage.setItem(claveColores(), JSON.stringify(settings.colors));
     aplicarEstilos();
     window.dispatchEvent(new CustomEvent('app-settings-updated', { detail: settings }));
     showToast(t('toastPresetApplied').replace('{label}', colorPresets[tipoPreset].label));
@@ -546,13 +610,16 @@ const aplicarPreset = (tipoPreset) => {
 
 const guardarCambios = async () => {
   try {
-    const userRole = localStorage.getItem('userRole') || 'owner';
+    // CAMBIO: ROLE_KEY ('user_role') en vez de 'userRole', para que coincida
+    // con la llave real que usan el router y App.vue.
+    const userRole = localStorage.getItem(ROLE_KEY) || 'owner';
 
     localStorage.setItem('tutorialActivo', settings.tutorial);
     localStorage.setItem('owner-idioma', settings.idioma);
-    localStorage.setItem('app-colors', JSON.stringify(settings.colors));
-    localStorage.setItem('app-densidad', settings.densidad);
-    localStorage.setItem('app-radius', settings.borderRadius);
+    // CAMBIO: llaves namespaceadas por rol en vez de 'app-colors' / 'app-densidad' / 'app-radius' globales.
+    localStorage.setItem(claveColores(), JSON.stringify(settings.colors));
+    localStorage.setItem(claveDensidad(), settings.densidad);
+    localStorage.setItem(claveRadius(), settings.borderRadius);
     
     aplicarEstilos();
     
@@ -631,7 +698,8 @@ onMounted(async () => {
     }
   });
 
-  const userRole = localStorage.getItem('userRole') || 'owner';
+  // CAMBIO: ROLE_KEY ('user_role') en vez de 'userRole'.
+  const userRole = localStorage.getItem(ROLE_KEY) || 'owner';
   if (userRole === 'owner') {
     try {
       const res = await fetch('/api/owner/configuracion', {
@@ -721,9 +789,6 @@ const exportar = async (tipo) => {
   margin: 6px 0 0 0; 
 }
 
-/* ===================================================================
-   Temas / Presets — rediseñados como tarjetas con vista previa real
-   =================================================================== */
 .presets-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -755,7 +820,6 @@ const exportar = async (tipo) => {
 }
 
 .preset-card::after {
-  /* leve viñeta para que el texto siempre sea legible sobre cualquier color */
   content: '';
   position: absolute;
   inset: 0;
