@@ -64,15 +64,6 @@ const router = useRouter();
 
 const userRole = ref(localStorage.getItem('user_role') || '');
 
-// ============================================================
-// CAMBIO 1: safeJsonParse
-// Faltaba por completo en App.vue. aplicarEstilosGlobales() la llamaba,
-// así que en cuanto se ejecutaba onMounted, JS lanzaba
-// "ReferenceError: safeJsonParse is not defined" y tumbaba el montaje de
-// TODA la app (pantalla en blanco). Cada componente .vue tiene su propio
-// scope de <script setup>, así que la función definida en las páginas de
-// configuración no estaba disponible aquí.
-// ============================================================
 function safeJsonParse(raw: string | null, fallback: any = null) {
   if (!raw) return fallback;
   try {
@@ -83,7 +74,7 @@ function safeJsonParse(raw: string | null, fallback: any = null) {
   }
 }
 
-// --- CONTROL DE INACTIVIDAD Y ADVERTENCIA (sin cambios) ---
+// --- CONTROL DE INACTIVIDAD (sin cambios) ---
 let inactivityTimer: number | null = null;
 let countdownTimer: number | null = null;
 
@@ -174,18 +165,7 @@ const manejarCambioStorage = (evento: StorageEvent) => {
   }
 };
 
-// ============================================================
-// CAMBIO 2: CSS por rol cargado dinámicamente (el bug principal)
-// Antes: los 3 archivos (member, recepcion, y faltaba owner) se importaban
-// SIEMPRE con @import estático en <style>, sin scoping por rol. Al ser CSS
-// global, el último importado (o el selector más específico) ganaba sobre
-// los otros, así que un cambio de tema en un rol terminaba pisando la
-// apariencia visual de los otros roles en la misma sesión de navegador.
-//
-// Ahora: un solo <link> en <head>, cuyo href apunta al CSS del ROL ACTIVO
-// únicamente. Al cambiar de rol (logout/login) se reemplaza el <link>, así
-// que solo un stylesheet de rol está cargado en el DOM a la vez.
-// ============================================================
+// --- CSS por rol (sin cambios respecto a la versión anterior) ---
 const ROLE_STYLE_LINK_ID = 'role-stylesheet';
 
 const RUTAS_CSS_POR_ROL: Record<string, string> = {
@@ -201,8 +181,6 @@ const cargarEstiloDelRol = () => {
   let link = document.getElementById(ROLE_STYLE_LINK_ID) as HTMLLinkElement | null;
 
   if (!ruta) {
-    // Rol desconocido o sin sesión: quitamos cualquier hoja de estilos de rol
-    // para no dejar aplicado el tema de un rol anterior.
     if (link) link.remove();
     return;
   }
@@ -214,7 +192,6 @@ const cargarEstiloDelRol = () => {
     document.head.appendChild(link);
   }
 
-  // Solo reasigna el href si cambió, para evitar parpadeos innecesarios.
   if (!link.href.endsWith(ruta)) {
     link.href = ruta;
   }
@@ -228,24 +205,36 @@ const aplicarEstilosGlobales = () => {
 
   const root = document.documentElement;
 
-  if (savedColors) {
-    if (savedColors.headingBg) root.style.setProperty('--color-heading-bg', savedColors.headingBg);
-    if (savedColors.tablas) root.style.setProperty('--color-tablas', savedColors.tablas);
-    if (savedColors.interfaz) {
-      root.style.setProperty('--color-interfaz', savedColors.interfaz);
-      root.style.setProperty('--bg-custom', savedColors.interfaz);
+  // ============================================================
+  // CAMBIO CLAVE: antes solo se hacía setProperty() de los valores
+  // que existieran en savedColors, dejando cualquier variable no
+  // presente CON EL VALOR ANTERIOR (el del rol previo). Ahora, para
+  // cada variable, si el rol actual no tiene un color guardado
+  // (savedColors.x es undefined), se hace removeProperty() para
+  // que caiga de nuevo al valor de global-theme.css / :root en vez
+  // de arrastrar el color del rol anterior.
+  // ============================================================
+  const aplicarOFallback = (prop: string, valor: string | undefined) => {
+    if (valor) {
+      root.style.setProperty(prop, valor);
+    } else {
+      root.style.removeProperty(prop);
     }
-    if (savedColors.botones) root.style.setProperty('--color-botones', savedColors.botones);
-    if (savedColors.tarjetas) root.style.setProperty('--bg-cards', savedColors.tarjetas);
-    if (savedColors.titulos) root.style.setProperty('--color-titulos', savedColors.titulos);
-    if (savedColors.highlight) root.style.setProperty('--color-highlight', savedColors.highlight);
-    if (savedColors.etiquetas) root.style.setProperty('--color-etiquetas', savedColors.etiquetas);
-    if (savedColors.textoGeneral) root.style.setProperty('--color-texto-general', savedColors.textoGeneral);
-    if (savedColors.textoBotones) root.style.setProperty('--color-texto-botones', savedColors.textoBotones);
-    if (savedColors.svgColor) root.style.setProperty('--color-svg', savedColors.svgColor);
-  }
+  };
 
-  if (savedRadius) root.style.setProperty('--app-border-radius', savedRadius);
+  aplicarOFallback('--color-heading-bg', savedColors.headingBg);
+  aplicarOFallback('--color-tablas', savedColors.tablas);
+  aplicarOFallback('--color-interfaz', savedColors.interfaz);
+  aplicarOFallback('--bg-custom', savedColors.interfaz);
+  aplicarOFallback('--color-botones', savedColors.botones);
+  aplicarOFallback('--bg-cards', savedColors.tarjetas);
+  aplicarOFallback('--color-titulos', savedColors.titulos);
+  aplicarOFallback('--color-highlight', savedColors.highlight);
+  aplicarOFallback('--color-etiquetas', savedColors.etiquetas);
+  aplicarOFallback('--color-texto-general', savedColors.textoGeneral);
+  aplicarOFallback('--color-texto-botones', savedColors.textoBotones);
+  aplicarOFallback('--color-svg', savedColors.svgColor);
+  aplicarOFallback('--app-border-radius', savedRadius || undefined);
 
   if (savedDensidad === 'compacto') {
     root.style.setProperty('--panel-padding', '16px');
@@ -269,6 +258,33 @@ onMounted(() => {
   if (!expiro) {
     iniciarMonitoreoInactividad();
   }
+
+  // ============================================================
+  // CAMBIO PRINCIPAL: router.afterEach
+  // App.vue se monta UNA sola vez por sesión de SPA. Antes,
+  // aplicarEstilosGlobales() solo corría en este onMounted, es decir,
+  // solo la PRIMERA vez que se cargaba la página completa. Cualquier
+  // navegación posterior dentro del SPA (Owner -> Dashboard Member,
+  // por ejemplo) NO volvía a leer el rol ni a reaplicar sus colores;
+  // las variables CSS en document.documentElement (que son globales
+  // para TODO el documento, no por componente) se quedaban con los
+  // valores que dejó el rol anterior.
+  //
+  // Con este hook, CADA VEZ que cambias de ruta (entrar a cualquier
+  // panel, sin importar si es la página de configuración o no) se
+  // vuelve a leer `user_role` desde localStorage y se reaplican tanto
+  // el <link> de CSS del rol (cargarEstiloDelRol) como las variables
+  // de color/densidad/radius namespaceadas (aplicarEstilosGlobales),
+  // sobrescribiendo cualquier valor que haya dejado el rol anterior.
+  //
+  // Esto es lo que hace que Member SIEMPRE vea sus propios colores al
+  // entrar a su panel, sin importar qué tema tenía aplicado Owner
+  // segundos antes en la misma pestaña.
+  // ============================================================
+  router.afterEach(() => {
+    cargarEstiloDelRol();
+    aplicarEstilosGlobales();
+  });
 });
 
 onUnmounted(() => {
