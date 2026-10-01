@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div ref="rootRef">
     <!-- Botón flotante de ayuda -->
     <button v-if="tutorialEnabled && steps.length > 0" class="btn-help" @click="startTutorial">
       <svg viewBox="0 0 24 24" width="24" fill="currentColor">
@@ -14,16 +14,16 @@
         v-if="targetRect"
         class="spotlight-box"
         :style="{
-          top: targetRect.top + 'px',
-          left: targetRect.left + 'px',
           width: targetRect.width + 'px',
-          height: targetRect.height + 'px'
+          height: targetRect.height + 'px',
+          transform: `translate3d(${targetRect.left}px, ${targetRect.top}px, 0)`
         }"
       ></div>
 
       <!-- Tarjeta de explicación: en escritorio flota junto al elemento, en móvil es una hoja inferior fija -->
       <div
         v-if="steps[activeStep] && (!isMobile || textRevealed)"
+        ref="sheetRef"
         class="help-popover"
         :class="{ 'mobile-sheet': isMobile }"
         :style="isMobile ? {} : popoverStyle"
@@ -52,7 +52,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
 
 const route = useRoute();
@@ -70,15 +70,34 @@ let revealTimer = null;
 
 // Seguimiento continuo (requestAnimationFrame) de la posición del elemento resaltado
 let rafId = null;
+let lastFrameTime = 0;
+// Posición animada del recuadro en coordenadas de página (no de pantalla): así
+// el recuadro se mantiene pegado al elemento mientras la página se desplaza y
+// sólo se interpola de forma suave al pasar de un elemento a otro.
+let spotlightPageRect = null;
+let resizeTimer = null;
 let previousBodyOverflow = '';
+
+const rootRef = ref(null);
+const sheetRef = ref(null);
+// Altura real de la hoja inferior en móvil, medida cada vez que aparece el texto
+let lastSheetHeight = 0;
+
+const SPOTLIGHT_PADDING = 8;
+const SCROLL_GAP = 12;
+const SPOTLIGHT_SMOOTHING_MS = 70;
+const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 const isMobile = computed(() => windowWidth.value <= 768);
 
 const handleResize = () => {
   windowWidth.value = window.innerWidth;
-  if (activeStep.value !== null) {
-    updateTargetPosition();
-  }
+  if (activeStep.value === null) return;
+  // En móvil el resize se dispara constantemente (barra de direcciones, teclado,
+  // rotación). El seguimiento por frame ya corrige el recuadro; aquí sólo se
+  // vuelve a desplazar la página si el elemento quedó fuera de la zona visible.
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(ensureTargetVisible, 200);
 };
 
 // Traducciones de los textos fijos de la interfaz del tutorial (botones, contador)
@@ -457,51 +476,153 @@ const stopTracking = () => {
   }
 };
 
-// Recalcula la posición del elemento resaltado en cada frame para que el
-// recuadro se mueva de forma fluida y siempre quede bien alineado, aun si
-// hay animaciones o cambios de layout mientras el tutorial está activo.
-const trackPosition = () => {
+const getCurrentTarget = () => {
+  const stepConfig = steps.value[activeStep.value];
+  return stepConfig ? document.querySelector(stepConfig.selector) : null;
+};
+
+const getViewportHeight = () => window.visualViewport?.height || window.innerHeight;
+
+// Parte superior de la pantalla tapada por barras fijas o sticky (p. ej. la
+// barra superior en móvil); el elemento resaltado no debe quedar debajo de ellas.
+const getTopObstruction = (target) => {
+  const maxHeight = getViewportHeight() * 0.4;
+  let bottom = 0;
+  for (const node of document.elementsFromPoint(window.innerWidth / 2, 1)) {
+    if (rootRef.value?.contains(node) || node.contains(target) || target.contains(node)) continue;
+    const { position } = getComputedStyle(node);
+    if (position !== 'fixed' && position !== 'sticky') continue;
+    const rect = node.getBoundingClientRect();
+    if (rect.top <= 1 && rect.bottom < maxHeight) bottom = Math.max(bottom, rect.bottom);
+  }
+  return bottom;
+};
+
+// Espacio inferior que ocupa la hoja de texto en móvil. Antes de medirla por
+// primera vez se usa una estimación.
+const getBottomObstruction = () => {
+  if (!isMobile.value) return 0;
+  return lastSheetHeight || Math.min(getViewportHeight() * 0.45, 300);
+};
+
+// Zona de la pantalla en la que el elemento resaltado queda realmente visible
+const getVisibleArea = (target) => ({
+  top: (isMobile.value ? getTopObstruction(target) : 0) + SCROLL_GAP + SPOTLIGHT_PADDING,
+  bottom: getViewportHeight() - getBottomObstruction() - SCROLL_GAP - SPOTLIGHT_PADDING
+});
+
+const scrollToTarget = (el) => {
+  if (!isMobile.value) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  // En móvil se centra el elemento en el hueco libre entre la barra superior y
+  // la hoja de texto. scroll-margin hace que el navegador calcule el destino
+  // descontando ese espacio, incluso si el elemento está en un contenedor con scroll.
+  const area = getVisibleArea(el);
+  const fits = el.getBoundingClientRect().height <= area.bottom - area.top;
+  const { scrollMarginTop, scrollMarginBottom } = el.style;
+  el.style.scrollMarginTop = `${area.top}px`;
+  el.style.scrollMarginBottom = `${getViewportHeight() - area.bottom}px`;
+  el.scrollIntoView({ behavior: 'smooth', block: fits ? 'center' : 'start' });
+  el.style.scrollMarginTop = scrollMarginTop;
+  el.style.scrollMarginBottom = scrollMarginBottom;
+};
+
+// Vuelve a desplazar la página sólo si el elemento quedó tapado o fuera de vista
+const ensureTargetVisible = () => {
+  if (activeStep.value === null) return;
+  const el = getCurrentTarget();
+  if (!el) return;
+
+  const rect = el.getBoundingClientRect();
+  const area = getVisibleArea(el);
+  const fits = rect.height <= area.bottom - area.top;
+  const outOfView = fits
+    ? rect.top < area.top - 1 || rect.bottom > area.bottom + 1
+    : rect.top < area.top - 1 || rect.top > (area.top + area.bottom) / 2;
+
+  if (outOfView) scrollToTarget(el);
+};
+
+// Recalcula la posición del elemento resaltado en cada frame. La posición se
+// guarda en coordenadas de página, así que mientras la pantalla se desplaza el
+// recuadro sigue al elemento sin retraso; al cambiar de paso se interpola con
+// una curva exponencial que no depende de los FPS del dispositivo.
+const trackPosition = (now) => {
   if (activeStep.value === null || !steps.value[activeStep.value]) {
     stopTracking();
     return;
   }
 
-  const stepConfig = steps.value[activeStep.value];
-  const el = document.querySelector(stepConfig.selector);
+  const el = getCurrentTarget();
 
   if (el) {
     const rect = el.getBoundingClientRect();
-    targetRect.value = {
-      top: rect.top - 8,
-      left: rect.left - 8,
-      width: rect.width + 16,
-      height: rect.height + 16
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+    const target = {
+      top: rect.top + scrollY - SPOTLIGHT_PADDING,
+      left: rect.left + scrollX - SPOTLIGHT_PADDING,
+      width: rect.width + SPOTLIGHT_PADDING * 2,
+      height: rect.height + SPOTLIGHT_PADDING * 2
     };
+
+    if (!spotlightPageRect || reducedMotionQuery.matches) {
+      spotlightPageRect = target;
+    } else {
+      const dt = lastFrameTime ? Math.min(now - lastFrameTime, 100) : 16;
+      const k = 1 - Math.exp(-dt / SPOTLIGHT_SMOOTHING_MS);
+      for (const key in target) {
+        const diff = target[key] - spotlightPageRect[key];
+        spotlightPageRect[key] = Math.abs(diff) < 0.5 ? target[key] : spotlightPageRect[key] + diff * k;
+      }
+    }
+
+    const next = {
+      top: spotlightPageRect.top - scrollY,
+      left: spotlightPageRect.left - scrollX,
+      width: spotlightPageRect.width,
+      height: spotlightPageRect.height
+    };
+    // Sólo se actualiza el estado reactivo si algo cambió, para no re-renderizar
+    // en cada frame con la pantalla quieta (importante en móvil).
+    const prev = targetRect.value;
+    if (!prev || Object.keys(next).some((key) => Math.abs(next[key] - prev[key]) > 0.1)) {
+      targetRect.value = next;
+    }
   } else {
+    spotlightPageRect = null;
     targetRect.value = null;
   }
 
+  lastFrameTime = now;
+  rafId = requestAnimationFrame(trackPosition);
+};
+
+const startTracking = () => {
+  if (rafId) return;
+  lastFrameTime = 0;
   rafId = requestAnimationFrame(trackPosition);
 };
 
 const updateTargetPosition = () => {
-  stopTracking();
+  if (activeStep.value === null) return;
 
-  if (activeStep.value === null || !steps.value[activeStep.value]) return;
-
-  const stepConfig = steps.value[activeStep.value];
-  const el = document.querySelector(stepConfig.selector);
-
-  if (el) {
-    el.scrollIntoView({ behavior: 'smooth', block: isMobile.value ? 'start' : 'center' });
-
-    setTimeout(() => {
-      trackPosition();
-    }, 350);
-  } else {
-    targetRect.value = null;
-  }
+  const el = getCurrentTarget();
+  if (el) scrollToTarget(el);
+  startTracking();
 };
+
+// En móvil, al aparecer la hoja de texto se mide su altura real y, si tapa al
+// elemento resaltado, se reacomoda la página para dejarlo a la vista.
+watch(textRevealed, async (revealed) => {
+  if (!revealed || !isMobile.value || activeStep.value === null) return;
+  await nextTick();
+  if (sheetRef.value) lastSheetHeight = sheetRef.value.offsetHeight;
+  ensureTargetVisible();
+});
 
 // Bloquea el scroll de la página mientras el tutorial está activo, así el
 // recuadro nunca se desalinea con el elemento que señala al desplazarse.
@@ -567,7 +688,9 @@ const prevStep = () => {
 
 const closeTutorial = () => {
   if (revealTimer) clearTimeout(revealTimer);
+  clearTimeout(resizeTimer);
   stopTracking();
+  spotlightPageRect = null;
   unlockScroll();
   activeStep.value = null;
   targetRect.value = null;
@@ -591,6 +714,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   if (revealTimer) clearTimeout(revealTimer);
+  clearTimeout(resizeTimer);
   stopTracking();
   unlockScroll();
   window.removeEventListener('tutorial-updated', updateTutorialStatus);
@@ -623,20 +747,24 @@ onUnmounted(() => {
 
 .tutorial-overlay {
   position: fixed;
-  top: 0; left: 0; width: 100vw; height: 100vh;
+  inset: 0;
   background: transparent;
   z-index: 9999;
   overflow: hidden;
+  /* Evita que en móvil el gesto de arrastre desplace la página bajo el overlay */
+  touch-action: none;
 }
 
+/* Sin transition de CSS: la suavidad la da la interpolación por frame en JS,
+   que no pelea con las actualizaciones continuas de posición. */
 .spotlight-box {
   position: absolute;
+  top: 0;
+  left: 0;
   border-radius: 14px;
   box-shadow: 0 0 0 9999px rgba(2, 6, 23, 0.85), 0 0 25px rgba(85, 88, 247, 0.9);
   border: 2px solid #6366f1;
-  transition: top 0.25s cubic-bezier(0.4, 0, 0.2, 1), left 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-              width 0.25s cubic-bezier(0.4, 0, 0.2, 1), height 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  will-change: top, left, width, height;
+  will-change: transform, width, height;
   pointer-events: none;
 }
 
@@ -666,7 +794,10 @@ onUnmounted(() => {
   width: 100%;
   max-width: 100%;
   max-height: 70vh;
+  max-height: 70dvh;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
   border-radius: 20px 20px 0 0;
   padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
   animation: slideUpSheet 0.3s cubic-bezier(0.4, 0, 0.2, 1);
