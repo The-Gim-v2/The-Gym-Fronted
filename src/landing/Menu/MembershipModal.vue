@@ -1,46 +1,35 @@
 <script setup lang="ts">
-import { reactive, ref, computed, watch } from 'vue';
+import { reactive, ref, computed, watch, onMounted, onUnmounted } from 'vue';
 
-const props = defineProps<{
-  modelValue?: string;
-}>();
-
+const props = defineProps<{ modelValue?: string }>();
 const emit = defineEmits(['close', 'success', 'update:modelValue']);
 
-const activeTab = ref('spei'); // 'spei' | 'card' | 'oxxo' | 'paypal'
+type PaymentTab = 'spei' | 'card' | 'oxxo' | 'paypal';
+
+const activeTab = ref<PaymentTab>('spei');
 const isLoading = ref(false);
 
 const paymentForm = reactive({
-  cardName: '',
-  cardNumber: '',
-  expiryDate: '',
-  cvv: '',
+  cardName: '', cardNumber: '', expiryDate: '', cvv: '',
   selectedPackage: props.modelValue || 'Prueba Gratuita',
-  speiBank: '',
-  speiEmail: ''
+  speiBank: '', speiEmail: ''
 });
 
-// Diccionario centralizado con los 7 planes exactos y sus precios correspondientes
-const PLANS_CONFIG: Record<string, { name: string; price: number; formattedPrice: string }> = {
-  'Prueba Gratuita': { name: 'Prueba Gratuita', price: 0, formattedPrice: '$0.00' },
-  'Básica': { name: 'Básica', price: 650, formattedPrice: '$650.00' },
-  'Intermedia': { name: 'Intermedia', price: 850, formattedPrice: '$850.00' },
-  'Avanzada': { name: 'Avanzada', price: 1200, formattedPrice: '$1,200.00' },
-  'Pro': { name: 'Pro', price: 2100, formattedPrice: '$2,100.00' },
-  'Sistema Permanente': { name: 'Sistema Permanente', price: 11000, formattedPrice: '$11,000.00' },
-  'Sistema Avanzado': { name: 'Sistema Avanzado', price: 26000, formattedPrice: '$26,000.00' },
+const PLANS_CONFIG: Record<string, { name: string; price: number; formattedPrice: string; description: string; period: string }> = {
+  'Prueba Gratuita': { name: 'Prueba Gratuita', price: 0, formattedPrice: '$0.00', description: 'Acceso completo durante 7 días', period: '7 días' },
+  'Básica': { name: 'Básica', price: 650, formattedPrice: '$650.00', description: 'Funciones esenciales para tu gimnasio', period: '/ mes' },
+  'Intermedia': { name: 'Intermedia', price: 850, formattedPrice: '$850.00', description: 'Capacidades ampliadas de administración', period: '/ mes' },
+  'Avanzada': { name: 'Avanzada', price: 1200, formattedPrice: '$1,200.00', description: 'Herramientas avanzadas de gestión', period: '/ mes' },
+  'Pro': { name: 'Pro', price: 2100, formattedPrice: '$2,100.00', description: 'Acceso completo a todas las funciones', period: '/ mes' },
+  'Sistema Permanente': { name: 'Sistema Permanente', price: 11000, formattedPrice: '$11,000.00', description: 'Licencia permanente del sistema', period: 'pago único' },
+  'Sistema Avanzado': { name: 'Sistema Avanzado', price: 26000, formattedPrice: '$26,000.00', description: 'Sistema completo con funciones avanzadas', period: 'pago único' }
 };
 
-// Plan actual computado de manera limpia
-const currentPlan = computed(() => {
-  return PLANS_CONFIG[paymentForm.selectedPackage] ?? PLANS_CONFIG['Prueba Gratuita'];
-});
+const currentPlan = computed(() => PLANS_CONFIG[paymentForm.selectedPackage] ?? PLANS_CONFIG['Prueba Gratuita']);
+const isFreeTrial = computed(() => paymentForm.selectedPackage === 'Prueba Gratuita');
 
-// Sincronizar si cambia desde el componente padre
-watch(() => props.modelValue, (newVal) => {
-  if (newVal && newVal !== paymentForm.selectedPackage) {
-    paymentForm.selectedPackage = newVal;
-  }
+watch(() => props.modelValue, newVal => {
+  if (newVal && newVal !== paymentForm.selectedPackage) paymentForm.selectedPackage = newVal;
 });
 
 const updateSelectedPackage = (pkg: string) => {
@@ -48,7 +37,6 @@ const updateSelectedPackage = (pkg: string) => {
   emit('update:modelValue', pkg);
 };
 
-// Detectar tipo de tarjeta básico
 const detectedBrand = computed(() => {
   const num = paymentForm.cardNumber.replace(/\s+/g, '');
   if (num.startsWith('4')) return 'visa';
@@ -58,889 +46,569 @@ const detectedBrand = computed(() => {
 });
 
 const formatCardNumber = (e: Event) => {
-  let value = (e.target as HTMLInputElement).value.replace(/\D/g, '');
-  value = value.substring(0, 16);
+  const value = (e.target as HTMLInputElement).value.replace(/\D/g, '').substring(0, 16);
   paymentForm.cardNumber = value.replace(/(\d{4})(?=\d)/g, '$1 ');
 };
 
 const formatExpiry = (e: Event) => {
-  let value = (e.target as HTMLInputElement).value.replace(/\D/g, '');
-  if (value.length >= 3) {
-    value = value.substring(0, 2) + '/' + value.substring(2, 4);
-  }
+  let value = (e.target as HTMLInputElement).value.replace(/\D/g, '').substring(0, 4);
+  if (value.length >= 3) value = value.substring(0, 2) + '/' + value.substring(2);
   paymentForm.expiryDate = value;
 };
 
 const formatCvv = (e: Event) => {
-  let value = (e.target as HTMLInputElement).value.replace(/\D/g, '');
-  paymentForm.cvv = value.substring(0, 4);
+  paymentForm.cvv = (e.target as HTMLInputElement).value.replace(/\D/g, '').substring(0, 4);
 };
 
 const handleProcessPayment = () => {
   isLoading.value = true;
-  const isFreeTrial = paymentForm.selectedPackage === 'Prueba Gratuita';
-
   setTimeout(() => {
     isLoading.value = false;
-    if (isFreeTrial) {
-      emit('success', '¡Prueba gratuita de 7 días activada! Ya puedes registrar tu gimnasio.');
-    } else {
-      emit('success', '¡Pago procesado y membresía renovada con éxito! Ya puedes registrar tu gimnasio.');
-    }
+    emit('success', isFreeTrial.value
+      ? '¡Prueba gratuita de 7 días activada! Ya puedes registrar tu gimnasio.'
+      : '¡Pago procesado y membresía renovada con éxito! Ya puedes registrar tu gimnasio.');
   }, 1500);
 };
+
+// Evita el doble scroll: bloquea el scroll de la página mientras el modal está abierto
+let prevBody = '';
+let prevHtml = '';
+onMounted(() => {
+  prevBody = document.body.style.overflow;
+  prevHtml = document.documentElement.style.overflow;
+  document.body.style.overflow = 'hidden';
+  document.documentElement.style.overflow = 'hidden';
+});
+onUnmounted(() => {
+  document.body.style.overflow = prevBody;
+  document.documentElement.style.overflow = prevHtml;
+});
 </script>
 
 <template>
-  <div class="modal-overlay" @click.self="$emit('close')">
-    <div class="modal-container payment-modal-container animate-modal">
-      
-      <div class="modal-header">
-        <div class="header-title-wrapper">
-          <svg class="header-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-          </svg>
-          <h3>{{ paymentForm.selectedPackage === 'Prueba Gratuita' ? 'Activación de Prueba Gratuita' : 'Pasarela de Pago Segura' }}</h3>
+  <div class="payment-overlay" @click.self="$emit('close')">
+    <div class="checkout">
+
+      <!-- HEADER -->
+      <header class="checkout-header">
+        <div class="checkout-brand">
+          <div class="secure-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2.5" y="4.5" width="16" height="11.5" rx="2.5"/><path d="M2.5 9h16"/><path d="M6 13h3"/>
+              <circle cx="17.5" cy="16.5" r="4.6" fill="#101112"/><path d="m15.4 16.6 1.4 1.4 2.8-2.9" stroke="#65c68b" stroke-width="2"/>
+            </svg>
+          </div>
+          <div>
+            <h2>{{ isFreeTrial ? 'Activar prueba gratuita' : 'Finalizar compra' }}</h2>
+            <p>{{ isFreeTrial ? 'Comienza tu periodo de prueba sin ingresar datos bancarios.' : 'Completa el pago de tu membresía de forma segura.' }}</p>
+          </div>
         </div>
-        <button class="close-btn" @click="$emit('close')">&times;</button>
-      </div>
+        <button type="button" class="close-btn" aria-label="Cerrar" @click="$emit('close')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </header>
 
-      <div class="modal-body payment-modal-body">
-        <form @submit.prevent="handleProcessPayment" class="payment-grid">
-          
-          <div class="payment-col">
-            <template v-if="paymentForm.selectedPackage === 'Prueba Gratuita'">
-              <label class="payment-section-label">1. Activación sin costo</label>
-              <div class="spei-container">
-                <div class="spei-box">
-                  <div class="spei-badge-top bg-trial">Plan de 7 Días</div>
-                  <p class="spei-desc">Has seleccionado la prueba gratuita de 7 días. No se requiere tarjeta de crédito ni pago inmediato para comenzar a registrar tu gimnasio.</p>
-                </div>
-              </div>
-            </template>
+      <form class="checkout-body" @submit.prevent="handleProcessPayment">
 
-            <template v-else>
-              <label class="payment-section-label">1. Selecciona tu método de pago</label>
-              
-              <div class="payment-tabs">
-                <button type="button" class="tab-btn" :class="{ active: activeTab === 'spei' }" @click="activeTab = 'spei'">
-                  <span>SPEI</span>
-                </button>
-                <button type="button" class="tab-btn" :class="{ active: activeTab === 'card' }" @click="activeTab = 'card'">
-                  <span>Tarjeta</span>
-                </button>
-                <button type="button" class="tab-btn" :class="{ active: activeTab === 'oxxo' }" @click="activeTab = 'oxxo'">
-                  <span>OXXO</span>
-                </button>
-                <button type="button" class="tab-btn" :class="{ active: activeTab === 'paypal' }" @click="activeTab = 'paypal'">
-                  <span>PayPal</span>
-                </button>
-              </div>
-
-              <template v-if="activeTab === 'spei'">
-                <div class="spei-container">
-                  <div class="spei-box">
-                    <div class="spei-badge-top">Más elegido / Depósito desde tu banco</div>
-                    <p class="spei-desc">Se generará una CLABE interbancaria única para realizar tu transferencia SPEI.</p>
-                    
-                    <div class="input-group mt-2">
-                      <label>Banco de origen</label>
-                      <select v-model="paymentForm.speiBank" class="select-input" required>
-                        <option value="" disabled selected>Selecciona tu banco</option>
-                        <option value="bbva">BBVA México</option>
-                        <option value="banamex">Citibanamex</option>
-                        <option value="santander">Santander</option>
-                        <option value="hsbc">HSBC</option>
-                        <option value="scotiabank">Scotiabank</option>
-                        <option value="azteca">Banco Azteca</option>
-                        <option value="other">Otro banco</option>
-                      </select>
-                    </div>
-
-                    <div class="input-group mt-2">
-                      <label>Correo electrónico</label>
-                      <input type="email" v-model="paymentForm.speiEmail" placeholder="tucorreo@dominio.com" required />
-                    </div>
-                  </div>
-                </div>
-              </template>
-
-              <template v-else-if="activeTab === 'card'">
-                <div class="virtual-card">
-                  <div class="card-chip"></div>
-                  <div class="card-brand-display">
-                    <span :class="['brand-badge visa', { active: detectedBrand === 'visa' }]">VISA</span>
-                    <span :class="['brand-badge mc', { active: detectedBrand === 'mc' }]">MC</span>
-                    <span :class="['brand-badge amex', { active: detectedBrand === 'amex' }]">AMEX</span>
-                  </div>
-                  <div class="virtual-card-number">{{ paymentForm.cardNumber || '•••• •••• •••• ••••' }}</div>
-                  <div class="virtual-card-footer">
-                    <div class="v-card-holder">
-                      <small>Titular</small>
-                      <span>{{ paymentForm.cardName || 'NOMBRE APELLIDO' }}</span>
-                    </div>
-                    <div class="v-card-expires">
-                      <small>Expira</small>
-                      <span>{{ paymentForm.expiryDate || 'MM/AA' }}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="input-group mt-3">
-                  <label>Nombre en la tarjeta</label>
-                  <input type="text" v-model="paymentForm.cardName" placeholder="Ej. Juan Carlos Guzmán" required />
-                </div>
-
-                <div class="input-group mt-3">
-                  <label>Número de la tarjeta</label>
-                  <input type="text" :value="paymentForm.cardNumber" @input="formatCardNumber" placeholder="0000 0000 0000 0000" maxlength="19" required />
-                </div>
-
-                <div class="payment-row mt-3">
-                  <div class="input-group">
-                    <label>Caducidad</label>
-                    <input type="text" :value="paymentForm.expiryDate" @input="formatExpiry" placeholder="MM/AA" maxlength="5" required />
-                  </div>
-                  <div class="input-group">
-                    <label>CVV / CVC</label>
-                    <input type="password" :value="paymentForm.cvv" @input="formatCvv" placeholder="123" maxlength="4" required />
-                  </div>
-                </div>
-              </template>
-
-              <template v-else-if="activeTab === 'oxxo'">
-                <div class="oxxo-container">
-                  <div class="oxxo-box">
-                    <div class="oxxo-badge-lg">OXXO Pay</div>
-                    <p>Se generará un voucher con código de barras para pago en efectivo.</p>
-                  </div>
-                </div>
-              </template>
-
-              <template v-else-if="activeTab === 'paypal'">
-                <div class="paypal-container">
-                  <div class="paypal-box">
-                    <p>Serás redirigido de forma segura a PayPal para autorizar tu suscripción.</p>
-                    <div class="paypal-badge-lg">PayPal Express Checkout</div>
-                  </div>
-                </div>
-              </template>
-            </template>
+        <!-- IZQUIERDA -->
+        <section class="payment-panel">
+          <div class="section-heading">
+            <span class="step-number">1</span>
+            <div>
+              <h3>{{ isFreeTrial ? 'Activa tu prueba' : 'Método de pago' }}</h3>
+              <p v-if="!isFreeTrial">Selecciona cómo deseas realizar tu pago.</p>
+              <p v-else>No necesitas registrar una tarjeta para comenzar.</p>
+            </div>
           </div>
 
-          <div class="payment-col summary-col">
-            <label class="payment-section-label">2. Resumen del Plan</label>
-            
-            <div class="packages-selection-list">
-              <!-- 1. Prueba Gratuita -->
-              <label class="package-option-card" :class="{ selected: paymentForm.selectedPackage === 'Prueba Gratuita' }">
-                <input type="radio" value="Prueba Gratuita" :checked="paymentForm.selectedPackage === 'Prueba Gratuita'" @change="updateSelectedPackage('Prueba Gratuita')" />
-                <div class="pkg-info">
-                  <span class="pkg-name">Prueba Gratuita <span class="badge-ahorro bg-trial">7 Días</span></span>
-                  <span class="pkg-desc">Acceso completo sin tarjeta.</span>
-                </div>
-                <span class="pkg-price">$0 <sub>MXN</sub></span>
-              </label>
-
-              <!-- 2. Básica -->
-              <label class="package-option-card" :class="{ selected: paymentForm.selectedPackage === 'Básica' }">
-                <input type="radio" value="Básica" :checked="paymentForm.selectedPackage === 'Básica'" @change="updateSelectedPackage('Básica')" />
-                <div class="pkg-info">
-                  <span class="pkg-name">Básica</span>
-                  <span class="pkg-desc">Funciones esenciales.</span>
-                </div>
-                <span class="pkg-price">$650 <sub>MXN/mes</sub></span>
-              </label>
-
-              <!-- 3. Intermedia -->
-              <label class="package-option-card" :class="{ selected: paymentForm.selectedPackage === 'Intermedia' }">
-                <input type="radio" value="Intermedia" :checked="paymentForm.selectedPackage === 'Intermedia'" @change="updateSelectedPackage('Intermedia')" />
-                <div class="pkg-info">
-                  <span class="pkg-name">Intermedia</span>
-                  <span class="pkg-desc">Capacidades ampliadas.</span>
-                </div>
-                <span class="pkg-price">$850 <sub>MXN/mes</sub></span>
-              </label>
-
-              <!-- 4. Avanzada -->
-              <label class="package-option-card" :class="{ selected: paymentForm.selectedPackage === 'Avanzada' }">
-                <input type="radio" value="Avanzada" :checked="paymentForm.selectedPackage === 'Avanzada'" @change="updateSelectedPackage('Avanzada')" />
-                <div class="pkg-info">
-                  <span class="pkg-name">Avanzada</span>
-                  <span class="pkg-desc">Herramientas robustas.</span>
-                </div>
-                <span class="pkg-price">$1,200 <sub>MXN/mes</sub></span>
-              </label>
-
-              <!-- 5. Pro -->
-              <label class="package-option-card" :class="{ selected: paymentForm.selectedPackage === 'Pro' }">
-                <input type="radio" value="Pro" :checked="paymentForm.selectedPackage === 'Pro'" @change="updateSelectedPackage('Pro')" />
-                <div class="pkg-info">
-                  <span class="pkg-name">Pro <span class="badge-ahorro">Completo</span></span>
-                  <span class="pkg-desc">Acceso ilimitado e IA.</span>
-                </div>
-                <span class="pkg-price">$2,100 <sub>MXN/mes</sub></span>
-              </label>
-
-              <!-- 6. Sistema Permanente -->
-              <label class="package-option-card" :class="{ selected: paymentForm.selectedPackage === 'Sistema Permanente' }">
-                <input type="radio" value="Sistema Permanente" :checked="paymentForm.selectedPackage === 'Sistema Permanente'" @change="updateSelectedPackage('Sistema Permanente')" />
-                <div class="pkg-info">
-                  <span class="pkg-name">Sistema Permanente</span>
-                  <span class="pkg-desc">Pago único.</span>
-                </div>
-                <span class="pkg-price">$11,000 <sub>MXN</sub></span>
-              </label>
-
-              <!-- 7. Sistema Avanzado -->
-              <label class="package-option-card" :class="{ selected: paymentForm.selectedPackage === 'Sistema Avanzado' }">
-                <input type="radio" value="Sistema Avanzado" :checked="paymentForm.selectedPackage === 'Sistema Avanzado'" @change="updateSelectedPackage('Sistema Avanzado')" />
-                <div class="pkg-info">
-                  <span class="pkg-name">Sistema Avanzado</span>
-                  <span class="pkg-desc">Pago único completo.</span>
-                </div>
-                <span class="pkg-price">$26,000 <sub>MXN</sub></span>
-              </label>
-            </div>
-
-            <div class="receipt-box">
-              <div class="receipt-line">
-                <span>Subtotal</span>
-                <span>{{ currentPlan?.formattedPrice }} MXN</span>
+          <!-- PRUEBA GRATUITA -->
+          <template v-if="isFreeTrial">
+            <div class="trial-card">
+              <div class="trial-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 1 1 2.45-3c.5 1.5 2.05 3 2.05 3Z"/><path d="M12 7h4.5a2.5 2.5 0 1 0-2.45-3C13.55 5.5 12 7 12 7Z"/></svg>
               </div>
-              <div class="receipt-line">
-                <span>Impuestos (IVA 16% incl.)</span>
-                <span>$0.00 MXN</span>
-              </div>
-              <div class="receipt-line total">
-                <span>Total a Pagar hoy</span>
-                <span class="total-amount">{{ currentPlan?.formattedPrice }}</span>
+              <div class="trial-content">
+                <span class="trial-badge">7 días gratis</span>
+                <h4>Prueba todas las funciones</h4>
+                <p>Puedes comenzar a configurar tu gimnasio ahora. No se realizará ningún cargo.</p>
+                <div class="trial-features">
+                  <span><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Sin tarjeta</span>
+                  <span><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Sin cargos</span>
+                  <span><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Acceso inmediato</span>
+                </div>
               </div>
             </div>
+          </template>
 
-            <div class="payment-submit-wrapper">
-              <button type="submit" class="btn-primary" :disabled="isLoading">
-                <span v-if="isLoading" class="spinner"></span>
-                <span v-else>{{ paymentForm.selectedPackage === 'Prueba Gratuita' ? 'Activar y Registrar Gimnasio' : 'Confirmar y Pagar' }}</span>
+          <!-- MÉTODOS DE PAGO -->
+          <template v-else>
+            <div class="payment-methods">
+              <button type="button" class="method-btn" :class="{ active: activeTab === 'spei' }" @click="activeTab = 'spei'">
+                <div class="method-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10h18"/><path d="M5 10V8l7-4 7 4v2"/><path d="M6 10v7M10 10v7M14 10v7M18 10v7"/><path d="M3 17h18M2 21h20"/></svg></div>
+                <span><strong>SPEI</strong><small>Transferencia</small></span>
+                <span class="method-radio"><span></span></span>
+              </button>
+
+              <button type="button" class="method-btn" :class="{ active: activeTab === 'card' }" @click="activeTab = 'card'">
+                <div class="method-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M2.5 10h19"/><path d="M6 15h4"/></svg></div>
+                <span><strong>Tarjeta</strong><small>Crédito o débito</small></span>
+                <span class="method-radio"><span></span></span>
+              </button>
+
+              <button type="button" class="method-btn" :class="{ active: activeTab === 'oxxo' }" @click="activeTab = 'oxxo'">
+                <div class="method-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16v16H4z"/><path d="M8 8v8M11 8v8M15 8v8M18 8v8"/></svg></div>
+                <span><strong>OXXO</strong><small>Pago en efectivo</small></span>
+                <span class="method-radio"><span></span></span>
+              </button>
+
+              <button type="button" class="method-btn" :class="{ active: activeTab === 'paypal' }" @click="activeTab = 'paypal'">
+                <div class="method-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 19 9.5 5h5.2c3.1 0 4.8 1.5 4.3 4.2-.5 2.8-2.5 4.4-5.5 4.4H11L10 19H7Z"/></svg></div>
+                <span><strong>PayPal</strong><small>Cuenta PayPal</small></span>
+                <span class="method-radio"><span></span></span>
               </button>
             </div>
-          </div>
 
-        </form>
-      </div>
+            <!-- SPEI -->
+            <div v-if="activeTab === 'spei'" class="method-content">
+              <div class="method-title">
+                <div>
+                  <span class="recommended-badge">Recomendado</span>
+                  <h4>Transferencia bancaria SPEI</h4>
+                  <p>Generaremos una CLABE única para identificar tu pago.</p>
+                </div>
+                <svg class="method-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10h18"/><path d="M5 10V8l7-4 7 4v2"/><path d="M6 10v7M10 10v7M14 10v7M18 10v7"/><path d="M3 17h18"/></svg>
+              </div>
+
+              <div class="form-group">
+                <label for="speiBank">Banco de origen</label>
+                <div class="select-wrapper">
+                  <select id="speiBank" v-model="paymentForm.speiBank" required>
+                    <option value="" disabled>Selecciona tu banco</option>
+                    <option value="bbva">BBVA México</option>
+                    <option value="banamex">Citibanamex</option>
+                    <option value="santander">Santander</option>
+                    <option value="hsbc">HSBC</option>
+                    <option value="scotiabank">Scotiabank</option>
+                    <option value="azteca">Banco Azteca</option>
+                    <option value="other">Otro banco</option>
+                  </select>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m7 10 5 5 5-5"/></svg>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="speiEmail">Correo para recibir instrucciones</label>
+                <input id="speiEmail" v-model="paymentForm.speiEmail" type="email" placeholder="tucorreo@dominio.com" required />
+              </div>
+
+              <div class="info-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+                <p>Después de confirmar, recibirás la CLABE y las instrucciones para completar la transferencia.</p>
+              </div>
+            </div>
+
+            <!-- TARJETA -->
+            <div v-else-if="activeTab === 'card'" class="method-content">
+              <div class="card-preview">
+                <div class="card-preview-top">
+                  <div class="card-chip"><span></span></div>
+                  <div class="brands">
+                    <span class="brand visa" :class="{ active: detectedBrand === 'visa' }">VISA</span>
+                    <span class="brand" :class="{ active: detectedBrand === 'mc' }">MC</span>
+                    <span class="brand" :class="{ active: detectedBrand === 'amex' }">AMEX</span>
+                  </div>
+                </div>
+                <div class="preview-number">{{ paymentForm.cardNumber || '•••• •••• •••• ••••' }}</div>
+                <div class="preview-footer">
+                  <div><small>Titular</small><span>{{ paymentForm.cardName || 'NOMBRE DEL TITULAR' }}</span></div>
+                  <div><small>Expira</small><span>{{ paymentForm.expiryDate || 'MM/AA' }}</span></div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="cardName">Nombre en la tarjeta</label>
+                <input id="cardName" v-model="paymentForm.cardName" type="text" placeholder="Como aparece en la tarjeta" autocomplete="cc-name" required />
+              </div>
+
+              <div class="form-group">
+                <label for="cardNumber">Número de tarjeta</label>
+                <div class="card-number-field">
+                  <input id="cardNumber" type="text" inputmode="numeric" :value="paymentForm.cardNumber" placeholder="0000 0000 0000 0000" maxlength="19" autocomplete="cc-number" required @input="formatCardNumber" />
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M2.5 10h19"/></svg>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="expiry">Fecha de expiración</label>
+                  <input id="expiry" type="text" inputmode="numeric" :value="paymentForm.expiryDate" placeholder="MM/AA" maxlength="5" autocomplete="cc-exp" required @input="formatExpiry" />
+                </div>
+                <div class="form-group">
+                  <label for="cvv">Código de seguridad</label>
+                  <div class="cvv-field">
+                    <input id="cvv" type="password" inputmode="numeric" :value="paymentForm.cvv" placeholder="CVV" maxlength="4" autocomplete="cc-csc" required @input="formatCvv" />
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9.7 9a2.5 2.5 0 0 1 4.8 1c0 2-2.5 2-2.5 4"/><path d="M12 17h.01"/></svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- OXXO -->
+            <div v-else-if="activeTab === 'oxxo'" class="method-content">
+              <div class="alternative-payment">
+                <div class="alternative-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16v16H4z"/><path d="M8 8v8M11 8v8M15 8v8M18 8v8"/></svg></div>
+                <h4>Pago en efectivo</h4>
+                <p>Generaremos una referencia y código de barras para realizar el pago en una sucursal OXXO.</p>
+                <div class="process-steps">
+                  <div><span>1</span><p>Genera tu referencia</p></div>
+                  <div><span>2</span><p>Paga en una sucursal</p></div>
+                  <div><span>3</span><p>Activamos tu plan</p></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- PAYPAL -->
+            <div v-else class="method-content">
+              <div class="alternative-payment">
+                <div class="alternative-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 19 9.5 5h5.2c3.1 0 4.8 1.5 4.3 4.2-.5 2.8-2.5 4.4-5.5 4.4H11L10 19H7Z"/></svg></div>
+                <h4>Pagar con PayPal</h4>
+                <p>Al continuar serás redirigido a PayPal para autorizar el pago de forma segura.</p>
+                <div class="external-payment">Serás redirigido para completar el pago
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 17 17 7M8 7h9v9"/></svg>
+                </div>
+              </div>
+            </div>
+          </template>
+        </section>
+
+        <!-- DERECHA / RESUMEN -->
+        <aside class="summary-panel">
+          <div class="summary-sticky">
+            <div class="section-heading summary-heading">
+              <span class="step-number">2</span>
+              <div><h3>Resumen de compra</h3><p>Revisa tu plan antes de continuar.</p></div>
+            </div>
+
+            <div class="selected-plan">
+              <div class="selected-plan-top">
+                <span class="plan-label">Plan seleccionado</span>
+                <span v-if="paymentForm.selectedPackage === 'Pro'" class="popular-badge">Completo</span>
+              </div>
+              <div class="selected-plan-main">
+                <div><h4>{{ currentPlan?.name }}</h4><p>{{ currentPlan?.description }}</p></div>
+                <div class="selected-price"><strong>{{ currentPlan?.formattedPrice }}</strong><span>MXN {{ currentPlan?.period }}</span></div>
+              </div>
+            </div>
+
+            <details class="plans-dropdown">
+              <summary>
+                <span>Cambiar plan</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m7 10 5 5 5-5"/></svg>
+              </summary>
+              <div class="plans-list">
+                <label v-for="plan in PLANS_CONFIG" :key="plan.name" class="plan-option" :class="{ selected: paymentForm.selectedPackage === plan.name }">
+                  <input type="radio" name="plan" :value="plan.name" :checked="paymentForm.selectedPackage === plan.name" @change="updateSelectedPackage(plan.name)" />
+                  <span class="plan-radio"><span></span></span>
+                  <span class="plan-info"><strong>{{ plan.name }}</strong><small>{{ plan.description }}</small></span>
+                  <span class="plan-option-price">{{ plan.formattedPrice }}</span>
+                </label>
+              </div>
+            </details>
+
+            <div class="receipt">
+              <div class="receipt-row"><span>Subtotal</span><strong>{{ currentPlan?.formattedPrice }} MXN</strong></div>
+              <div class="receipt-row"><span>IVA</span><strong>Incluido</strong></div>
+              <div class="receipt-divider"></div>
+              <div class="receipt-total">
+                <div><span>Total a pagar hoy</span><small>Importe final en pesos mexicanos</small></div>
+                <strong>{{ currentPlan?.formattedPrice }} <small>MXN</small></strong>
+              </div>
+            </div>
+
+            <button type="submit" class="pay-btn" :disabled="isLoading">
+              <span v-if="isLoading" class="spinner"></span>
+              <template v-else>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+                <span>{{ isFreeTrial ? 'Activar prueba gratuita' : `Pagar ${currentPlan?.formattedPrice} MXN` }}</span>
+              </template>
+            </button>
+
+            <div class="security-footer">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>
+              <div><strong>Pago protegido</strong><span>Tu información de pago se procesa de forma segura.</span></div>
+            </div>
+          </div>
+        </aside>
+
+      </form>
     </div>
   </div>
 </template>
 
-
 <style scoped>
-.animate-modal {
-  animation: modalScale 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes modalScale {
-  from { opacity: 0; transform: scale(0.95) translateY(10px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
-}
-
-.modal-overlay {
-  position: fixed;
-  top: 0; 
-  left: 0; 
-  width: 100%; 
-  height: 100%;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(8px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-  padding: 16px;
-  box-sizing: border-box;
-}
-
-.modal-container {
-  background: #161616;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 20px;
-  width: 100%;
-  max-width: 900px;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  box-shadow: 0 25px 50px rgba(0,0,0,0.7);
-}
-
-.modal-header {
-  padding: 16px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #1c1c1c;
-  flex-shrink: 0;
-}
-
-.header-title-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.header-svg-icon {
-  width: 20px;
-  height: 20px;
-  color: #3b82f6;
-  flex-shrink: 0;
-}
-
-.modal-header h3 {
-  font-family: 'Oswald', sans-serif;
-  color: #fff;
-  font-size: 1.15rem;
-  margin: 0;
-  letter-spacing: 0.5px;
-}
-
-.close-btn {
-  background: transparent;
-  border: none;
-  color: #aaa;
-  font-size: 1.8rem;
-  cursor: pointer;
-  line-height: 1;
-  padding: 0 4px;
-  transition: color 0.2s;
-}
-
-.close-btn:hover { color: #fff; }
-
-.modal-body {
-  padding: 20px;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-.payment-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-}
-
-.payment-section-label {
-  font-family: 'Oswald', sans-serif;
-  color: #fff;
-  font-size: 1.05rem;
-  margin-bottom: 12px;
-  display: block;
-  letter-spacing: 0.5px;
-}
-
-.payment-tabs {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
-  margin-bottom: 16px;
-}
-
-.tab-btn {
-  background: #222;
-  border: 1.5px solid rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
-  color: #aaa;
-  padding: 8px 4px;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.72rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  text-align: center;
-  min-height: 48px;
-}
-
-.tab-btn span {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-}
-
-.tab-svg {
-  width: 15px;
-  height: 15px;
-  flex-shrink: 0;
-}
-
-.tab-btn.active {
-  background: rgba(28, 79, 214, 0.15);
-  border-color: #1c4fd6;
-  color: #fff;
-}
-
-.spei-container, .oxxo-container {
-  padding: 4px 0;
-  display: flex;
-  justify-content: center;
-}
-
-.spei-box, .oxxo-box {
-  background: #1f1f1f;
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 12px;
-  padding: 16px;
-  text-align: left;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.spei-badge-top {
-  background: rgba(28, 79, 214, 0.2);
-  color: #8fb4f8;
-  font-size: 0.68rem;
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-weight: 700;
-  align-self: flex-start;
-  font-family: 'Inter', sans-serif;
-}
-
-.spei-desc, .oxxo-box p {
-  color: #aaa;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.8rem;
-  margin: 0;
-  line-height: 1.4;
-}
-
-.spei-steps-preview {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 0.72rem;
-  color: #888;
-  font-family: 'Inter', sans-serif;
-  background: #151515;
-  padding: 8px 10px;
-  border-radius: 8px;
-}
-
-.oxxo-badge-lg {
-  background: #e63946;
-  color: white;
-  padding: 10px;
-  border-radius: 8px;
-  font-family: 'Oswald', sans-serif;
-  font-weight: 600;
-  letter-spacing: 1px;
-  text-align: center;
-}
-
-.virtual-card {
-  background: linear-gradient(135deg, #2a2a2a 0%, #111 100%);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 14px;
-  padding: 16px;
-  color: white;
-  position: relative;
-  height: 160px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-  margin-bottom: 16px;
-  box-sizing: border-box;
-}
-
-.card-chip {
-  width: 32px;
-  height: 24px;
-  background: linear-gradient(135deg, #d4af37 0%, #aa771c 100%);
-  border-radius: 4px;
-}
-
-.card-brand-display {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  display: flex;
-  gap: 4px;
-}
-
-.brand-badge {
-  font-size: 0.6rem;
-  font-weight: 800;
-  padding: 2px 5px;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.1);
-  color: #555;
-  transition: all 0.3s;
-}
-
-.brand-badge.visa.active { background: #1a1f71; color: #fff; }
-.brand-badge.mc.active { background: #eb001b; color: #fff; }
-.brand-badge.amex.active { background: #0070ba; color: #fff; }
-
-.virtual-card-number {
-  font-family: monospace;
-  font-size: 1.1rem;
-  letter-spacing: 1.5px;
-  color: #f1f1f1;
-  word-break: break-all;
-}
-
-.virtual-card-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 10px;
-}
-
-.v-card-holder, .v-card-expires {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.v-card-holder small, .v-card-expires small {
-  font-size: 0.58rem;
-  color: #888;
-  text-transform: uppercase;
-}
-
-.v-card-holder span, .v-card-expires span {
-  font-size: 0.75rem;
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.packages-selection-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 16px;
-  max-height: 240px;
-  overflow-y: auto;
-  padding-right: 2px;
-  -webkit-overflow-scrolling: touch;
-}
-
-.package-option-card {
-  background: #1f1f1f;
-  border: 1.5px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  padding: 10px 12px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.package-option-card:hover {
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-.package-option-card.selected {
-  background: rgba(28, 79, 214, 0.08);
-  border-color: #1c4fd6;
-}
-
-.package-option-card input[type="radio"] {
-  accent-color: #1c4fd6;
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-
-.pkg-info {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  min-width: 0;
-}
-
-.pkg-name {
-  font-family: 'Oswald', sans-serif;
-  color: #fff;
-  font-size: 0.85rem;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.badge-ahorro {
-  background: #10b981;
-  color: #000;
-  font-size: 0.58rem;
-  padding: 2px 5px;
-  border-radius: 4px;
-  font-weight: 700;
-  font-family: 'Inter', sans-serif;
-}
-
-.bg-trial {
-  background: #3b82f6;
-  color: #fff;
-}
-
-.pkg-desc {
-  font-family: 'Inter', sans-serif;
-  color: #888;
-  font-size: 0.68rem;
-  margin-top: 2px;
-  line-height: 1.3;
-}
-
-.pkg-price {
-  font-family: 'Oswald', sans-serif;
-  color: #fff;
-  font-size: 0.95rem;
-  text-align: right;
-  flex-shrink: 0;
-}
-
-.pkg-price sub {
-  font-size: 0.58rem;
-  color: #888;
-  font-family: 'Inter', sans-serif;
-}
-
-.receipt-box {
-  background: #1c1c1c;
-  border-radius: 10px;
-  padding: 12px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  margin-bottom: 16px;
-}
-
-.receipt-line {
-  display: flex;
-  justify-content: space-between;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.78rem;
-  color: #aaa;
-  gap: 8px;
-}
-
-.receipt-line.total {
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding-top: 8px;
-  margin-top: 4px;
-  color: #fff;
-  font-weight: 600;
-}
-
-.total-amount {
-  font-family: 'Oswald', sans-serif;
-  font-size: 1.05rem;
-  color: #3b82f6;
-}
-
-.input-group {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-label {
-  font-family: 'Oswald', sans-serif;
-  color: #d1d5db;
-  font-size: 0.76rem;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-}
-
-input[type="text"], 
-input[type="password"], 
-input[type="email"], 
-.select-input {
-  background: #121212;
-  border: 1.5px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  color: #fff;
-  padding: 10px 12px;
-  width: 100%;
-  box-sizing: border-box;
-  font-family: 'Inter', sans-serif;
-  font-size: 16px;
-  transition: border-color 0.2s;
-}
-
-.select-input {
-  appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 15px;
-  padding-right: 35px;
-  cursor: pointer;
-}
-
-input:focus, .select-input:focus {
-  outline: none;
-  border-color: #1c4fd6;
-}
-
-.payment-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.mt-2 { margin-top: 8px; }
-.mt-3 { margin-top: 12px; }
-
-.payment-submit-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-
-.btn-primary {
-  width: 100%;
-  padding: 13px;
-  background: #1c4fd6;
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-family: 'Oswald', sans-serif;
-  font-weight: 600;
-  font-size: 0.95rem;
-  letter-spacing: 0.5px;
-  cursor: pointer;
-  text-transform: uppercase;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 15px rgba(28, 79, 214, 0.3);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 46px;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: #1742be;
-  transform: translateY(-1px);
-}
-
-.btn-primary:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.secure-text {
-  font-family: 'Inter', sans-serif;
-  font-size: 0.72rem;
-  color: #888;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  text-align: center;
-}
-
-.secure-svg {
-  width: 12px;
-  height: 12px;
-  color: #10b981;
-  flex-shrink: 0;
-}
-
-.spinner {
-  width: 18px;
-  height: 18px;
-  border: 3px solid rgba(255,255,255,0.3);
-  border-radius: 50%;
-  border-top-color: #fff;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.paypal-container {
-  padding: 10px 0;
-  display: flex;
-  justify-content: center;
-}
-
-.paypal-box {
-  background: #1f1f1f;
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 12px;
-  padding: 20px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  width: 100%;
-}
-
-.paypal-box p {
-  color: #aaa;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.82rem;
-  margin: 0;
-}
-
-.paypal-badge-lg {
-  background: #0070ba;
-  color: white;
-  padding: 10px;
-  border-radius: 8px;
-  font-family: 'Oswald', sans-serif;
-  font-weight: 600;
-  letter-spacing: 1px;
-}
-
-@media (max-width: 768px) {
-  .modal-overlay {
-    padding: 12px;
-    align-items: center;
-  }
-
-  .modal-container {
-    max-height: 92vh;
-    border-radius: 20px;
-    width: 100%;
-    margin: 0;
-  }
-
-  .modal-body {
-    padding: 16px;
-  }
-
-  .payment-grid {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-
-  .payment-tabs {
-    grid-template-columns: repeat(4, 1fr);
-  }
-
-  .packages-selection-list {
-    max-height: 220px;
-  }
+*{box-sizing:border-box}
+
+.payment-overlay{position:fixed;inset:0;z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;overflow:hidden;overscroll-behavior:contain;background:rgba(0,0,0,.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+
+.checkout{width:min(1120px,100%);max-height:94vh;display:flex;flex-direction:column;overflow:hidden;background:#101112;border:1px solid #303236;border-radius:20px;color:#f5f5f4;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;box-shadow:0 35px 90px rgba(0,0,0,.72);animation:checkoutIn .24s cubic-bezier(.16,1,.3,1)}
+@keyframes checkoutIn{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.checkout{animation:none}.spinner{animation-duration:2s}}
+
+/* HEADER */
+.checkout-header{min-height:82px;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:17px 22px;border-bottom:1px solid #292b2e;background:#151617}
+.checkout-brand{min-width:0;display:flex;align-items:center;gap:13px}
+.secure-icon{width:42px;height:42px;flex:0 0 42px;display:grid;place-items:center;border-radius:12px;background:linear-gradient(145deg,#2d64e8,#1b3f9c);color:#fff;box-shadow:0 8px 20px rgba(35,88,220,.35),inset 0 1px 0 rgba(255,255,255,.18)}
+.secure-icon svg{width:22px;height:22px}
+.checkout-brand h2{margin:0 0 4px;color:#fff;font-size:18px;font-weight:750;letter-spacing:-.25px}
+.checkout-brand p{margin:0;color:#999ca3;font-size:12px;line-height:1.45}
+.close-btn{width:38px;height:38px;flex:0 0 38px;display:grid;place-items:center;padding:0;border:1px solid #303236;border-radius:10px;background:#191a1c;color:#a4a6ab;cursor:pointer;transition:.2s}
+.close-btn:hover{background:#242527;border-color:#424448;color:#fff}
+.close-btn svg{width:18px;height:18px}
+
+/* BODY */
+.checkout-body{min-height:0;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(350px,.8fr);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#293b5d transparent}
+.payment-panel{min-width:0;padding:26px 28px 30px}
+.summary-panel{min-width:0;padding:26px;background:#0d0e0f;border-left:1px solid #292b2e}
+.summary-sticky{display:flex;flex-direction:column;gap:16px}
+
+/* SECTION HEADINGS */
+.section-heading{display:flex;align-items:flex-start;gap:11px;margin-bottom:20px}
+.step-number{width:26px;height:26px;flex:0 0 26px;display:grid;place-items:center;border-radius:7px;background:#173574;color:#82a9ff;font-size:11px;font-weight:800}
+.section-heading h3{margin:1px 0 4px;color:#f7f7f7;font-size:16px;font-weight:720}
+.section-heading p{margin:0;color:#92959b;font-size:11.5px;line-height:1.45}
+.summary-heading{margin-bottom:2px}
+
+/* PAYMENT METHODS */
+.payment-methods{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:16px}
+.method-btn{min-width:0;min-height:82px;position:relative;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:7px;padding:12px;border:1px solid #34363a;border-radius:11px;background:#18191b;color:#f5f5f4;font-family:inherit;text-align:left;cursor:pointer;transition:border-color .2s,background .2s,transform .2s}
+.method-btn:hover{background:#1d1e20;border-color:#4a4d52}
+.method-btn.active{background:#111a2d;border-color:#356ee8;box-shadow:inset 0 0 0 1px rgba(53,110,232,.08)}
+.method-icon{width:25px;height:25px;display:grid;place-items:center;color:#9da0a6}
+.method-icon svg{width:19px;height:19px}
+.method-btn.active .method-icon{color:#76a1ff}
+.method-btn>span:nth-child(2){min-width:0;display:flex;flex-direction:column;gap:2px}
+.method-btn strong{color:#f1f1f1;font-size:12px;font-weight:700}
+.method-btn small{overflow:hidden;max-width:100%;color:#8e9197;font-size:9.5px;white-space:nowrap;text-overflow:ellipsis}
+.method-radio{position:absolute;top:11px;right:11px;width:13px;height:13px;display:grid;place-items:center;border:1px solid #64676d;border-radius:50%}
+.method-radio span{width:5px;height:5px;border-radius:50%;background:#74a0ff;opacity:0}
+.method-btn.active .method-radio{border-color:#74a0ff}
+.method-btn.active .method-radio span{opacity:1}
+
+/* METHOD CONTENT */
+.method-content{padding:19px;border:1px solid #303236;border-radius:13px;background:#151617}
+.method-title{display:flex;justify-content:space-between;gap:16px;margin-bottom:17px}
+.method-title h4{margin:8px 0 4px;color:#f4f4f4;font-size:14px;font-weight:700}
+.method-title p{margin:0;color:#96999f;font-size:11.5px;line-height:1.5}
+.method-title-icon{width:23px;height:23px;flex-shrink:0;color:#81848a}
+.recommended-badge{display:inline-flex;padding:4px 7px;border-radius:5px;background:#183873;color:#86aaff;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.3px}
+
+/* FORM */
+.form-group{display:flex;flex-direction:column;gap:7px;margin-top:14px}
+.form-group label{color:#c3c5c9;font-size:11.5px;font-weight:650}
+.form-group input,.form-group select{width:100%;height:48px;padding:0 14px;border:1px solid #383a3e;border-radius:10px;outline:none;background:#111213;color:#f1f1f1;font-family:inherit;font-size:13px;transition:.2s}
+.form-group input::placeholder{color:#696c72}
+.form-group input:hover,.form-group select:hover{border-color:#505359}
+.form-group input:focus,.form-group select:focus{border-color:#3d73e6;box-shadow:0 0 0 3px rgba(48,103,222,.13)}
+.select-wrapper{position:relative}
+.select-wrapper select{appearance:none;-webkit-appearance:none;padding-right:40px;cursor:pointer}
+.select-wrapper>svg{position:absolute;top:50%;right:13px;width:15px;height:15px;transform:translateY(-50%);color:#96999f;pointer-events:none}
+.select-wrapper option{background:#17181a;color:#f5f5f4}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+.info-box{display:flex;align-items:flex-start;gap:9px;margin-top:16px;padding:12px;border:1px solid #273e69;border-radius:9px;background:#121b2d;color:#b2bed4}
+.info-box svg{width:15px;height:15px;flex-shrink:0;margin-top:1px;color:#78a0f5}
+.info-box p{margin:0;font-size:10.5px;line-height:1.5}
+
+/* CREDIT CARD */
+.card-preview{width:100%;aspect-ratio:1.586/1;max-height:220px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;padding:22px;margin-bottom:20px;border:1px solid #3b3e44;border-radius:17px;background:radial-gradient(circle at 90% 5%,rgba(55,91,170,.22),transparent 42%),linear-gradient(135deg,#1b1d20 0%,#111214 58%,#12192a 100%);box-shadow:0 16px 35px rgba(0,0,0,.32)}
+.card-preview:after{content:"";position:absolute;width:180px;height:180px;right:-85px;bottom:-105px;border:1px solid rgba(255,255,255,.04);border-radius:50%;pointer-events:none}
+.card-preview-top,.preview-footer{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:12px}
+
+.card-chip{width:39px;height:29px;position:relative;overflow:hidden;border-radius:6px;background:linear-gradient(135deg,#e0c36f,#a47d26);box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+.card-chip:before,.card-chip:after{content:"";position:absolute;background:rgba(83,56,5,.28)}
+.card-chip:before{left:50%;top:0;width:1px;height:100%}
+.card-chip:after{left:0;top:50%;width:100%;height:1px}
+.card-chip span{position:absolute;left:7px;right:7px;top:9px;height:11px;border:1px solid rgba(83,56,5,.3);border-radius:3px;background:transparent}
+
+.brands{display:flex;align-items:center;gap:5px}
+.brand{padding:3px 5px;border-radius:4px;background:#25272b;color:#73767c;font-size:8px;font-weight:800;letter-spacing:.15px}
+.brand.active{background:#294b91;color:#fff}
+
+.preview-number{position:relative;z-index:1;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#f2f2f3;font-size:clamp(16px,2.2vw,21px);font-weight:600;letter-spacing:2.1px;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+
+.preview-footer>div{min-width:0;display:flex;flex-direction:column;gap:4px}
+.preview-footer>div:last-child{align-items:flex-end}
+.preview-footer small{color:#83868d;font-size:8px;font-weight:650;text-transform:uppercase;letter-spacing:.7px}
+.preview-footer span{overflow:hidden;max-width:240px;color:#e2e2e3;font-size:10.5px;font-weight:700;white-space:nowrap;text-overflow:ellipsis}
+
+.card-number-field,.cvv-field{position:relative}
+.card-number-field input,.cvv-field input{padding-right:40px}
+.card-number-field svg,.cvv-field svg{position:absolute;top:50%;right:13px;width:16px;height:16px;transform:translateY(-50%);color:#82858b}
+
+/* ALTERNATIVE PAYMENTS */
+.alternative-payment{display:flex;flex-direction:column;align-items:center;padding:18px 8px 8px;text-align:center}
+.alternative-icon{width:48px;height:48px;display:grid;place-items:center;margin-bottom:13px;border-radius:12px;background:#111b30;border:1px solid #203a69;color:#78a1f6}
+.alternative-icon svg{width:23px;height:23px}
+.alternative-payment h4{margin:0 0 6px;color:#f4f4f4;font-size:14px;font-weight:700}
+.alternative-payment>p{max-width:390px;margin:0;color:#95989e;font-size:11.5px;line-height:1.55}
+
+.process-steps{width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px}
+.process-steps div{padding:12px 7px;border:1px solid #292b2e;border-radius:9px;background:#121315}
+.process-steps span{width:22px;height:22px;display:grid;place-items:center;margin:0 auto 7px;border-radius:50%;background:#17336c;color:#8badf7;font-size:9px;font-weight:800}
+.process-steps p{margin:0;color:#a2a5aa;font-size:9.5px;line-height:1.35}
+
+.external-payment{display:flex;align-items:center;gap:7px;margin-top:18px;padding:10px 12px;border:1px solid #292b2e;border-radius:8px;background:#121315;color:#9b9ea4;font-size:10px}
+.external-payment svg{width:13px;height:13px}
+
+/* FREE TRIAL */
+.trial-card{display:flex;gap:15px;padding:20px;border:1px solid #294d93;border-radius:13px;background:#111a2b}
+.trial-icon{width:46px;height:46px;flex:0 0 46px;display:grid;place-items:center;border-radius:11px;background:#17346e;color:#84aaff}
+.trial-icon svg{width:22px;height:22px}
+.trial-content{min-width:0}
+.trial-badge{display:inline-flex;padding:4px 8px;border-radius:5px;background:#21458d;color:#a4beff;font-size:9px;font-weight:800;text-transform:uppercase}
+.trial-content h4{margin:10px 0 6px;color:#f5f5f5;font-size:15px;font-weight:700}
+.trial-content>p{margin:0;color:#9da0a6;font-size:11.5px;line-height:1.5}
+.trial-features{display:flex;flex-wrap:wrap;gap:9px 14px;margin-top:14px}
+.trial-features span{display:flex;align-items:center;gap:5px;color:#afb1b6;font-size:10px}
+.trial-features svg{width:12px;height:12px;fill:none;stroke:#65c68b;stroke-width:2.2}
+
+/* SELECTED PLAN */
+.selected-plan{padding:16px;border:1px solid #31549a;border-radius:12px;background:#111827}
+.selected-plan-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+.plan-label{color:#9297a2;font-size:9px;font-weight:750;text-transform:uppercase;letter-spacing:.55px}
+.popular-badge{padding:4px 7px;border-radius:5px;background:#143d2b;color:#83d2a2;font-size:8px;font-weight:800;text-transform:uppercase}
+.selected-plan-main{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.selected-plan-main>div:first-child{min-width:0}
+.selected-plan h4{margin:0 0 5px;color:#fff;font-size:15px;font-weight:720}
+.selected-plan p{margin:0;color:#969ba4;font-size:10.5px;line-height:1.45}
+.selected-price{flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+.selected-price strong{color:#fff;font-size:17px;font-weight:750}
+.selected-price span{color:#92969e;font-size:9px}
+
+/* PLANS DROPDOWN */
+.plans-dropdown{border:1px solid #303236;border-radius:11px;background:#141517}
+.plans-dropdown summary{min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 13px;color:#c1c3c7;font-size:11px;font-weight:650;cursor:pointer;list-style:none}
+.plans-dropdown summary::-webkit-details-marker{display:none}
+.plans-dropdown summary svg{width:14px;height:14px;color:#888b91;transition:transform .2s}
+.plans-dropdown[open] summary svg{transform:rotate(180deg)}
+.plans-list{max-height:240px;display:flex;flex-direction:column;gap:4px;overflow-y:auto;padding:6px;border-top:1px solid #292b2e}
+.plan-option{display:flex;align-items:center;gap:9px;padding:10px;border:1px solid transparent;border-radius:8px;cursor:pointer;transition:.15s}
+.plan-option:hover{background:#1b1c1e}
+.plan-option.selected{background:#111a2c;border-color:#294b8f}
+.plan-option input{display:none}
+.plan-radio{width:14px;height:14px;flex:0 0 14px;display:grid;place-items:center;border:1px solid #6c6f75;border-radius:50%}
+.plan-radio span{width:6px;height:6px;border-radius:50%;background:#6f9cf7;opacity:0}
+.plan-option.selected .plan-radio{border-color:#6f9cf7}
+.plan-option.selected .plan-radio span{opacity:1}
+.plan-info{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px}
+.plan-info strong{color:#e5e5e6;font-size:11px;font-weight:650}
+.plan-info small{overflow:hidden;color:#8f9298;font-size:9px;white-space:nowrap;text-overflow:ellipsis}
+.plan-option-price{flex-shrink:0;color:#d5d6d8;font-size:10.5px;font-weight:700}
+
+/* RECEIPT */
+.receipt{display:flex;flex-direction:column;gap:11px;padding:15px;border:1px solid #303236;border-radius:11px;background:#151617}
+.receipt-row{display:flex;justify-content:space-between;gap:10px;color:#a5a7ac;font-size:10.5px}
+.receipt-row strong{color:#d2d3d5;font-weight:600}
+.receipt-divider{height:1px;margin:3px 0;background:#303236}
+.receipt-total{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.receipt-total>div{display:flex;flex-direction:column;gap:3px}
+.receipt-total span{color:#f0f0f1;font-size:11.5px;font-weight:700}
+.receipt-total>div small{color:#81848a;font-size:8.5px}
+.receipt-total>strong{color:#fff;font-size:21px;font-weight:780;white-space:nowrap}
+.receipt-total>strong small{color:#92959b;font-size:8px;font-weight:550}
+
+/* PAY BUTTON */
+.pay-btn{width:100%;min-height:50px;display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 15px;border:0;border-radius:10px;background:#2358dc;color:#fff;font-family:inherit;font-size:12.5px;font-weight:750;cursor:pointer;box-shadow:0 10px 24px rgba(28,79,214,.24);transition:.2s}
+.pay-btn:hover:not(:disabled){background:#2d64e8;transform:translateY(-1px);box-shadow:0 13px 28px rgba(28,79,214,.3)}
+.pay-btn:disabled{opacity:.65;cursor:not-allowed}
+.pay-btn svg{width:15px;height:15px}
+.spinner{width:17px;height:17px;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* SECURITY FOOTER */
+.security-footer{display:flex;align-items:center;justify-content:center;gap:8px;padding-top:3px}
+.security-footer>svg{width:15px;height:15px;flex-shrink:0;color:#62c38a}
+.security-footer>div{display:flex;flex-direction:column;gap:2px}
+.security-footer strong{color:#c1c3c7;font-size:9.5px;font-weight:650}
+.security-footer span{color:#82858b;font-size:8.5px}
+
+/* TABLET */
+@media(max-width:850px){
+  .payment-overlay{padding:12px}
+  .checkout{max-height:96vh;border-radius:17px}
+  .checkout-body{grid-template-columns:1fr}
+  .summary-panel{border-left:0;border-top:1px solid #292b2e}
+  .payment-panel,.summary-panel{padding:22px}
+  .summary-sticky{max-width:none}
+  .card-preview{max-width:540px}
+}
+
+/* MOBILE */
+@media(max-width:560px){
+  .payment-overlay{padding:0;align-items:flex-end;background:rgba(0,0,0,.88)}
+  .checkout{width:100%;height:100dvh;max-height:100dvh;border-radius:0;border-left:0;border-right:0;border-bottom:0}
+  .checkout-header{min-height:70px;padding:13px 15px}
+  .secure-icon{width:38px;height:38px;flex-basis:38px}
+  .checkout-brand h2{font-size:16px}
+  .checkout-brand p{display:none}
+  .close-btn{width:36px;height:36px;flex-basis:36px}
+
+  .payment-panel,.summary-panel{padding:20px 15px}
+  .section-heading{margin-bottom:17px}
+  .section-heading h3{font-size:15px}
+  .section-heading p{font-size:10.5px}
+
+  .payment-methods{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .method-btn{min-height:78px;padding:11px}
+  .method-btn strong{font-size:11.5px}
+  .method-btn small{font-size:9px}
+
+  .method-content{padding:15px}
+  .method-title h4{font-size:13.5px}
+  .method-title p{font-size:10.5px}
+
+  .form-group label{font-size:11px}
+  .form-group input,.form-group select{height:48px;font-size:13px}
+
+  .card-preview{width:100%;height:auto;max-height:none;aspect-ratio:1.586/1;padding:17px;border-radius:14px}
+  .card-chip{width:34px;height:25px}
+  .preview-number{font-size:clamp(14px,4.5vw,18px);letter-spacing:1.4px}
+  .preview-footer small{font-size:7px}
+  .preview-footer span{max-width:180px;font-size:9px}
+
+  .selected-plan-main{gap:10px}
+  .selected-plan h4{font-size:14px}
+  .selected-price strong{font-size:15px}
+
+  .plans-list{max-height:none;overflow:visible}
+
+  .receipt-total>strong{font-size:19px}
+  .pay-btn{min-height:50px;font-size:12px}
+
+  .alternative-payment{padding:14px 4px 5px}
+  .alternative-payment>p{font-size:10.5px}
+  .process-steps{grid-template-columns:repeat(3,1fr);gap:5px}
+  .process-steps div{padding:10px 4px}
+  .process-steps p{font-size:8px}
+}
+
+/* SMALL MOBILE */
+@media(max-width:390px){
+  .payment-panel,.summary-panel{padding:18px 13px}
+  .method-content{padding:13px}
+  .form-row{grid-template-columns:1fr;gap:0}
+  .card-preview{padding:15px}
+  .preview-number{font-size:13.5px;letter-spacing:1.1px}
+  .preview-footer span{max-width:145px;font-size:8.5px}
+  .selected-plan-main{flex-direction:column}
+  .selected-price{align-items:flex-start}
+  .receipt-total{align-items:flex-start;flex-direction:column}
+  .process-steps{grid-template-columns:1fr}
+}
+
+/* MUY PEQUEÑO */
+@media(max-width:330px){
+  .payment-methods{grid-template-columns:1fr}
+  .method-btn{min-height:64px}
 }
 </style>

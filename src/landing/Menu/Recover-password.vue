@@ -1,461 +1,1193 @@
 <template>
   <div class="recovery-page">
-    <div class="glow"></div>
+    <div class="background-glow glow-one"></div>
+    <div class="background-glow glow-two"></div>
 
-    <header class="top-bar">
-      <router-link :to="{ name: 'home' }" class="top-brand">
-        <Logo />
-        <span class="logo-text">
-          <span class="text-accent">SAHWA</span>
-        </span>
+    <!-- HEADER -->
+    <header class="topbar">
+      <router-link :to="{name:'home'}" class="brand" aria-label="SAHWA - Inicio">
+        <div class="brand-logo"><Logo/></div>
+        <span>SAHWA</span>
+      </router-link>
+
+      <router-link :to="{name:'login'}" class="back-link" aria-label="Volver al inicio de sesión">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="m14.5 17-5-5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Volver a iniciar sesión</span>
       </router-link>
     </header>
 
-    <main class="recovery-container">
-      <div class="recovery-card">
-        <div class="card-header">
-          <h1 class="title">RECUPERAR <span class="highlight">ACCESO</span></h1>
-          <p class="subtitle">Ingresa tus datos para verificar tu identidad</p>
-        </div>
+    <main class="recovery-main">
+      <div class="recovery-layout">
 
-        <form @submit.prevent="handleRecovery" class="recovery-form">
-          <div class="input-group">
-            <label for="email">Correo electrónico</label>
-            <div class="input-wrapper">
-              <input 
-                id="email"
-                type="email" 
-                placeholder="correo@ejemplo.com" 
-                v-model="email" 
-                @input="clearMessages"
-                :disabled="isLoading || isSuccess"
-                required 
-              />
-              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+        <!-- PANEL IZQUIERDO -->
+        <section class="info-panel">
+          <div class="info-content">
+            <span class="eyebrow">RECUPERACIÓN DE CUENTA</span>
+
+            <h1>
+              Recupera el acceso
+              <span>a tu cuenta.</span>
+            </h1>
+
+            <p class="info-description">
+              Verifica tu identidad con los datos asociados a tu cuenta y recibe las instrucciones necesarias para recuperar tu acceso.
+            </p>
+
+            <div class="steps">
+              <div class="step">
+                <div class="step-number">01</div>
+                <div>
+                  <strong>Verifica tus datos</strong>
+                  <span>Ingresa tu correo y fecha de nacimiento.</span>
+                </div>
+              </div>
+
+              <div class="step-line"></div>
+
+              <div class="step">
+                <div class="step-number">02</div>
+                <div>
+                  <strong>Recibe las instrucciones</strong>
+                  <span>Te indicaremos cómo continuar con la recuperación.</span>
+                </div>
+              </div>
+
+              <div class="step-line"></div>
+
+              <div class="step">
+                <div class="step-number">03</div>
+                <div>
+                  <strong>Recupera tu acceso</strong>
+                  <span>Vuelve a iniciar sesión en tu cuenta SAHWA.</span>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="input-group">
-            <label for="birthDate">Fecha de Nacimiento</label>
-            <div class="input-wrapper" @click="showDatePicker">
-              <input 
-                id="birthDate"
-                type="date" 
-                ref="dateInput"
-                v-model="birthDate"
-                @input="clearMessages"
-                :disabled="isLoading || isSuccess"
-                required 
-              />
-              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-            </div>
+          <div class="info-footer">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="5" y="10" width="14" height="10" rx="2.5" stroke="currentColor" stroke-width="1.6"/>
+              <path d="M8.5 10V7.5a3.5 3.5 0 0 1 7 0V10" stroke="currentColor" stroke-width="1.6"/>
+            </svg>
+            <span>Proceso seguro de recuperación</span>
           </div>
+        </section>
 
-          <div v-if="errorMessage" class="alert alert-error">{{ errorMessage }}</div>
-          <div v-if="successMessage" class="alert alert-success">{{ successMessage }}</div>
+        <!-- FORMULARIO -->
+        <section class="form-panel">
+          <div class="form-container">
 
-          <button type="submit" class="btn-primary" :disabled="isLoading || isSuccess">
-            <span v-if="isLoading">Enviando instrucciones...</span>
-            <span v-else-if="isSuccess">Redirigiendo ({{ countdown }}s)...</span>
-            <span v-else class="btn-content">
-              Mandar instrucciones
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-            </span>
-          </button>
+            <div class="form-header">
+              <span class="form-eyebrow">VERIFICACIÓN</span>
+              <h2>Recuperar <span>acceso</span></h2>
+              <p>Ingresa tus datos para verificar tu identidad.</p>
+            </div>
 
-          <div class="divider"><span>O TAMBIÉN</span></div>
+            <form class="recovery-form" @submit.prevent="handleRecovery">
 
-          <router-link :to="{ name: 'login' }" class="btn-secondary">
-            Inicia Sesión
-          </router-link>
-        </form>
+              <!-- CORREO -->
+              <div class="input-group">
+                <label for="email">Correo electrónico</label>
+
+                <div class="input-wrapper">
+                  <svg class="input-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <rect x="3" y="5" width="18" height="14" rx="3" stroke="currentColor" stroke-width="1.7"/>
+                    <path d="m4 7 8 6 8-6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+
+                  <input
+                    id="email"
+                    v-model="email"
+                    type="email"
+                    autocomplete="email"
+                    placeholder="correo@ejemplo.com"
+                    :disabled="isLoading || isSuccess"
+                    required
+                    @input="clearMessages"
+                  >
+                </div>
+              </div>
+
+              <!-- FECHA -->
+              <div class="input-group">
+                <label for="birthDate">Fecha de nacimiento</label>
+
+                <div class="input-wrapper date-wrapper" @click="showDatePicker">
+                  <svg class="input-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <rect x="3" y="5" width="18" height="16" rx="3" stroke="currentColor" stroke-width="1.7"/>
+                    <path d="M7 3v4M17 3v4M3 9h18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                    <path d="M7.5 13h.01M12 13h.01M16.5 13h.01M7.5 17h.01M12 17h.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+                  </svg>
+
+                  <input
+                    id="birthDate"
+                    ref="dateInput"
+                    v-model="birthDate"
+                    type="date"
+                    :disabled="isLoading || isSuccess"
+                    required
+                    @input="clearMessages"
+                  >
+
+                  <svg class="date-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="m8 10 4 4 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+
+              <!-- ERROR -->
+              <div v-if="errorMessage" class="alert alert-error" role="alert">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/>
+                  <path d="M12 7.8v5.4M12 16.5h.01" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+                </svg>
+                <span>{{errorMessage}}</span>
+              </div>
+
+              <!-- ÉXITO -->
+              <div v-if="successMessage" class="alert alert-success" role="status">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/>
+                  <path d="m8 12 2.6 2.6 5.4-5.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>{{successMessage}}</span>
+              </div>
+
+              <!-- BOTÓN -->
+              <button type="submit" class="primary-button" :disabled="isLoading || isSuccess">
+                <span v-if="isLoading" class="button-state">
+                  <span class="spinner"></span>
+                  Enviando instrucciones
+                </span>
+
+                <span v-else-if="isSuccess" class="button-state">
+                  Redirigiendo ({{countdown}}s)
+                </span>
+
+                <span v-else class="button-state">
+                  Mandar instrucciones
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M5 12h14M14 7l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </button>
+
+              <!-- VOLVER -->
+              <div class="login-link">
+                <span>¿Recordaste tu contraseña?</span>
+                <router-link :to="{name:'login'}">Iniciar sesión</router-link>
+              </div>
+
+            </form>
+
+            <div class="form-footer">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 3 5 6v5c0 4.5 2.8 8 7 10 4.2-2 7-5.5 7-10V6l-7-3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+                <path d="m9.3 12 1.8 1.8 3.8-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>Tus datos se utilizan únicamente para verificar tu identidad</span>
+            </div>
+
+          </div>
+        </section>
+
       </div>
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
+import {ref,onUnmounted} from 'vue';
+import {useRouter} from 'vue-router';
 import Logo from '@/landing/logo.vue';
 
-const router = useRouter();
-const email = ref('');
-const birthDate = ref('');
-const dateInput = ref<HTMLInputElement | null>(null);
-const errorMessage = ref('');
-const successMessage = ref('');
-const isLoading = ref(false);
-const isSuccess = ref(false);
-const countdown = ref(3);
+const router=useRouter();
+const email=ref('');
+const birthDate=ref('');
+const dateInput=ref<HTMLInputElement|null>(null);
+const errorMessage=ref('');
+const successMessage=ref('');
+const isLoading=ref(false);
+const isSuccess=ref(false);
+const countdown=ref(3);
 
-let timer: number | null = null;
-let intervalTimer: number | null = null;
+let timer:number|null=null;
+let intervalTimer:number|null=null;
 
-const clearMessages = () => {
-  errorMessage.value = '';
-  successMessage.value = '';
+const clearMessages=()=>{
+  errorMessage.value='';
+  successMessage.value='';
 };
 
-const showDatePicker = () => {
-  if (dateInput.value && !isLoading.value && !isSuccess.value) {
-    dateInput.value.showPicker();
+const showDatePicker=()=>{
+  if(dateInput.value&&!isLoading.value&&!isSuccess.value){
+    dateInput.value.showPicker?.();
   }
 };
 
-const handleRecovery = () => {
-  if (!email.value || !birthDate.value) {
-    errorMessage.value = 'Por favor completa todos los campos.';
+const handleRecovery=()=>{
+  if(!email.value||!birthDate.value){
+    errorMessage.value='Por favor completa todos los campos.';
     return;
   }
 
-  isLoading.value = true;
+  isLoading.value=true;
   clearMessages();
 
-  // Simulación de envío de instrucciones
-  setTimeout(() => {
-    isLoading.value = false;
-    isSuccess.value = true;
-    successMessage.value = `Instrucciones enviadas. Redirigiendo al login en ${countdown.value} segundos...`;
+  setTimeout(()=>{
+    isLoading.value=false;
+    isSuccess.value=true;
+    successMessage.value=`Instrucciones enviadas. Redirigiendo al login en ${countdown.value} segundos...`;
 
-    intervalTimer = window.setInterval(() => {
+    intervalTimer=window.setInterval(()=>{
       countdown.value--;
-      if (countdown.value > 0) {
-        successMessage.value = `Instrucciones enviadas. Redirigiendo al login en ${countdown.value} segundos...`;
-      }
-    }, 1000);
 
-    timer = window.setTimeout(() => {
-      router.push({ name: 'login' });
-    }, 3000);
-  }, 1000);
+      if(countdown.value>0){
+        successMessage.value=`Instrucciones enviadas. Redirigiendo al login en ${countdown.value} segundos...`;
+      }
+    },1000);
+
+    timer=window.setTimeout(()=>{
+      router.push({name:'login'});
+    },3000);
+  },1000);
 };
 
-onUnmounted(() => {
-  if (timer) clearTimeout(timer);
-  if (intervalTimer) clearInterval(intervalTimer);
+onUnmounted(()=>{
+  if(timer)clearTimeout(timer);
+  if(intervalTimer)clearInterval(intervalTimer);
 });
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-.recovery-page {
-  min-height: 100vh;
-  background: #0a0a0a;
-  color: #f5f5f4;
-  font-family: 'Inter', sans-serif;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow: hidden;
+*{box-sizing:border-box}
+
+.recovery-page{
+  --bg:#07080b;
+  --surface:#0d0f14;
+  --surface-2:#12151c;
+  --field:#14171e;
+  --line:#22262f;
+  --line-strong:#323845;
+  --text:#f3f5f9;
+  --text-2:#a3a9b5;
+  --text-3:#737a88;
+  --accent:#4f7cff;
+  --accent-soft:#8fadff;
+  --accent-deep:#2f5ee8;
+  --danger:#f08a8a;
+  --ok:#7fd8a3;
+
+  width:100%;
+  min-height:100dvh;
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Inter',system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  -webkit-font-smoothing:antialiased;
 }
 
-.glow {
-  position: absolute;
-  top: -160px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 720px;
-  height: 720px;
-  max-width: 160vw;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(28,79,214,0.32) 0%, rgba(28,79,214,0) 70%);
-  filter: blur(10px);
-  animation: pulseGlow 6s ease-in-out infinite;
-  pointer-events: none;
+.recovery-page:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);
+  background-size:56px 56px;
+  mask-image:radial-gradient(ellipse 70% 60% at 50% 35%,#000,transparent 80%);
+  -webkit-mask-image:radial-gradient(ellipse 70% 60% at 50% 35%,#000,transparent 80%);
 }
 
-.highlight { color: #3b82f6; }
-
-@keyframes pulseGlow {
-  0%, 100% { opacity: 0.28; }
-  50% { opacity: 0.5; }
+.background-glow{
+  position:absolute;
+  border-radius:50%;
+  pointer-events:none;
 }
 
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(22px); }
-  to { opacity: 1; transform: translateY(0); }
+.glow-one{
+  width:760px;
+  height:760px;
+  top:-460px;
+  left:50%;
+  transform:translateX(-50%);
+  background:radial-gradient(circle,rgba(66,112,240,.26),transparent 66%);
 }
 
-@keyframes shake {
-  10%, 90% { transform: translateX(-1px); }
-  20%, 80% { transform: translateX(2px); }
-  30%, 50%, 70% { transform: translateX(-4px); }
-  40%, 60% { transform: translateX(4px); }
+.glow-two{
+  width:560px;
+  height:560px;
+  right:-300px;
+  bottom:-320px;
+  background:radial-gradient(circle,rgba(47,94,232,.12),transparent 70%);
 }
 
-@keyframes fadeInScale {
-  from { opacity: 0; transform: scale(0.97); }
-  to { opacity: 1; transform: scale(1); }
+/* HEADER */
+
+.topbar{
+  width:100%;
+  max-width:1500px;
+  height:84px;
+  margin:0 auto;
+  padding:0 clamp(24px,5vw,76px);
+  position:relative;
+  z-index:5;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
 }
 
-.top-bar {
-  width: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 20px clamp(18px, 4vw, 60px);
-  box-sizing: border-box;
-  position: relative;
+.brand{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  color:#fff;
+  text-decoration:none;
+  border-radius:8px;
 }
 
-.top-brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  text-decoration: none;
+.brand-logo{
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
 
-.logo-text {
-  font-family: 'Anton', sans-serif;
-  font-size: clamp(19px, 5vw, 24px);
-  letter-spacing: 1px;
-  display: inline-block;
-  animation: floatText 3s ease-in-out infinite;
+.brand span{
+  color:var(--text);
+  font-size:18px;
+  font-weight:800;
+  letter-spacing:1.6px;
 }
 
-.text-accent {
-  background: linear-gradient(135deg, #60a5fa 0%, #3a6bd6 50%, #1d4ed8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 2px 8px rgba(58, 107, 214, 0.4));
-  display: inline-block;
+.back-link{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:9px 14px 9px 10px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:rgba(255,255,255,.02);
+  color:var(--text-2);
+  font-size:13px;
+  font-weight:600;
+  text-decoration:none;
+  transition:color .2s,border-color .2s,background .2s;
 }
 
-@keyframes floatText {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-4px); }
-  100% { transform: translateY(0px); }
+.back-link svg{
+  width:17px;
+  height:17px;
+  transition:transform .2s;
 }
 
-.recovery-container {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 16px 48px;
-  position: relative;
+.back-link:hover{
+  color:var(--text);
+  border-color:var(--line-strong);
+  background:rgba(255,255,255,.05);
 }
 
-.recovery-card {
-  width: 100%;
-  max-width: 440px;
-  background: rgba(18, 18, 18, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 24px;
-  padding: clamp(30px, 5vw, 50px);
-  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55);
-  box-sizing: border-box;
-  animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+.back-link:hover svg{
+  transform:translateX(-2px);
 }
 
-.card-header { text-align: center; margin-bottom: 28px; }
-
-.title {
-  font-family: 'Anton', sans-serif;
-  font-size: clamp(1.75rem, 6vw, 2.6rem);
-  letter-spacing: -1px;
-  text-transform: uppercase;
-  margin: 0 0 8px;
-  color: #f5f5f4;
+.brand:focus-visible,
+.back-link:focus-visible,
+.login-link a:focus-visible,
+.primary-button:focus-visible{
+  outline:2px solid var(--accent-soft);
+  outline-offset:3px;
 }
 
-.subtitle { font-size: 14px; color: rgba(245, 245, 244, 0.55); margin: 0 0 16px; }
+/* LAYOUT */
 
-.recovery-form { display: flex; flex-direction: column; gap: 20px; }
-
-.input-group { display: flex; flex-direction: column; gap: 8px; }
-
-label {
-  font-family: 'Oswald', sans-serif;
-  font-size: 12.5px;
-  font-weight: 700;
-  letter-spacing: 0.4px;
-  color: #f5f5f4;
+.recovery-main{
+  flex:1;
+  min-height:0;
+  position:relative;
+  z-index:2;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px clamp(30px,6vw,90px) 72px;
 }
 
-.input-wrapper { position: relative; }
-
-input {
-  width: 100%;
-  padding: 14px 46px 14px 16px;
-  background: #141414;
-  border: 1.5px solid rgba(255, 255, 255, 0.12);
-  border-radius: 12px;
-  color: #f5f5f4;
-  font-weight: 600;
-  font-size: 14.5px;
-  min-height: 48px;
-  box-sizing: border-box;
-  transition: border-color 0.2s ease;
+.recovery-layout{
+  width:100%;
+  max-width:1160px;
+  min-height:610px;
+  display:grid;
+  grid-template-columns:minmax(0,1.05fr) minmax(420px,.95fr);
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:28px;
+  background:var(--surface);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.02) inset,
+    0 40px 110px rgba(0,0,0,.55),
+    0 0 90px rgba(47,94,232,.07);
 }
 
-input:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+/* PANEL INFORMATIVO */
+
+.info-panel{
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  padding:60px 62px 38px;
+  border-right:1px solid var(--line);
+  background:
+    radial-gradient(circle at 12% 8%,rgba(60,106,240,.24),transparent 42%),
+    linear-gradient(150deg,#101524 0%,#0c0f17 58%,#0a0b0f 100%);
 }
 
-input::placeholder { color: rgba(245, 245, 244, 0.4); }
-
-input:focus {
-  outline: none;
-  border-color: #1c4fd6;
-  box-shadow: 0 0 0 4px rgba(28, 79, 214, 0.25);
-  background: #161616;
+.info-panel:before,
+.info-panel:after{
+  content:"";
+  position:absolute;
+  border:1px solid rgba(110,150,255,.12);
+  border-radius:50%;
+  pointer-events:none;
 }
 
-input[type="date"]::-webkit-calendar-picker-indicator {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: auto;
-  height: auto;
-  opacity: 0;
-  cursor: pointer;
+.info-panel:before{
+  width:380px;
+  height:380px;
+  right:-170px;
+  bottom:-190px;
 }
 
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus {
-  -webkit-text-fill-color: #f5f5f4;
-  -webkit-box-shadow: 0 0 0 1000px #141414 inset;
-  box-shadow: 0 0 0 1000px #141414 inset;
-  caret-color: #f5f5f4;
-  transition: background-color 9999s ease-in-out 0s;
+.info-panel:after{
+  width:250px;
+  height:250px;
+  right:-110px;
+  bottom:-125px;
+  border-color:rgba(110,150,255,.16);
 }
 
-.input-icon {
-  position: absolute;
-  right: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 18px;
-  height: 18px;
-  color: rgba(245, 245, 244, 0.35);
-  pointer-events: none;
+.info-content{
+  max-width:500px;
+  position:relative;
+  z-index:2;
 }
 
-.alert {
-  font-size: 13px;
-  font-weight: 600;
-  padding: 12px 14px;
-  border-radius: 10px;
+.eyebrow{
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  margin-bottom:22px;
+  padding:7px 13px 7px 11px;
+  border:1px solid rgba(110,150,255,.28);
+  border-radius:999px;
+  background:rgba(79,124,255,.09);
+  color:var(--accent-soft);
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:1.2px;
 }
 
-.alert-error {
-  background: rgba(220, 38, 38, 0.12);
-  border: 1px solid rgba(220, 38, 38, 0.35);
-  color: #f87171;
-  animation: shake 0.4s ease;
+.eyebrow:before{
+  content:"";
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--accent-soft);
+  box-shadow:0 0 0 3px rgba(143,173,255,.18);
 }
 
-.alert-success {
-  background: rgba(28, 79, 214, 0.15);
-  border: 1px solid rgba(28, 79, 214, 0.4);
-  color: #8fb4f8;
-  animation: fadeInScale 0.3s ease;
-  text-align: center;
+.info-content h1{
+  max-width:500px;
+  margin:0;
+  color:var(--text);
+  font-size:clamp(38px,3.5vw,52px);
+  line-height:1.05;
+  font-weight:750;
+  letter-spacing:-2px;
 }
 
-.btn-primary {
-  width: 100%;
-  padding: 16px;
-  background: #1c4fd6;
-  color: #ffffff;
-  border: none;
-  border-radius: 12px;
-  font-family: 'Oswald', sans-serif;
-  font-weight: 700;
-  font-size: 14.5px;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-  min-height: 52px;
-  box-shadow: 0 10px 24px rgba(28, 79, 214, 0.3);
-  transition: all 0.25s ease;
-}
-.btn-content {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-  width: 100%;
+.info-content h1 span{
+  display:block;
+  background:linear-gradient(90deg,#7ea1ff,#4f7cff);
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-fill-color:transparent;
+  color:var(--accent);
 }
 
-.btn-primary:hover:not(:disabled) { background: #123ba0; transform: translateY(-2px); }
-.btn-primary:active:not(:disabled) { transform: translateY(0); }
-.btn-primary:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-  transform: none;
+.info-description{
+  max-width:450px;
+  margin:22px 0 0;
+  color:var(--text-2);
+  font-size:15px;
+  line-height:1.65;
 }
 
-.divider {
-  position: relative;
-  text-align: center;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  margin-top: 2px;
+/* PASOS */
+
+.steps{
+  display:flex;
+  flex-direction:column;
+  margin-top:42px;
 }
 
-.divider span {
-  position: relative;
-  top: -10px;
-  background: #121212;
-  padding: 2px 14px;
-  font-family: 'Oswald', sans-serif;
-  font-size: 11.5px;
-  font-weight: 700;
-  color: rgba(245, 245, 244, 0.5);
-  border-radius: 20px;
+.step{
+  display:flex;
+  align-items:center;
+  gap:16px;
 }
 
-.btn-secondary {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  padding: 14px;
-  background: rgba(255, 255, 255, 0.04);
-  color: #f5f5f4;
-  text-decoration: none;
-  border: 1.5px solid rgba(255, 255, 255, 0.14);
-  border-radius: 12px;
-  font-family: 'Oswald', sans-serif;
-  font-weight: 700;
-  font-size: 13.5px;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
-  min-height: 48px;
-  box-sizing: border-box;
-  transition: all 0.2s ease;
+.step-number{
+  width:44px;
+  height:44px;
+  flex:0 0 44px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(110,150,255,.3);
+  border-radius:12px;
+  background:rgba(79,124,255,.1);
+  color:var(--accent-soft);
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.5px;
 }
 
-.btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: #1c4fd6;
-  color: #5b8bf0;
+.step:first-child .step-number{
+  border-color:var(--accent);
+  background:var(--accent-deep);
+  color:#fff;
+  box-shadow:0 8px 22px rgba(47,94,232,.35);
 }
 
-/* ===== Responsive ===== */
-@media (max-width: 480px) {
-  .top-bar { padding: 16px 16px 4px; }
-  .recovery-container { padding: 8px 12px 40px; align-items: flex-start; }
-  .recovery-card { padding: 28px 20px; border-radius: 20px; }
-  .card-header { margin-bottom: 22px; }
-  .title { font-size: 1.7rem; }
-  .subtitle { font-size: 13px; }
-  .recovery-form { gap: 16px; }
+.step>div:last-child{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:3px;
 }
 
-@media (max-width: 360px) {
-  input { font-size: 13.5px; padding: 13px 42px 13px 14px; }
+.step strong{
+  color:var(--text);
+  font-size:14.5px;
+  font-weight:650;
+}
+
+.step span{
+  color:var(--text-3);
+  font-size:13px;
+  line-height:1.45;
+}
+
+.step-line{
+  width:1px;
+  height:20px;
+  margin:4px 0 4px 21.5px;
+  background:linear-gradient(to bottom,rgba(110,150,255,.5),rgba(110,150,255,.12));
+}
+
+.info-footer{
+  position:relative;
+  z-index:2;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top:34px;
+  color:var(--text-3);
+  font-size:12.5px;
+}
+
+.info-footer svg{
+  width:15px;
+  height:15px;
+}
+
+/* FORMULARIO */
+
+.form-panel{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:56px 58px;
+  background:var(--surface-2);
+}
+
+.form-container{
+  width:100%;
+  max-width:390px;
+}
+
+.form-header{
+  margin-bottom:32px;
+}
+
+.form-eyebrow{
+  display:block;
+  margin-bottom:10px;
+  color:var(--accent-soft);
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:1.3px;
+}
+
+.form-header h2{
+  margin:0 0 10px;
+  color:var(--text);
+  font-size:32px;
+  line-height:1.12;
+  font-weight:750;
+  letter-spacing:-1px;
+}
+
+.form-header h2 span{
+  color:var(--accent);
+}
+
+.form-header p{
+  margin:0;
+  color:var(--text-2);
+  font-size:14px;
+  line-height:1.55;
+}
+
+.recovery-form{
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+}
+
+.input-group{
+  display:flex;
+  flex-direction:column;
+  gap:9px;
+}
+
+label{
+  color:#d3d7de;
+  font-size:13px;
+  font-weight:600;
+}
+
+.input-wrapper{
+  position:relative;
+}
+
+.input-icon{
+  position:absolute;
+  z-index:2;
+  left:16px;
+  top:50%;
+  width:18px;
+  height:18px;
+  transform:translateY(-50%);
+  color:var(--text-3);
+  pointer-events:none;
+  transition:color .2s;
+}
+
+.input-wrapper input{
+  width:100%;
+  height:54px;
+  padding:0 44px 0 46px;
+  border:1px solid var(--line-strong);
+  border-radius:12px;
+  outline:0;
+  background:var(--field);
+  color:var(--text);
+  font-family:inherit;
+  font-size:14.5px;
+  font-weight:500;
+  transition:border-color .2s,background .2s,box-shadow .2s;
+}
+
+.input-wrapper input::placeholder{
+  color:#5d6472;
+}
+
+.input-wrapper input:hover:not(:disabled){
+  border-color:#434a5a;
+}
+
+.input-wrapper input:focus{
+  border-color:var(--accent);
+  background:#161a23;
+  box-shadow:0 0 0 4px rgba(79,124,255,.16);
+}
+
+.input-wrapper:focus-within .input-icon{
+  color:var(--accent-soft);
+}
+
+.input-wrapper input:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+
+.input-wrapper input:-webkit-autofill,
+.input-wrapper input:-webkit-autofill:hover,
+.input-wrapper input:-webkit-autofill:focus{
+  -webkit-text-fill-color:var(--text);
+  -webkit-box-shadow:0 0 0 1000px var(--field) inset;
+  caret-color:#fff;
+}
+
+.date-wrapper{
+  cursor:pointer;
+}
+
+.date-wrapper input{
+  cursor:pointer;
+  color-scheme:dark;
+}
+
+.date-arrow{
+  position:absolute;
+  z-index:2;
+  top:50%;
+  right:15px;
+  width:17px;
+  height:17px;
+  transform:translateY(-50%);
+  color:var(--text-3);
+  pointer-events:none;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  opacity:0;
+  cursor:pointer;
+}
+
+/* ALERTAS */
+
+.alert{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  padding:13px 14px;
+  border-radius:12px;
+  font-size:13px;
+  font-weight:500;
+  line-height:1.45;
+}
+
+.alert svg{
+  width:18px;
+  height:18px;
+  flex:0 0 18px;
+  margin-top:0;
+}
+
+.alert-error{
+  border:1px solid rgba(240,110,110,.34);
+  background:rgba(200,60,60,.1);
+  color:var(--danger);
+}
+
+.alert-success{
+  border:1px solid rgba(80,190,125,.32);
+  background:rgba(50,150,90,.1);
+  color:var(--ok);
+}
+
+/* BOTÓN */
+
+.primary-button{
+  width:100%;
+  height:54px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-top:4px;
+  padding:0 16px;
+  border:1px solid #5b88ff;
+  border-radius:12px;
+  background:linear-gradient(180deg,#4f7cff 0%,#2f5ee8 100%);
+  color:#fff;
+  font-family:inherit;
+  font-size:14.5px;
+  font-weight:700;
+  cursor:pointer;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.22) inset,
+    0 12px 28px rgba(47,94,232,.32);
+  transition:transform .2s,box-shadow .2s,filter .2s;
+}
+
+.button-state{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+}
+
+.button-state svg{
+  width:18px;
+  height:18px;
+  transition:transform .2s;
+}
+
+.primary-button:hover:not(:disabled){
+  filter:brightness(1.1);
+  transform:translateY(-1px);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.26) inset,
+    0 16px 34px rgba(47,94,232,.42);
+}
+
+.primary-button:hover:not(:disabled) svg{
+  transform:translateX(3px);
+}
+
+.primary-button:active:not(:disabled){
+  transform:none;
+  filter:brightness(.97);
+}
+
+.primary-button:disabled{
+  opacity:.65;
+  cursor:not-allowed;
+  transform:none;
+}
+
+.spinner{
+  width:16px;
+  height:16px;
+  border:2px solid rgba(255,255,255,.3);
+  border-top-color:#fff;
+  border-radius:50%;
+  animation:spin .7s linear infinite;
+}
+
+@keyframes spin{
+  to{transform:rotate(360deg)}
+}
+
+/* LOGIN */
+
+.login-link{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  color:var(--text-3);
+  font-size:13px;
+}
+
+.login-link a{
+  color:var(--accent-soft);
+  font-weight:650;
+  text-decoration:none;
+  border-radius:4px;
+}
+
+.login-link a:hover{
+  color:#b9ccff;
+  text-decoration:underline;
+  text-underline-offset:3px;
+}
+
+.form-footer{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  margin-top:30px;
+  padding-top:20px;
+  border-top:1px solid var(--line);
+  color:var(--text-3);
+  font-size:12px;
+  line-height:1.4;
+  text-align:center;
+}
+
+.form-footer svg{
+  width:15px;
+  height:15px;
+  flex:0 0 15px;
+}
+
+@media(prefers-reduced-motion:reduce){
+  *,*:before,*:after{
+    transition:none!important;
+    animation-duration:.01ms!important;
+  }
+}
+
+/* TABLET */
+
+@media(max-width:1000px){
+  .recovery-main{
+    padding-left:25px;
+    padding-right:25px;
+  }
+
+  .recovery-layout{
+    max-width:900px;
+    grid-template-columns:minmax(0,.95fr) minmax(390px,1.05fr);
+  }
+
+  .info-panel{
+    padding:48px 38px 34px;
+  }
+
+  .info-content h1{
+    font-size:37px;
+  }
+
+  .info-description{
+    font-size:14px;
+  }
+
+  .form-panel{
+    padding:48px 40px;
+  }
+}
+
+/* MÓVIL */
+
+@media(max-width:760px){
+  .recovery-page{
+    min-height:100dvh;
+    overflow-x:hidden;
+    overflow-y:auto;
+  }
+
+  .recovery-page:before{
+    background-size:44px 44px;
+  }
+
+  .glow-one{
+    width:520px;
+    height:520px;
+    top:-340px;
+  }
+
+  .glow-two{
+    display:none;
+  }
+
+  .topbar{
+    width:100%;
+    height:68px;
+    padding:0 17px;
+  }
+
+  .brand{
+    gap:9px;
+  }
+
+  .brand span{
+    font-size:16px;
+    letter-spacing:1.4px;
+  }
+
+  .back-link{
+    width:40px;
+    height:40px;
+    margin-left:auto;
+    justify-content:center;
+    padding:0;
+    border-radius:12px;
+    background:var(--surface);
+  }
+
+  .back-link span{
+    display:none;
+  }
+
+  .back-link svg{
+    width:19px;
+    height:19px;
+  }
+
+  .recovery-main{
+    flex:1;
+    width:100%;
+    min-height:calc(100dvh - 68px);
+    align-items:center;
+    padding:14px 15px 36px;
+  }
+
+  .recovery-layout{
+    width:100%;
+    max-width:440px;
+    min-height:0;
+    display:block;
+    overflow:visible;
+    border:0;
+    border-radius:0;
+    background:transparent;
+    box-shadow:none;
+  }
+
+  .info-panel{
+    display:none;
+  }
+
+  .form-panel{
+    width:100%;
+    display:block;
+    padding:0;
+    background:transparent;
+  }
+
+  .form-container{
+    width:100%;
+    max-width:none;
+    padding:32px 24px 26px;
+    border:1px solid var(--line);
+    border-radius:20px;
+    background:var(--surface-2);
+    box-shadow:0 24px 60px rgba(0,0,0,.4);
+  }
+
+  .form-header{
+    margin-bottom:28px;
+  }
+
+  .form-header h2{
+    font-size:29px;
+  }
+
+  .form-header p{
+    font-size:14px;
+  }
+
+  .recovery-form{
+    gap:19px;
+  }
+
+  .input-wrapper input{
+    height:54px;
+    font-size:16px; /* evita el zoom automático en iOS */
+  }
+
+  .primary-button{
+    height:54px;
+    font-size:15px;
+  }
+
+  .form-footer{
+    margin-top:26px;
+    padding-top:18px;
+  }
+}
+
+/* TELÉFONOS */
+
+@media(max-width:480px){
+  .topbar{
+    height:62px;
+    padding:0 14px;
+  }
+
+  .brand span{
+    font-size:15px;
+  }
+
+  .back-link{
+    width:38px;
+    height:38px;
+    border-radius:11px;
+  }
+
+  .recovery-main{
+    min-height:calc(100dvh - 62px);
+    align-items:flex-start;
+    padding:14px 11px 26px;
+  }
+
+  .recovery-layout{
+    max-width:none;
+  }
+
+  .form-container{
+    padding:28px 20px 24px;
+    border-radius:18px;
+  }
+
+  .form-header{
+    margin-bottom:26px;
+  }
+
+  .form-header h2{
+    font-size:27px;
+  }
+
+  .input-wrapper input{
+    padding-left:44px;
+  }
+
+  .login-link{
+    flex-wrap:wrap;
+  }
+}
+
+/* MÓVILES PEQUEÑOS */
+
+@media(max-width:360px){
+  .topbar{
+    padding:0 10px;
+  }
+
+  .recovery-main{
+    padding-left:8px;
+    padding-right:8px;
+  }
+
+  .form-container{
+    padding:24px 16px 21px;
+  }
+
+  .form-header h2{
+    font-size:24px;
+  }
+
+  .form-footer{
+    font-size:11px;
+  }
+}
+
+/* PANTALLAS DE POCA ALTURA */
+
+@media(max-height:720px) and (min-width:761px){
+  .topbar{
+    height:66px;
+  }
+
+  .recovery-main{
+    padding-top:14px;
+    padding-bottom:30px;
+  }
+
+  .recovery-layout{
+    min-height:540px;
+  }
+
+  .info-panel{
+    padding-top:40px;
+    padding-bottom:30px;
+  }
+
+  .steps{
+    margin-top:28px;
+  }
+
+  .form-panel{
+    padding-top:36px;
+    padding-bottom:36px;
+  }
 }
 </style>

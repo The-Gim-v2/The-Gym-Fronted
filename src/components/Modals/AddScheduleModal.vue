@@ -24,6 +24,43 @@
           <input type="text" v-model="form.nombre" :placeholder="t('activityNamePlaceholder')" class="custom-input" required>
         </div>
 
+        <!-- Categoría -->
+        <div class="input-group">
+          <label>{{ t('categoryLabel') }}</label>
+          <div class="select-wrapper category-select-wrapper">
+            <span class="category-dot-preview" :style="{ background: selectedCategoryColor }"></span>
+            <select v-model="form.categoria" class="custom-select category-select" required>
+              <option disabled value="">{{ t('selectCategoryPlaceholder') }}</option>
+              <option v-for="cat in categoryKeys" :key="cat" :value="cat">{{ t(cat) }}</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Nivel -->
+        <div class="input-group">
+          <label>{{ t('levelLabel') }}</label>
+          <div class="select-wrapper">
+            <select v-model="form.nivel" class="custom-select" required>
+              <option disabled value="">{{ t('selectLevelPlaceholder') }}</option>
+              <option value="Principiante">{{ t('levelBeginner') }}</option>
+              <option value="Intermedio">{{ t('levelIntermediate') }}</option>
+              <option value="Avanzado">{{ t('levelAdvanced') }}</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Instructor y Capacidad -->
+        <div class="two-col-stack">
+          <div class="input-group">
+            <label>{{ t('instructorLabel') }}</label>
+            <input type="text" v-model="form.instructor" :placeholder="t('instructorPlaceholder')" class="custom-input" required>
+          </div>
+          <div class="input-group">
+            <label>{{ t('capacityLabel') }}</label>
+            <input type="number" v-model.number="form.capacidad" :placeholder="t('capacityPlaceholder')" class="custom-input" min="1" step="1" required>
+          </div>
+        </div>
+
         <!-- Horarios en lista vertical hacia abajo -->
         <div class="schedule-vertical-stack">
           <div class="input-group">
@@ -40,21 +77,6 @@
         <div class="input-group">
           <label>{{ t('locationLabel') }}</label>
           <input type="text" v-model="form.ubicacion" :placeholder="t('locationPlaceholder')" class="custom-input">
-        </div>
-
-        <!-- Categoría / Color -->
-        <div class="input-group">
-          <label>{{ t('categoryColorLabel') }}</label>
-          <div class="color-picker-container">
-            <button type="button" 
-                    v-for="color in colorOptions" 
-                    :key="color.value"
-                    :style="{ background: color.value }"
-                    :class="['color-dot', { active: form.color === color.value }]"
-                    @click="form.color = color.value"
-                    :title="t(color.labelKey)">
-            </button>
-          </div>
         </div>
 
         <!-- Descripción / Notas -->
@@ -98,6 +120,17 @@ const settings = reactive({
   idioma: localStorage.getItem('app-idioma') || 'es'
 });
 
+// Debe coincidir con las categorías/colores usados en la vista de clases del member
+const categoryKeys = ['yoga', 'spinning', 'crossfit', 'boxing', 'pilates', 'zumba'];
+const categoryColors = {
+  yoga: '#a855f7',
+  spinning: '#f97316',
+  crossfit: '#ef4444',
+  boxing: '#eab308',
+  pilates: '#14b8a6',
+  zumba: '#ec4899'
+};
+
 const translations = {
   es: {
     newTitle: "Nueva",
@@ -107,16 +140,27 @@ const translations = {
     selectDayPlaceholder: "Seleccionar día...",
     activityNameLabel: "Nombre de Actividad",
     activityNamePlaceholder: "Ej. Crossfit",
+    categoryLabel: "Categoría",
+    selectCategoryPlaceholder: "Seleccionar categoría...",
+    yoga: "Yoga",
+    spinning: "Spinning",
+    crossfit: "CrossFit",
+    boxing: "Boxeo",
+    pilates: "Pilates",
+    zumba: "Zumba",
+    levelLabel: "Nivel",
+    selectLevelPlaceholder: "Seleccionar nivel...",
+    levelBeginner: "Principiante",
+    levelIntermediate: "Intermedio",
+    levelAdvanced: "Avanzado",
+    instructorLabel: "Instructor",
+    instructorPlaceholder: "Ej. Marisol Reyes",
+    capacityLabel: "Capacidad (personas)",
+    capacityPlaceholder: "Ej. 20",
     startTimeLabel: "Hora de Inicio",
     endTimeLabel: "Hora de Fin",
     locationLabel: "Ubicación / Aula",
     locationPlaceholder: "Ej. Gimnasio Principal o Sala B",
-    categoryColorLabel: "Categoría / Color",
-    colorBlue: "Azul",
-    colorGreen: "Verde",
-    colorPurple: "Morado",
-    colorOrange: "Naranja",
-    colorPink: "Rosa",
     descriptionLabel: "Descripción / Notas",
     descriptionPlaceholder: "Detalles adicionales de la actividad...",
     cancelBtn: "Cancelar",
@@ -131,16 +175,27 @@ const translations = {
     selectDayPlaceholder: "Select day...",
     activityNameLabel: "Activity Name",
     activityNamePlaceholder: "E.g. Crossfit",
+    categoryLabel: "Category",
+    selectCategoryPlaceholder: "Select category...",
+    yoga: "Yoga",
+    spinning: "Spinning",
+    crossfit: "CrossFit",
+    boxing: "Boxing",
+    pilates: "Pilates",
+    zumba: "Zumba",
+    levelLabel: "Level",
+    selectLevelPlaceholder: "Select level...",
+    levelBeginner: "Beginner",
+    levelIntermediate: "Intermediate",
+    levelAdvanced: "Advanced",
+    instructorLabel: "Instructor",
+    instructorPlaceholder: "E.g. Marisol Reyes",
+    capacityLabel: "Capacity (people)",
+    capacityPlaceholder: "E.g. 20",
     startTimeLabel: "Start Time",
     endTimeLabel: "End Time",
     locationLabel: "Location / Room",
     locationPlaceholder: "E.g. Main Gym or Room B",
-    categoryColorLabel: "Category / Color",
-    colorBlue: "Blue",
-    colorGreen: "Green",
-    colorPurple: "Purple",
-    colorOrange: "Orange",
-    colorPink: "Pink",
     descriptionLabel: "Description / Notes",
     descriptionPlaceholder: "Additional activity details...",
     cancelBtn: "Cancel",
@@ -160,23 +215,20 @@ const currentDays = computed(() => {
   return settings.idioma === 'en' ? daysEn : daysEs;
 });
 
-const colorOptions = [
-  { labelKey: 'colorBlue', value: '#3b82f6' },
-  { labelKey: 'colorGreen', value: '#10b981' },
-  { labelKey: 'colorPurple', value: '#8b5cf6' },
-  { labelKey: 'colorOrange', value: '#f59e0b' },
-  { labelKey: 'colorPink', value: '#ec4899' }
-];
-
 const form = reactive({
   dia: '',
   nombre: '',
+  categoria: '',
+  nivel: '',
+  instructor: '',
+  capacidad: null,
   inicio: '08:00',
   fin: '09:00',
   ubicacion: '',
-  color: '#3b82f6',
   descripcion: ''
 });
+
+const selectedCategoryColor = computed(() => categoryColors[form.categoria] || 'rgba(255,255,255,0.2)');
 
 // Estado de la notificación Toast
 const toast = reactive({
@@ -199,6 +251,10 @@ watch(() => props.initialData, (newData) => {
     if (newData.day) form.dia = newData.day;
     if (newData.hour) form.inicio = newData.hour;
     if (newData.fin) form.fin = newData.fin;
+    if (newData.categoria) form.categoria = newData.categoria;
+    if (newData.nivel) form.nivel = newData.nivel;
+    if (newData.instructor) form.instructor = newData.instructor;
+    if (newData.capacidad) form.capacidad = newData.capacidad;
   }
 }, { immediate: true });
 
@@ -212,8 +268,11 @@ onMounted(() => {
 
 const guardarActividad = () => {
   console.log("Actividad guardada:", form);
-  
-  emit('save', { ...form });
+
+  emit('save', {
+    ...form,
+    color: selectedCategoryColor.value
+  });
   mostrarToast(t('toastSaved'), 'success');
 
   setTimeout(() => {
@@ -375,9 +434,37 @@ const guardarActividad = () => {
   gap: 14px;
 }
 
+.two-col-stack {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
 .select-wrapper {
   position: relative;
   width: 100%;
+}
+
+.category-select-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.category-dot-preview {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  z-index: 1;
+  pointer-events: none;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.06);
+}
+
+.category-select {
+  padding-left: 34px;
 }
 
 .custom-select, .custom-input, .custom-textarea { 
@@ -417,32 +504,6 @@ const guardarActividad = () => {
 
 .time-input {
   cursor: pointer;
-}
-
-.color-picker-container {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  padding: 2px 0;
-}
-
-.color-dot {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  border: 2px solid transparent;
-  cursor: pointer;
-  transition: transform 0.2s, border-color 0.2s;
-}
-
-.color-dot:hover {
-  transform: scale(1.1);
-}
-
-.color-dot.active {
-  border-color: #ffffff;
-  transform: scale(1.15);
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
 }
 
 .panel-footer-btns { 
@@ -498,5 +559,11 @@ const guardarActividad = () => {
 
 .btn-save:active { 
   transform: scale(0.96); 
+}
+
+@media (max-width: 380px) {
+  .two-col-stack {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

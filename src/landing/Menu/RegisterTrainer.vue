@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import { reactive, ref, computed, watch, onMounted, onUnmounted } from 'vue';
+import { reactive, ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue';
+import NoGymModal from './NoGymModal.vue';
+import WeeklySchedule from './WeeklySchedule.vue';
 
-// -------------------------------------------------------------------
-// Mock de gimnasios afiliados, cada uno con sus sedes. En producción
-// esto vendría de la API.
-// -------------------------------------------------------------------
 interface Sede { id: string; nombre: string; }
 interface Gimnasio {
   id: string;
@@ -31,9 +29,7 @@ const gymsList: Gimnasio[] = [
   },
   {
     id: 'g3', nombre: 'PowerZone', ciudad: 'Ciudad Madero', estado: 'Tamaulipas',
-    sedes: [
-      { id: 'sede_madero', nombre: 'PowerZone Ciudad Madero' }
-    ]
+    sedes: [{ id: 'sede_madero', nombre: 'PowerZone Ciudad Madero' }]
   }
 ];
 
@@ -41,15 +37,28 @@ const fileInput = ref<HTMLInputElement | null>(null);
 const avatarPreview = ref<string | null>(null);
 const submitted = ref(false);
 const errorMessage = ref<string | null>(null);
+const showNoGymModal = ref(false);
 
 const gymSearch = ref('');
+const gymSearchInput = ref<HTMLInputElement | null>(null);
+const gymPickerRef = ref<HTMLElement | null>(null);
 const isGymDropdownOpen = ref(false);
 const selectedGymId = ref<string | null>(null);
-const selectedGym = computed(() => gymsList.find(g => g.id === selectedGymId.value) || null);
+
+const isSedeDropdownOpen = ref(false);
+const sedeDropdownRef = ref<HTMLElement | null>(null);
+
+const showPassword = ref(false);
+const showConfirmPassword = ref(false);
+
+const selectedGym = computed(() =>
+  gymsList.find(g => g.id === selectedGymId.value) || null
+);
 
 const filteredGyms = computed(() => {
   const q = gymSearch.value.trim().toLowerCase();
   if (!q) return gymsList;
+
   return gymsList.filter(g =>
     g.nombre.toLowerCase().includes(q) ||
     g.ciudad.toLowerCase().includes(q) ||
@@ -57,8 +66,24 @@ const filteredGyms = computed(() => {
   );
 });
 
-const isSedeDropdownOpen = ref(false);
-const sedeDropdownRef = ref<HTMLElement | null>(null);
+const form = reactive({
+  curp: '',
+  nombres: '',
+  apellidoP: '',
+  apellidoM: '',
+  fechaNacimiento: '',
+  celular: '',
+  email: '',
+  password: '',
+  confirmPassword: '',
+  especialidad: '',
+  facebook: '',
+  instagram: '',
+  tiktok: '',
+  otrasApps: '',
+  horarios: {} as Record<string, { open: string; close: string }>,
+  sedes: [] as string[]
+});
 
 const selectGym = (gym: Gimnasio) => {
   selectedGymId.value = gym.id;
@@ -68,25 +93,23 @@ const selectGym = (gym: Gimnasio) => {
 
 const clearGym = () => {
   selectedGymId.value = null;
+  isSedeDropdownOpen.value = false;
 };
 
-// Si cambia el gimnasio seleccionado, las sedes marcadas ya no aplican
 watch(selectedGymId, () => {
   form.sedes = [];
 });
 
 const toggleSede = (id: string) => {
-  const index = form.sedes.indexOf(id);
-  if (index > -1) {
-    form.sedes.splice(index, 1);
-  } else {
-    form.sedes.push(id);
-  }
+  const i = form.sedes.indexOf(id);
+  if (i > -1) form.sedes.splice(i, 1);
+  else form.sedes.push(id);
 };
 
 const getSedesDisplayText = () => {
   if (!selectedGym.value) return 'Primero selecciona un gimnasio';
   if (form.sedes.length === 0) return 'Seleccionar sedes...';
+
   return selectedGym.value.sedes
     .filter(s => form.sedes.includes(s.id))
     .map(s => s.nombre)
@@ -94,7 +117,10 @@ const getSedesDisplayText = () => {
 };
 
 const handleClickOutside = (event: MouseEvent) => {
-  if (sedeDropdownRef.value && !sedeDropdownRef.value.contains(event.target as Node)) {
+  if (
+    sedeDropdownRef.value &&
+    !sedeDropdownRef.value.contains(event.target as Node)
+  ) {
     isSedeDropdownOpen.value = false;
   }
 };
@@ -102,268 +128,560 @@ const handleClickOutside = (event: MouseEvent) => {
 onMounted(() => document.addEventListener('click', handleClickOutside));
 onUnmounted(() => document.removeEventListener('click', handleClickOutside));
 
-const form = reactive({
-  curp: '', nombres: '', apellidoP: '', apellidoM: '',
-  fechaNacimiento: '', celular: '',
-  email: '', password: '', confirmPassword: '',
-  especialidad: '',
-  facebook: '', instagram: '', tiktok: '', otrasApps: '',
-  horaEntrada: '', horaSalida: '',
-  sedes: [] as string[]
-});
-
 const triggerFileInput = () => fileInput.value?.click();
+
 const handleFileChange = (e: Event) => {
   const file = (e.target as HTMLInputElement).files?.[0];
   if (file) avatarPreview.value = URL.createObjectURL(file);
 };
 
+const finishRegister = () => {
+  console.log('Registro de entrenador:', {
+    ...form,
+    gimnasioId: selectedGymId.value
+  });
+
+  submitted.value = true;
+};
+
 const handleRegisterClick = () => {
   errorMessage.value = null;
-
-  // El gimnasio y la(s) sede(s) son opcionales: si se eligió un gimnasio,
-  // pedimos al menos una sede; si no se eligió gimnasio, se puede continuar.
-  if (selectedGymId.value && form.sedes.length === 0) {
-    errorMessage.value = 'Selecciona al menos una sede donde vas a entrenar, o quita el gimnasio si aún no lo decides.';
-    return;
-  }
 
   if (form.password !== form.confirmPassword) {
     errorMessage.value = 'Las contraseñas no coinciden. Por favor, verifícalas.';
     return;
   }
 
-  // Aquí iría la llamada real a la API, enviando form + selectedGymId
-  console.log('Registro de entrenador:', { ...form, gimnasioId: selectedGymId.value });
-  submitted.value = true;
+  if (Object.keys(form.horarios).length === 0) {
+    errorMessage.value = 'Selecciona al menos un día de trabajo con su horario.';
+    return;
+  }
+
+  if (!selectedGymId.value) {
+    showNoGymModal.value = true;
+    return;
+  }
+
+  if (form.sedes.length === 0) {
+    errorMessage.value = 'Selecciona al menos una sede donde vas a trabajar.';
+    isSedeDropdownOpen.value = true;
+    return;
+  }
+
+  finishRegister();
+};
+
+const onAddGym = async () => {
+  showNoGymModal.value = false;
+  await nextTick();
+
+  gymPickerRef.value?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'center'
+  });
+
+  isGymDropdownOpen.value = true;
+  gymSearchInput.value?.focus({ preventScroll: true });
+};
+
+const onSkipGym = () => {
+  showNoGymModal.value = false;
+  finishRegister();
 };
 </script>
 
 <template>
   <div class="register-page">
+
+    <NoGymModal
+      v-if="showNoGymModal"
+      rol="entrenador"
+      @add="onAddGym"
+      @skip="onSkipGym"
+      @close="showNoGymModal = false"
+    />
+
     <main class="main-content">
       <div class="register-card">
+
+        <!-- HEADER -->
         <div class="header-section">
-          <h1 class="title">REGISTRO DE <span class="highlight-text">ENTRENADOR</span></h1>
-          <p class="subtitle">Ofrece tus servicios en uno de nuestros gimnasios afiliados</p>
+          <h1>REGISTRO DE <span>ENTRENADOR</span></h1>
+          <p>Completa tu perfil profesional y ofrece tus servicios en nuestros gimnasios afiliados.</p>
         </div>
 
-        <div v-if="submitted" class="alert-success">
+        <div v-if="submitted" class="alert success">
           ¡Solicitud enviada con éxito! El gimnasio revisará tu perfil y te contactará pronto.
         </div>
 
-        <div v-if="errorMessage" class="alert-error">
+        <div v-if="errorMessage" class="alert error">
           {{ errorMessage }}
         </div>
 
         <form @submit.prevent="handleRegisterClick">
           <div class="rg-grid">
 
-            <!-- Columna 1: Foto + gimnasio/sede -->
+            <!-- =========================
+                 COLUMNA 1
+            ========================== -->
             <div class="form-column">
-              <h3 class="section-divider first">Fotografía</h3>
+
+              <h3 class="section-title first">Fotografía</h3>
+
               <div class="upload-container">
                 <div class="image-preview" @click="triggerFileInput">
-                  <img v-if="avatarPreview" :src="avatarPreview" class="profile-img" alt="Vista previa" />
+                  <img
+                    v-if="avatarPreview"
+                    :src="avatarPreview"
+                    class="profile-img"
+                    alt="Vista previa"
+                  />
+
                   <div v-else class="upload-placeholder">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                      <circle cx="12" cy="13" r="4"/>
+                    </svg>
                     <span>Subir</span>
                   </div>
                 </div>
-                <input type="file" ref="fileInput" @change="handleFileChange" accept="image/*" style="display: none" />
-                <p class="upload-info">Sube una fotografía profesional para tu perfil</p>
+
+                <input
+                  ref="fileInput"
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  @change="handleFileChange"
+                />
+
+                <div class="upload-text">
+                  <strong>Fotografía de perfil</strong>
+                  <span>Sube una fotografía profesional para tu perfil</span>
+                </div>
               </div>
 
-              <h3 class="section-divider">
-                ¿En qué gimnasio quieres entrenar?
-                <span class="optional-tag">Opcional</span>
+              <!-- GIMNASIO -->
+              <h3 class="section-title">
+                Tu gimnasio
+                <small>Opcional</small>
               </h3>
-              <p class="optional-hint">
-                Puedes elegir el gimnasio ahora o hacerlo más tarde desde tu perfil.
-              </p>
 
-              <div class="gym-picker">
-                <div v-if="!selectedGym" class="input-group">
+              <div ref="gymPickerRef" class="gym-picker">
+
+                <div v-if="!selectedGym" class="field">
                   <label for="gymSearch">Buscar gimnasio</label>
-                  <input
-                    id="gymSearch"
-                    type="text"
-                    v-model="gymSearch"
-                    placeholder="Nombre o ciudad del gimnasio..."
-                    @focus="isGymDropdownOpen = true"
-                  />
+
+                  <div class="search-input">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                      <circle cx="11" cy="11" r="7"/>
+                      <path d="m20 20-3.5-3.5"/>
+                    </svg>
+
+                    <input
+                      id="gymSearch"
+                      ref="gymSearchInput"
+                      v-model="gymSearch"
+                      type="text"
+                      placeholder="Nombre o ciudad del gimnasio..."
+                      autocomplete="off"
+                      @focus="isGymDropdownOpen = true"
+                    />
+                  </div>
                 </div>
 
-                <div v-if="!selectedGym && isGymDropdownOpen" class="gym-dropdown-list">
-                  <div
+                <!-- RESULTADOS -->
+                <div
+                  v-if="!selectedGym && isGymDropdownOpen"
+                  class="gym-dropdown"
+                >
+                  <button
                     v-for="gym in filteredGyms"
                     :key="gym.id"
+                    type="button"
                     class="gym-option"
                     @click="selectGym(gym)"
                   >
-                    <div class="gym-option-main">
+                    <span>
                       <strong>{{ gym.nombre }}</strong>
-                      <span>{{ gym.ciudad }}, {{ gym.estado }} · {{ gym.sedes.length }} sede(s)</span>
-                    </div>
-                  </div>
-                  <div v-if="filteredGyms.length === 0" class="gym-option-empty">
+                      <small>{{ gym.ciudad }}, {{ gym.estado }}</small>
+                    </span>
+
+                    <span class="gym-sedes">
+                      {{ gym.sedes.length }}
+                      {{ gym.sedes.length === 1 ? 'sede' : 'sedes' }}
+                    </span>
+                  </button>
+
+                  <div v-if="filteredGyms.length === 0" class="empty-state">
                     No se encontraron gimnasios con ese nombre.
                   </div>
                 </div>
 
-                <div v-if="!selectedGym" class="skip-gym-row">
-                  <span>¿Aún no sabes en cuál?</span>
-                  <button type="button" class="skip-gym-btn" @click="isGymDropdownOpen = false">
-                    Continuar sin seleccionar gimnasio
-                  </button>
-                </div>
+                <!-- GIMNASIO SELECCIONADO -->
+                <div v-if="selectedGym" class="selected-gym">
+                  <div class="selected-gym-content">
+                    <div class="selected-indicator">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                    </div>
 
-                <div v-if="selectedGym" class="selected-gym-card">
-                  <div class="selected-gym-info">
-                    <strong>{{ selectedGym.nombre }}</strong>
-                    <span>{{ selectedGym.ciudad }}, {{ selectedGym.estado }}</span>
+                    <div>
+                      <strong>{{ selectedGym.nombre }}</strong>
+                      <span>{{ selectedGym.ciudad }}, {{ selectedGym.estado }}</span>
+                    </div>
                   </div>
-                  <button type="button" class="change-gym-btn" @click="clearGym">Cambiar</button>
+
+                  <button type="button" @click="clearGym">
+                    Cambiar
+                  </button>
                 </div>
               </div>
 
-              <div v-if="selectedGym" class="input-group" style="margin-top: 14px;">
-                <label>Sede(s) donde vas a entrenar</label>
-                <div class="custom-multiselect" ref="sedeDropdownRef">
-                  <div
-                    class="select-box-trigger"
+              <!-- SEDES -->
+              <div v-if="selectedGym" class="field">
+                <label>Sede(s) donde vas a trabajar</label>
+
+                <div ref="sedeDropdownRef" class="custom-select">
+
+                  <button
+                    type="button"
+                    class="select-trigger"
+                    :class="{ open: isSedeDropdownOpen }"
                     @click="isSedeDropdownOpen = !isSedeDropdownOpen"
                   >
-                    <span :class="{ 'placeholder-text': form.sedes.length === 0 }">
+                    <span :class="{ placeholder: form.sedes.length === 0 }">
                       {{ getSedesDisplayText() }}
                     </span>
-                    <svg class="dropdown-arrow" :class="{ rotate: isSedeDropdownOpen }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                  </div>
 
-                  <div class="dropdown-options-list" v-if="isSedeDropdownOpen && selectedGym">
-                    <div
+                    <svg
+                      :class="{ rotate: isSedeDropdownOpen }"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </button>
+
+                  <div
+                    v-if="isSedeDropdownOpen"
+                    class="select-options"
+                  >
+                    <button
                       v-for="sede in selectedGym.sedes"
                       :key="sede.id"
-                      class="dropdown-option-item"
+                      type="button"
+                      class="select-option"
                       :class="{ selected: form.sedes.includes(sede.id) }"
                       @click="toggleSede(sede.id)"
                     >
-                      <div class="option-checkbox">
-                        <svg v-if="form.sedes.includes(sede.id)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-                      </div>
+                      <span class="checkbox">
+                        <svg
+                          v-if="form.sedes.includes(sede.id)"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="3"
+                        >
+                          <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                      </span>
+
                       <span>{{ sede.nombre }}</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- =========================
+                 COLUMNA 2
+            ========================== -->
+            <div class="form-column">
+
+              <h3 class="section-title first">Cuenta de acceso</h3>
+
+              <div class="fields">
+
+                <div class="field">
+                  <label for="email">Correo electrónico</label>
+                  <input
+                    id="email"
+                    v-model="form.email"
+                    type="email"
+                    placeholder="tu@correo.com"
+                    required
+                  />
+                </div>
+
+                <div class="field-row">
+
+                  <div class="field">
+                    <label for="password">Contraseña</label>
+
+                    <div class="password-field">
+                      <input
+                        id="password"
+                        v-model="form.password"
+                        :type="showPassword ? 'text' : 'password'"
+                        placeholder="••••••••"
+                        required
+                      />
+
+                      <button
+                        type="button"
+                        aria-label="Mostrar contraseña"
+                        @click="showPassword = !showPassword"
+                      >
+                        <svg
+                          v-if="showPassword"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.8"
+                        >
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                          <circle cx="12" cy="12" r="3"/>
+                        </svg>
+
+                        <svg
+                          v-else
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.8"
+                        >
+                          <rect x="3" y="11" width="18" height="10" rx="2"/>
+                          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                      </button>
                     </div>
                   </div>
-                </div>
-              </div>
-            </div>
 
-            <!-- Columna 2: Cuenta + datos personales -->
-            <div class="form-column">
-              <h3 class="section-divider first">Cuenta de acceso</h3>
-              <div class="stack-gap">
-                <div class="input-group">
-                  <label for="email">Correo electrónico</label>
-                  <input id="email" type="email" v-model="form.email" placeholder="tu@correo.com" required />
-                </div>
-                <div class="rg-row">
-                  <div class="input-group">
-                    <label for="password">Contraseña</label>
-                    <input id="password" type="password" v-model="form.password" placeholder="••••••••" required />
-                  </div>
-                  <div class="input-group">
+                  <div class="field">
                     <label for="confirmPassword">Confirmar contraseña</label>
-                    <input id="confirmPassword" type="password" v-model="form.confirmPassword" placeholder="••••••••" required />
+
+                    <div class="password-field">
+                      <input
+                        id="confirmPassword"
+                        v-model="form.confirmPassword"
+                        :type="showConfirmPassword ? 'text' : 'password'"
+                        placeholder="••••••••"
+                        required
+                      />
+
+                      <button
+                        type="button"
+                        aria-label="Mostrar contraseña"
+                        @click="showConfirmPassword = !showConfirmPassword"
+                      >
+                        <svg
+                          v-if="showConfirmPassword"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.8"
+                        >
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                          <circle cx="12" cy="12" r="3"/>
+                        </svg>
+
+                        <svg
+                          v-else
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.8"
+                        >
+                          <rect x="3" y="11" width="18" height="10" rx="2"/>
+                          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                      </button>
+                    </div>
                   </div>
+
                 </div>
               </div>
 
-              <h3 class="section-divider">Datos personales</h3>
-              <div class="stack-gap">
-                <div class="input-group">
+              <h3 class="section-title">Datos personales</h3>
+
+              <div class="fields">
+
+                <div class="field">
                   <label for="curp">CURP</label>
-                  <input id="curp" type="text" v-model="form.curp" placeholder="ABCD010101HDF000" required />
+                  <input
+                    id="curp"
+                    v-model="form.curp"
+                    type="text"
+                    placeholder="ABCD010101HDF000"
+                    maxlength="18"
+                    required
+                  />
                 </div>
-                <div class="rg-row">
-                  <div class="input-group">
+
+                <div class="field-row">
+                  <div class="field">
                     <label for="nombres">Nombre(s)</label>
-                    <input id="nombres" type="text" v-model="form.nombres" placeholder="Tu(s) nombre(s)" required />
+                    <input
+                      id="nombres"
+                      v-model="form.nombres"
+                      type="text"
+                      placeholder="Tu(s) nombre(s)"
+                      required
+                    />
                   </div>
-                  <div class="input-group">
+
+                  <div class="field">
                     <label for="fechaNacimiento">Fecha de nacimiento</label>
-                    <input id="fechaNacimiento" type="date" v-model="form.fechaNacimiento" required />
+                    <input
+                      id="fechaNacimiento"
+                      v-model="form.fechaNacimiento"
+                      type="date"
+                      required
+                    />
                   </div>
                 </div>
-                <div class="rg-row">
-                  <div class="input-group">
+
+                <div class="field-row">
+                  <div class="field">
                     <label for="apellidoP">Apellido paterno</label>
-                    <input id="apellidoP" type="text" v-model="form.apellidoP" placeholder="Paterno" required />
+                    <input
+                      id="apellidoP"
+                      v-model="form.apellidoP"
+                      type="text"
+                      placeholder="Paterno"
+                      required
+                    />
                   </div>
-                  <div class="input-group">
+
+                  <div class="field">
                     <label for="apellidoM">Apellido materno</label>
-                    <input id="apellidoM" type="text" v-model="form.apellidoM" placeholder="Materno" required />
+                    <input
+                      id="apellidoM"
+                      v-model="form.apellidoM"
+                      type="text"
+                      placeholder="Materno"
+                      required
+                    />
                   </div>
                 </div>
-                <div class="input-group">
+
+                <div class="field">
                   <label for="celular">Teléfono celular</label>
-                  <input id="celular" type="tel" v-model="form.celular" placeholder="+52 000 000 0000" required />
+                  <input
+                    id="celular"
+                    v-model="form.celular"
+                    type="tel"
+                    placeholder="+52 000 000 0000"
+                    required
+                  />
                 </div>
               </div>
             </div>
 
-            <!-- Columna 3: Especialidad, redes, horario -->
+            <!-- =========================
+                 COLUMNA 3
+            ========================== -->
             <div class="form-column rg-col3">
-              <h3 class="section-divider first">Perfil profesional</h3>
-              <div class="stack-gap">
-                <div class="input-group">
+
+              <h3 class="section-title first">Perfil profesional</h3>
+
+              <div class="fields">
+
+                <div class="field">
                   <label for="especialidad">Especialidad</label>
-                  <input id="especialidad" type="text" v-model="form.especialidad" placeholder="Ej. Fuerza, CrossFit, Yoga..." required />
+                  <input
+                    id="especialidad"
+                    v-model="form.especialidad"
+                    type="text"
+                    placeholder="Ej. Fuerza, CrossFit, Yoga..."
+                    required
+                  />
                 </div>
-                <div class="rg-row">
-                  <div class="input-group">
+
+                <div class="field-row">
+                  <div class="field">
                     <label for="facebook">Facebook</label>
-                    <input id="facebook" type="text" v-model="form.facebook" placeholder="usuario_fb" />
+                    <input
+                      id="facebook"
+                      v-model="form.facebook"
+                      type="text"
+                      placeholder="usuario_fb"
+                    />
                   </div>
-                  <div class="input-group">
+
+                  <div class="field">
                     <label for="instagram">Instagram</label>
-                    <input id="instagram" type="text" v-model="form.instagram" placeholder="@usuario_ig" />
+                    <input
+                      id="instagram"
+                      v-model="form.instagram"
+                      type="text"
+                      placeholder="@usuario_ig"
+                    />
                   </div>
                 </div>
-                <div class="rg-row">
-                  <div class="input-group">
+
+                <div class="field-row">
+                  <div class="field">
                     <label for="tiktok">TikTok</label>
-                    <input id="tiktok" type="text" v-model="form.tiktok" placeholder="@usuario_tt" />
+                    <input
+                      id="tiktok"
+                      v-model="form.tiktok"
+                      type="text"
+                      placeholder="@usuario_tt"
+                    />
                   </div>
-                  <div class="input-group">
+
+                  <div class="field">
                     <label for="otrasApps">Otras redes</label>
-                    <input id="otrasApps" type="text" v-model="form.otrasApps" placeholder="Opcional" />
+                    <input
+                      id="otrasApps"
+                      v-model="form.otrasApps"
+                      type="text"
+                      placeholder="Opcional"
+                    />
                   </div>
                 </div>
               </div>
 
-              <h3 class="section-divider">Horario disponible</h3>
-              <div class="rg-row">
-                <div class="input-group">
-                  <label for="horaEntrada">Hora de entrada</label>
-                  <input id="horaEntrada" type="time" v-model="form.horaEntrada" required />
-                </div>
-                <div class="input-group">
-                  <label for="horaSalida">Hora de salida</label>
-                  <input id="horaSalida" type="time" v-model="form.horaSalida" required />
-                </div>
+              <h3 class="section-title">Horario disponible</h3>
+
+              <div class="schedule-wrapper">
+                <WeeklySchedule
+                  v-model="form.horarios"
+                  open-label="Entrada"
+                  close-label="Salida"
+                  days-label="Días que trabajas"
+                  default-open="07:00"
+                  default-close="15:00"
+                />
               </div>
 
-              <div class="actions-section" style="margin-top: 28px;">
-                <button type="submit" class="btn-primary">
-                  Registrarme como entrenador
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+              <div class="actions">
+                <button type="submit" class="submit-btn">
+                  <span>Registrarme como entrenador</span>
+
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M5 12h14M13 6l6 6-6 6"/>
+                  </svg>
                 </button>
-                <div class="footer-link">
-                  ¿Ya tienes cuenta? <router-link :to="{ name: 'login' }">Inicia sesión</router-link>
-                </div>
-              </div>
-            </div>
 
+                <p class="login-link">
+                  ¿Ya tienes cuenta?
+                  <router-link :to="{ name: 'login' }">
+                    Inicia sesión
+                  </router-link>
+                </p>
+              </div>
+
+            </div>
           </div>
         </form>
       </div>
@@ -372,251 +690,36 @@ const handleRegisterClick = () => {
 </template>
 
 <style scoped>
-.register-page {
-  color: #f5f5f4;
-  font-family: 'Inter', sans-serif;
-  position: relative;
-}
+.register-page{position:relative;color:#f5f5f4;font-family:'Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}.main-content{display:flex;justify-content:center;width:100%;padding:24px clamp(16px,3vw,40px) 40px;box-sizing:border-box}.register-card{width:100%;max-width:1400px;padding:clamp(26px,3vw,40px);box-sizing:border-box;background:linear-gradient(145deg,rgba(19,19,20,.94),rgba(12,12,13,.96));border:1px solid rgba(255,255,255,.08);border-radius:22px;box-shadow:0 28px 65px rgba(0,0,0,.45),inset 0 1px rgba(255,255,255,.025)}
 
-.main-content {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  padding: 24px clamp(16px, 3vw, 40px) 40px;
-  box-sizing: border-box;
-}
+.header-section{text-align:center;margin-bottom:32px}.header-section h1{margin:0 0 8px;font-family:'Anton',sans-serif;font-size:clamp(1.8rem,4vw,2.35rem);font-weight:400;line-height:1.1;letter-spacing:-.4px}.header-section h1 span{color:#4e7fe8}.header-section p{max-width:580px;margin:0 auto;color:rgba(245,245,244,.46);font-size:13px;line-height:1.5}
 
-.register-card {
-  width: 100%;
-  max-width: 1400px;
-  background: rgba(18, 18, 18, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 24px;
-  padding: clamp(28px, 3vw, 48px);
-  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55);
-  box-sizing: border-box;
-}
+.alert{margin-bottom:22px;padding:13px 15px;border-radius:10px;font-size:13px;font-weight:500;line-height:1.45}.alert.success{color:#a9c0f5;background:rgba(28,79,214,.1);border:1px solid rgba(78,119,218,.3)}.alert.error{color:#fca5a5;background:rgba(239,68,68,.09);border:1px solid rgba(239,68,68,.28)}
 
-.header-section { text-align: center; margin-bottom: 32px; }
+.rg-grid{display:grid;grid-template-columns:1fr;gap:clamp(28px,3vw,42px);align-items:start}.form-column,.fields,.field{display:flex;flex-direction:column}.form-column{gap:14px;min-width:0}.fields{gap:14px}.field{gap:7px;min-width:0}.field-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 
-.title {
-  font-family: 'Anton', sans-serif;
-  font-size: clamp(1.8rem, 4vw, 2.4rem);
-  letter-spacing: -1px;
-  text-transform: uppercase;
-  margin: 0 0 8px;
-  color: #f5f5f4;
-}
-.highlight-text { color: #3a6bd6; }
-.subtitle { font-size: 14px; color: rgba(245, 245, 244, 0.55); margin: 0; }
+.section-title{display:flex;align-items:center;gap:7px;margin:16px 0 1px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.07);color:#6e94e9;font-family:inherit;font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase}.section-title.first{margin-top:0}.section-title small{padding:2px 6px;border-radius:5px;background:rgba(255,255,255,.05);color:rgba(245,245,244,.35);font-size:8px;font-weight:600;letter-spacing:.3px}
 
-.alert-success {
-  font-size: 13px; font-weight: 600; padding: 14px 16px; border-radius: 10px;
-  background: rgba(28, 79, 214, 0.15); border: 1px solid rgba(28, 79, 214, 0.4);
-  color: #8fb4f8; margin-bottom: 24px;
-}
-.alert-error {
-  font-size: 13px; font-weight: 600; padding: 14px 16px; border-radius: 10px;
-  background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4);
-  color: #fca5a5; margin-bottom: 24px;
-}
+label{color:rgba(245,245,244,.72);font-size:11px;font-weight:600;line-height:1.4}input{width:100%;min-width:0;min-height:46px;padding:11px 13px;box-sizing:border-box;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.105);border-radius:10px;outline:none;color:#f5f5f4;font-family:inherit;font-size:13px;font-weight:500;transition:border-color .2s ease,background .2s ease,box-shadow .2s ease}input::placeholder{color:rgba(245,245,244,.27);font-weight:400}input:hover{border-color:rgba(255,255,255,.17)}input:focus{border-color:#3c69d5;background:rgba(255,255,255,.035);box-shadow:0 0 0 3px rgba(28,79,214,.11)}input[type=date]{color-scheme:dark}
 
-.rg-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: clamp(24px, 2.5vw, 36px);
-  align-items: start;
-}
-.form-column { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.upload-container{display:flex;align-items:center;gap:14px;padding:13px;background:rgba(255,255,255,.018);border:1px dashed rgba(255,255,255,.13);border-radius:12px;transition:.2s ease}.upload-container:hover{border-color:rgba(91,139,240,.36);background:rgba(91,139,240,.02)}.image-preview{width:68px;height:68px;flex-shrink:0;display:grid;place-items:center;overflow:hidden;background:#111214;border:1px solid rgba(255,255,255,.1);border-radius:10px;cursor:pointer}.profile-img{width:100%;height:100%;object-fit:cover}.upload-placeholder{display:flex;flex-direction:column;align-items:center;gap:5px;color:rgba(245,245,244,.38)}.upload-placeholder svg{width:20px;height:20px}.upload-placeholder span{font-size:8px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}.upload-text{display:flex;flex-direction:column;gap:4px}.upload-text strong{color:rgba(245,245,244,.78);font-size:11.5px;font-weight:600}.upload-text span{color:rgba(245,245,244,.36);font-size:10.5px;line-height:1.4}
 
-@media (min-width: 1200px) {
-  .rg-grid { grid-template-columns: repeat(3, 1fr); }
-}
-@media (min-width: 1024px) and (max-width: 1199px) {
-  .rg-grid { grid-template-columns: repeat(2, 1fr); }
-  .rg-col3 { grid-column: 1 / -1; max-width: 700px; margin: 0 auto; width: 100%; }
-}
+.search-input{position:relative}.search-input svg{position:absolute;z-index:1;left:13px;top:50%;width:16px;height:16px;transform:translateY(-50%);color:rgba(245,245,244,.34);pointer-events:none}.search-input input{padding-left:38px}
 
-.section-divider {
-  font-family: 'Oswald', sans-serif;
-  font-weight: 700;
-  font-size: 12.5px;
-  letter-spacing: 0.6px;
-  color: #5b8bf0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding-bottom: 8px;
-  margin: 22px 0 6px;
-  text-transform: uppercase;
-}
-.section-divider.first { margin: 6px 0 6px; }
+.gym-picker{position:relative}.gym-dropdown{max-height:250px;margin-top:7px;overflow-y:auto;background:#111214;border:1px solid rgba(255,255,255,.1);border-radius:11px;box-shadow:0 18px 38px rgba(0,0,0,.45)}.gym-option{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 13px;background:transparent;border:0;border-bottom:1px solid rgba(255,255,255,.05);color:inherit;text-align:left;cursor:pointer;transition:background .15s ease}.gym-option:last-child{border-bottom:0}.gym-option:hover{background:rgba(49,94,200,.1)}.gym-option>span:first-child{min-width:0;display:flex;flex-direction:column;gap:3px}.gym-option strong{overflow:hidden;color:rgba(245,245,244,.88);font-size:12px;font-weight:600;white-space:nowrap;text-overflow:ellipsis}.gym-option small{overflow:hidden;color:rgba(245,245,244,.38);font-size:10px;white-space:nowrap;text-overflow:ellipsis}.gym-sedes{flex-shrink:0;padding:4px 7px;border-radius:6px;background:rgba(255,255,255,.045);color:rgba(245,245,244,.43);font-size:9px;font-weight:600}.empty-state{padding:15px;color:rgba(245,245,244,.4);font-size:11px;text-align:center}
 
-.upload-container {
-  display: flex; flex-direction: row; align-items: center; gap: 18px;
-  background: rgba(255, 255, 255, 0.03); padding: 16px 18px; border-radius: 14px;
-  border: 1.5px dashed rgba(255, 255, 255, 0.16);
-}
-.image-preview {
-  width: 76px; height: 76px; background: #141414; border-radius: 12px; overflow: hidden;
-  cursor: pointer; display: flex; align-items: center; justify-content: center;
-  border: 1px solid rgba(255, 255, 255, 0.12); flex-shrink: 0;
-}
-.profile-img { width: 100%; height: 100%; object-fit: cover; }
-.upload-placeholder { display: flex; flex-direction: column; align-items: center; color: rgba(245, 245, 244, 0.45); gap: 4px; text-align: center; }
-.upload-placeholder span { font-size: 9px; font-weight: 700; text-transform: uppercase; }
-.upload-info { font-size: 13px; color: rgba(245, 245, 244, 0.55); margin: 0; line-height: 1.4; }
+.selected-gym{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 13px;background:rgba(28,79,214,.065);border:1px solid rgba(65,108,210,.25);border-radius:11px}.selected-gym-content{min-width:0;display:flex;align-items:center;gap:10px}.selected-indicator{width:27px;height:27px;flex-shrink:0;display:grid;place-items:center;border-radius:7px;background:rgba(28,79,214,.17);color:#7199f0}.selected-indicator svg{width:13px;height:13px}.selected-gym-content>div:last-child{min-width:0;display:flex;flex-direction:column;gap:3px}.selected-gym strong{overflow:hidden;font-size:12px;font-weight:600;white-space:nowrap;text-overflow:ellipsis}.selected-gym span{color:rgba(245,245,244,.4);font-size:10px}.selected-gym>button{padding:7px 10px;border:1px solid rgba(255,255,255,.1);border-radius:7px;background:rgba(255,255,255,.04);color:rgba(245,245,244,.68);font-family:inherit;font-size:10px;font-weight:600;cursor:pointer;transition:.2s ease}.selected-gym>button:hover{background:rgba(255,255,255,.08);color:#fff}
 
-.stack-gap { display: flex; flex-direction: column; gap: 14px; }
-.rg-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.input-group { display: flex; flex-direction: column; gap: 8px; }
+.custom-select{position:relative}.select-trigger{width:100%;min-height:46px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid rgba(255,255,255,.105);border-radius:10px;background:rgba(255,255,255,.025);color:#f5f5f4;font-family:inherit;font-size:12px;font-weight:500;text-align:left;cursor:pointer;transition:.2s ease}.select-trigger:hover{border-color:rgba(255,255,255,.18)}.select-trigger.open{border-color:#3c69d5;box-shadow:0 0 0 3px rgba(28,79,214,.1)}.select-trigger>span{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.select-trigger .placeholder{color:rgba(245,245,244,.28)}.select-trigger>svg{width:15px;height:15px;flex-shrink:0;color:rgba(245,245,244,.4);transition:transform .2s ease}.select-trigger>svg.rotate{transform:rotate(180deg)}
 
-label {
-  font-family: 'Oswald', sans-serif; font-size: 12.5px; font-weight: 700;
-  letter-spacing: 0.4px; color: #f5f5f4;
-}
-input {
-  width: 100%; padding: 14px 16px; background: #141414;
-  border: 1.5px solid rgba(255, 255, 255, 0.12); border-radius: 12px;
-  color: #f5f5f4; font-weight: 600; font-size: 14.5px; min-height: 48px; box-sizing: border-box;
-}
-input::placeholder { color: rgba(245, 245, 244, 0.4); }
-input[type="date"]::-webkit-calendar-picker-indicator,
-input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.6; cursor: pointer; }
-input:focus { outline: none; border-color: #1c4fd6; box-shadow: 0 0 0 4px rgba(28, 79, 214, 0.25); background: #161616; }
+.select-options{position:absolute;z-index:100;top:calc(100% + 6px);left:0;width:100%;padding:5px;box-sizing:border-box;background:#121315;border:1px solid rgba(255,255,255,.11);border-radius:10px;box-shadow:0 16px 35px rgba(0,0,0,.55)}.select-option{width:100%;display:flex;align-items:center;gap:9px;padding:9px 10px;border:0;border-radius:7px;background:transparent;color:rgba(245,245,244,.68);font-family:inherit;font-size:11px;text-align:left;cursor:pointer;transition:.15s ease}.select-option:hover{background:rgba(255,255,255,.045);color:#fff}.select-option.selected{background:rgba(28,79,214,.09);color:#dce7ff}.checkbox{width:15px;height:15px;flex-shrink:0;display:grid;place-items:center;border:1px solid rgba(255,255,255,.2);border-radius:4px}.select-option.selected .checkbox{background:#285bd4;border-color:#285bd4;color:#fff}.checkbox svg{width:9px;height:9px}
 
-.optional-tag {
-  display: inline-block;
-  margin-left: 8px;
-  padding: 2px 8px;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(245, 245, 244, 0.6);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
-  vertical-align: middle;
-}
+.password-field{position:relative}.password-field input{padding-right:42px}.password-field button{position:absolute;top:0;right:0;width:42px;height:100%;display:grid;place-items:center;padding:0;border:0;background:transparent;color:rgba(245,245,244,.36);cursor:pointer}.password-field button:hover{color:rgba(245,245,244,.75)}.password-field svg{width:17px;height:17px}
 
-.optional-hint {
-  font-size: 12.5px;
-  color: rgba(245, 245, 244, 0.5);
-  margin: -2px 0 12px;
-  line-height: 1.4;
-}
+.schedule-wrapper{min-width:0;padding:3px 0}.actions{display:flex;flex-direction:column;gap:12px;margin-top:18px}.submit-btn{width:100%;min-height:49px;display:flex;align-items:center;justify-content:center;gap:9px;padding:12px 16px;border:0;border-radius:10px;background:#1c4fd6;color:#fff;font-family:inherit;font-size:12px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;cursor:pointer;box-shadow:0 8px 22px rgba(28,79,214,.22);transition:background .2s ease,transform .2s ease,box-shadow .2s ease}.submit-btn:hover{background:#2459df;transform:translateY(-1px);box-shadow:0 11px 26px rgba(28,79,214,.28)}.submit-btn svg{width:17px;height:17px;transition:transform .2s ease}.submit-btn:hover svg{transform:translateX(3px)}.login-link{margin:0;color:rgba(245,245,244,.4);font-size:11.5px;text-align:center}.login-link a{color:#7197eb;font-weight:600;text-decoration:none}.login-link a:hover{text-decoration:underline}
 
-/* Buscador de gimnasio */
-.gym-picker { position: relative; }
-.gym-dropdown-list {
-  margin-top: 8px; background: #141414; border: 1.5px solid rgba(255, 255, 255, 0.12);
-  border-radius: 12px; max-height: 260px; overflow-y: auto; box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
-}
-
-.skip-gym-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 10px;
-  padding: 10px 2px 0;
-}
-.skip-gym-row span {
-  font-size: 12px;
-  color: rgba(245, 245, 244, 0.45);
-}
-.skip-gym-btn {
-  background: transparent;
-  border: none;
-  color: #5b8bf0;
-  font-family: 'Oswald', sans-serif;
-  font-weight: 700;
-  font-size: 12px;
-  letter-spacing: 0.3px;
-  cursor: pointer;
-  padding: 0;
-  text-decoration: underline;
-}
-.skip-gym-btn:hover { color: #7ba3f5; }
-.gym-option {
-  display: flex; align-items: center; justify-content: space-between; gap: 10px;
-  padding: 12px 16px; cursor: pointer; border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  transition: background 0.15s ease;
-}
-.gym-option:last-child { border-bottom: none; }
-.gym-option:hover { background: rgba(28, 79, 214, 0.14); }
-.gym-option-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.gym-option-main strong { font-size: 13.5px; color: #f5f5f4; }
-.gym-option-main span { font-size: 12px; color: rgba(245, 245, 244, 0.5); }
-.gym-option-empty { padding: 14px 16px; font-size: 13px; color: rgba(245, 245, 244, 0.5); }
-
-.selected-gym-card {
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  padding: 14px 16px; background: rgba(28, 79, 214, 0.12);
-  border: 1.5px solid rgba(28, 79, 214, 0.4); border-radius: 12px;
-}
-.selected-gym-info { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-.selected-gym-info strong { font-size: 14px; color: #f5f5f4; }
-.selected-gym-info span { font-size: 12px; color: rgba(245, 245, 244, 0.55); }
-.change-gym-btn {
-  background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #f5f5f4; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 11.5px;
-  text-transform: uppercase; padding: 8px 14px; border-radius: 9px; cursor: pointer;
-  flex-shrink: 0; transition: background 0.2s ease;
-}
-.change-gym-btn:hover { background: rgba(255, 255, 255, 0.15); }
-
-/* Multiselect de sedes */
-.custom-multiselect { position: relative; width: 100%; }
-.select-box-trigger {
-  background: #141414; border: 1.5px solid rgba(255, 255, 255, 0.12); border-radius: 12px;
-  color: #f5f5f4; padding: 12px 14px; width: 100%; box-sizing: border-box;
-  font-family: 'Inter', sans-serif; font-size: 0.95rem; outline: none; cursor: pointer;
-  display: flex; align-items: center; justify-content: space-between;
-  transition: border-color 0.2s, box-shadow 0.2s; user-select: none; min-height: 48px;
-}
-.select-box-trigger.disabled { cursor: not-allowed; opacity: 0.55; }
-.select-box-trigger:hover:not(.disabled) { border-color: rgba(255, 255, 255, 0.25); }
-.placeholder-text { color: #71717a; }
-.dropdown-arrow { width: 16px; height: 16px; stroke: #a1a1aa; transition: transform 0.2s ease; flex-shrink: 0; margin-left: 10px; }
-.dropdown-arrow.rotate { transform: rotate(180deg); }
-
-.dropdown-options-list {
-  position: absolute; top: calc(100% + 6px); left: 0; width: 100%;
-  background: #18181b; border: 1.5px solid rgba(255, 255, 255, 0.15); border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6); z-index: 100; max-height: 220px;
-  overflow-y: auto; padding: 6px; box-sizing: border-box;
-}
-.dropdown-option-item {
-  display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px;
-  cursor: pointer; font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #e4e4e7;
-  transition: background 0.15s, color 0.15s;
-}
-.dropdown-option-item:hover { background: rgba(59, 130, 246, 0.12); color: #fff; }
-.dropdown-option-item.selected { background: rgba(59, 130, 246, 0.2); color: #fff; font-weight: 500; }
-.option-checkbox {
-  width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid rgba(255, 255, 255, 0.3);
-  display: flex; align-items: center; justify-content: center; transition: all 0.15s; flex-shrink: 0;
-}
-.dropdown-option-item.selected .option-checkbox { background: #3b82f6; border-color: #3b82f6; color: white; }
-.option-checkbox svg { width: 10px; height: 10px; }
-
-.actions-section { margin-top: 30px; display: flex; flex-direction: column; gap: 14px; }
-.btn-primary {
-  width: 100%; padding: 16px; background: #1c4fd6; color: #ffffff;
-  border: none; border-radius: 12px; font-family: 'Oswald', sans-serif;
-  font-weight: 700; font-size: 14.5px; text-transform: uppercase; cursor: pointer;
-  display: flex; align-items: center; justify-content: center; gap: 9px;
-  min-height: 52px; box-shadow: 0 10px 24px rgba(28, 79, 214, 0.3);
-}
-.footer-link {
-  text-align: center; font-family: 'Inter', sans-serif;
-  font-weight: 600; font-size: 13.5px; color: rgba(245, 245, 244, 0.55);
-}
-.footer-link a { color: #5b8bf0; text-decoration: none; font-weight: 700; }
-
-@media (max-width: 768px) {
-  .rg-row { grid-template-columns: 1fr; }
-}
+@media(min-width:1200px){.rg-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(min-width:900px) and (max-width:1199px){.rg-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.rg-col3{grid-column:1/-1;width:100%;max-width:700px;margin:0 auto}}
+@media(max-width:768px){.main-content{padding:18px 14px 30px}.register-card{padding:22px 18px;border-radius:18px}.field-row{grid-template-columns:1fr}}
+@media(max-width:420px){.register-card{padding:20px 15px}.header-section h1{font-size:1.7rem}.header-section p{font-size:12px}.upload-container{align-items:flex-start}.selected-gym{align-items:flex-start}}
 </style>
