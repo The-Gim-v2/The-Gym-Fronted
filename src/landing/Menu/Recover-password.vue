@@ -267,15 +267,15 @@ onUnmounted(()=>{
 *{box-sizing:border-box}
 
 .recovery-page{
-  --bg:#07080b;
-  --surface:#0d0f14;
-  --surface-2:#12151c;
-  --field:#14171e;
-  --line:#22262f;
-  --line-strong:#323845;
+  --bg:#09090a;
+  --surface:#111112;
+  --surface-2:#0e0e0f;
+  --field:#151516;
+  --line:rgba(255,255,255,.08);
+  --line-strong:rgba(255,255,255,.14);
   --text:#f3f5f9;
-  --text-2:#a3a9b5;
-  --text-3:#737a88;
+  --text-2:#a8a8ac;
+  --text-3:#78787d;
   --accent:#4f7cff;
   --accent-soft:#8fadff;
   --accent-deep:#2f5ee8;
@@ -428,11 +428,10 @@ onUnmounted(()=>{
   overflow:hidden;
   border:1px solid var(--line);
   border-radius:28px;
-  background:var(--surface);
+  background:linear-gradient(145deg,rgba(19,19,20,.94),rgba(12,12,13,.96));
   box-shadow:
     0 0 0 1px rgba(255,255,255,.02) inset,
-    0 40px 110px rgba(0,0,0,.55),
-    0 0 90px rgba(47,94,232,.07);
+    0 40px 110px rgba(0,0,0,.55);
 }
 
 /* PANEL INFORMATIVO */
@@ -446,8 +445,8 @@ onUnmounted(()=>{
   padding:60px 62px 38px;
   border-right:1px solid var(--line);
   background:
-    radial-gradient(circle at 12% 8%,rgba(60,106,240,.24),transparent 42%),
-    linear-gradient(150deg,#101524 0%,#0c0f17 58%,#0a0b0f 100%);
+    radial-gradient(circle at 12% 8%,rgba(60,106,240,.09),transparent 40%),
+    linear-gradient(150deg,#151516 0%,#101011 58%,#0b0b0c 100%);
 }
 
 .info-panel:before,
@@ -709,16 +708,16 @@ label{
 }
 
 .input-wrapper input::placeholder{
-  color:#5d6472;
+  color:#636368;
 }
 
 .input-wrapper input:hover:not(:disabled){
-  border-color:#434a5a;
+  border-color:rgba(255,255,255,.24);
 }
 
 .input-wrapper input:focus{
   border-color:var(--accent);
-  background:#161a23;
+  background:#18181a;
   box-shadow:0 0 0 4px rgba(79,124,255,.16);
 }
 
@@ -760,13 +759,36 @@ label{
   pointer-events:none;
 }
 
+/* Quita la flecha/icono nativo del navegador: solo se muestra la flecha propia */
+.date-wrapper input[type="date"]{
+  -webkit-appearance:none;
+  appearance:none;
+  display:block;
+  min-width:0;
+  text-align:left;
+}
+
+.date-wrapper input[type="date"]::-webkit-date-and-time-value{
+  min-height:1.2em;
+  text-align:left;
+}
+
 input[type="date"]::-webkit-calendar-picker-indicator{
   position:absolute;
   inset:0;
   width:100%;
   height:100%;
+  margin:0;
+  padding:0;
   opacity:0;
+  background:none;
   cursor:pointer;
+}
+
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-clear-button{
+  display:none;
+  -webkit-appearance:none;
 }
 
 /* ALERTAS */
@@ -811,18 +833,16 @@ input[type="date"]::-webkit-calendar-picker-indicator{
   justify-content:center;
   margin-top:4px;
   padding:0 16px;
-  border:1px solid #5b88ff;
+  border:0;
   border-radius:12px;
-  background:linear-gradient(180deg,#4f7cff 0%,#2f5ee8 100%);
+  background:#1c4fd6;
   color:#fff;
   font-family:inherit;
   font-size:14.5px;
   font-weight:700;
   cursor:pointer;
-  box-shadow:
-    0 1px 0 rgba(255,255,255,.22) inset,
-    0 12px 28px rgba(47,94,232,.32);
-  transition:transform .2s,box-shadow .2s,filter .2s;
+  box-shadow:0 8px 22px rgba(28,79,214,.25);
+  transition:background .2s,transform .2s,box-shadow .2s;
 }
 
 .button-state{
@@ -839,11 +859,9 @@ input[type="date"]::-webkit-calendar-picker-indicator{
 }
 
 .primary-button:hover:not(:disabled){
-  filter:brightness(1.1);
+  background:#2459df;
   transform:translateY(-1px);
-  box-shadow:
-    0 1px 0 rgba(255,255,255,.26) inset,
-    0 16px 34px rgba(47,94,232,.42);
+  box-shadow:0 12px 28px rgba(28,79,214,.34);
 }
 
 .primary-button:hover:not(:disabled) svg{
@@ -852,7 +870,7 @@ input[type="date"]::-webkit-calendar-picker-indicator{
 
 .primary-button:active:not(:disabled){
   transform:none;
-  filter:brightness(.97);
+  background:#1a47c2;
 }
 
 .primary-button:disabled{
