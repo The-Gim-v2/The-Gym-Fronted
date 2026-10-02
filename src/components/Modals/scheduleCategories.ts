@@ -1,4 +1,3 @@
-<script lang="ts">
 export interface CategoryItem {
   key: string;
   color: string;
@@ -77,7 +76,6 @@ const flat: CategoryItem[] = categoryGroups.flatMap(group => group.items);
 
 export const categoryKeys: string[] = flat.map(item => item.key);
 
-/* Quita acentos y mayúsculas para comparar nombres ("Boxeo" == "boxeo"). */
 const normalize = (value: string): string =>
   (value || '')
     .toString()
@@ -86,13 +84,9 @@ const normalize = (value: string): string =>
     .trim()
     .toLowerCase();
 
-/*
-  Busca una categoría por su clave ('boxing') y también por su nombre
-  ('Boxeo', 'Boxing', 'boxeo'), para que las actividades guardadas con el
-  nombre antiguo sigan funcionando.
-*/
 export const findCategory = (value: string): CategoryItem | undefined => {
   const needle = normalize(value);
+
   if (!needle) return undefined;
 
   return flat.find(
@@ -103,14 +97,21 @@ export const findCategory = (value: string): CategoryItem | undefined => {
   );
 };
 
-/* Devuelve siempre la clave oficial ('Boxeo' -> 'boxing'); si no existe, devuelve el valor original. */
-export const categoryKey = (value: string): string => findCategory(value)?.key || value || '';
+export const categoryKey = (value: string): string =>
+  findCategory(value)?.key || value || '';
 
-export const categoryColor = (value: string): string => findCategory(value)?.color || '';
+export const categoryColor = (value: string): string =>
+  findCategory(value)?.color || '';
 
-export const categoryLabel = (value: string, lang: string = 'es'): string => {
+export const categoryLabel = (
+  value: string,
+  lang: string = 'es'
+): string => {
   const item = findCategory(value);
+
   if (!item) return value || '';
-  return String(lang).toLowerCase().startsWith('en') ? item.en : item.es;
+
+  return String(lang).toLowerCase().startsWith('en')
+    ? item.en
+    : item.es;
 };
-</script>

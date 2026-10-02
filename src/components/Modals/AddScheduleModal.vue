@@ -499,7 +499,7 @@
 
 <script setup>
 import { reactive, watch, computed, onMounted, onUnmounted } from 'vue';
-import { categoryGroups, categoryColor, categoryLabel } from './scheduleCategories.vue';
+import { categoryGroups, categoryColor, categoryLabel } from './scheduleCategories.ts';
 
 const props = defineProps({
   initialData: { type: Object, default: null },
