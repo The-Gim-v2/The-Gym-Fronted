@@ -13,11 +13,22 @@
           <div class="search-wrapper">
             <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input type="text" class="search-input" :placeholder="t('searchPlaceholder')" v-model="searchQuery">
+            <button v-if="searchQuery" class="search-clear" type="button" @click="searchQuery = ''" aria-label="Clear">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
           </div>
         </div>
       </header>
 
-      <!-- VISTA ESCRITORIO -->
+      <!-- RESUMEN -->
+      <section class="stats-row">
+        <div class="stat-card" v-for="s in stats" :key="s.key" :class="'stat-' + s.tone">
+          <span class="stat-value">{{ s.value }}</span>
+          <span class="stat-label">{{ t(s.key) }}</span>
+        </div>
+      </section>
+
+      <!-- ESCRITORIO -->
       <div class="table-container desktop-only" :id="!isMobile ? 'tutorial-step-1' : undefined">
         <table class="user-table">
           <thead>
@@ -25,6 +36,7 @@
               <th>{{ t('colPhoto') }}</th>
               <th>{{ t('colName') }}</th>
               <th>{{ t('colEmail') }}</th>
+              <th>{{ t('colType') }}</th>
               <th>{{ t('colExpiration') }}</th>
               <th>{{ t('colDebt') }}</th>
               <th>{{ t('colActions') }}</th>
@@ -35,15 +47,18 @@
               <td><div class="avatar-small" :style="avatarStyle(user.id)">{{ getInitials(user.name) }}</div></td>
               <td class="text-bold">{{ user.name }}</td>
               <td class="text-muted">{{ user.email }}</td>
+              <td><span class="type-chip">{{ typeLabel(user.mensualidad) }}</span></td>
               <td class="text-muted">{{ user.expiredDate }}</td>
               <td><span class="status-badge" :class="getDebtClass(user.status)">{{ user.debt }}</span></td>
-              <td class="actions-cell" :id="!isMobile && index === 0 ? 'tutorial-step-2' : undefined">
-                <button class="icon-btn" :title="t('renewBtn')" @click="handleOpenRenew(user)"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.5 4a3.5 3.5 0 1 0 5 0m-5 0V3m5 6l-5-5-5 5"/></svg></button>
-                <button class="icon-btn delete-icon-btn" :title="t('deleteBtn')" @click="confirmDelete(user)"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+              <td>
+                <div class="actions-cell" :id="!isMobile && index === 0 ? 'tutorial-step-2' : undefined">
+                  <button class="icon-btn" :title="t('renewBtn')" @click="handleOpenRenew(user)"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.5 4a3.5 3.5 0 1 0 5 0m-5 0V3m5 6l-5-5-5 5"/></svg></button>
+                  <button class="icon-btn delete-icon-btn" :title="t('deleteBtn')" @click="confirmDelete(user)"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+                </div>
               </td>
             </tr>
             <tr v-if="filteredUsers.length === 0">
-              <td colspan="6" class="empty-state-cell">
+              <td colspan="7" class="empty-state-cell">
                 <div class="empty-state">
                   <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                   <span>{{ t('emptyState') }}</span>
@@ -52,22 +67,26 @@
             </tr>
           </tbody>
         </table>
+        <div class="table-footer">{{ filteredUsers.length }} {{ t('resultsLabel') }}</div>
       </div>
 
-      <!-- VISTA MÓVIL -->
+      <!-- MÓVIL -->
       <div class="mobile-only">
-       <div
+        <div
           v-for="(user, index) in filteredUsers"
           :key="user.id"
           class="user-card"
-          :class="getDebtClass(user.status)"
+          :class="'card-' + getDebtClass(user.status)"
           :id="isMobile && index === 0 ? 'tutorial-step-1' : undefined"
         >
           <div class="card-top-section">
             <div class="avatar-small" :style="avatarStyle(user.id)">{{ getInitials(user.name) }}</div>
             <div class="card-user-titles">
               <div class="text-bold name-text">{{ user.name }}</div>
-              <span class="status-badge" :class="getDebtClass(user.status)">{{ user.debt }}</span>
+              <div class="badges-row">
+                <span class="status-badge" :class="getDebtClass(user.status)">{{ user.debt }}</span>
+                <span class="type-chip">{{ typeLabel(user.mensualidad) }}</span>
+              </div>
             </div>
           </div>
 
@@ -95,7 +114,7 @@
         </div>
       </div>
 
-      <!-- TRANSICIÓN DE RENOVACIÓN (MODAL EXTERNO) -->
+      <!-- Modal de renovación -->
       <transition name="pop">
         <div v-if="activeModal === 'renovacion'" class="modal-wrapper" @click.self="activeModal = null">
           <RenovacionModal :user="selectedUser" @close="activeModal = null" @renewed="handleRenewSuccess" />
@@ -116,7 +135,6 @@
           </div>
         </div>
       </ModalComponent>
-
     </main>
   </HeadingOwner>
 </template>
@@ -145,7 +163,7 @@ const selectedUser = ref<User | null>(null);
 const searchQuery = ref<string>('');
 const toastRef = ref<any>(null);
 
-// Sistema de Idiomas
+// Idiomas
 const currentLang = ref<string>(localStorage.getItem('owner-idioma') || 'es');
 const handleLangChange = (e: Event) => {
   const customEvent = e as CustomEvent<{ idioma?: string }>;
@@ -157,9 +175,12 @@ const langData: Record<'es' | 'en', Record<string, string>> = {
     renewalsTitle: 'Renovaciones',
     renewalsSubtitle: 'Gestiona las membresías vencidas o próximas a vencer de los usuarios',
     searchPlaceholder: 'Buscar usuario...',
+    monthly: 'Mensual',
+    fortnightly: 'Quincenal',
     colPhoto: 'Foto',
     colName: 'Nombre',
     colEmail: 'Correo',
+    colType: 'Pago',
     colExpiration: 'Vencimiento',
     colDebt: 'Adeudo',
     colActions: 'Acciones',
@@ -167,6 +188,11 @@ const langData: Record<'es' | 'en', Record<string, string>> = {
     renewBtn: 'Renovar',
     deleteBtn: 'Eliminar',
     emptyState: 'No se encontraron resultados con esos filtros.',
+    resultsLabel: 'resultados',
+    statTotal: 'Total',
+    statExpired: 'Vencidos',
+    statPending: 'Pendientes',
+    statDebt: 'Adeudo total',
     deleteTitle: '¿Eliminar usuario?',
     deleteMsgPre: '¿Estás seguro de que deseas eliminar a',
     deleteMsgPost: 'permanentemente? Esta acción no se puede deshacer.',
@@ -179,9 +205,12 @@ const langData: Record<'es' | 'en', Record<string, string>> = {
     renewalsTitle: 'Renewals',
     renewalsSubtitle: 'Manage expired or upcoming membership renewals for users',
     searchPlaceholder: 'Search user...',
+    monthly: 'Monthly',
+    fortnightly: 'Fortnightly',
     colPhoto: 'Photo',
     colName: 'Name',
     colEmail: 'Email',
+    colType: 'Payment',
     colExpiration: 'Expiration',
     colDebt: 'Debt',
     colActions: 'Actions',
@@ -189,6 +218,11 @@ const langData: Record<'es' | 'en', Record<string, string>> = {
     renewBtn: 'Renew',
     deleteBtn: 'Delete',
     emptyState: 'No results found with those filters.',
+    resultsLabel: 'results',
+    statTotal: 'Total',
+    statExpired: 'Expired',
+    statPending: 'Pending',
+    statDebt: 'Total debt',
     deleteTitle: 'Delete user?',
     deleteMsgPre: 'Are you sure you want to permanently delete',
     deleteMsgPost: '? This action cannot be undone.',
@@ -203,6 +237,8 @@ const t = (key: string): string => {
   const langKey = (currentLang.value === 'en' ? 'en' : 'es') as 'es' | 'en';
   return langData[langKey][key] || langData.es[key] || key;
 };
+
+const typeLabel = (m: string): string => (m === 'Quincenal' ? t('fortnightly') : t('monthly'));
 
 const isMobile = ref<boolean>(window.innerWidth <= 900);
 const handleResize = (): void => {
@@ -224,24 +260,36 @@ const users = ref<User[]>([
   { id: 2, name: 'Armando Luis Ramires Sanchez', email: 'armando@gmail.com', expiredDate: '18/03/2026', mensualidad: 'Mensual', debt: '$700.00', status: 'Inactivo', phone: '+52 481 124 3421' },
   { id: 3, name: 'Luis Luis Ramires Sanchez', email: 'luis@gmail.com', expiredDate: '18/03/2026', mensualidad: 'Mensual', debt: '$900.00', status: 'Inactivo', phone: '+52 481 125 5421' },
   { id: 4, name: 'Francisco Luis Ramires', email: 'francisco@gmail.com', expiredDate: '18/03/2026', mensualidad: 'Quincenal', debt: '$500.00', status: 'Pendiente', phone: '+52 481 126 6421' },
-  { id: 5, name: 'Jorge Luis Ramires Sanchez', email: 'jorge@gmail.com', expiredDate: '18/03/2026', mensualidad: 'Quincenal', debt: '$0.00', status: 'Activo', phone: '+52 481 127 7421' },
+  { id: 5, name: 'Jorge Luis Ramires Sanchez', email: 'jorge@gmail.com', expiredDate: '18/03/2026', mensualidad: 'Quincenal', debt: '$0.00', status: 'Activo', phone: '+52 481 127 7421' }
 ]);
 
 const filteredUsers = computed(() => {
-  return users.value.filter(user => {
-    const term = searchQuery.value.toLowerCase();
-    const matchSearch =
-      user.name.toLowerCase().includes(term) ||
-      user.email.toLowerCase().includes(term) ||
-      user.debt.toLowerCase().includes(term) ||
-      user.phone.toLowerCase().includes(term) ||
-      user.mensualidad.toLowerCase().includes(term) ||
-      user.status.toLowerCase().includes(term) ||
-      user.expiredDate.toLowerCase().includes(term) ||
-      user.id.toString().includes(term);
+  const term = searchQuery.value.toLowerCase().trim();
+  return users.value.filter(user =>
+    user.name.toLowerCase().includes(term) ||
+    user.email.toLowerCase().includes(term) ||
+    user.debt.toLowerCase().includes(term) ||
+    user.phone.toLowerCase().includes(term) ||
+    user.mensualidad.toLowerCase().includes(term) ||
+    user.status.toLowerCase().includes(term) ||
+    user.expiredDate.toLowerCase().includes(term) ||
+    user.id.toString().includes(term)
+  );
+});
 
-    return matchSearch;
-  });
+const parseAmount = (s: string): number => parseFloat(s.replace(/[^0-9.]/g, '')) || 0;
+const formatCurrency = (value: number): string =>
+  new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(value);
+
+const stats = computed(() => {
+  const list = filteredUsers.value;
+  const total = list.reduce((sum, u) => sum + parseAmount(u.debt), 0);
+  return [
+    { key: 'statTotal', value: String(list.length), tone: 'total' },
+    { key: 'statExpired', value: String(list.filter(u => u.status === 'Inactivo').length), tone: 'red' },
+    { key: 'statPending', value: String(list.filter(u => u.status === 'Pendiente').length), tone: 'orange' },
+    { key: 'statDebt', value: formatCurrency(total), tone: 'red' }
+  ];
 });
 
 const avatarGradients: string[] = [
@@ -250,7 +298,7 @@ const avatarGradients: string[] = [
   'linear-gradient(135deg, #db2777, #9d174d)',
   'linear-gradient(135deg, #dc2626, #7f1d1d)',
   'linear-gradient(135deg, #2563eb, #1e3a8a)',
-  'linear-gradient(135deg, #059669, #064e3b)',
+  'linear-gradient(135deg, #059669, #064e3b)'
 ];
 const getInitials = (name: string): string => {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -279,241 +327,263 @@ const executeDelete = (): void => {
   users.value = users.value.filter(u => u.id !== selectedUser.value?.id);
   showDelete.value = false;
   selectedUser.value = null;
-
-  if (toastRef.value) {
-    toastRef.value.notify(t('successDeleted'), 'success');
-  }
+  toastRef.value?.notify(t('successDeleted'), 'success');
 };
 
 const handleRenewSuccess = () => {
   activeModal.value = null;
-  if (toastRef.value) {
-    toastRef.value.notify(t('successRenewed'), 'success');
-  }
+  toastRef.value?.notify(t('successRenewed'), 'success');
 };
 </script>
 
-
 <style scoped>
-.main-content { padding: 30px 40px 60px; max-width: 1400px; margin: 0 auto; color: var(--color-texto-general, #e5e5e5); font-family: 'Inter', sans-serif; }
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&family=Oswald:wght@500;600;700&display=swap');
 
-.header-section { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 26px; flex-wrap: wrap; gap: 20px; }
-.title-wrapper { display: flex; flex-direction: column; gap: 4px; min-width: 260px; }
-.main-title { font-family: 'Anton', sans-serif; font-size: clamp(1.6rem, 4vw, 2.1rem); color: var(--color-titulos, #fff); margin: 0; letter-spacing: 0.5px; text-transform: uppercase; }
-.title-underline { display: block; width: 60px; height: 4px; margin: 2px 0 4px; border-radius: 4px; background: linear-gradient(90deg, var(--color-highlight, #3b82f6), transparent); }
-.main-subtitle { font-size: 0.85rem; color: rgba(245, 245, 244, 0.55); margin: 0; }
-
-.actions-bar { display: flex; gap: 15px; align-items: center; }
-
-.search-wrapper { position: relative; display: flex; align-items: center; }
-.search-icon { position: absolute; left: 12px; color: rgba(245, 245, 244, 0.4); pointer-events: none; z-index: 1; }
-.search-input {
-  background: rgba(0, 0, 0, 0.28);
-  border: 1px solid var(--border-input, rgba(255, 255, 255, 0.1));
-  padding: 11px 14px 11px 36px;
-  border-radius: var(--app-border-radius, 10px);
-  color: var(--color-texto-general, #fff);
-  font-size: 0.9rem;
-  outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  width: 240px;
-  font-family: 'Inter', sans-serif;
+.main-content,
+.modal-wrapper {
+  --accent: var(--color-highlight, #3b82f6);
+  --card-bg: var(--bg-cards, #121416);
+  --radius: var(--app-border-radius, 14px);
+  --radius-small: 10px;
+  --line: color-mix(in srgb, var(--color-texto-general, #94a3b8) 16%, transparent);
+  --line-soft: color-mix(in srgb, var(--color-texto-general, #94a3b8) 9%, transparent);
+  --muted: color-mix(in srgb, var(--color-texto-general, #94a3b8) 68%, transparent);
 }
-.search-input:focus { border-color: var(--color-highlight, #3b82f6); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
+
+.main-content *,
+.main-content *::before,
+.main-content *::after { box-sizing: border-box; }
+
+.main-content {
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 34px 36px 55px;
+  color: var(--color-texto-general, #e5e7eb);
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* HEADER */
+.header-section { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 22px; }
+.title-wrapper { min-width: 260px; display: flex; flex-direction: column; gap: 6px; }
+.main-title {
+  margin: 0;
+  color: var(--color-titulos, #ffffff);
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(1.9rem, 3vw, 2.55rem);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.title-underline { display: block; width: 58px; height: 3px; margin-top: 2px; border-radius: 999px; background: linear-gradient(90deg, var(--accent), transparent); }
+.main-subtitle { max-width: 580px; margin: 1px 0 0; color: var(--muted); font-size: 0.82rem; font-weight: 500; line-height: 1.5; }
+
+/* BUSCADOR */
+.actions-bar { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+.search-wrapper { position: relative; display: flex; align-items: center; min-width: 250px; }
+.search-icon { position: absolute; z-index: 2; left: 14px; color: var(--muted); pointer-events: none; opacity: 0.75; }
+.search-input {
+  width: 260px; height: 44px; padding: 0 38px 0 40px;
+  border: 1px solid var(--line); border-radius: var(--radius-small);
+  background: var(--card-bg); color: var(--color-texto-general, #ffffff);
+  font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 500; outline: none;
+  transition: width 0.2s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.search-input::placeholder { color: var(--muted); opacity: 0.68; }
+.search-input:hover { border-color: color-mix(in srgb, var(--color-texto-general, #ffffff) 25%, transparent); }
+.search-input:focus { width: 290px; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent); }
+
+.search-clear {
+  position: absolute; right: 10px; width: 22px; height: 22px;
+  display: flex; align-items: center; justify-content: center;
+  border: none; border-radius: 50%;
+  background: color-mix(in srgb, var(--color-texto-general, #ffffff) 10%, transparent);
+  color: var(--muted); cursor: pointer; transition: background 0.15s ease;
+}
+.search-clear:hover { background: color-mix(in srgb, var(--color-texto-general, #ffffff) 20%, transparent); }
+
+/* RESUMEN */
+.stats-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 18px; }
+.stat-card { position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 3px; padding: 15px 18px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card-bg); }
+.stat-card::before { content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 3px; background: var(--tone, var(--accent)); }
+.stat-total { --tone: var(--accent); }
+.stat-orange { --tone: #fbbf24; }
+.stat-red { --tone: #f87171; }
+.stat-value { color: var(--color-titulos, #ffffff); font-family: 'Oswald', sans-serif; font-size: 1.5rem; font-weight: 600; line-height: 1.15; white-space: nowrap; }
+.stat-label { color: var(--muted); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; }
 
 .desktop-only { display: block; }
 .mobile-only { display: none; }
 
-.debt-pending { color: #f59e0b; border-color: rgba(245, 158, 11, 0.35); background: rgba(245, 158, 11, 0.1); }
-.debt-inactive { color: #ef4444; border-color: rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.1); }
-.debt-default { color: #22c55e; border-color: rgba(34, 197, 94, 0.35); background: rgba(34, 197, 94, 0.1); }
-:deep(.notification-container),
-:deep(.toast-container) {
-  width: calc(100% - 32px) !important;
-  max-width: 480px !important;
-  box-sizing: border-box !important;
-  left: 50% !important;
-  transform: translateX(-50%) !important;
-  right: auto !important;
-  margin: 0 auto !important;
-}
-@media (max-width: 900px) {
-  .desktop-only { display: none; }
-  .mobile-only { display: block; }
-  .main-content { padding: 18px 14px 40px; }
-  .header-section { flex-direction: column; align-items: stretch; gap: 16px; }
-
-  .actions-bar { display: flex; flex-direction: column; gap: 10px; width: 100%; }
-  .search-wrapper { width: 100%; }
-  .search-input { width: 100%; }
-
-  .user-card {
-    position: relative;
-    background: rgba(0, 0, 0, 0.25);
-    padding: 16px 16px 16px 18px;
-    border-radius: var(--app-border-radius, 14px);
-    border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.08));
-    margin-bottom: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-    border-left: 3px solid transparent;
-  }
-  .user-card.debt-pending { border-left-color: #f59e0b; }
-  .user-card.debt-inactive { border-left-color: #ef4444; }
-  .user-card.debt-default { border-left-color: #22c55e; }
-
-  .card-top-section { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 4px; }
-  .card-user-titles { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; flex: 1; min-width: 0; }
-  .name-text { font-size: 0.95rem; line-height: 1.25; color: var(--color-titulos, #fff); font-weight: 600; }
-
-  .card-meta { font-size: 0.83rem; margin-bottom: 14px; }
-
-  .card-actions { position: relative; border-top: 1px dashed rgba(255, 255, 255, 0.12); padding-top: 12px; display: flex; gap: 10px; }
-
-  .action-chip {
-    flex: 1;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 8px;
-    padding: 10px 8px;
-    color: var(--color-texto-general, #e2e8f0);
-    font-size: 0.85rem;
-    font-weight: 500;
-    font-family: inherit;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    cursor: pointer;
-    transition: background 0.2s, border-color 0.2s;
-  }
-  .action-chip:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
-  .btn-renew-chip { color: #38bdf8; }
-  .btn-renew-chip:hover { background: rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.3); }
-  .btn-delete-chip { color: #f87171; }
-  .btn-delete-chip:hover { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); }
-}
-
-.card-meta { display: flex; flex-direction: column; gap: 7px; color: rgba(245, 245, 244, 0.6); padding-left: 2px; }
-.meta-row { display: flex; align-items: center; gap: 7px; }
-.meta-row svg { flex-shrink: 0; opacity: 0.6; }
-.email-text { color: rgba(147, 197, 253, 0.9); overflow-wrap: anywhere; }
-.expiration-warning { color: #fb923c; font-weight: 500; }
-.vence-label { color: #fb923c; }
-.phone-text { color: rgba(245, 245, 244, 0.55); }
-
-.table-container {
-  position: relative;
-  background: var(--bg-cards, rgba(18, 18, 18, 0.75));
-  backdrop-filter: blur(20px);
-  border-radius: var(--app-border-radius, 18px);
-  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.1));
-  overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-}
-.table-container::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 24px; right: 24px;
-  height: 2px;
-  border-radius: 0 0 3px 3px;
-  background: linear-gradient(90deg, transparent, var(--color-highlight, #3b82f6), transparent);
-  opacity: 0.7;
-}
-
-.user-table { width: 100%; border-collapse: collapse; color: var(--color-texto-general, #e5e5e5); text-align: left; }
-.user-table th { padding: 16px 20px; background: rgba(255,255,255,0.02); font-family: 'Oswald', sans-serif; font-size: 0.72rem; text-transform: uppercase; color: rgba(245, 245, 244, 0.5); letter-spacing: 0.6px; border-bottom: 1px solid var(--border-line, rgba(255,255,255,0.08)); }
-.user-table td { padding: 14px 20px; border-top: 1px solid var(--border-line, rgba(255,255,255,0.05)); font-size: 0.88rem; vertical-align: middle; }
-.text-muted { color: rgba(245, 245, 244, 0.55); }
+/* TABLA */
+.table-container { position: relative; width: 100%; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card-bg); box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18); }
+.table-container::before { content: ''; position: absolute; z-index: 3; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--accent), transparent); opacity: 0.7; pointer-events: none; }
+.user-table { width: 100%; border-collapse: collapse; color: var(--color-texto-general, #e5e7eb); text-align: left; }
+.user-table thead { background: color-mix(in srgb, var(--card-bg) 95%, var(--color-texto-general, #ffffff)); }
+.user-table th { padding: 15px 18px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.065em; text-transform: uppercase; white-space: nowrap; }
+.user-table td { padding: 13px 18px; border-top: 1px solid var(--line-soft); font-size: 0.82rem; vertical-align: middle; }
+.user-table tbody tr:first-child td { border-top: none; }
+.user-table tbody tr { transition: background 0.17s ease, box-shadow 0.17s ease; }
 
 @media (hover: hover) {
-  .user-table tbody tr { transition: background 0.15s ease; }
-  .user-table tbody tr:hover { background: rgba(255, 255, 255, 0.025); box-shadow: inset 3px 0 0 var(--color-highlight, #3b82f6); }
+  .user-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 5%, transparent); box-shadow: inset 3px 0 0 color-mix(in srgb, var(--accent) 80%, transparent); }
 }
 
+.table-footer { padding: 11px 18px; border-top: 1px solid var(--line-soft); color: var(--muted); font-size: 0.72rem; font-weight: 500; text-align: right; }
+
+/* AVATAR / TEXTO */
 .avatar-small {
-  width: 40px; height: 40px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 700; font-size: 0.78rem; letter-spacing: 0.3px;
-  color: #fff;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.4), inset 0 0 0 1.5px rgba(255,255,255,0.12);
-  flex-shrink: 0;
+  width: 41px; height: 41px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 11px; color: #ffffff;
+  font-size: 0.74rem; font-weight: 700; letter-spacing: 0.02em;
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.24);
+}
+.text-bold { color: var(--color-titulos, #ffffff); font-weight: 600; }
+.text-muted { color: var(--muted); }
+
+.type-chip {
+  display: inline-flex; align-items: center; min-height: 26px; padding: 3px 10px;
+  border: 1px solid var(--line); border-radius: 8px;
+  background: color-mix(in srgb, var(--color-texto-general, #ffffff) 4%, transparent);
+  color: var(--color-texto-general, #e5e7eb); font-size: 0.7rem; font-weight: 600; white-space: nowrap;
 }
 
-.text-bold { font-weight: 600; color: var(--color-titulos, #fff); }
+/* ADEUDOS */
+.status-badge { width: fit-content; min-height: 27px; display: inline-flex; align-items: center; gap: 7px; padding: 4px 11px; border: 1px solid transparent; border-radius: 999px; font-size: 0.72rem; font-weight: 700; white-space: nowrap; }
+.status-badge::before { content: ''; width: 6px; height: 6px; flex-shrink: 0; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 14%, transparent); }
+.debt-pending { color: #fbbf24; border-color: rgba(251, 191, 36, 0.25); background: rgba(251, 191, 36, 0.08); }
+.debt-inactive { color: #f87171; border-color: rgba(248, 113, 113, 0.25); background: rgba(248, 113, 113, 0.08); }
+.debt-default { color: #34d399; border-color: rgba(52, 211, 153, 0.25); background: rgba(52, 211, 153, 0.08); }
 
-.actions-cell { display: flex; gap: 10px; }
+.badges-row { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+
+/* ACCIONES */
+.actions-cell { display: flex; align-items: center; gap: 7px; }
 .icon-btn {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: var(--app-border-radius, 8px);
-  cursor: pointer;
-  color: rgba(245, 245, 244, 0.7);
-  padding: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
+  width: 37px; height: 37px; display: inline-flex; align-items: center; justify-content: center; padding: 0;
+  border: 1px solid var(--line); border-radius: 9px;
+  background: color-mix(in srgb, var(--color-texto-general, #ffffff) 2.5%, transparent);
+  color: var(--muted); cursor: pointer;
+  transition: color 0.18s ease, background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
 }
-.icon-btn:hover { background: rgba(255, 255, 255, 0.08); color: #fff; border-color: var(--color-highlight, #444); transform: translateY(-1px); }
-.delete-icon-btn:hover { color: #ef4444; border-color: rgba(239, 68, 68, 0.4); }
+.icon-btn svg { width: 17px; height: 17px; }
+.icon-btn:not(.delete-icon-btn):hover { color: #60a5fa; border-color: rgba(59, 130, 246, 0.42); background: rgba(59, 130, 246, 0.1); box-shadow: 0 5px 13px rgba(59, 130, 246, 0.08); transform: translateY(-1px); }
+.delete-icon-btn:hover { color: #f87171; border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.09); box-shadow: 0 5px 13px rgba(239, 68, 68, 0.08); transform: translateY(-1px); }
+.icon-btn:active { transform: translateY(0); }
 
-.status-badge {
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  border: 1px solid transparent;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-.status-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 5px currentColor; }
-
+/* EMPTY */
 .empty-state-cell { padding: 0 !important; border-top: none !important; }
-.empty-state, .empty-state-mobile {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 10px;
-  padding: 48px 20px;
-  color: rgba(245, 245, 244, 0.35);
-  font-size: 0.88rem;
-  text-align: center;
-}
-.empty-state-mobile {
-  background: rgba(0,0,0,0.2);
-  border: 1px dashed var(--border-line, rgba(255,255,255,0.1));
-  border-radius: var(--app-border-radius, 14px);
-}
+.empty-state, .empty-state-mobile { min-height: 260px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 45px 20px; color: var(--muted); font-size: 0.82rem; font-weight: 500; text-align: center; }
+.empty-state svg, .empty-state-mobile svg { opacity: 0.4; }
 
-/* Modal envolvente con la transición pop */
-.modal-wrapper {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  backdrop-filter: blur(4px);
-}
+/* DATOS TARJETA */
+.card-meta { display: flex; flex-direction: column; gap: 7px; color: var(--muted); font-size: 0.78rem; }
+.meta-row { min-width: 0; display: flex; align-items: center; gap: 7px; }
+.meta-row svg { flex-shrink: 0; opacity: 0.65; }
+.email-text { overflow-wrap: anywhere; color: #93c5fd; }
+.expiration-warning, .vence-label { color: #fb923c; }
+.expiration-warning { font-weight: 500; }
+.vence-label { font-weight: 600; }
+.phone-text { color: var(--muted); }
 
-.pop-enter-active, .pop-leave-active { transition: all 0.25s ease; }
-.pop-enter-from, .pop-leave-to { opacity: 0; transform: scale(0.9); }
-
-.modal-body-custom { text-align: center; color: var(--color-texto-general, #fff); padding: 10px 5px; }
-.modal-body-custom h2 { font-size: 1.3rem; margin-bottom: 10px; font-weight: 600; color: var(--color-titulos, #fff); }
-.modal-body-custom p { color: var(--color-texto-secundario, #aaa); font-size: 0.9rem; margin-bottom: 20px; line-height: 1.5; }
-.highlight-name { color: var(--color-titulos, #fff); font-weight: 600; }
-
-.modal-icon-container { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto; }
-.danger-bg { background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.2); }
-
+/* MODALES (sin backdrop-filter para evitar artefactos al hacer scroll) */
+.modal-wrapper { position: fixed; z-index: 9999; inset: 0; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(0, 0, 0, 0.78); }
+.modal-body-custom { padding: 10px 5px; color: var(--color-texto-general, #ffffff); text-align: center; }
+.modal-icon-container { width: 54px; height: 54px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; border-radius: 15px; }
+.danger-bg { border: 1px solid rgba(248, 113, 113, 0.2); background: rgba(248, 113, 113, 0.08); }
+.modal-body-custom h2 { margin: 0 0 9px; color: var(--color-titulos, #ffffff); font-family: 'Oswald', sans-serif; font-size: 1.25rem; font-weight: 600; }
+.modal-body-custom p { margin: 0 0 22px; color: var(--muted); font-size: 0.8rem; line-height: 1.6; }
+.highlight-name { color: var(--color-titulos, #ffffff); font-weight: 700; }
 .modal-buttons { display: flex; gap: 10px; }
-.btn-modal { flex: 1; padding: 10px; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; border: none; transition: opacity 0.2s; }
-.btn-modal.secondary { background: rgba(255, 255, 255, 0.05); color: var(--color-texto-general, #ccc); border: 1px solid rgba(255, 255, 255, 0.1); }
-.btn-modal.danger { background: #ef4444; color: white; }
-.btn-modal:hover { opacity: 0.9; }
+.btn-modal { min-height: 42px; flex: 1; padding: 0 16px; border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 0.78rem; font-weight: 650; cursor: pointer; transition: background 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease; }
+.btn-modal.secondary { border: 1px solid var(--line); background: color-mix(in srgb, var(--color-texto-general, #ffffff) 4%, transparent); color: var(--color-texto-general, #d1d5db); }
+.btn-modal.secondary:hover { background: color-mix(in srgb, var(--color-texto-general, #ffffff) 8%, transparent); transform: translateY(-1px); }
+.btn-modal.danger { border: 1px solid rgba(239, 68, 68, 0.75); background: #dc2626; color: #ffffff; }
+.btn-modal.danger:hover { background: #ef4444; box-shadow: 0 6px 16px rgba(239, 68, 68, 0.2); transform: translateY(-1px); }
+
+:deep(.notification-container),
+:deep(.toast-container) {
+  width: calc(100% - 32px) !important; max-width: 480px !important; box-sizing: border-box !important;
+  left: 50% !important; right: auto !important; margin: 0 auto !important; transform: translateX(-50%) !important;
+}
+
+.pop-enter-active, .pop-leave-active { transition: opacity 0.2s ease; }
+.pop-enter-from, .pop-leave-to { opacity: 0; }
+
+.search-input:focus-visible, .icon-btn:focus-visible, .action-chip:focus-visible,
+.btn-modal:focus-visible, .search-clear:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* TABLET */
+@media (max-width: 1100px) {
+  .main-content { padding: 30px 24px 48px; }
+  .header-section { align-items: flex-start; flex-direction: column; gap: 17px; }
+  .actions-bar { width: 100%; }
+  .search-wrapper { width: 100%; }
+  .search-input, .search-input:focus { width: 100%; }
+}
+
+/* MÓVIL */
+@media (max-width: 900px) {
+  .desktop-only { display: none !important; }
+  .mobile-only { display: block !important; }
+  .main-content { width: 100%; max-width: 100%; padding: 20px 14px 36px; overflow-x: hidden; }
+  .header-section { width: 100%; align-items: stretch; margin-bottom: 16px; }
+  .title-wrapper { width: 100%; min-width: 0; }
+  .main-title { font-size: 1.85rem; }
+  .main-subtitle { max-width: 100%; font-size: 0.76rem; }
+  .actions-bar { width: 100%; }
+  .search-wrapper { width: 100%; min-width: 0; }
+  .search-input, .search-input:focus { width: 100%; max-width: 100%; }
+
+  .stats-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-bottom: 14px; }
+  .stat-card { padding: 12px 14px; }
+  .stat-value { font-size: 1.2rem; }
+
+  .user-card { position: relative; width: 100%; overflow: hidden; margin-bottom: 11px; padding: 16px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card-bg); box-shadow: 0 9px 28px rgba(0, 0, 0, 0.17); }
+  .user-card::before { content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 3px; background: var(--accent); }
+  .user-card.card-debt-pending::before { background: #fbbf24; }
+  .user-card.card-debt-inactive::before { background: #f87171; }
+  .user-card.card-debt-default::before { background: #34d399; }
+  .card-top-section { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 13px; }
+  .user-card .avatar-small { width: 44px; height: 44px; border-radius: 12px; font-size: 0.78rem; }
+  .card-user-titles { min-width: 0; display: flex; flex: 1; flex-direction: column; align-items: flex-start; gap: 7px; }
+  .name-text { width: 100%; overflow: hidden; color: var(--color-titulos, #ffffff); font-size: 0.88rem; font-weight: 600; line-height: 1.3; text-overflow: ellipsis; white-space: nowrap; }
+  .card-meta { display: grid; gap: 8px; margin-bottom: 13px; padding: 11px 12px; border: 1px solid var(--line-soft); border-radius: 11px; background: color-mix(in srgb, var(--color-texto-general, #ffffff) 2%, transparent); font-size: 0.75rem; }
+  .email-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .card-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding-top: 12px; border-top: 1px solid var(--line-soft); }
+  .action-chip {
+    min-width: 0; min-height: 40px; display: flex; align-items: center; justify-content: center; gap: 7px; padding: 8px 10px;
+    border: 1px solid var(--line); border-radius: 9px; font-family: 'Inter', sans-serif; font-size: 0.75rem; font-weight: 600; cursor: pointer;
+    transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+  }
+  .action-chip svg { flex-shrink: 0; }
+  .btn-renew-chip { color: #60a5fa; border-color: rgba(59, 130, 246, 0.2); background: rgba(59, 130, 246, 0.06); }
+  .btn-renew-chip:hover { color: #93c5fd; border-color: rgba(59, 130, 246, 0.4); background: rgba(59, 130, 246, 0.12); transform: translateY(-1px); }
+  .btn-delete-chip { color: #f87171; border-color: rgba(239, 68, 68, 0.18); background: rgba(239, 68, 68, 0.05); }
+  .btn-delete-chip:hover { color: #fca5a5; border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.11); transform: translateY(-1px); }
+
+  .empty-state-mobile { min-height: 240px; margin-top: 8px; border: 1px dashed var(--line); border-radius: var(--radius); background: var(--card-bg); }
+}
+
+/* TELÉFONOS */
+@media (max-width: 560px) {
+  .main-content { padding: 17px 11px 30px; }
+  .main-title { font-size: 1.7rem; }
+  .user-card { padding: 15px; }
+}
+
+@media (max-width: 380px) {
+  .main-content { padding-left: 9px; padding-right: 9px; }
+  .main-title { font-size: 1.55rem; }
+  .stat-value { font-size: 1.05rem; }
+  .card-actions { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .search-input, .user-table tbody tr, .icon-btn, .action-chip, .btn-modal,
+  .pop-enter-active, .pop-leave-active { transition: none !important; }
+}
 </style>
