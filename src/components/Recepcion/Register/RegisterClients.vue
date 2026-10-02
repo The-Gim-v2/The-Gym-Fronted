@@ -11,7 +11,14 @@
 
             <div class="avatar-wrapper">
               <div class="avatar-ring">
-                <div class="avatar-circle" @click="fileInput?.click()">
+                <div
+                  class="avatar-circle"
+                  role="button"
+                  tabindex="0"
+                  @click="openPhotoOptions"
+                  @keydown.enter="openPhotoOptions"
+                  @keydown.space.prevent="openPhotoOptions"
+                >
                   <img v-if="avatarPreview" :src="avatarPreview" :alt="t('altPreview')" class="avatar-img" />
                   <svg v-else viewBox="0 0 24 24" fill="white">
                     <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
@@ -19,14 +26,15 @@
                 </div>
               </div>
 
-              <button type="button" class="avatar-action" @click="fileInput?.click()" :title="t('titleAvatar')">
+              <button type="button" class="avatar-action" @click="openPhotoOptions" :title="t('titleAvatar')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
                   <circle cx="12" cy="13" r="4"/>
                 </svg>
               </button>
 
-              <input ref="fileInput" type="file" accept="image/*" style="display:none" @change="handleFileChange" />
+              <!-- Solo se usa al elegir "Subir desde galería" -->
+              <input ref="fileInput" type="file" accept="image/*" class="hidden-input" @change="handleFileChange" />
             </div>
 
             <p class="profile-hint">{{ t('hintAvatar') }}</p>
@@ -247,6 +255,7 @@
       </div>
     </main>
 
+    <!-- MODALES EXISTENTES -->
     <transition name="pop">
       <div v-if="activeModal === 'corte'" class="modal-wrapper" @click.self="activeModal = null">
         <AddCorteComponent @close="activeModal = null" />
@@ -258,22 +267,169 @@
         <Help @close="activeModal = null" />
       </div>
     </transition>
+
+    <!-- =====================================================
+         SELECCIONAR CÁMARA O GALERÍA
+    ====================================================== -->
+    <transition name="photo-menu">
+      <div v-if="showPhotoOptions" class="photo-options-overlay" @click.self="closePhotoOptions">
+        <div class="photo-options-modal">
+          <div class="photo-options-handle"></div>
+
+          <div class="photo-options-header">
+            <div>
+              <span class="photo-options-eyebrow">{{ currentLang === 'en' ? 'PROFILE PHOTO' : 'FOTO DE PERFIL' }}</span>
+              <h3>{{ currentLang === 'en' ? 'Add client photo' : 'Agregar foto del cliente' }}</h3>
+              <p>{{ currentLang === 'en' ? 'Choose how you want to add the image.' : 'Selecciona cómo quieres agregar la imagen.' }}</p>
+            </div>
+
+            <button type="button" class="modal-close-btn" @click="closePhotoOptions">×</button>
+          </div>
+
+          <div class="photo-options-grid">
+            <!-- CÁMARA -->
+            <button type="button" class="photo-option" @click="takePhoto">
+              <div class="photo-option-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                  <circle cx="12" cy="13" r="4"/>
+                </svg>
+              </div>
+
+              <div class="photo-option-text">
+                <strong>{{ currentLang === 'en' ? 'Take photo' : 'Tomar foto' }}</strong>
+                <span>{{ currentLang === 'en' ? 'Open your device camera' : 'Abrir la cámara del dispositivo' }}</span>
+              </div>
+
+              <svg class="photo-option-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </button>
+
+            <!-- GALERÍA -->
+            <button type="button" class="photo-option" @click="selectPhoto">
+              <div class="photo-option-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <polyline points="21 15 16 10 5 21"/>
+                </svg>
+              </div>
+
+              <div class="photo-option-text">
+                <strong>{{ currentLang === 'en' ? 'Choose image' : 'Subir desde galería' }}</strong>
+                <span>{{ currentLang === 'en' ? 'Select an existing image' : 'Seleccionar una imagen existente' }}</span>
+              </div>
+
+              <svg class="photo-option-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </button>
+          </div>
+
+          <button type="button" class="photo-cancel" @click="closePhotoOptions">
+            {{ currentLang === 'en' ? 'Cancel' : 'Cancelar' }}
+          </button>
+        </div>
+      </div>
+    </transition>
+
+    <!-- =====================================================
+         CÁMARA REAL
+    ====================================================== -->
+    <transition name="photo-menu">
+      <div v-if="showCamera" class="camera-overlay" @click.self="closeCamera">
+        <div class="camera-modal">
+          <div class="camera-header">
+            <div>
+              <span class="camera-eyebrow">{{ currentLang === 'en' ? 'CAMERA' : 'CÁMARA' }}</span>
+              <h3>{{ currentLang === 'en' ? 'Take client photo' : 'Tomar foto del cliente' }}</h3>
+              <p>
+                {{
+                  cameraFacingMode === 'user'
+                    ? (currentLang === 'en' ? 'Front camera' : 'Cámara frontal')
+                    : (currentLang === 'en' ? 'Rear camera' : 'Cámara trasera')
+                }}
+              </p>
+            </div>
+
+            <button type="button" class="modal-close-btn" @click="closeCamera">×</button>
+          </div>
+
+          <!-- VISOR -->
+          <div class="camera-preview">
+            <video
+              ref="videoRef"
+              autoplay
+              playsinline
+              muted
+              :class="{ 'camera-mirrored': cameraFacingMode === 'user' }"
+            ></video>
+
+            <!-- CAMBIAR CÁMARA -->
+            <button type="button" class="switch-camera-btn" :disabled="switchingCamera" @click.stop="switchCamera">
+              <svg
+                :class="{ rotating: switchingCamera }"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M20 11a8.1 8.1 0 0 0-15.5-2M4 5v4h4"/>
+                <path d="M4 13a8.1 8.1 0 0 0 15.5 2M20 19v-4h-4"/>
+              </svg>
+
+              <span>
+                {{
+                  cameraFacingMode === 'user'
+                    ? (currentLang === 'en' ? 'Rear' : 'Trasera')
+                    : (currentLang === 'en' ? 'Front' : 'Frontal')
+                }}
+              </span>
+            </button>
+
+            <div class="camera-guide">
+              <div class="face-guide"></div>
+            </div>
+
+            <div v-if="switchingCamera" class="camera-switching">
+              <span class="camera-loader"></span>
+            </div>
+          </div>
+
+          <canvas ref="canvasRef" class="hidden-canvas"></canvas>
+
+          <div class="camera-actions">
+            <button type="button" class="camera-cancel-btn" @click="closeCamera">
+              {{ currentLang === 'en' ? 'Cancel' : 'Cancelar' }}
+            </button>
+
+            <button type="button" class="capture-btn" :disabled="switchingCamera" @click="capturePhoto">
+              <span class="capture-circle"><span></span></span>
+              {{ currentLang === 'en' ? 'Take photo' : 'Tomar foto' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </transition>
   </HeadingRecepcion>
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
+import { ref, reactive, computed, nextTick, onMounted, onUnmounted } from 'vue';
 import HeadingRecepcion from '../HeadingRecepcion.vue';
 import AddCorteComponent from '../Componets/Cut.vue';
 import Help from '../Componets/Help.vue';
 import NotificationSystem from '../../Modals/NotificationSystem.vue';
 import { traducciones } from '../i18n.js';
 
+/* =========================================================
+   ESTADO GENERAL
+========================================================= */
 const activeModal = ref(null);
 const toastRef = ref(null);
-const fileInput = ref(null);
-const avatarPreview = ref(null);
-const avatarFile = ref(null);
 
 const currentLang = ref(localStorage.getItem('Recepcion-idioma') || 'es');
 
@@ -286,15 +442,9 @@ const handleLangChange = (e) => {
   if (e.detail && e.detail.idioma) currentLang.value = e.detail.idioma;
 };
 
-onMounted(() => {
-  window.addEventListener('idioma-changed', handleLangChange);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('idioma-changed', handleLangChange);
-  if (avatarPreview.value) URL.revokeObjectURL(avatarPreview.value);
-});
-
+/* =========================================================
+   FORMULARIO
+========================================================= */
 const form = reactive({
   nombres: '',
   apellidoP: '',
@@ -309,12 +459,50 @@ const form = reactive({
   fechaCorte: ''
 });
 
-const clientName = computed(() => {
-  return [form.nombres, form.apellidoP, form.apellidoM].filter(Boolean).join(' ');
-});
+const clientName = computed(() =>
+  [form.nombres, form.apellidoP, form.apellidoM].filter(Boolean).join(' ')
+);
 
-const handleFileChange = (e) => {
-  const file = e.target.files?.[0];
+/* =========================================================
+   FOTO / GALERÍA
+========================================================= */
+const fileInput = ref(null);
+const avatarPreview = ref(null);
+const avatarFile = ref(null);
+
+const showPhotoOptions = ref(false);
+
+const openPhotoOptions = () => {
+  showPhotoOptions.value = true;
+};
+
+const closePhotoOptions = () => {
+  showPhotoOptions.value = false;
+};
+
+const selectPhoto = () => {
+  showPhotoOptions.value = false;
+
+  if (!fileInput.value) return;
+
+  fileInput.value.value = '';
+  fileInput.value.click();
+};
+
+const setAvatarFile = (file) => {
+  if (!file) return;
+
+  if (avatarPreview.value && avatarPreview.value.startsWith('blob:')) {
+    URL.revokeObjectURL(avatarPreview.value);
+  }
+
+  avatarFile.value = file;
+  avatarPreview.value = URL.createObjectURL(file);
+};
+
+const handleFileChange = (event) => {
+  const file = event.target.files?.[0];
+
   if (!file) return;
 
   if (!file.type.startsWith('image/')) {
@@ -322,16 +510,258 @@ const handleFileChange = (e) => {
       currentLang.value === 'en' ? 'Select a valid image.' : 'Selecciona una imagen válida.',
       'warning'
     );
-    e.target.value = '';
+
+    event.target.value = '';
     return;
   }
 
-  if (avatarPreview.value) URL.revokeObjectURL(avatarPreview.value);
+  setAvatarFile(file);
 
-  avatarFile.value = file;
-  avatarPreview.value = URL.createObjectURL(file);
+  toastRef.value?.notify(
+    currentLang.value === 'en' ? 'Photo added successfully.' : 'Foto agregada correctamente.',
+    'success'
+  );
+
+  event.target.value = '';
 };
 
+/* =========================================================
+   CÁMARA
+========================================================= */
+const showCamera = ref(false);
+const videoRef = ref(null);
+const canvasRef = ref(null);
+const cameraStream = ref(null);
+
+/* user = frontal | environment = trasera */
+const cameraFacingMode = ref('user');
+const switchingCamera = ref(false);
+
+/* Detiene todos los tracks activos */
+const stopCamera = () => {
+  if (cameraStream.value) {
+    cameraStream.value.getTracks().forEach((track) => track.stop());
+    cameraStream.value = null;
+  }
+
+  if (videoRef.value) {
+    videoRef.value.srcObject = null;
+  }
+};
+
+/* Inicia la cámara correspondiente */
+const startCamera = async () => {
+  stopCamera();
+
+  const constraints = {
+    audio: false,
+    video: {
+      facingMode: { ideal: cameraFacingMode.value },
+      width: { ideal: 1280 },
+      height: { ideal: 720 }
+    }
+  };
+
+  const stream = await navigator.mediaDevices.getUserMedia(constraints);
+
+  cameraStream.value = stream;
+
+  await nextTick();
+
+  if (!videoRef.value) {
+    throw new Error('No se encontró el elemento de video.');
+  }
+
+  videoRef.value.srcObject = stream;
+
+  await videoRef.value.play();
+};
+
+/* Abre el modal y solicita permiso de cámara */
+const takePhoto = async () => {
+  showPhotoOptions.value = false;
+
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    toastRef.value?.notify(
+      currentLang.value === 'en'
+        ? 'Camera is not supported by this browser.'
+        : 'Este navegador no permite utilizar la cámara.',
+      'warning'
+    );
+
+    return;
+  }
+
+  cameraFacingMode.value = 'user';
+  showCamera.value = true;
+
+  await nextTick();
+
+  try {
+    await startCamera();
+  } catch (error) {
+    console.error('No se pudo abrir la cámara:', error);
+
+    stopCamera();
+    showCamera.value = false;
+
+    let message =
+      currentLang.value === 'en'
+        ? 'Could not access the camera.'
+        : 'No se pudo acceder a la cámara.';
+
+    if (error?.name === 'NotAllowedError') {
+      message =
+        currentLang.value === 'en'
+          ? 'Camera permission was denied. Enable camera permission in your browser.'
+          : 'El permiso de cámara fue rechazado. Activa el permiso de cámara en tu navegador.';
+    }
+
+    if (error?.name === 'NotFoundError') {
+      message =
+        currentLang.value === 'en'
+          ? 'No camera was found on this device.'
+          : 'No se encontró una cámara en este dispositivo.';
+    }
+
+    if (error?.name === 'NotReadableError') {
+      message =
+        currentLang.value === 'en'
+          ? 'The camera is being used by another application.'
+          : 'La cámara está siendo utilizada por otra aplicación.';
+    }
+
+    toastRef.value?.notify(message, 'warning');
+  }
+};
+
+/* Cambia entre frontal y trasera */
+const switchCamera = async () => {
+  if (switchingCamera.value) return;
+
+  switchingCamera.value = true;
+
+  const previousMode = cameraFacingMode.value;
+
+  cameraFacingMode.value = previousMode === 'user' ? 'environment' : 'user';
+
+  try {
+    await startCamera();
+  } catch (error) {
+    console.error('No se pudo cambiar de cámara:', error);
+
+    /* Regresamos a la cámara anterior */
+    cameraFacingMode.value = previousMode;
+
+    try {
+      await startCamera();
+    } catch (restoreError) {
+      console.error('No se pudo restaurar la cámara:', restoreError);
+      closeCamera();
+    }
+
+    toastRef.value?.notify(
+      currentLang.value === 'en'
+        ? 'The selected camera is not available.'
+        : 'La cámara seleccionada no está disponible.',
+      'warning'
+    );
+  } finally {
+    switchingCamera.value = false;
+  }
+};
+
+/* Cierra modal y apaga cámara */
+const closeCamera = () => {
+  stopCamera();
+  showCamera.value = false;
+  switchingCamera.value = false;
+};
+
+/* Captura el frame actual */
+const capturePhoto = () => {
+  if (switchingCamera.value) return;
+
+  const video = videoRef.value;
+  const canvas = canvasRef.value;
+
+  if (!video || !canvas) return;
+
+  if (!video.videoWidth || !video.videoHeight) {
+    toastRef.value?.notify(
+      currentLang.value === 'en'
+        ? 'The camera is not ready yet.'
+        : 'La cámara todavía no está lista.',
+      'warning'
+    );
+
+    return;
+  }
+
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+
+  const context = canvas.getContext('2d');
+
+  if (!context) {
+    toastRef.value?.notify(
+      currentLang.value === 'en'
+        ? 'Could not process the photo.'
+        : 'No se pudo procesar la fotografía.',
+      'error'
+    );
+
+    return;
+  }
+
+  context.clearRect(0, 0, canvas.width, canvas.height);
+
+  /* Frontal: se guarda como se ve en la vista previa (espejo) */
+  if (cameraFacingMode.value === 'user') {
+    context.save();
+    context.translate(canvas.width, 0);
+    context.scale(-1, 1);
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    context.restore();
+  } else {
+    /* Trasera: orientación normal */
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+  }
+
+  canvas.toBlob(
+    (blob) => {
+      if (!blob) {
+        toastRef.value?.notify(
+          currentLang.value === 'en'
+            ? 'Could not capture the photo.'
+            : 'No se pudo capturar la fotografía.',
+          'error'
+        );
+
+        return;
+      }
+
+      const file = new File([blob], `cliente-${Date.now()}.jpg`, { type: 'image/jpeg' });
+
+      setAvatarFile(file);
+
+      closeCamera();
+
+      toastRef.value?.notify(
+        currentLang.value === 'en'
+          ? 'Photo captured successfully.'
+          : 'Foto tomada correctamente.',
+        'success'
+      );
+    },
+    'image/jpeg',
+    0.92
+  );
+};
+
+/* =========================================================
+   REGISTRO
+========================================================= */
 const saveRegistration = () => {
   if (!form.nombres || !form.apellidoP || !form.apellidoM || !form.fechaNacimiento) {
     toastRef.value?.notify(t('msgWarning'), 'warning');
@@ -351,6 +781,8 @@ const saveRegistration = () => {
       tipoMembresia: form.tipoMembresia,
       fechaInscripcion: form.fechaInscripcion,
       fechaCorte: form.fechaCorte,
+
+      /* La foto subida y la tomada terminan aquí como File */
       foto: avatarFile.value
     };
 
@@ -361,12 +793,31 @@ const saveRegistration = () => {
     toastRef.value?.notify(t('msgError'), 'error');
   }
 };
+
+/* =========================================================
+   CICLO DE VIDA
+========================================================= */
+onMounted(() => {
+  window.addEventListener('idioma-changed', handleLangChange);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('idioma-changed', handleLangChange);
+
+  /* Si cambian de pantalla con la cámara abierta, la apagamos */
+  stopCamera();
+
+  if (avatarPreview.value && avatarPreview.value.startsWith('blob:')) {
+    URL.revokeObjectURL(avatarPreview.value);
+  }
+});
 </script>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;600;700&display=swap');
 
 *{box-sizing:border-box}
+.hidden-input,.hidden-canvas{display:none}
 .main-content{display:flex;justify-content:center;width:100%;padding:36px clamp(16px,3vw,40px) 56px;color:var(--color-texto-general,#e5e5e5)}
 .highlight{color:var(--color-highlight,#3b82f6)}
 .profile-card{display:grid;grid-template-columns:300px minmax(0,1fr);gap:24px;width:100%;max-width:1180px;margin:0 auto;align-items:start}
@@ -380,7 +831,8 @@ const saveRegistration = () => {
 
 .avatar-wrapper{position:relative;width:140px;margin:0 auto 14px}
 .avatar-ring{padding:4px;border-radius:50%;background:conic-gradient(from 210deg,var(--color-botones,#1c4fd6),var(--color-highlight,#60a5fa),var(--color-botones,#1c4fd6));box-shadow:0 12px 30px rgba(0,0,0,.4)}
-.avatar-circle{width:132px;height:132px;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;border-radius:50%;border:4px solid var(--bg-cards,#121212);background:#17191f;transition:filter .2s ease}
+.avatar-circle{width:132px;height:132px;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;border-radius:50%;border:4px solid var(--bg-cards,#121212);outline:none;background:#17191f;transition:filter .2s ease}
+.avatar-circle:focus-visible{box-shadow:0 0 0 3px var(--color-highlight,#3b82f6)}
 .avatar-circle svg{width:52px;height:52px;opacity:.55}
 .avatar-img{width:100%;height:100%;object-fit:cover}
 .avatar-wrapper:hover .avatar-circle{filter:brightness(1.12)}
@@ -464,6 +916,70 @@ input:focus{border-color:var(--color-highlight,#3b82f6);background:var(--bg-inpu
 
 :deep(.notification-container),:deep(.toast-container){width:calc(100% - 32px)!important;max-width:480px!important;box-sizing:border-box!important;left:50%!important;right:auto!important;margin:0 auto!important;transform:translateX(-50%)!important}
 
+/* =========================================================
+   PANEL DE FOTO Y CÁMARA (igual al registro de clientes)
+========================================================= */
+.photo-options-overlay,.camera-overlay{position:fixed;z-index:3000;inset:0;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.78)}
+.camera-overlay{z-index:4000;background:rgba(0,0,0,.9)}
+
+.photo-options-modal,.camera-modal{width:100%;max-width:440px;padding:24px;border:1px solid rgba(255,255,255,.1);border-radius:20px;background:var(--bg-cards,#151515);box-shadow:0 30px 80px rgba(0,0,0,.55)}
+.camera-modal{max-width:620px}
+.photo-options-handle{display:none}
+
+.photo-options-header,.camera-header{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:20px}
+.photo-options-eyebrow,.camera-eyebrow{display:block;margin-bottom:5px;color:var(--color-highlight,#3b82f6);font:700 .6rem 'Inter',sans-serif;letter-spacing:1px}
+.photo-options-header h3,.camera-header h3{margin:0;color:var(--color-titulos,#fff);font:400 1.25rem 'Anton',sans-serif;text-transform:uppercase}
+.photo-options-header p,.camera-header p{margin:5px 0 0;color:var(--color-texto-general,#94a3b8);font:400 .74rem/1.5 'Inter',sans-serif;opacity:.7}
+.modal-close-btn{width:34px;height:34px;flex-shrink:0;display:grid;place-items:center;padding:0;border:1px solid rgba(255,255,255,.1);border-radius:9px;background:rgba(255,255,255,.04);color:#fff;cursor:pointer;font-size:1.3rem}
+
+/* ---------- Opciones ---------- */
+.photo-options-grid{display:flex;flex-direction:column;gap:9px}
+.photo-option{width:100%;min-height:72px;display:flex;align-items:center;gap:13px;padding:11px 13px;border:1px solid rgba(255,255,255,.08);border-radius:13px;background:rgba(255,255,255,.025);color:inherit;text-align:left;cursor:pointer}
+.photo-option:hover{border-color:var(--color-highlight,#3b82f6)}
+.photo-option-icon{width:44px;height:44px;flex-shrink:0;display:grid;place-items:center;border-radius:11px;background:color-mix(in srgb,var(--color-highlight,#3b82f6) 13%,transparent);color:var(--color-highlight,#60a5fa)}
+.photo-option-icon svg{width:20px;height:20px}
+.photo-option-text{flex:1}
+.photo-option-text strong{display:block;color:var(--color-titulos,#fff);font:600 .8rem 'Inter',sans-serif}
+.photo-option-text span{display:block;margin-top:3px;color:var(--color-texto-general,#94a3b8);font:400 .68rem 'Inter',sans-serif}
+.photo-option-arrow{width:16px;color:var(--color-texto-general,#94a3b8)}
+.photo-cancel{width:100%;height:40px;margin-top:13px;border:1px solid rgba(255,255,255,.08);border-radius:10px;background:transparent;color:var(--color-texto-general,#94a3b8);cursor:pointer}
+
+/* ---------- Visor ---------- */
+.camera-preview{position:relative;width:100%;aspect-ratio:4/3;overflow:hidden;border:1px solid rgba(255,255,255,.1);border-radius:18px;background:#000}
+.camera-preview video{width:100%;height:100%;display:block;object-fit:cover}
+.camera-preview video.camera-mirrored{transform:scaleX(-1)}
+
+.camera-guide{position:absolute;z-index:2;inset:0;display:grid;place-items:center;pointer-events:none}
+.face-guide{width:47%;height:70%;border:2px dashed rgba(255,255,255,.45);border-radius:50%}
+
+.switch-camera-btn{position:absolute;z-index:10;top:14px;right:14px;display:flex;align-items:center;gap:7px;min-height:38px;padding:0 13px;border:1px solid rgba(255,255,255,.25);border-radius:999px;background:rgba(0,0,0,.62);color:#fff;font:600 .7rem 'Inter',sans-serif;cursor:pointer;box-shadow:0 5px 16px rgba(0,0,0,.3)}
+.switch-camera-btn:hover{background:rgba(0,0,0,.8)}
+.switch-camera-btn:disabled{cursor:wait;opacity:.65}
+.switch-camera-btn svg{width:16px;height:16px}
+.switch-camera-btn svg.rotating{animation:cameraRotate .7s linear infinite}
+@keyframes cameraRotate{to{transform:rotate(360deg)}}
+
+.camera-switching{position:absolute;z-index:8;inset:0;display:grid;place-items:center;background:rgba(0,0,0,.28);pointer-events:none}
+.camera-loader{width:38px;height:38px;border:3px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:cameraRotate .7s linear infinite}
+
+/* ---------- Capturar ---------- */
+.camera-actions{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:18px}
+.camera-cancel-btn{min-width:110px;padding:11px 18px;border:1px solid rgba(255,255,255,.1);border-radius:12px;background:rgba(255,255,255,.04);color:var(--color-texto-general,#cbd5e1);cursor:pointer}
+.capture-btn{display:flex;align-items:center;gap:10px;padding:8px 18px 8px 8px;border:none;border-radius:999px;background:var(--color-botones,#1c4fd6);color:var(--color-texto-botones,#fff);font:700 .78rem 'Inter',sans-serif;cursor:pointer}
+.capture-btn:disabled{cursor:wait;opacity:.6}
+.capture-circle{width:38px;height:38px;display:grid;place-items:center;border:2px solid #fff;border-radius:50%}
+.capture-circle span{width:27px;height:27px;display:block;border-radius:50%;background:#fff;transition:transform .15s ease}
+.capture-btn:hover:not(:disabled) .capture-circle span{transform:scale(.85)}
+
+/* ---------- Transición ---------- */
+.photo-menu-enter-active,.photo-menu-leave-active{transition:opacity .2s ease}
+.photo-menu-enter-active .photo-options-modal,.photo-menu-leave-active .photo-options-modal,.photo-menu-enter-active .camera-modal,.photo-menu-leave-active .camera-modal{transition:opacity .2s ease,transform .22s ease}
+.photo-menu-enter-from,.photo-menu-leave-to{opacity:0}
+.photo-menu-enter-from .photo-options-modal,.photo-menu-leave-to .photo-options-modal,.photo-menu-enter-from .camera-modal,.photo-menu-leave-to .camera-modal{opacity:0;transform:translateY(10px) scale(.97)}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
 @media(max-width:1050px){
   .profile-card{grid-template-columns:260px minmax(0,1fr)}
   .form-grid-3{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -484,6 +1000,19 @@ input:focus{border-color:var(--color-highlight,#3b82f6);background:var(--bg-inpu
   .registration-footer{flex-direction:column-reverse;align-items:stretch}
   .required-hint{text-align:center}
   .btn-primary{width:100%;min-width:0}
+
+  /* Panel de foto: hoja inferior */
+  .photo-options-overlay{align-items:flex-end;padding:0}
+  .photo-options-modal{max-width:none;padding:12px 17px 20px;border-radius:22px 22px 0 0}
+  .photo-options-handle{width:38px;height:4px;display:block;margin:0 auto 17px;border-radius:999px;background:rgba(255,255,255,.16)}
+
+  /* Cámara: hoja inferior */
+  .camera-overlay{align-items:flex-end;padding:0}
+  .camera-modal{max-width:none;padding:17px 14px calc(18px + env(safe-area-inset-bottom));border-radius:24px 24px 0 0}
+  .camera-preview{aspect-ratio:3/4}
+  .switch-camera-btn{top:11px;right:11px;min-height:38px;padding:0 12px}
+  .camera-actions{flex-direction:column-reverse}
+  .camera-cancel-btn,.capture-btn{width:100%;justify-content:center}
 }
 
 @media(max-width:420px){
@@ -491,5 +1020,9 @@ input:focus{border-color:var(--color-highlight,#3b82f6);background:var(--bg-inpu
   .main-title{font-size:1.6rem}
   .measurement-field,.date-field{padding:13px;gap:11px}
   .measurement-icon,.date-icon{width:38px;height:38px}
+  .camera-header h3{font-size:1.05rem}
+  .switch-camera-btn span{display:none}
+  .switch-camera-btn{width:40px;height:40px;padding:0;justify-content:center}
+  .switch-camera-btn svg{width:19px;height:19px}
 }
 </style>
