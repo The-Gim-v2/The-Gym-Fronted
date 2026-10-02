@@ -3,34 +3,75 @@
     <NotificationSystem ref="toastRef" />
     <main class="main-content">
       <div class="profile-card">
-        <div class="profile-section" id="tutorial-step-0">
-          <h1 class="main-title">
-            <template v-if="currentLang === 'es'">Registra a tu <br> <span class="highlight">Personal</span></template>
-            <template v-else-if="currentLang === 'en'">Register your <br> <span class="highlight">Staff</span></template>
-            <template v-else-if="currentLang === 'fr'">Enregistrez votre <br> <span class="highlight">Personnel</span></template>
-            <template v-else-if="currentLang === 'pt'">Registre sua <br> <span class="highlight">Equipe</span></template>
-          </h1>
-          
-          <div class="avatar-wrapper">
-            <div class="avatar-circle" @click="$refs.fileInput.click()" :title="t('titleAvatarClick')">
-              <img v-if="avatarPreview" :src="avatarPreview" :alt="t('altEmployeePreview')" class="avatar-img" />
-              <svg v-else viewBox="0 0 24 24" fill="white"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+
+        <!-- =====================================================
+             PERFIL / FOTO
+        ====================================================== -->
+        <aside class="profile-section" id="tutorial-step-0">
+          <div class="profile-content">
+            <h1 class="main-title">
+              <template v-if="currentLang === 'es'">Registra a tu <br> <span class="highlight">Personal</span></template>
+              <template v-else-if="currentLang === 'en'">Register your <br> <span class="highlight">Staff</span></template>
+              <template v-else-if="currentLang === 'fr'">Enregistrez votre <br> <span class="highlight">Personnel</span></template>
+              <template v-else-if="currentLang === 'pt'">Registre sua <br> <span class="highlight">Equipe</span></template>
+            </h1>
+
+            <div class="avatar-wrapper">
+              <div class="avatar-ring">
+                <div class="avatar-circle" @click="fileInput?.click()" :title="t('titleAvatarClick')">
+                  <img v-if="avatarPreview" :src="avatarPreview" :alt="t('altEmployeePreview')" class="avatar-img" />
+                  <svg v-else viewBox="0 0 24 24" fill="white"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                </div>
+              </div>
+              <button type="button" class="avatar-action btn-camera" @click="fileInput?.click()" :title="t('titleUploadPhoto')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              </button>
+              <input type="file" ref="fileInput" accept="image/*" style="display: none" @change="handleFileChange" />
             </div>
-            <button type="button" class="avatar-action btn-camera" @click="$refs.fileInput.click()" :title="t('titleUploadPhoto')">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-            </button>
-            <input type="file" ref="fileInput" accept="image/*" style="display: none" @change="handleFileChange" />
+
+            <p class="profile-hint">{{ t('hintEmployeePhoto') }}</p>
+
+            <!-- Resumen -->
+            <dl class="profile-summary">
+              <div class="summary-item">
+                <dt>{{ t('names') }}</dt>
+                <dd :class="{ empty: !form.nombres && !form.apellidoP }">
+                  {{ [form.nombres, form.apellidoP, form.apellidoM].filter(Boolean).join(' ') || '—' }}
+                </dd>
+              </div>
+              <div class="summary-item">
+                <dt>{{ t('systemRole') }}</dt>
+                <dd>
+                  <span v-if="form.rol" class="plan-chip">
+                    {{ form.rol === 'gerente' ? 'Gerente' : form.rol === 'entrenador' ? t('roleTrainer') : t('roleReception') }}
+                  </span>
+                  <span v-else class="empty">—</span>
+                </dd>
+              </div>
+              <div class="summary-item">
+                <dt>{{ t('allowedLocations') }}</dt>
+                <dd :class="{ empty: form.sedes.length === 0 }">{{ form.sedes.length || '—' }}</dd>
+              </div>
+              <div class="summary-item">
+                <dt>{{ t('workSchedule') }}</dt>
+                <dd :class="{ empty: !form.horaEntrada || !form.horaSalida }">
+                  {{ form.horaEntrada && form.horaSalida ? `${form.horaEntrada} – ${form.horaSalida}` : '—' }}
+                </dd>
+              </div>
+            </dl>
           </div>
-          <p class="profile-hint">{{ t('hintEmployeePhoto') }}</p>
-        </div>
+        </aside>
 
         <div class="forms-wrapper">
-          
+
           <!-- CREDENCIALES Y ROL -->
-          <div class="login-card" id="tutorial-step-1">
-            <h3 class="section-title">{{ t('credentialsAndRole') }}</h3>
+          <section class="login-card" id="tutorial-step-1">
+            <header class="card-header">
+              <h3 class="section-title">{{ t('credentialsAndRole') }}</h3>
+            </header>
+
             <div class="form-grid">
-              
+
               <!-- Rol -->
               <div class="input-group">
                 <label>{{ t('systemRole') }}</label>
@@ -45,7 +86,10 @@
               <!-- Correo -->
               <div class="input-group">
                 <label>{{ t('email') }}</label>
-                <input type="email" v-model="form.email" placeholder="correo@ejemplo.com">
+                <div class="input-with-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                  <input type="email" v-model="form.email" placeholder="correo@ejemplo.com">
+                </div>
               </div>
 
               <!-- Contraseñas (Gerente / Recepción) -->
@@ -60,30 +104,30 @@
                 </div>
               </template>
 
-              <!-- Especialidad (Solo Entrenador - Columna Izquierda) -->
+              <!-- Especialidad (Solo Entrenador) -->
               <div class="input-group" v-if="form.rol === 'entrenador'">
                 <label>{{ t('specialty') }}</label>
                 <input type="text" v-model="form.especialidad" :placeholder="t('placeholderSpecialty')">
               </div>
 
-              <!-- SEDES / UBICACIONES (Select Múltiple en la parte derecha) -->
+              <!-- Sedes -->
               <div class="input-group" :class="{ 'sedes-right-col': form.rol !== 'entrenador' }">
                 <label>{{ t('allowedLocations') }}</label>
                 <div class="custom-multiselect" ref="dropdownRef">
-                  <div class="select-box-trigger" @click="isDropdownOpen = !isDropdownOpen">
-                    <span :class="{ 'placeholder-text': form.sedes.length === 0 }">
+                  <div class="select-box-trigger" :class="{ open: isDropdownOpen }" @click="isDropdownOpen = !isDropdownOpen">
+                    <span class="trigger-text" :class="{ 'placeholder-text': form.sedes.length === 0 }">
                       {{ getSedesDisplayText() }}
                     </span>
-                    <svg class="dropdown-arrow" :class="{ 'rotate': isDropdownOpen }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    <svg class="dropdown-arrow" :class="{ rotate: isDropdownOpen }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                   </div>
 
                   <!-- Lista desplegable hacia arriba -->
                   <div class="dropdown-options-list" v-if="isDropdownOpen">
-                    <div 
-                      v-for="sede in listaSedes" 
-                      :key="sede.id" 
+                    <div
+                      v-for="sede in listaSedes"
+                      :key="sede.id"
                       class="dropdown-option-item"
-                      :class="{ 'selected': form.sedes.includes(sede.id) }"
+                      :class="{ selected: form.sedes.includes(sede.id) }"
                       @click="toggleSede(sede.id)"
                     >
                       <div class="option-checkbox">
@@ -96,22 +140,25 @@
               </div>
 
             </div>
-          </div>
+          </section>
 
           <!-- DATOS DEL EMPLEADO -->
-          <div class="login-card" id="tutorial-step-2">
-            <h3 class="section-title">{{ t('employeeData') }}</h3>
+          <section class="login-card" id="tutorial-step-2">
+            <header class="card-header">
+              <h3 class="section-title">{{ t('employeeData') }}</h3>
+            </header>
+
             <div class="form-grid">
               <div class="input-group span-full">
                 <label>{{ t('curp') }}</label>
                 <input type="text" v-model="form.curp" placeholder="Ej. ABCD010101HDF000">
               </div>
               <div class="input-group">
-                <label>{{ t('names') }}</label>
+                <label>{{ t('names') }}<span class="required">*</span></label>
                 <input type="text" v-model="form.nombres" :placeholder="t('placeholderName')">
               </div>
               <div class="input-group">
-                <label>{{ t('lastNameP') }}</label>
+                <label>{{ t('lastNameP') }}<span class="required">*</span></label>
                 <input type="text" v-model="form.apellidoP" :placeholder="t('placeholderLastNameP')">
               </div>
               <div class="input-group">
@@ -124,7 +171,10 @@
               </div>
               <div class="input-group">
                 <label>{{ t('cellphone') }}</label>
-                <input type="text" v-model="form.celular" placeholder="+52 000 000 0000">
+                <div class="input-with-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.9.33 1.78.62 2.63a2 2 0 0 1-.45 2.11L8.01 9.73a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.85.29 1.73.5 2.63.62A2 2 0 0 1 22 16.92z"/></svg>
+                  <input type="text" v-model="form.celular" placeholder="+52 000 000 0000">
+                </div>
               </div>
 
               <template v-if="form.rol !== 'recepcion' && form.rol !== 'gerente'">
@@ -146,24 +196,47 @@
                 </div>
               </template>
             </div>
-          </div>
+          </section>
 
           <!-- HORARIO DE TRABAJO -->
-          <div class="login-card" id="tutorial-step-3">
-            <h3 class="section-title">{{ t('workSchedule') }}</h3>
+          <section class="login-card" id="tutorial-step-3">
+            <header class="card-header">
+              <h3 class="section-title">{{ t('workSchedule') }}</h3>
+            </header>
+
             <div class="form-grid">
-              <div class="input-group">
-                <label>{{ t('entryTime') }}</label>
-                <input type="time" v-model="form.horaEntrada">
+              <div class="date-field">
+                <div class="date-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                <div class="date-content">
+                  <label>{{ t('entryTime') }}</label>
+                  <input type="time" v-model="form.horaEntrada">
+                </div>
               </div>
-              <div class="input-group">
-                <label>{{ t('exitTime') }}</label>
-                <input type="time" v-model="form.horaSalida">
+              <div class="date-field">
+                <div class="date-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                <div class="date-content">
+                  <label>{{ t('exitTime') }}</label>
+                  <input type="time" v-model="form.horaSalida">
+                </div>
               </div>
             </div>
-          </div>
+          </section>
 
-          <button type="button" class="btn-primary" @click="saveRegistration">{{ t('finishButtonStaff') }}</button>
+          <!-- BOTÓN REGISTRAR -->
+          <div class="registration-footer">
+            <div class="required-hint">
+              <span class="required">*</span>
+              {{ currentLang === 'en' ? 'Required fields' : currentLang === 'fr' ? 'Champs obligatoires' : currentLang === 'pt' ? 'Campos obrigatórios' : 'Campos obligatorios' }}
+            </div>
+            <button type="button" class="btn-primary" @click="saveRegistration">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              {{ t('finishButtonStaff') }}
+            </button>
+          </div>
         </div>
       </div>
     </main>
@@ -292,121 +365,355 @@ const saveRegistration = () => {
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;600;700&display=swap');
 
-.main-content { 
-  display: flex; 
-  justify-content: center; 
-  width: 100%; 
-  padding: 40px clamp(16px, 3vw, 40px); 
-  box-sizing: border-box; 
+* { box-sizing: border-box; }
+
+.main-content {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: 36px clamp(16px, 3vw, 40px) 56px;
   color: var(--color-texto-general, #e5e5e5);
 }
 
-.profile-card { 
-  display: grid; 
-  grid-template-columns: 340px minmax(0, 1fr); 
-  gap: 30px; 
-  width: 100%; 
-  max-width: 1200px;
-  margin: 0 auto;   
-  align-items: start; 
-}
+.highlight { color: var(--color-highlight, #3b82f6); }
 
-.forms-wrapper { 
-  display: flex; 
-  flex-direction: column; 
-  gap: 22px; 
-  width: 100%; 
-}
-
-.login-card { 
-  background: var(--bg-cards, rgba(18, 18, 18, 0.75)); 
-  backdrop-filter: blur(12px);
-  padding: 32px; 
-  border-radius: var(--app-border-radius, 24px); 
-  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.12)); 
-  box-sizing: border-box;
-  position: relative;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.login-card:hover {
-  border-color: rgba(255, 255, 255, 0.2);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
-}
-
-.sedes-right-col {
-  grid-column: 2;
-}
-
-/* Estilos personalizados del Multiselect */
-.custom-multiselect {
-  position: relative;
+.profile-card {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 24px;
   width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  align-items: start;
 }
 
-.select-box-trigger {
-  background: var(--bg-cards, #141414); 
-  border: 1.5px solid rgba(255, 255, 255, 0.12); 
-  border-radius: var(--app-border-radius, 12px); 
-  color: var(--color-texto-general, #fff); 
-  padding: 12px 14px; 
-  width: 100%; 
-  box-sizing: border-box; 
-  font-family: 'Inter', sans-serif;
-  font-size: 0.95rem;
-  outline: none;
+/* =========================================================
+   PANEL IZQUIERDO
+========================================================= */
+.profile-section {
+  position: sticky;
+  top: 30px;
+  overflow: hidden;
+  padding: 34px 24px 26px;
+  text-align: center;
+  border: 1px solid var(--border-cards, rgba(255,255,255,.1));
+  border-radius: var(--app-border-radius, 24px);
+  background: var(--bg-cards, rgba(18,18,18,.75));
+  backdrop-filter: blur(12px);
+}
+.profile-section::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 210px;
+  background: radial-gradient(ellipse 70% 100% at 50% 0%, color-mix(in srgb, var(--color-botones, #1c4fd6) 32%, transparent), transparent 75%);
+  pointer-events: none;
+}
+.profile-content { position: relative; width: 100%; }
+
+.main-title {
+  margin: 0 0 26px;
+  font-family: 'Anton', sans-serif;
+  font-size: 1.95rem;
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+  color: var(--color-titulos, #fff);
+}
+
+.avatar-wrapper { position: relative; width: 156px; margin: 0 auto 14px; }
+.avatar-ring {
+  padding: 4px;
+  border-radius: 50%;
+  background: conic-gradient(from 210deg, var(--color-botones, #1c4fd6), var(--color-highlight, #60a5fa), var(--color-botones, #1c4fd6));
+  box-shadow: 0 12px 30px rgba(0,0,0,.4);
+}
+.avatar-circle {
+  width: 148px;
+  height: 148px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
   cursor: pointer;
+  border-radius: 50%;
+  border: 4px solid var(--bg-cards, #121212);
+  background: #17191f;
+  transition: filter .2s ease;
+}
+.avatar-circle svg { width: 58px; height: 58px; opacity: .55; }
+.avatar-img { width: 100%; height: 100%; object-fit: cover; }
+.avatar-wrapper:hover .avatar-circle { filter: brightness(1.12); }
+
+.avatar-action {
+  position: absolute;
+  right: 4px;
+  bottom: 6px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+  border: 3px solid var(--bg-cards, #121212);
+  background: var(--color-highlight, #3b82f6);
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,.35);
+  transition: transform .2s ease;
+  touch-action: manipulation;
+}
+.avatar-action:hover { transform: scale(1.08); }
+.avatar-action svg { width: 18px; height: 18px; }
+
+.profile-hint {
+  max-width: 230px;
+  margin: 0 auto;
+  font: 400 .78rem/1.5 'Inter', sans-serif;
+  color: var(--color-texto-general, #94a3b8);
+  opacity: .7;
+}
+
+.profile-summary {
+  display: grid;
+  gap: 2px;
+  margin: 26px 0 0;
+  padding: 6px;
+  text-align: left;
+  border-radius: var(--app-border-radius, 14px);
+  border: 1px solid rgba(255,255,255,.07);
+  background: rgba(255,255,255,.025);
+}
+.summary-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  user-select: none;
-  min-height: 48px;
+  gap: 12px;
+  padding: 10px 12px;
+}
+.summary-item + .summary-item { border-top: 1px solid rgba(255,255,255,.05); }
+.summary-item dt {
+  flex-shrink: 0;
+  font: 500 .7rem 'Inter', sans-serif;
+  color: var(--color-texto-general, #94a3b8);
+  opacity: .7;
+}
+.summary-item dd {
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: 600 .78rem 'Inter', sans-serif;
+  color: var(--color-titulos, #fff);
+}
+.summary-item dd.empty,
+.summary-item .empty { font-weight: 500; opacity: .4; }
+
+.plan-chip {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-highlight, #3b82f6) 18%, transparent);
+  color: var(--color-highlight, #60a5fa);
+  font: 600 .72rem 'Inter', sans-serif;
 }
 
-.select-box-trigger:hover {
-  border-color: rgba(255, 255, 255, 0.28);
+/* =========================================================
+   FORMULARIOS
+========================================================= */
+.forms-wrapper { display: flex; flex-direction: column; gap: 18px; width: 100%; min-width: 0; }
+
+.login-card {
+  position: relative;
+  width: 100%;
+  padding: 26px 28px 28px;
+  border: 1px solid var(--border-cards, rgba(255,255,255,.12));
+  border-radius: var(--app-border-radius, 24px);
+  background: var(--bg-cards, rgba(18,18,18,.75));
+  backdrop-filter: blur(12px);
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+.login-card:hover { border-color: rgba(255,255,255,.2); box-shadow: 0 12px 32px rgba(0,0,0,.22); }
+.login-card:focus-within { border-color: color-mix(in srgb, var(--color-highlight, #3b82f6) 45%, transparent); }
+
+.card-header {
+  margin-bottom: 22px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255,255,255,.07);
 }
 
-.select-box-trigger:focus-within, 
-.custom-multiselect:focus-within .select-box-trigger {
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  font-family: 'Anton', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 400;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  color: var(--color-titulos, #fff);
+}
+.section-title::before {
+  content: '';
+  width: 4px;
+  height: 20px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, var(--color-botones, #1c4fd6), rgba(37,99,235,.25));
+}
+
+.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.form-grid .span-full { grid-column: span 2; }
+.sedes-right-col { grid-column: 2; }
+
+.input-group { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+
+label {
+  font: 600 .78rem 'Oswald', sans-serif;
+  letter-spacing: .4px;
+  color: var(--color-texto-general, #f5f5f4);
+}
+.required { margin-left: 3px; color: var(--color-highlight, #3b82f6); }
+
+input,
+.custom-select {
+  width: 100%;
+  height: 46px;
+  padding: 0 14px;
+  outline: none;
+  border: 1.5px solid var(--border-input, rgba(255,255,255,.12));
+  border-radius: var(--app-border-radius, 12px);
+  background: var(--bg-input, rgba(255,255,255,.03));
+  color: var(--color-texto-input, var(--color-texto-general, #fff));
+  font: 400 .88rem 'Inter', sans-serif;
+  color-scheme: var(--color-scheme, dark);
+  transition: border-color .2s, box-shadow .2s, background .2s;
+}
+input::placeholder { color: var(--color-texto-general, #94a3b8); opacity: .4; }
+input:hover,
+.custom-select:hover { border-color: rgba(255,255,255,.22); }
+input:focus,
+.custom-select:focus {
   border-color: var(--color-highlight, #3b82f6);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  background: var(--bg-input-focus, rgba(255,255,255,.045));
+  box-shadow: 0 0 0 3px rgba(59,130,246,.18);
 }
 
-.placeholder-text {
-  color: #71717a;
+.custom-select {
+  appearance: none;
+  padding-right: 40px;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px;
 }
+.custom-select option { background: #18181b; color: #fff; }
+
+.input-with-icon { position: relative; }
+.input-with-icon > svg {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 14px;
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+  transform: translateY(-50%);
+  color: var(--color-texto-general, #94a3b8);
+  opacity: .55;
+  transition: color .2s, opacity .2s;
+}
+.input-with-icon:focus-within > svg { color: var(--color-highlight, #3b82f6); opacity: 1; }
+.input-with-icon input { padding-left: 40px; }
+
+/* Horario */
+.date-field {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: var(--app-border-radius, 14px);
+  background: rgba(255,255,255,.02);
+  transition: border-color .2s, background .2s;
+}
+.date-field:focus-within {
+  border-color: color-mix(in srgb, var(--color-highlight, #3b82f6) 50%, transparent);
+  background: color-mix(in srgb, var(--color-highlight, #3b82f6) 5%, transparent);
+}
+.date-icon {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--color-highlight, #3b82f6) 14%, transparent);
+  color: var(--color-highlight, #60a5fa);
+}
+.date-icon svg { width: 20px; height: 20px; }
+.date-content { flex: 1; min-width: 0; }
+.date-content label { display: block; margin-bottom: 7px; }
+
+/* =========================================================
+   MULTISELECT DE SEDES
+========================================================= */
+.custom-multiselect { position: relative; width: 100%; }
+
+.select-box-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 46px;
+  padding: 0 14px;
+  cursor: pointer;
+  user-select: none;
+  border: 1.5px solid var(--border-input, rgba(255,255,255,.12));
+  border-radius: var(--app-border-radius, 12px);
+  background: var(--bg-input, rgba(255,255,255,.03));
+  color: var(--color-texto-input, var(--color-texto-general, #fff));
+  font: 400 .88rem 'Inter', sans-serif;
+  transition: border-color .2s, box-shadow .2s;
+}
+.select-box-trigger:hover { border-color: rgba(255,255,255,.22); }
+.select-box-trigger.open {
+  border-color: var(--color-highlight, #3b82f6);
+  box-shadow: 0 0 0 3px rgba(59,130,246,.18);
+}
+.trigger-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.placeholder-text { color: var(--color-texto-general, #94a3b8); opacity: .45; }
 
 .dropdown-arrow {
   width: 16px;
   height: 16px;
-  stroke: #a1a1aa;
-  transition: transform 0.2s ease;
   flex-shrink: 0;
   margin-left: 10px;
+  stroke: #a1a1aa;
+  transition: transform .2s ease;
 }
+.dropdown-arrow.rotate { transform: rotate(180deg); }
 
-.dropdown-arrow.rotate {
-  transform: rotate(180deg);
-}
-
-/* Lista flotante posicionada HACIA ARRIBA para que nunca salga de la tarjeta ni se oculte */
 .dropdown-options-list {
   position: absolute;
-  bottom: calc(100% + 6px); /* Se despliega hacia arriba */
-  top: auto;
+  bottom: calc(100% + 8px);
   left: 0;
+  z-index: 100;
   width: 100%;
-  background: #18181b;
-  border: 1.5px solid rgba(255, 255, 255, 0.15);
-  border-radius: var(--app-border-radius, 12px);
-  box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.6);
-  z-index: 100; 
   max-height: 240px;
   overflow-y: auto;
   padding: 6px;
-  box-sizing: border-box;
+  border: 1.5px solid rgba(255,255,255,.15);
+  border-radius: var(--app-border-radius, 12px);
+  background: #18181b;
+  box-shadow: 0 -10px 25px rgba(0,0,0,.6);
 }
 
 .dropdown-option-item {
@@ -414,323 +721,109 @@ const saveRegistration = () => {
   align-items: center;
   gap: 10px;
   padding: 10px 12px;
-  border-radius: 8px;
   cursor: pointer;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
+  border-radius: 8px;
   color: #e4e4e7;
-  transition: background 0.15s, color 0.15s;
+  font: 400 .88rem 'Inter', sans-serif;
+  transition: background .15s, color .15s;
 }
-
-.dropdown-option-item:hover {
-  background: rgba(59, 130, 246, 0.12);
-  color: #fff;
-}
-
-.dropdown-option-item.selected {
-  background: rgba(59, 130, 246, 0.2);
-  color: #fff;
-  font-weight: 500;
-}
+.dropdown-option-item:hover { background: rgba(59,130,246,.12); color: #fff; }
+.dropdown-option-item.selected { background: rgba(59,130,246,.2); color: #fff; font-weight: 500; }
 
 .option-checkbox {
-  width: 16px;
-  height: 16px;
-  border-radius: 4px;
-  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.15s;
-  flex-shrink: 0;
+  border-radius: 5px;
+  border: 1.5px solid rgba(255,255,255,.3);
+  transition: all .15s;
 }
-
 .dropdown-option-item.selected .option-checkbox {
   background: var(--color-highlight, #3b82f6);
   border-color: var(--color-highlight, #3b82f6);
-  color: white;
+  color: #fff;
 }
+.option-checkbox svg { width: 10px; height: 10px; }
 
-.option-checkbox svg {
-  width: 10px;
-  height: 10px;
-}
-
-.highlight { 
-  color: var(--color-highlight, #3b82f6); 
-}
-
-.profile-section { 
-  background: var(--bg-cards, rgba(18, 18, 18, 0.75)); 
-  backdrop-filter: blur(12px);
-  padding: 40px 24px; 
-  border-radius: var(--app-border-radius, 24px); 
-  border: 1px solid var(--border-cards, rgba(255, 255, 255, 0.09));
-  display: flex; 
-  flex-direction: column; 
-  align-items: center; 
-  text-align: center;
-  position: sticky;
-  top: 30px;
-  overflow: hidden;
-}
-
-/* Franja de acento superior, para dar identidad visual desde el primer vistazo */
-.profile-section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--color-botones, #1c4fd6), var(--color-highlight, #60a5fa), var(--color-botones, #1c4fd6));
-}
-
-.main-title { 
-  font-family: 'Anton', sans-serif; 
-  font-size: 2.1rem; 
-  color: var(--color-titulos, #fff); 
-  margin: 0 0 24px 0; 
-  line-height: 1.15; 
-  text-transform: uppercase; 
-  letter-spacing: 0.5px;
-}
-
-.profile-hint {
-  font-family: 'Inter', sans-serif;
-  color: var(--color-texto-general, #94a3b8);
-  font-size: 0.85rem;
-  line-height: 1.4;
-  margin-top: 10px;
-  opacity: 0.8;
-}
-
-.form-grid { 
-  display: grid; 
-  grid-template-columns: repeat(2, 1fr); 
-  gap: 20px; 
-}
-
-.form-grid .span-full {
-  grid-column: span 2;
-}
-
-.input-group { 
-  display: flex; 
-  flex-direction: column; 
-  gap: 8px; 
-}
-
-label { 
-  font-family: 'Oswald', sans-serif; 
-  color: var(--color-texto-general, #f5f5f4); 
-  font-size: 0.85rem; 
-  font-weight: 600; 
-  letter-spacing: 0.5px;
-}
-
-input, .custom-select { 
-  background: var(--bg-cards, #141414); 
-  border: 1.5px solid rgba(255, 255, 255, 0.12); 
-  border-radius: var(--app-border-radius, 12px); 
-  color: var(--color-texto-general, #fff); 
-  padding: 12px 14px; 
-  width: 100%; 
-  box-sizing: border-box; 
-  font-family: 'Inter', sans-serif;
-  font-size: 0.95rem;
-  outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-input:focus, .custom-select:focus {
-  border-color: var(--color-highlight, #3b82f6);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-}
-
-.custom-select {
-  appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 14px center;
-  background-size: 16px;
-  padding-right: 40px;
-  cursor: pointer;
-}
-
-.section-title { 
-  font-family: 'Anton', sans-serif; 
-  color: var(--color-titulos, #fff); 
-  font-size: 1.3rem; 
-  margin: 0 0 22px 0; 
-  text-transform: uppercase; 
-  letter-spacing: 0.5px;
+/* =========================================================
+   PIE
+========================================================= */
+.registration-footer {
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 4px 2px 0;
+}
+.required-hint {
+  font: 500 .74rem 'Inter', sans-serif;
+  color: var(--color-texto-general, #94a3b8);
+  opacity: .7;
 }
 
-.section-title::before {
-  content: '';
-  width: 4px;
-  height: 20px;
-  border-radius: 4px;
-  flex-shrink: 0;
-  background: linear-gradient(180deg, var(--color-botones, #1c4fd6), rgba(37, 99, 235, 0.25));
-}
-
-/* Avatar Components */
-.avatar-wrapper { 
-  position: relative; 
-  margin-bottom: 10px; 
-  cursor: pointer;
-}
-
-.avatar-circle { 
-  width: 150px; 
-  height: 150px; 
-  background: rgba(255, 255, 255, 0.06); 
-  border-radius: 50%; 
-  border: 2px dashed rgba(255, 255, 255, 0.2); 
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
-  overflow: hidden;
-  cursor: pointer;
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1), 0 8px 24px rgba(0, 0, 0, 0.3);
-  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
-}
-
-.avatar-wrapper:hover .avatar-circle {
-  border-color: var(--color-highlight, #3b82f6);
-  background: rgba(37, 99, 235, 0.06);
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.22), 0 8px 24px rgba(0, 0, 0, 0.4);
-}
-
-.avatar-circle svg {
-  opacity: 0.65;
-}
-
-.avatar-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.avatar-action { 
-  position: absolute; 
-  width: 42px; 
-  height: 42px; 
-  border-radius: 50%; 
-  background: var(--color-highlight, #3b82f6); 
-  border: 2px solid var(--bg-cards, #121212); 
-  cursor: pointer; 
-  bottom: 0; 
-  right: 0; 
-  display: flex; 
-  align-items: center; 
+.btn-primary {
+  min-width: 240px;
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  color: white;
-  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.2s;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  touch-action: manipulation;
+  gap: 9px;
+  padding: 14px 30px;
+  cursor: pointer;
+  border: none;
+  border-radius: var(--app-border-radius, 12px);
+  background: var(--color-botones, #1c4fd6);
+  color: var(--color-texto-botones, #fff);
+  font: 700 .95rem 'Oswald', sans-serif;
+  letter-spacing: .6px;
+  text-transform: uppercase;
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--color-botones, #1c4fd6) 45%, transparent);
+  transition: transform .2s ease, filter .2s ease, box-shadow .2s ease;
+}
+.btn-primary svg { width: 17px; height: 17px; }
+.btn-primary:active,
+.avatar-action:active { transform: scale(.97); }
+
+@media (hover: hover) {
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+    box-shadow: 0 10px 24px color-mix(in srgb, var(--color-botones, #1c4fd6) 55%, transparent);
+  }
 }
 
-.avatar-action svg {
-  width: 20px;  
-  height: 20px;
-}
 :deep(.notification-container),
 :deep(.toast-container) {
   width: calc(100% - 32px) !important;
   max-width: 480px !important;
   box-sizing: border-box !important;
   left: 50% !important;
-  transform: translateX(-50%) !important;
   right: auto !important;
   margin: 0 auto !important;
+  transform: translateX(-50%) !important;
 }
 
-
-.btn-primary {
-  padding: 16px 36px;
-  background: var(--color-botones, #1c4fd6);
-  color: var(--color-texto-botones, white);
-  border: none;
-  border-radius: var(--app-border-radius, 12px);
-  font-family: 'Oswald', sans-serif;
-  font-weight: 700;
-  font-size: 1.05rem;
-  cursor: pointer;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  box-shadow: 0 4px 16px rgba(28, 79, 214, 0.4);
-  align-self: flex-start;
-}
-
-@media (hover: hover) {
-  .btn-primary:hover {
-    transform: translateY(-2px); 
-    background: #1742be;
-    box-shadow: 0 6px 18px rgba(28, 79, 214, 0.5);
-  }
-  .avatar-action:hover {
-    transform: scale(1.08);
-  }
-}
-
-.btn-primary:active, .avatar-action:active {
-  transform: scale(0.96);
-}
-
-/* Responsive Media Queries */
-@media (max-width: 1024px) { 
-  .profile-card { 
-    grid-template-columns: 1fr; 
-    gap: 20px;
-  } 
-  .profile-section {
-    position: static;
-  }
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+@media (max-width: 1024px) {
+  .profile-card { grid-template-columns: 1fr; gap: 20px; }
+  .profile-section { position: static; }
+  .profile-content { max-width: 420px; margin: 0 auto; }
 }
 
 @media (max-width: 768px) {
-  .main-content {
-    padding: 14px;
-  }
-  
-  .form-grid { 
-    grid-template-columns: 1fr; 
-    gap: 14px;
-  } 
-
-  .form-grid .span-full, .sedes-right-col {
-    grid-column: span 1;
-  }
-
-  .login-card { 
-    padding: 22px;
-    border-radius: var(--app-border-radius, 20px);
-  }
-
-  .profile-section {
-    padding: 28px 18px;
-  }
-
-  .main-title {
-    font-size: 1.7rem;
-  }
-
-  .avatar-circle {
-    width: 130px;
-    height: 130px;
-  }
-
-  .btn-primary {
-    width: 100%;
-    align-self: stretch;
-    text-align: center;
-  }
+  .main-content { padding: 14px 12px 30px; }
+  .form-grid { grid-template-columns: 1fr; gap: 14px; }
+  .form-grid .span-full,
+  .sedes-right-col { grid-column: span 1; }
+  .login-card { padding: 20px 17px 22px; }
+  .profile-section { padding: 28px 18px 22px; }
+  .main-title { font-size: 1.7rem; }
+  .registration-footer { flex-direction: column-reverse; align-items: stretch; }
+  .required-hint { text-align: center; }
+  .btn-primary { width: 100%; min-width: 0; }
 }
 </style>

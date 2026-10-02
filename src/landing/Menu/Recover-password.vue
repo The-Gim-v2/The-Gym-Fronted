@@ -60,7 +60,7 @@
                 <div class="step-number">03</div>
                 <div>
                   <strong>Recupera tu acceso</strong>
-                  <span>Vuelve a iniciar sesión en tu cuenta SAHWA.</span>
+                  <span>Vuelve a iniciar sesión en tu cuenta.</span>
                 </div>
               </div>
             </div>
