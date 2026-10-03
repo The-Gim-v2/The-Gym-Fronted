@@ -360,14 +360,7 @@ const goToEdit = (id) => router.push(`/Owner/editar-usuario/${id}`);
   margin-bottom: 22px;
 }
 
-.title-wrapper {
-  min-width: 240px;
 
-  display: flex;
-  flex-direction: column;
-
-  gap: 7px;
-}
 
 .main-title {
   margin: 0;
@@ -1353,35 +1346,32 @@ const goToEdit = (id) => router.push(`/Owner/editar-usuario/${id}`);
     scale(0.985);
 }
 
-/* =========================================================
-   TABLET
-========================================================= */
+.title-wrapper {
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 
-@media (max-width: 1150px) {
+@media (max-width: 1100px) {
   .main-content {
-    padding:
-      30px 24px
-      48px;
+    padding: 28px 22px 44px;
   }
 
   .header-section {
     align-items: flex-start;
-
     flex-direction: column;
-
-    gap: 17px;
+    gap: 16px;
   }
 
   .actions-bar {
     width: 100%;
-
     justify-content: flex-start;
   }
 
   .search-wrapper {
-    min-width: 210px;
-
     flex: 1;
+    min-width: 200px;
   }
 
   .search-input,
@@ -1415,11 +1405,6 @@ const goToEdit = (id) => router.push(`/Owner/editar-usuario/${id}`);
     margin-bottom: 18px;
   }
 
-  .title-wrapper {
-    width: 100%;
-
-    gap: 6px;
-  }
 
   .main-title {
     font-size: 1.85rem;

@@ -13,6 +13,8 @@ const t = (key) => {
   return langTable[key] || traducciones.es[key] || key;
 };
 
+const txt = (es, en) => (currentLang.value === 'en' ? en : es);
+
 const handleLangChange = (e) => {
   if (e.detail && e.detail.idioma) {
     currentLang.value = e.detail.idioma;
@@ -30,6 +32,10 @@ onUnmounted(() => {
 const user = ref({
   nombre: 'Jose Luis Ramirez Sanchez',
   id: 'Gym001',
+
+  // Reemplaza esta URL con la foto real del usuario (la misma que se guarda en su perfil).
+  foto: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+
   pesoInicial: '70 kg',
   pesoActual: '90 kg',
   estatura: '1.78 m',
@@ -46,6 +52,22 @@ const user = ref({
   proximoCorte: '16/Abril/2026',
   saldoAPagar: '$650.00'
 });
+
+/* Foto del usuario (solo lectura) */
+const imageError = ref(false);
+const handleImageError = () => {
+  imageError.value = true;
+};
+
+const initials = computed(() =>
+  user.value.nombre
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word.charAt(0))
+    .join('')
+    .toUpperCase()
+);
 
 const rachaInfo = ref({
   dias: 390,
@@ -65,7 +87,7 @@ const etapaActual = computed(() => {
 });
 
 // --- Anillo de asistencia (SVG progress ring) ---
-const RING_RADIUS = 32;
+const RING_RADIUS = 44;
 const ringCircumference = 2 * Math.PI * RING_RADIUS;
 const ringOffset = computed(() => {
   const pct = Math.min(Math.max(user.value.asistenciaPorcentaje, 0), 100);
@@ -86,9 +108,8 @@ const diasCalendario = ref([
   { dia: 31, estado: 'futuro' },
 ]);
 
-// --- Métricas derivadas del calendario (para chips de racha, barra de progreso
-// y mini resumen semanal). Todo se calcula a partir de diasCalendario, sin tocar
-// su estructura original. ---
+// --- Métricas derivadas del calendario (chips de racha, barra de progreso
+// y mini resumen semanal). Todo se calcula a partir de diasCalendario. ---
 const diasAsistidosMes = computed(() => diasCalendario.value.filter((d) => d.estado === 'asistio').length);
 const diasFaltoMes = computed(() => diasCalendario.value.filter((d) => d.estado === 'falto').length);
 const diasRegistradosMes = computed(() => diasAsistidosMes.value + diasFaltoMes.value);
@@ -169,20 +190,27 @@ const resumenSemanas = computed(() =>
           <!-- COLUMNA IZQUIERDA -->
           <div class="column-left">
             <div id="tutor-1" class="user-profile-card reveal" style="--reveal-delay:0">
-              <div class="profile-header-tag">{{ t('activeUserTag') }}</div>
               <div class="profile-main-info">
+                <!-- FOTO DEL USUARIO (solo lectura) -->
                 <div class="avatar-wrapper">
-                  <svg id="tutor-2" class="avatar-ring" viewBox="0 0 76 76" width="76" height="76">
-                    <circle class="ring-track" cx="38" cy="38" r="32" />
+                  <svg id="tutor-2" class="avatar-ring" viewBox="0 0 96 96" width="96" height="96">
+                    <circle class="ring-track" cx="48" cy="48" r="44" />
                     <circle
                       class="ring-fill"
-                      cx="38" cy="38" r="32"
+                      cx="48" cy="48" r="44"
                       :stroke-dasharray="ringCircumference"
                       :stroke-dashoffset="ringOffset"
                     />
                   </svg>
                   <div class="avatar-circle">
-                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    <img
+                      v-if="user.foto && !imageError"
+                      :src="user.foto"
+                      :alt="user.nombre"
+                      class="avatar-image"
+                      @error="handleImageError"
+                    />
+                    <span v-else class="avatar-initials">{{ initials }}</span>
                   </div>
                   <div id="tutor-3" class="attendance-badge">{{ user.asistenciaPorcentaje }}% {{ t('attendanceBadgeSuffix') }}</div>
                 </div>
@@ -222,9 +250,35 @@ const resumenSemanas = computed(() =>
               </div>
 
               <div id="tutor-18" class="contact-info-list">
-                <div class="contact-item"><span class="contact-label">{{ t('enrollmentDateLabel') }}</span><span class="contact-val">{{ user.inscripcion }}</span></div>
-                <div class="contact-item"><span class="contact-label">{{ t('phoneLabel') }}</span><span class="contact-val">{{ user.celular }}</span></div>
-                <div class="contact-item"><span class="contact-label">{{ t('emailLabel') }}</span><span class="contact-val email-text">{{ user.correo }}</span></div>
+                <div class="contact-item">
+                  <span class="contact-icon">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                  </span>
+                  <div class="contact-text">
+                    <span class="contact-label">{{ t('enrollmentDateLabel') }}</span>
+                    <span class="contact-val">{{ user.inscripcion }}</span>
+                  </div>
+                </div>
+
+                <div class="contact-item">
+                  <span class="contact-icon">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.9.33 1.78.62 2.63a2 2 0 0 1-.45 2.11L8.01 9.73a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.85.29 1.73.5 2.63.62A2 2 0 0 1 22 16.92z"></path></svg>
+                  </span>
+                  <div class="contact-text">
+                    <span class="contact-label">{{ t('phoneLabel') }}</span>
+                    <span class="contact-val">{{ user.celular }}</span>
+                  </div>
+                </div>
+
+                <div class="contact-item">
+                  <span class="contact-icon">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                  </span>
+                  <div class="contact-text">
+                    <span class="contact-label">{{ t('emailLabel') }}</span>
+                    <span class="contact-val email-text" :title="user.correo">{{ user.correo }}</span>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -253,6 +307,7 @@ const resumenSemanas = computed(() =>
           <!-- COLUMNA DERECHA -->
           <div class="column-right">
 
+            <!-- CALENDARIO (diseño original) -->
             <div id="tutor-21" class="calendar-card reveal" style="--reveal-delay:1">
               <div class="calendar-glow glow-1" aria-hidden="true"></div>
               <div class="calendar-glow glow-2" aria-hidden="true"></div>
@@ -272,11 +327,11 @@ const resumenSemanas = computed(() =>
                 <div class="calendar-stats-row">
                   <div class="calendar-stat-chip streak">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="#facc15" stroke="#f97316" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c0 4-4 7-4 11a4 4 0 0 0 8 0c0-2-.5-3.5-1.5-5C15.5 10 16 12 16 12s2-2 2-4c0-3.5-3-6-6-6z"/></svg>
-                    <span>Racha actual: <b>{{ rachaActualMes }}</b></span>
+                    <span>{{ txt('Racha actual', 'Current streak') }}: <b>{{ rachaActualMes }}</b></span>
                   </div>
                   <div class="calendar-stat-chip best">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17h4v-2.34"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>
-                    <span>Mejor racha: <b>{{ mejorRachaMes }}</b></span>
+                    <span>{{ txt('Mejor racha', 'Best streak') }}: <b>{{ mejorRachaMes }}</b></span>
                   </div>
                 </div>
 
@@ -285,7 +340,7 @@ const resumenSemanas = computed(() =>
                     <div class="progress-fill" :style="{ width: porcentajeMes + '%' }"></div>
                   </div>
                   <div class="progress-label">
-                    <span>{{ diasAsistidosMes }}/{{ diasRegistradosMes }} días registrados</span>
+                    <span>{{ diasAsistidosMes }}/{{ diasRegistradosMes }} {{ txt('días registrados', 'registered days') }}</span>
                     <span class="progress-percent">{{ porcentajeMes }}%</span>
                   </div>
                 </div>
@@ -293,7 +348,7 @@ const resumenSemanas = computed(() =>
                 <div class="calendar-body-row">
                   <div class="calendar-grid-column">
                     <div class="weekdays-row">
-                      <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+                      <span>{{ txt('D', 'Su') }}</span><span>{{ txt('L', 'Mo') }}</span><span>{{ txt('M', 'Tu') }}</span><span>{{ txt('M', 'We') }}</span><span>{{ txt('J', 'Th') }}</span><span>{{ txt('V', 'Fr') }}</span><span>{{ txt('S', 'Sa') }}</span>
                     </div>
                     <div class="days-grid">
                       <div v-for="(item, index) in diasCalendario" :key="index" class="day-cell" :class="item.estado">
@@ -308,7 +363,7 @@ const resumenSemanas = computed(() =>
                   </div>
 
                   <div class="weeks-summary-column">
-                    <span class="weeks-summary-title">Sem</span>
+                    <span class="weeks-summary-title">{{ txt('Sem', 'Wk') }}</span>
                     <div v-for="semana in resumenSemanas" :key="semana.numero" class="week-summary-item">
                       <div class="week-bar-track">
                         <div class="week-bar-fill" :style="{ height: semana.pct + '%' }"></div>
@@ -326,7 +381,7 @@ const resumenSemanas = computed(() =>
               </div>
             </div>
 
-            <!-- TARJETA DE RACHA (estructura de datos y lógica intacta) -->
+            <!-- TARJETA DE RACHA -->
             <div id="tutor-22" class="streak-card reveal" :class="`theme-${etapaActual}`" style="--reveal-delay:2">
               <div class="streak-glow" aria-hidden="true"></div>
               <div class="streak-header-row">
@@ -424,13 +479,13 @@ const resumenSemanas = computed(() =>
 .search-input:hover { border-color: rgba(255,255,255,0.22); }
 .search-input:focus { border-color: var(--color-highlight, #3b82f6); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.18); background: var(--bg-input-focus, var(--bg-cards, #141414)); }
 
-.dashboard-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; align-items: start; }
+.dashboard-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 24px; align-items: start; }
 @media (max-width: 1024px) {
-  .dashboard-grid { grid-template-columns: 1fr; gap: 20px; }
+  .dashboard-grid { grid-template-columns: minmax(0, 1fr); gap: 20px; }
   .main-content { padding: 20px 16px; }
 }
 
-.column-left { display: flex; flex-direction: column; gap: 20px; }
+.column-left { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
 
 /* ---------- Entrada animada de tarjetas ---------- */
 .reveal { animation: revealCard 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards; animation-delay: calc(var(--reveal-delay, 0) * 90ms); }
@@ -459,16 +514,12 @@ const resumenSemanas = computed(() =>
   background: radial-gradient(circle, rgba(59,130,246,0.14) 0%, transparent 72%);
   pointer-events: none;
 }
-.profile-header-tag {
-  position: absolute; top: 20px; right: 20px;
-  font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 700; text-transform: uppercase;
-  padding: 5px 11px; background: rgba(28, 79, 214, 0.18); color: #93c5fd;
-  border: 1px solid rgba(28, 79, 214, 0.4); border-radius: 20px; letter-spacing: 0.5px;
-}
 
-.profile-main-info { display: flex; align-items: center; gap: 18px; margin-bottom: 22px; flex-wrap: wrap; position: relative; z-index: 1; }
-.avatar-wrapper { position: relative; width: 76px; height: 76px; flex-shrink: 0; }
-.avatar-ring { position: absolute; top: 0; left: 0; transform: rotate(-90deg); }
+.profile-main-info { display: flex; align-items: center; gap: 20px; margin-bottom: 22px; flex-wrap: wrap; position: relative; z-index: 1; }
+
+/* Foto del usuario con anillo de asistencia */
+.avatar-wrapper { position: relative; width: 96px; height: 96px; flex-shrink: 0; margin-bottom: 8px; }
+.avatar-ring { position: absolute; top: 0; left: 0; transform: rotate(-90deg); z-index: 2; pointer-events: none; }
 .ring-track { fill: none; stroke: rgba(255,255,255,0.08); stroke-width: 4; }
 .ring-fill {
   fill: none; stroke: #4ade80; stroke-width: 4; stroke-linecap: round;
@@ -476,19 +527,23 @@ const resumenSemanas = computed(() =>
   filter: drop-shadow(0 0 6px rgba(74, 222, 128, 0.5));
 }
 .avatar-circle {
-  position: absolute; top: 8px; left: 8px; width: 60px; height: 60px;
-  background: linear-gradient(135deg, var(--color-botones, #1c4fd6) 0%, #102d7c 100%);
-  border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff;
-  box-shadow: 0 8px 20px rgba(28, 79, 214, 0.4); border: 2px solid rgba(255, 255, 255, 0.15);
+  position: absolute; top: 9px; left: 9px; width: 78px; height: 78px;
+  overflow: hidden; display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, var(--color-highlight, #3b82f6) 65%, transparent);
+  background: #080a0d;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
 }
+.avatar-image { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+.avatar-initials { font-family: 'Oswald', sans-serif; font-size: 1.5rem; font-weight: 600; color: var(--color-highlight, #60a5fa); }
 .attendance-badge {
-  position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%);
-  font-size: 9.5px; font-weight: 700; background: rgba(15, 15, 15, 0.9); color: #4ade80;
+  position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); z-index: 3;
+  font-size: 9.5px; font-weight: 700; background: rgba(15, 15, 15, 0.92); color: #4ade80;
   padding: 3px 9px; border-radius: 20px; border: 1px solid rgba(34, 197, 94, 0.4); white-space: nowrap;
   box-shadow: 0 4px 10px rgba(0,0,0,0.35);
 }
 
-.user-names { padding-left: 4px; }
+.user-names { padding-left: 4px; min-width: 0; }
 .user-names h2 { font-family: 'Inter', sans-serif; font-weight: 700; font-size: clamp(1.1rem, 3.5vw, 1.4rem); letter-spacing: -0.3px; margin: 0 0 4px; color: var(--color-titulos, #fff); word-break: break-word; }
 .user-id { font-family: 'Inter', sans-serif; font-size: 11.5px; color: var(--color-highlight, #93c5fd); letter-spacing: 0.4px; font-weight: 600; }
 
@@ -522,11 +577,26 @@ const resumenSemanas = computed(() =>
 .progress-bar-shine { position: absolute; top: 0; left: -60%; width: 40%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); animation: shineMove 2.8s ease-in-out infinite; }
 @keyframes shineMove { 0% { left: -60%; } 100% { left: 130%; } }
 
-.contact-info-list { display: flex; flex-direction: column; gap: 11px; border-top: 1px solid var(--border-line, rgba(255, 255, 255, 0.08)); padding-top: 17px; position: relative; z-index: 1; }
-.contact-item { display: flex; justify-content: space-between; align-items: center; font-size: 12px; gap: 8px; }
-.contact-label { color: rgba(245, 245, 244, 0.55); font-weight: 500; }
-.contact-val { color: #f5f5f4; font-weight: 600; text-align: right; }
-.email-text { word-break: break-all; }
+.contact-info-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; border-top: 1px solid var(--border-line, rgba(255, 255, 255, 0.08)); padding-top: 18px; position: relative; z-index: 1; }
+.contact-item {
+  display: flex; align-items: center; gap: 11px; min-width: 0;
+  padding: 12px; border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.contact-item:hover { border-color: rgba(255, 255, 255, 0.14); background: rgba(255, 255, 255, 0.05); }
+.contact-icon {
+  width: 36px; height: 36px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  border-radius: 10px; color: var(--color-highlight, #60a5fa);
+  background: color-mix(in srgb, var(--color-highlight, #3b82f6) 13%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-highlight, #3b82f6) 24%, transparent);
+}
+.contact-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.contact-label { font-size: 10.5px; color: rgba(245, 245, 244, 0.5); font-weight: 500; }
+.contact-val { font-size: 12.5px; color: #f5f5f4; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 760px) { .contact-info-list { grid-template-columns: minmax(0, 1fr); } }
+@media (min-width: 1025px) and (max-width: 1280px) { .contact-info-list { grid-template-columns: minmax(0, 1fr); } }
 
 .bottom-financial-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 @media (max-width: 380px) { .bottom-financial-grid { grid-template-columns: 1fr; } }
@@ -553,7 +623,7 @@ const resumenSemanas = computed(() =>
 .card-highlight-val.red { color: #f87171; }
 .card-highlight-val.green { color: #4ade80; }
 
-.column-right { display: flex; flex-direction: column; gap: 20px; }
+.column-right { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
 
 /* ---------- Calendario ---------- */
 .calendar-card {
@@ -565,6 +635,8 @@ const resumenSemanas = computed(() =>
   box-shadow: 0 24px 48px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255,255,255,0.04);
   position: relative;
   overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .calendar-glow { position: absolute; border-radius: 50%; filter: blur(50px); pointer-events: none; z-index: 0; }
@@ -677,9 +749,7 @@ const resumenSemanas = computed(() =>
 .dot.falto { background: #f87171; box-shadow: 0 0 6px rgba(248,113,113,0.6); }
 .dot.hoy { background: #facc15; box-shadow: 0 0 6px rgba(250,204,21,0.6); }
 
-/* ========================================================
-   TARJETA DE RACHA — misma estructura/lógica, visual elevado
-   ======================================================== */
+/* ---------- Tarjeta de racha ---------- */
 .streak-card {
   backdrop-filter: blur(20px);
   border-radius: 18px;
@@ -736,5 +806,6 @@ const resumenSemanas = computed(() =>
   .user-profile-card, .calendar-card { padding: 20px; }
   .financial-card { padding: 15px; }
   .streak-number { font-size: 1.9rem; }
+  .profile-main-info { gap: 16px; }
 }
 </style>

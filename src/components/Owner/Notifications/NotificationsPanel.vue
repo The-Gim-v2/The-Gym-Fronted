@@ -1,158 +1,422 @@
 <template>
-  <transition name="slide-fade">
-    <div v-if="isOpen" ref="panelRef" class="notifications-panel glass-card-modal">
-      
-      <!-- VISTA 1: LISTA DE NOTIFICACIONES -->
-      <div v-if="currentView === 'list'" class="view-content">
-        <div class="panel-header">
-          <h3>{{ t('notificationsTitle') }}</h3>
+  <transition name="notification-panel">
+    <div v-if="isOpen" ref="panelRef" class="notifications-panel">
+      <!-- ==================================================
+           LISTA DE NOTIFICACIONES
+      =================================================== -->
+      <template v-if="currentView === 'list'">
+        <!-- HEADER -->
+        <header class="panel-header">
+          <div class="header-main">
+            <div class="header-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
+                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+              </svg>
+              <span v-if="unreadCount > 0" class="header-indicator"></span>
+            </div>
+
+            <div class="header-copy">
+              <div class="header-title-row">
+                <h3>{{ t('notificationsTitle') }}</h3>
+                <span v-if="unreadCount > 0" class="unread-counter">{{ unreadCount }}</span>
+              </div>
+              <p>{{ unreadCount > 0 ? t('pendingNotifications') : t('everythingUpToDate') }}</p>
+            </div>
+          </div>
+
           <div class="header-actions">
-            <!-- Botón de ajustes -->
-            <button class="btn-icon" @click="currentView = 'settings'" :title="t('settingsTooltip')">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <button type="button" class="icon-button" :title="t('settingsTooltip')" @click="currentView = 'settings'">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <circle cx="12" cy="12" r="3" />
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6h.09A1.65 1.65 0 0 0 10 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c0 .66.39 1.26 1 1.51.2.08.42.12.64.12H21a2 2 0 1 1 0 4h-.09c-.66 0-1.26.39-1.51 1z" />
+              </svg>
             </button>
-            <!-- Botón cerrar principal -->
-            <button class="btn-icon" @click="$emit('close')" :title="t('closeTooltip')">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+
+            <button type="button" class="icon-button" :title="t('closeTooltip')" @click="$emit('close')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+                <path d="M18 6 6 18" />
+                <path d="m6 6 12 12" />
+              </svg>
             </button>
           </div>
-        </div>
+        </header>
 
-        <!-- Sub-pestañas: Todas / No Leídas / Leídas -->
-        <div class="filter-tabs-bar">
-          <button :class="['filter-btn', { active: listFilter === 'all' }]" @click="listFilter = 'all'">
+        <!-- RESUMEN / ACCIÓN -->
+        <section class="notification-summary">
+          <div class="summary-status">
+            <span class="summary-dot"></span>
+            <span v-if="unreadCount > 0">
+              {{ currentLang === 'en' ? `${unreadCount} unread` : `${unreadCount} sin leer` }}
+            </span>
+            <span v-else>{{ t('noPending') }}</span>
+          </div>
+
+          <button v-if="unreadCount > 0" type="button" class="mark-all-button" @click="markAllAsRead">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="m3 12 4 4L17 6" />
+              <path d="m10 12 4 4 7-7" />
+            </svg>
+            {{ t('markAllRead') }}
+          </button>
+        </section>
+
+        <!-- FILTROS -->
+        <nav class="filter-tabs">
+          <button type="button" :class="{ active: listFilter === 'all' }" @click="changeFilter('all')">
             {{ t('filterAll') }}
+            <span>{{ notifications.length }}</span>
           </button>
-          <button :class="['filter-btn', { active: listFilter === 'unread' }]" @click="listFilter = 'unread'">
+
+          <button type="button" :class="{ active: listFilter === 'unread' }" @click="changeFilter('unread')">
             {{ t('filterUnread') }}
+            <span>{{ unreadCount }}</span>
           </button>
-          <button :class="['filter-btn', { active: listFilter === 'read' }]" @click="listFilter = 'read'">
+
+          <button type="button" :class="{ active: listFilter === 'read' }" @click="changeFilter('read')">
             {{ t('filterRead') }}
           </button>
+        </nav>
+
+        <!-- SELECCIÓN MÚLTIPLE -->
+        <div v-if="selectionMode" class="selection-toolbar">
+          <label>
+            <input type="checkbox" :checked="isAllSelected" @change="toggleSelectAll" />
+            <span class="check-box"></span>
+            <span>
+              {{ selectedIds.length > 0 ? `${selectedIds.length} ${t('selected')}` : t('selectAll') }}
+            </span>
+          </label>
+
+          <div class="selection-actions">
+            <button v-if="selectedIds.length > 0" type="button" @click="markSelectedAsRead">
+              {{ t('markAsReadBtn') }}
+            </button>
+
+            <button v-if="selectedIds.length > 0" type="button" class="danger-action" @click="deleteSelected">
+              {{ t('deleteSelectedBtn') }}
+            </button>
+
+            <button type="button" @click="cancelSelection">{{ t('cancel') }}</button>
+          </div>
         </div>
 
-        <!-- Barra de Acciones Masivas (Seleccionar / Borrar / Marcar) -->
-        <div class="bulk-actions-bar" v-if="filteredNotifications.length > 0">
-          <label class="select-all-label">
-            <input type="checkbox" class="custom-checkbox" :checked="isAllSelected" @change="toggleSelectAll" />
-            <span>{{ t('selectAll') }}</span>
-          </label>
-          <div class="bulk-buttons" v-if="selectedIds.length > 0">
-            <button class="btn-action-text" @click="markSelectedAsRead">{{ t('markAsReadBtn') }}</button>
-            <button class="btn-action-text delete" @click="deleteSelected">{{ t('deleteSelectedBtn') }} ({{ selectedIds.length }})</button>
-          </div>
-          <div v-else class="bulk-buttons">
-            <button class="btn-action-text delete" @click="deleteAll">{{ t('deleteAllBtn') }}</button>
-          </div>
-        </div>
-        
-        <div class="notifications-list custom-scroll">
+        <!-- LISTA -->
+        <div class="notifications-scroll" @scroll.passive="openMenuId = null">
+          <!-- VACÍO -->
           <div v-if="filteredNotifications.length === 0" class="empty-state">
+            <div class="empty-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
+                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+              </svg>
+            </div>
+            <h4>{{ t('emptyTitle') }}</h4>
             <p>{{ t('emptyList') }}</p>
           </div>
 
-          <div v-for="item in filteredNotifications" :key="item.id" class="notif-card" :class="{ unread: !item.read }">
-            <input type="checkbox" class="custom-checkbox card-checkbox" :value="item.id" v-model="selectedIds" />
-            <div class="notif-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path></svg>
-            </div>
-            <div class="notif-content" @click="$emit('toggle-read', item.id)">
-              <h4>{{ item.title }}</h4>
-              <p>{{ item.message }}</p>
-              <span class="timestamp">{{ item.time }}</span>
-            </div>
-            <div v-if="!item.read" class="dot-unread"></div>
-          </div>
-        </div>
-      </div>
+          <template v-else>
+            <!-- GRUPOS: HOY / ANTERIORES -->
+            <section v-for="group in groups" :key="group.key" class="notification-group">
+              <div class="group-heading">
+                <span>{{ t(group.labelKey) }}</span>
+                <span class="group-line"></span>
+              </div>
 
-      <!-- VISTA 2: CONFIGURACIÓN -->
-      <div v-else class="view-content">
-        <div class="panel-header">
-          <div class="header-titles">
-            <h3>{{ t('notificationsTitle') }}</h3>
-            <span class="panel-subtitle">{{ t('settingsSubtitle') }}</span>
+              <article
+                v-for="item in group.items"
+                :key="item.id"
+                class="notification-item"
+                :class="[
+                  { unread: !item.read, 'menu-open': openMenuId === item.id },
+                  `type-${getNotificationType(item)}`
+                ]"
+                @click="handleNotificationClick(item)"
+              >
+                <label v-if="selectionMode" class="notification-checkbox" @click.stop>
+                  <input v-model="selectedIds" type="checkbox" :value="item.id" />
+                  <span class="check-box"></span>
+                </label>
+
+                <div class="notification-icon" :class="getNotificationType(item)">
+                  <!-- PAGO -->
+                  <svg v-if="getNotificationType(item) === 'payment'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <rect x="2" y="5" width="20" height="14" rx="2" />
+                    <path d="M2 10h20" />
+                    <path d="M6 15h2" />
+                  </svg>
+
+                  <!-- MEMBRESÍA -->
+                  <svg v-else-if="getNotificationType(item) === 'membership'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <circle cx="12" cy="8" r="6" />
+                    <path d="M15.48 12.89 17 22l-5-3-5 3 1.52-9.11" />
+                  </svg>
+
+                  <!-- AGENDA -->
+                  <svg v-else-if="getNotificationType(item) === 'schedule'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <rect x="3" y="5" width="18" height="16" rx="2" />
+                    <path d="M16 3v4" />
+                    <path d="M8 3v4" />
+                    <path d="M3 11h18" />
+                  </svg>
+
+                  <!-- CLIENTE -->
+                  <svg v-else-if="getNotificationType(item) === 'client'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+
+                  <!-- SISTEMA -->
+                  <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                  </svg>
+                </div>
+
+                <div class="notification-body">
+                  <div class="notification-title-row">
+                    <h4>{{ item.title }}</h4>
+                    <span v-if="!item.read" class="unread-dot"></span>
+                  </div>
+
+                  <p>{{ item.message }}</p>
+
+                  <footer class="notification-meta">
+                    <span>{{ item.time }}</span>
+                    <span class="meta-divider"></span>
+                    <span>{{ getTypeLabel(item) }}</span>
+                  </footer>
+                </div>
+
+                <button
+                  v-if="!selectionMode"
+                  type="button"
+                  class="more-button"
+                  :title="t('moreOptions')"
+                  @click.stop="toggleMenu(item.id, $event)"
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <circle cx="12" cy="5" r="1.7" />
+                    <circle cx="12" cy="12" r="1.7" />
+                    <circle cx="12" cy="19" r="1.7" />
+                  </svg>
+                </button>
+
+                <!-- MENÚ (position: fixed, no se recorta por el scroll) -->
+                <div
+                  v-if="openMenuId === item.id"
+                  class="item-menu"
+                  :style="menuStyle"
+                  @click.stop
+                >
+                  <button type="button" @click="toggleRead(item)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                      <path d="m3 12 4 4L17 6" />
+                    </svg>
+                    {{ item.read ? t('markUnread') : t('markAsReadBtn') }}
+                  </button>
+
+                  <button type="button" @click="startSelection(item.id)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                      <rect x="4" y="4" width="16" height="16" rx="3" />
+                      <path d="m8 12 3 3 5-6" />
+                    </svg>
+                    {{ t('select') }}
+                  </button>
+
+                  <button type="button" class="delete-menu-item" @click="deleteOne(item.id)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                      <path d="M3 6h18" />
+                      <path d="M8 6V4h8v2" />
+                      <path d="M19 6l-1 14H6L5 6" />
+                    </svg>
+                    {{ t('deleteSelectedBtn') }}
+                  </button>
+                </div>
+              </article>
+            </section>
+          </template>
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="panel-footer">
+          <button type="button" @click="selectionMode = true">{{ t('manageNotifications') }}</button>
+          <span></span>
+          <button type="button" @click="currentView = 'settings'">{{ t('notificationSettings') }}</button>
+        </footer>
+      </template>
+
+      <!-- ==================================================
+           CONFIGURACIÓN
+      =================================================== -->
+      <template v-else>
+        <header class="panel-header settings-header">
+          <div class="header-main">
+            <button type="button" class="back-button" @click="currentView = 'list'">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+                <path d="m15 18-6-6 6-6" />
+              </svg>
+            </button>
+
+            <div class="header-copy">
+              <h3>{{ t('settingsTitle') }}</h3>
+              <p>{{ t('settingsSubtitle') }}</p>
+            </div>
           </div>
-          <button class="btn-icon" @click="currentView = 'list'" :title="t('backTooltip')">
-             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+
+          <button type="button" class="icon-button" @click="$emit('close')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+              <path d="M18 6 6 18" />
+              <path d="m6 6 12 12" />
+            </svg>
           </button>
+        </header>
+
+        <div class="settings-scroll">
+          <!-- ENTREGA -->
+          <section class="settings-section">
+            <div class="settings-heading">
+              <span>{{ t('deliverySection') }}</span>
+            </div>
+
+            <div class="settings-card">
+              <div class="setting-row">
+                <div class="setting-icon blue">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                  </svg>
+                </div>
+                <div class="setting-copy">
+                  <strong>{{ t('inAppTitle') }}</strong>
+                  <span>{{ t('inAppRealDesc') }}</span>
+                </div>
+                <label class="switch">
+                  <input v-model="settings.inApp" type="checkbox" />
+                  <span></span>
+                </label>
+              </div>
+
+              <div class="setting-row">
+                <div class="setting-icon purple">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <rect x="3" y="5" width="18" height="14" rx="2" />
+                    <path d="m3 7 9 6 9-6" />
+                  </svg>
+                </div>
+                <div class="setting-copy">
+                  <strong>{{ t('emailNotifications') }}</strong>
+                  <span>{{ t('emailNotificationsDesc') }}</span>
+                </div>
+                <label class="switch">
+                  <input v-model="settings.email" type="checkbox" />
+                  <span></span>
+                </label>
+              </div>
+
+              <div class="setting-row">
+                <div class="setting-icon green">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M11 5 6 9H2v6h4l5 4z" />
+                    <path d="M15.5 8.5a5 5 0 0 1 0 7" />
+                    <path d="M19 5a10 10 0 0 1 0 14" />
+                  </svg>
+                </div>
+                <div class="setting-copy">
+                  <strong>{{ t('soundTitle') }}</strong>
+                  <span>{{ t('soundRealDesc') }}</span>
+                </div>
+                <label class="switch">
+                  <input v-model="settings.sound" type="checkbox" />
+                  <span></span>
+                </label>
+              </div>
+            </div>
+          </section>
+
+          <!-- TIPOS -->
+          <section class="settings-section">
+            <div class="settings-heading">
+              <span>{{ t('typesSectionTitle') }}</span>
+              <small>{{ t('chooseAlerts') }}</small>
+            </div>
+
+            <div class="settings-card">
+              <div v-for="item in notificationTypes" :key="item.key" class="setting-row">
+                <div class="setting-icon" :class="item.color">
+                  <svg v-if="item.key === 'payments'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <rect x="2" y="5" width="20" height="14" rx="2" />
+                    <path d="M2 10h20" />
+                  </svg>
+
+                  <svg v-else-if="item.key === 'memberships'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <circle cx="12" cy="8" r="6" />
+                    <path d="M15.48 12.89 17 22l-5-3-5 3 1.52-9.11" />
+                  </svg>
+
+                  <svg v-else-if="item.key === 'clients'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+
+                  <svg v-else-if="item.key === 'schedule'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <rect x="3" y="5" width="18" height="16" rx="2" />
+                    <path d="M16 3v4M8 3v4M3 11h18" />
+                  </svg>
+
+                  <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M12 8v4" />
+                    <path d="M12 16h.01" />
+                  </svg>
+                </div>
+
+                <div class="setting-copy">
+                  <strong>{{ t(item.titleKey) }}</strong>
+                  <span>{{ t(item.descKey) }}</span>
+                </div>
+
+                <label class="switch">
+                  <input v-model="item.value" type="checkbox" />
+                  <span></span>
+                </label>
+              </div>
+            </div>
+          </section>
+
+          <!-- PREFERENCIAS -->
+          <section class="settings-section">
+            <div class="settings-heading">
+              <span>{{ t('preferences') }}</span>
+            </div>
+
+            <div class="settings-card">
+              <div class="setting-row">
+                <div class="setting-icon neutral">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M12 7v5l3 2" />
+                  </svg>
+                </div>
+                <div class="setting-copy">
+                  <strong>{{ t('quietHours') }}</strong>
+                  <span>{{ t('quietHoursDesc') }}</span>
+                </div>
+                <label class="switch">
+                  <input v-model="settings.quietHours" type="checkbox" />
+                  <span></span>
+                </label>
+              </div>
+            </div>
+          </section>
         </div>
 
-        <div class="notifications-list settings-scroll custom-scroll">
-           
-           <div class="settings-section-title">{{ t('pushSectionTitle') }}</div>
-           <div class="notif-card setting-item-card banner-card">
-              <div class="notif-icon">
-                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13.73 21a2 2 0 0 1-3.46 0"></path><path d="M18.63 13A17.89 17.89 0 0 1 18 8"></path><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
-              </div>
-              <div class="notif-content">
-                 <h4>{{ t('pushDisabledTitle') }}</h4>
-                 <p>{{ t('pushDisabledDesc') }}</p>
-              </div>
-              <button class="btn-pill-action" @click="activatePush">{{ t('activateBtn') }}</button>
-           </div>
-
-           <div class="settings-section-title">{{ t('generalSectionTitle') }}</div>
-           
-           <div class="notif-card setting-item-card">
-              <div class="notif-icon">
-                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path></svg>
-              </div>
-              <div class="notif-content">
-                 <h4>{{ t('inAppTitle') }}</h4>
-                 <p>{{ t('inAppDesc') }}</p>
-              </div>
-              <input type="checkbox" class="toggle-switch" v-model="settings.inApp" />
-           </div>
-
-           <div class="notif-card setting-item-card">
-              <div class="notif-icon">
-                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
-              </div>
-              <div class="notif-content">
-                 <h4>{{ t('soundTitle') }}</h4>
-                 <p>{{ t('soundDesc') }}</p>
-              </div>
-              <input type="checkbox" class="toggle-switch" v-model="settings.sound" />
-           </div>
-
-           <!-- Selector de Sonido Interactivo -->
-           <div class="notif-card setting-item-card select-card" v-if="settings.sound">
-              <div class="notif-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
-              </div>
-              <div class="notif-content">
-                 <h4>{{ t('selectSoundTitle') }}</h4>
-                 <p>{{ t('selectSoundDesc') }}</p>
-              </div>
-              <select class="sound-selector" v-model="settings.selectedSound" @change="previewSound">
-                 <option value="bell">🔔 {{ t('soundBell') }}</option>
-                 <option value="crystal">✨ {{ t('soundCrystal') }}</option>
-                 <option value="marimba">🎶 {{ t('soundMarimba') }}</option>
-                 <option value="digital">💻 {{ t('soundDigital') }}</option>
-              </select>
-           </div>
-
-           <div class="settings-section-title">{{ t('typesSectionTitle') }}</div>
-           
-           <div v-for="item in notificationTypes" :key="item.labelKey" class="notif-card setting-item-card">
-              <div class="notif-icon">
-                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-              </div>
-              <div class="notif-content">
-                 <h4>{{ t(item.labelKey) }}</h4>
-                 <p>{{ t(item.descKey) }}</p>
-              </div>
-              <input type="checkbox" class="toggle-switch" v-model="item.value" />
-           </div>
-
-        </div>
-
-        <div class="panel-footer-action">
-           <button class="btn-close-large" @click="currentView = 'list'">{{ t('closeBtn') }}</button>
-        </div>
-      </div>
-
+        <footer class="settings-footer">
+          <button type="button" class="save-settings-button" @click="saveSettings">
+            {{ t('savePreferences') }}
+          </button>
+        </footer>
+      </template>
     </div>
   </transition>
 </template>
@@ -160,30 +424,502 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 
-const props = defineProps<{ isOpen: boolean, notifications: any[] }>();
-const emit = defineEmits(['close', 'mark-read', 'delete-notifications', 'toggle-read']);
+type NotificationItem = {
+  id: string | number;
+  title: string;
+  message: string;
+  time: string;
+  read: boolean;
+  type?: 'payment' | 'membership' | 'client' | 'schedule' | 'system';
+  date?: string | Date;
+};
 
-const currentView = ref('list');
-const listFilter = ref<'all' | 'unread' | 'read'>('all');
-const selectedIds = ref<any[]>([]);
+const props = defineProps<{
+  isOpen: boolean;
+  notifications: NotificationItem[];
+}>();
+
+const emit = defineEmits([
+  'close',
+  'mark-read',
+  'delete-notifications',
+  'toggle-read'
+]);
+
 const panelRef = ref<HTMLElement | null>(null);
+const currentView = ref<'list' | 'settings'>('list');
+const listFilter = ref<'all' | 'unread' | 'read'>('all');
+const selectedIds = ref<Array<string | number>>([]);
+const selectionMode = ref(false);
+const openMenuId = ref<string | number | null>(null);
+const menuStyle = ref<Record<string, string>>({});
+
+/* =========================================================
+   IDIOMA
+========================================================= */
 
 const currentLang = ref(localStorage.getItem('member-idioma') || 'es');
 
-const handleLangChange = (e: Event) => {
-  const customEvent = e as CustomEvent<{ idioma?: string }>;
-  if (customEvent.detail && customEvent.detail.idioma) {
+const handleLangChange = (event: Event) => {
+  const customEvent = event as CustomEvent<{ idioma?: string }>;
+  if (customEvent.detail?.idioma) {
     currentLang.value = customEvent.detail.idioma;
   }
 };
 
-const handleClickOutside = (event: MouseEvent) => {
-  if (props.isOpen && panelRef.value && !panelRef.value.contains(event.target as Node)) {
-    emit('close');
+const langData = {
+  es: {
+    notificationsTitle: 'Notificaciones',
+    settingsTooltip: 'Configurar notificaciones',
+    closeTooltip: 'Cerrar',
+    pendingNotifications: 'Tienes actividad pendiente por revisar',
+    everythingUpToDate: 'Estás al día con tus notificaciones',
+    noPending: 'Sin notificaciones pendientes',
+    markAllRead: 'Marcar todas como leídas',
+    filterAll: 'Todas',
+    filterUnread: 'No leídas',
+    filterRead: 'Leídas',
+    today: 'Hoy',
+    earlier: 'Anteriores',
+    emptyTitle: 'Todo al día',
+    emptyList: 'No tienes notificaciones en esta sección.',
+    selected: 'seleccionadas',
+    selectAll: 'Seleccionar todas',
+    select: 'Seleccionar',
+    cancel: 'Cancelar',
+    markAsReadBtn: 'Marcar como leída',
+    markUnread: 'Marcar como no leída',
+    deleteSelectedBtn: 'Eliminar',
+    moreOptions: 'Más opciones',
+    manageNotifications: 'Administrar',
+    notificationSettings: 'Preferencias',
+    settingsTitle: 'Preferencias',
+    settingsSubtitle: 'Controla cómo y cuándo recibir alertas',
+    deliverySection: 'CANALES DE NOTIFICACIÓN',
+    inAppTitle: 'Notificaciones en la aplicación',
+    inAppRealDesc: 'Mostrar alertas dentro del sistema',
+    emailNotifications: 'Correo electrónico',
+    emailNotificationsDesc: 'Recibir avisos importantes por correo',
+    soundTitle: 'Sonido de alertas',
+    soundRealDesc: 'Reproducir un sonido para nuevas alertas',
+    typesSectionTitle: 'TIPOS DE NOTIFICACIÓN',
+    chooseAlerts: 'Selecciona cuáles quieres recibir',
+    paymentsTitle: 'Pagos y cobros',
+    paymentsDesc: 'Pagos recibidos, rechazados y pendientes',
+    membershipsTitle: 'Membresías',
+    membershipsDesc: 'Vencimientos, renovaciones y cambios',
+    clientsTitle: 'Clientes',
+    clientsDesc: 'Altas, actualizaciones y actividad relevante',
+    scheduleTitle: 'Agenda',
+    scheduleDesc: 'Citas, clases y recordatorios',
+    systemTitle: 'Sistema',
+    systemDesc: 'Seguridad, acceso y avisos importantes',
+    preferences: 'PREFERENCIAS',
+    quietHours: 'Horario silencioso',
+    quietHoursDesc: 'Evitar alertas sonoras fuera del horario laboral',
+    savePreferences: 'Guardar preferencias',
+    payment: 'Pago',
+    membership: 'Membresía',
+    client: 'Cliente',
+    schedule: 'Agenda',
+    system: 'Sistema'
+  },
+
+  en: {
+    notificationsTitle: 'Notifications',
+    settingsTooltip: 'Notification settings',
+    closeTooltip: 'Close',
+    pendingNotifications: 'You have activity waiting for review',
+    everythingUpToDate: 'You are up to date with your notifications',
+    noPending: 'No pending notifications',
+    markAllRead: 'Mark all as read',
+    filterAll: 'All',
+    filterUnread: 'Unread',
+    filterRead: 'Read',
+    today: 'Today',
+    earlier: 'Earlier',
+    emptyTitle: 'All caught up',
+    emptyList: 'There are no notifications in this section.',
+    selected: 'selected',
+    selectAll: 'Select all',
+    select: 'Select',
+    cancel: 'Cancel',
+    markAsReadBtn: 'Mark as read',
+    markUnread: 'Mark as unread',
+    deleteSelectedBtn: 'Delete',
+    moreOptions: 'More options',
+    manageNotifications: 'Manage',
+    notificationSettings: 'Preferences',
+    settingsTitle: 'Preferences',
+    settingsSubtitle: 'Control how and when alerts are delivered',
+    deliverySection: 'NOTIFICATION CHANNELS',
+    inAppTitle: 'In-app notifications',
+    inAppRealDesc: 'Show alerts inside the system',
+    emailNotifications: 'Email',
+    emailNotificationsDesc: 'Receive important notices by email',
+    soundTitle: 'Alert sounds',
+    soundRealDesc: 'Play a sound for new alerts',
+    typesSectionTitle: 'NOTIFICATION TYPES',
+    chooseAlerts: 'Choose which alerts you want to receive',
+    paymentsTitle: 'Payments',
+    paymentsDesc: 'Received, rejected and pending payments',
+    membershipsTitle: 'Memberships',
+    membershipsDesc: 'Expirations, renewals and changes',
+    clientsTitle: 'Clients',
+    clientsDesc: 'Registrations, updates and relevant activity',
+    scheduleTitle: 'Schedule',
+    scheduleDesc: 'Appointments, classes and reminders',
+    systemTitle: 'System',
+    systemDesc: 'Security, access and important notices',
+    preferences: 'PREFERENCES',
+    quietHours: 'Quiet hours',
+    quietHoursDesc: 'Disable sounds outside business hours',
+    savePreferences: 'Save preferences',
+    payment: 'Payment',
+    membership: 'Membership',
+    client: 'Client',
+    schedule: 'Schedule',
+    system: 'System'
   }
 };
 
+const t = (key: string) => {
+  const language = currentLang.value === 'en' ? 'en' : 'es';
+  return (
+    langData[language][key as keyof typeof langData.es] ||
+    langData.es[key as keyof typeof langData.es] ||
+    key
+  );
+};
+
+/* =========================================================
+   CONFIGURACIÓN
+========================================================= */
+
+const settings = ref({
+  inApp: true,
+  email: true,
+  sound: true,
+  quietHours: false
+});
+
+const notificationTypes = ref([
+  { key: 'payments', titleKey: 'paymentsTitle', descKey: 'paymentsDesc', color: 'green', value: true },
+  { key: 'memberships', titleKey: 'membershipsTitle', descKey: 'membershipsDesc', color: 'orange', value: true },
+  { key: 'clients', titleKey: 'clientsTitle', descKey: 'clientsDesc', color: 'blue', value: true },
+  { key: 'schedule', titleKey: 'scheduleTitle', descKey: 'scheduleDesc', color: 'purple', value: true },
+  { key: 'system', titleKey: 'systemTitle', descKey: 'systemDesc', color: 'neutral', value: true }
+]);
+
+/* =========================================================
+   CONTADORES / FILTRO
+========================================================= */
+
+const unreadCount = computed(
+  () => props.notifications.filter(item => !item.read).length
+);
+
+const filteredNotifications = computed(() => {
+  if (listFilter.value === 'unread') {
+    return props.notifications.filter(item => !item.read);
+  }
+  if (listFilter.value === 'read') {
+    return props.notifications.filter(item => item.read);
+  }
+  return props.notifications;
+});
+
+/* =========================================================
+   AGRUPACIÓN
+========================================================= */
+
+const isToday = (item: NotificationItem) => {
+  // Si la API devuelve `date`, se usa la fecha real.
+  // Si no, se infiere por el texto ("min", "hora", "ahora", etc.).
+  if (item.date) {
+    const date = new Date(item.date);
+    const now = new Date();
+
+    return (
+      date.getFullYear() === now.getFullYear() &&
+      date.getMonth() === now.getMonth() &&
+      date.getDate() === now.getDate()
+    );
+  }
+
+  const time = item.time?.toLowerCase() || '';
+
+  return (
+    time.includes('min') ||
+    time.includes('hora') ||
+    time.includes('hour') ||
+    time.includes('now') ||
+    time.includes('ahora') ||
+    time.includes('hoy') ||
+    time.includes('today')
+  );
+};
+
+const groups = computed(() => {
+  const today = filteredNotifications.value.filter(isToday);
+  const older = filteredNotifications.value.filter(item => !isToday(item));
+
+  return [
+    { key: 'today', labelKey: 'today', items: today },
+    { key: 'earlier', labelKey: 'earlier', items: older }
+  ].filter(group => group.items.length > 0);
+});
+
+/* =========================================================
+   TIPO DE NOTIFICACIÓN
+========================================================= */
+
+const getNotificationType = (item: NotificationItem) => {
+  if (item.type) return item.type;
+
+  const content = `${item.title} ${item.message}`.toLowerCase();
+
+  if (content.includes('pago') || content.includes('payment') || content.includes('cobro')) {
+    return 'payment';
+  }
+  if (content.includes('membres') || content.includes('renov') || content.includes('venc')) {
+    return 'membership';
+  }
+  if (content.includes('cliente') || content.includes('client') || content.includes('usuario')) {
+    return 'client';
+  }
+  if (
+    content.includes('agenda') ||
+    content.includes('cita') ||
+    content.includes('clase') ||
+    content.includes('schedule')
+  ) {
+    return 'schedule';
+  }
+
+  return 'system';
+};
+
+const getTypeLabel = (item: NotificationItem) => t(getNotificationType(item));
+
+/* =========================================================
+   FILTROS
+========================================================= */
+
+const changeFilter = (filter: 'all' | 'unread' | 'read') => {
+  listFilter.value = filter;
+  selectedIds.value = [];
+  openMenuId.value = null;
+};
+
+/* =========================================================
+   SELECCIÓN
+========================================================= */
+
+const isAllSelected = computed(
+  () =>
+    filteredNotifications.value.length > 0 &&
+    filteredNotifications.value.every(item => selectedIds.value.includes(item.id))
+);
+
+const toggleSelectAll = (event: Event) => {
+  const input = event.target as HTMLInputElement;
+
+  selectedIds.value = input.checked
+    ? filteredNotifications.value.map(item => item.id)
+    : [];
+};
+
+const startSelection = (id: string | number) => {
+  selectionMode.value = true;
+
+  if (!selectedIds.value.includes(id)) {
+    selectedIds.value.push(id);
+  }
+
+  openMenuId.value = null;
+};
+
+const cancelSelection = () => {
+  selectionMode.value = false;
+  selectedIds.value = [];
+};
+
+const markSelectedAsRead = () => {
+  if (!selectedIds.value.length) return;
+
+  emit('mark-read', selectedIds.value);
+
+  selectedIds.value = [];
+  selectionMode.value = false;
+};
+
+const deleteSelected = () => {
+  if (!selectedIds.value.length) return;
+
+  emit('delete-notifications', selectedIds.value);
+
+  selectedIds.value = [];
+  selectionMode.value = false;
+};
+
+const deleteOne = (id: string | number) => {
+  emit('delete-notifications', [id]);
+  openMenuId.value = null;
+};
+
+/* =========================================================
+   LEÍDAS
+========================================================= */
+
+const markAllAsRead = () => {
+  const ids = props.notifications.filter(item => !item.read).map(item => item.id);
+
+  if (!ids.length) return;
+
+  emit('mark-read', ids);
+};
+
+const toggleRead = (item: NotificationItem) => {
+  emit('toggle-read', item.id);
+  openMenuId.value = null;
+};
+
+const handleNotificationClick = (item: NotificationItem) => {
+  openMenuId.value = null;
+
+  if (selectionMode.value) {
+    const index = selectedIds.value.indexOf(item.id);
+
+    if (index >= 0) {
+      selectedIds.value.splice(index, 1);
+    } else {
+      selectedIds.value.push(item.id);
+    }
+
+    return;
+  }
+
+  if (!item.read) {
+    emit('toggle-read', item.id);
+  }
+};
+
+/* =========================================================
+   MENÚ INDIVIDUAL (posicionado con coordenadas fijas)
+========================================================= */
+
+const MENU_WIDTH = 176;
+const MENU_HEIGHT = 132;
+const MENU_GAP = 6;
+const VIEWPORT_MARGIN = 8;
+
+const toggleMenu = (id: string | number, event: MouseEvent) => {
+  if (openMenuId.value === id) {
+    openMenuId.value = null;
+    return;
+  }
+
+  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+
+  const left = Math.max(
+    VIEWPORT_MARGIN,
+    Math.min(rect.right - MENU_WIDTH, window.innerWidth - MENU_WIDTH - VIEWPORT_MARGIN)
+  );
+
+  const spaceBelow = window.innerHeight - rect.bottom;
+  const openUp = spaceBelow < MENU_HEIGHT + MENU_GAP + VIEWPORT_MARGIN;
+
+  menuStyle.value = openUp
+    ? {
+        left: `${left}px`,
+        bottom: `${window.innerHeight - rect.top + MENU_GAP}px`
+      }
+    : {
+        left: `${left}px`,
+        top: `${rect.bottom + MENU_GAP}px`
+      };
+
+  openMenuId.value = id;
+};
+
+/* =========================================================
+   GUARDAR / CARGAR PREFERENCIAS
+========================================================= */
+
+const saveSettings = () => {
+  localStorage.setItem(
+    'notification-preferences',
+    JSON.stringify({
+      settings: settings.value,
+      types: notificationTypes.value.map(item => ({
+        key: item.key,
+        value: item.value
+      }))
+    })
+  );
+
+  currentView.value = 'list';
+};
+
+const loadPreferences = () => {
+  const stored = localStorage.getItem('notification-preferences');
+
+  if (!stored) return;
+
+  try {
+    const data = JSON.parse(stored);
+
+    if (data.settings) {
+      settings.value = { ...settings.value, ...data.settings };
+    }
+
+    if (Array.isArray(data.types)) {
+      notificationTypes.value.forEach(item => {
+        const saved = data.types.find((savedItem: any) => savedItem.key === item.key);
+        if (saved) item.value = saved.value;
+      });
+    }
+  } catch {
+    // Preferencias inválidas: se conservan los valores por defecto.
+  }
+};
+
+/* =========================================================
+   CLICK EXTERIOR
+========================================================= */
+
+const handleClickOutside = (event: MouseEvent) => {
+  const target = event.target as Element;
+
+  if (props.isOpen && panelRef.value && !panelRef.value.contains(target)) {
+    emit('close');
+    return;
+  }
+
+  if (!target?.closest?.('.item-menu') && !target?.closest?.('.more-button')) {
+    openMenuId.value = null;
+  }
+};
+
+/* =========================================================
+   WATCH / CICLO DE VIDA
+========================================================= */
+
+watch(
+  () => props.isOpen,
+  value => {
+    if (!value) return;
+
+    currentView.value = 'list';
+    selectedIds.value = [];
+    selectionMode.value = false;
+    openMenuId.value = null;
+  }
+);
+
 onMounted(() => {
+  loadPreferences();
   window.addEventListener('idioma-changed', handleLangChange as EventListener);
   document.addEventListener('mousedown', handleClickOutside);
 });
@@ -192,580 +928,1113 @@ onUnmounted(() => {
   window.removeEventListener('idioma-changed', handleLangChange as EventListener);
   document.removeEventListener('mousedown', handleClickOutside);
 });
-
-const langData: Record<'es' | 'en', Record<string, string>> = {
-  es: {
-    notificationsTitle: 'Notificaciones',
-    settingsTooltip: 'Configuración',
-    closeTooltip: 'Cerrar',
-    settingsSubtitle: 'Configura tus preferencias',
-    backTooltip: 'Volver',
-    filterAll: 'Todas',
-    filterUnread: 'No leídas',
-    filterRead: 'Leídas',
-    selectAll: 'Seleccionar todas',
-    markAsReadBtn: 'Marcar leídas',
-    deleteSelectedBtn: 'Eliminar',
-    deleteAllBtn: 'Borrar todas',
-    pushSectionTitle: 'PUSH NOTIFICATIONS',
-    pushDisabledTitle: 'Desactivadas',
-    pushDisabledDesc: 'Alertas cuando la app está cerrada',
-    activateBtn: 'Activar',
-    generalSectionTitle: 'GENERAL',
-    inAppTitle: 'In-App',
-    inAppDesc: 'Campanita de notificaciones',
-    soundTitle: 'Sonido',
-    soundDesc: 'Reproducir tono al recibir alertas',
-    selectSoundTitle: 'Tono de alerta',
-    selectSoundDesc: 'Elige tu sonido preferido',
-    soundBell: 'Campana Clásica',
-    soundCrystal: 'Cristal Suave',
-    soundMarimba: 'Marimba Fit',
-    soundDigital: 'Digital App',
-    typesSectionTitle: 'TIPOS DE NOTIFICACIÓN',
-    emptyList: 'No hay notificaciones en esta sección',
-    closeBtn: 'Cerrar',
-    labelMessages: 'Mensajes',
-    descMessages: 'Nuevos mensajes de chat con tu coach',
-    labelRoutines: 'Rutinas',
-    descRoutines: 'Nuevos planes de entrenamiento',
-    labelProgress: 'Progreso',
-    descProgress: 'Hábitos, rachas y seguimiento',
-    labelSchedule: 'Agenda',
-    descSchedule: 'Citas y recordatorios de clases',
-    labelForms: 'Formularios',
-    descForms: 'Encuestas y mediciones corporales',
-    labelSystem: 'Sistema',
-    descSystem: 'Avisos importantes de la membresía'
-  },
-  en: {
-    notificationsTitle: 'Notifications',
-    settingsTooltip: 'Settings',
-    closeTooltip: 'Close',
-    settingsSubtitle: 'Configure your preferences',
-    backTooltip: 'Back',
-    filterAll: 'All',
-    filterUnread: 'Unread',
-    filterRead: 'Read',
-    selectAll: 'Select all',
-    markAsReadBtn: 'Mark read',
-    deleteSelectedBtn: 'Delete',
-    deleteAllBtn: 'Clear all',
-    pushSectionTitle: 'PUSH NOTIFICATIONS',
-    pushDisabledTitle: 'Disabled',
-    pushDisabledDesc: 'Alerts when the app is closed',
-    activateBtn: 'Activate',
-    generalSectionTitle: 'GENERAL',
-    inAppTitle: 'In-App',
-    inAppDesc: 'Notification bell alerts',
-    soundTitle: 'Sound',
-    soundDesc: 'Play tone when alerts arrive',
-    selectSoundTitle: 'Alert Tone',
-    selectSoundDesc: 'Choose your preferred sound',
-    soundBell: 'Classic Bell',
-    soundCrystal: 'Soft Crystal',
-    soundMarimba: 'Fit Marimba',
-    soundDigital: 'Digital App',
-    typesSectionTitle: 'NOTIFICATION TYPES',
-    emptyList: 'No notifications in this section',
-    closeBtn: 'Close',
-    labelMessages: 'Messages',
-    descMessages: 'New chat messages with your coach',
-    labelRoutines: 'Routines',
-    descRoutines: 'New workout plans',
-    labelProgress: 'Progress',
-    descProgress: 'Habits, streaks and tracking',
-    labelSchedule: 'Schedule',
-    descSchedule: 'Appointments and class reminders',
-    labelForms: 'Forms',
-    descForms: 'Surveys and body measurements',
-    labelSystem: 'System',
-    descSystem: 'Important membership notices'
-  }
-};
-
-const t = (key: string) => {
-  const langKey = (currentLang.value === 'en' ? 'en' : 'es') as 'es' | 'en';
-  const table = langData[langKey] || langData.es;
-  return table[key] || langData.es[key] || key;
-};
-
-const settings = ref({
-  inApp: true,
-  sound: true,
-  selectedSound: 'bell'
-});
-
-const notificationTypes = ref([
-  { labelKey: 'labelMessages', descKey: 'descMessages', value: true },
-  { labelKey: 'labelRoutines', descKey: 'descRoutines', value: true },
-  { labelKey: 'labelProgress', descKey: 'descProgress', value: true },
-  { labelKey: 'labelSchedule', descKey: 'descSchedule', value: true },
-  { labelKey: 'labelForms', descKey: 'descForms', value: true },
-  { labelKey: 'labelSystem', descKey: 'descSystem', value: true }
-]);
-
-// Filtrado reactivo de notificaciones
-const filteredNotifications = computed(() => {
-  if (listFilter.value === 'unread') return props.notifications.filter(n => !n.read);
-  if (listFilter.value === 'read') return props.notifications.filter(n => n.read);
-  return props.notifications;
-});
-
-const isAllSelected = computed(() => {
-  return filteredNotifications.value.length > 0 && selectedIds.value.length === filteredNotifications.value.length;
-});
-
-const toggleSelectAll = (e: Event) => {
-  const target = e.target as HTMLInputElement;
-  if (target.checked) {
-    selectedIds.value = filteredNotifications.value.map(n => n.id);
-  } else {
-    selectedIds.value = [];
-  }
-};
-
-const markSelectedAsRead = () => {
-  emit('mark-read', selectedIds.value);
-  selectedIds.value = [];
-};
-
-const deleteSelected = () => {
-  emit('delete-notifications', selectedIds.value);
-  selectedIds.value = [];
-};
-
-const deleteAll = () => {
-  const allCurrentIds = filteredNotifications.value.map(n => n.id);
-  emit('delete-notifications', allCurrentIds);
-  selectedIds.value = [];
-};
-
-const activatePush = () => {};
-
-// Simulación de audio al cambiar de tono de alerta
-const previewSound = () => {
-  if (!settings.value.sound) return;
-  try {
-    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    
-    const typeMap: Record<string, { freq: number, type: OscillatorType }> = {
-      bell: { freq: 587.33, type: 'sine' },
-      crystal: { freq: 880, type: 'triangle' },
-      marimba: { freq: 440, type: 'square' },
-      digital: { freq: 750, type: 'sawtooth' }
-    };
-    
-    const config = typeMap[settings.value.selectedSound] ?? typeMap.bell!;
-    osc.type = config.type;
-    osc.frequency.setValueAtTime(config.freq, ctx.currentTime);
-    
-    gain.gain.setValueAtTime(0.15, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
-    
-    osc.start();
-    osc.stop(ctx.currentTime + 0.3);
-  } catch (e) {
-    // Manejo silencioso si el navegador bloquea audio sin interacción previa
-  }
-};
-
-watch(() => props.isOpen, (val) => { 
-  if (val) {
-    currentView.value = 'list';
-    selectedIds.value = [];
-  } 
-});
 </script>
 
 <style scoped>
 .notifications-panel {
+  --accent: var(--color-highlight, #3b82f6);
+  --card: var(--bg-cards, #111318);
+  --title: var(--color-titulos, #f8fafc);
+  --text: var(--color-texto-general, #d7dce5);
+  --muted: #858e9d;
+  --line: color-mix(in srgb, var(--text) 9%, transparent);
+
   position: fixed;
-  top: 75px;
-  right: 20px;
-  width: 400px;
-  max-height: 85vh;
-   background: var(--bg-custom, var(--color-interfaz, #0a0a0a));
-  border: 1px solid var(--app-border-color, rgba(255, 255, 255, 0.14));
-  border-radius: var(--app-border-radius, 20px);
+  z-index: 2500;
+  top: 70px;
+  right: 18px;
+
+  width: min(430px, calc(100vw - 28px));
+  max-height: calc(100vh - 88px);
+
   display: flex;
   flex-direction: column;
-  z-index: 2000;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0, 0, 0, 0.5);
+
   overflow: hidden;
+
+  border: 1px solid var(--line);
+  border-radius: var(--app-border-radius, 15px);
+  background: var(--card);
+  color: var(--text);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+
+  box-shadow:
+    0 24px 65px rgba(0, 0, 0, 0.48),
+    0 5px 18px rgba(0, 0, 0, 0.28);
 }
 
-.view-content {
-  display: flex;
-  flex-direction: column;
-  max-height: 85vh;
-  height: 100%;
-}
+/* ================= HEADER ================= */
 
 .panel-header {
-  padding: 16px 20px;
+  flex: 0 0 auto;
+  min-height: 72px;
+
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  flex-shrink: 0;
-  background: inherit;
+  gap: 14px;
+
+  padding: 14px 16px;
+
+  border-bottom: 1px solid var(--line);
+  background: var(--card);
 }
 
-.header-titles h3 {
-  margin: 0;
-  color: var(--app-text-primary, #fff);
-  font-size: 1.05rem;
-  font-weight: 600;
-}
-
-.panel-subtitle {
-  font-size: 0.75rem;
-  color: var(--app-text-secondary, #9ca3af);
-}
-
-/* Filtros de Pestañas (Todas / No leídas / Leídas) */
-.filter-tabs-bar {
-  display: flex;
-  padding: 8px 12px;
-  gap: 6px;
-  background: rgba(0, 0, 0, 0.2);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.filter-btn {
-  flex: 1;
-  padding: 6px 0;
-  background: transparent;
-  border: none;
-  border-radius: 10px;
-  color: var(--app-text-secondary, #9ca3af);
-  font-size: 0.75rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.filter-btn.active {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--app-text-primary, #fff);
-  font-weight: 600;
-}
-
-/* Barra de Acciones Masivas */
-.bulk-actions-bar {
-  padding: 8px 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: var(--app-bg-card-secondary, #212128);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  font-size: 0.75rem;
-}
-
-.select-all-label {
+.header-main {
+  min-width: 0;
   display: flex;
   align-items: center;
-  gap: 8px;
-  color: var(--app-text-secondary, #9ca3af);
-  cursor: pointer;
+  gap: 11px;
 }
 
-.bulk-buttons {
-  display: flex;
-  gap: 12px;
-}
-
-.btn-action-text {
-  background: none;
-  border: none;
-  color: var(--color-highlight, #3b82f6);
-  cursor: pointer;
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 0;
-}
-
-.btn-action-text.delete {
-  color: #ef4444;
-}
-
-.btn-action-text:hover {
-  text-decoration: underline;
-}
-
-.notifications-list {
-  flex: 1;
-  overflow-y: auto;
-  padding: 12px;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 35px;
-  color: var(--app-text-secondary, #9ca3af);
-  font-size: 0.85rem;
-}
-
-.settings-scroll {
-  padding-bottom: 8px;
-}
-
-.settings-section-title {
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  color: var(--app-text-secondary, #9ca3af);
-  margin: 16px 8px 8px 8px;
-}
-
-.settings-section-title:first-of-type {
-  margin-top: 4px;
-}
-
-.notif-card {
-  padding: 14px;
-  display: flex;
-  gap: 12px;
-  border-radius: var(--app-border-radius, 14px);
-  background: var(--app-bg-card-secondary, #212128);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  transition: background 0.2s, border-color 0.2s;
-  cursor: pointer;
+.header-icon {
   position: relative;
-  align-items: center;
-  margin-bottom: 8px;
-}
 
-.notif-card:hover {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 255, 255, 0.1);
-}
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
 
-.custom-checkbox {
-  appearance: none;
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 4px;
-  background: transparent;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: all 0.2s;
-}
+  display: grid;
+  place-items: center;
 
-.custom-checkbox:checked {
-  background: var(--color-highlight, #3b82f6);
-  border-color: var(--color-highlight, #3b82f6);
-}
-
-.custom-checkbox:checked::after {
-  content: '✔';
-  font-size: 10px;
-  color: #fff;
-}
-
-.notif-icon {
-  width: 36px;
-  height: 36px;
-  background: rgba(59, 130, 246, 0.12);
-  color: var(--color-highlight, #3b82f6);
+  border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
   border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  background: color-mix(in srgb, var(--accent) 9%, transparent);
+  color: var(--accent);
 }
 
-.notif-content {
-  flex: 1;
+.header-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.header-indicator {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+
+  width: 8px;
+  height: 8px;
+
+  border: 2px solid var(--card);
+  border-radius: 50%;
+  background: #ef4444;
+}
+
+.header-copy {
   min-width: 0;
 }
 
-.notif-content h4 {
+.header-title-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.header-copy h3 {
   margin: 0;
-  font-size: 0.88rem;
-  color: var(--app-text-primary, #fff);
-  font-weight: 500;
+  color: var(--title);
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
 }
 
-.notif-content p {
-  margin: 3px 0 0 0;
-  font-size: 0.75rem;
-  color: var(--app-text-secondary, #a1a1aa);
-  line-height: 1.3;
+.header-copy p {
+  margin: 4px 0 0;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.67rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.timestamp {
-  font-size: 0.7rem;
-  color: var(--app-text-muted, #71717a);
-  display: block;
-  margin-top: 4px;
-}
+.unread-counter {
+  min-width: 20px;
+  height: 20px;
 
-.dot-unread {
-  width: 8px;
-  height: 8px;
-  background: var(--color-highlight, #3b82f6);
-  border-radius: 50%;
-  position: absolute;
-  right: 16px;
-  top: 16px;
-  box-shadow: 0 0 8px rgba(59, 130, 246, 0.6);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0 5px;
+
+  border-radius: 999px;
+  background: var(--accent);
+  color: #ffffff;
+  font-size: 0.59rem;
+  font-weight: 800;
 }
 
 .header-actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.icon-button,
+.back-button {
+  width: 34px;
+  height: 34px;
+
+  display: grid;
+  place-items: center;
+
+  padding: 0;
+
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.icon-button:hover,
+.back-button:hover {
+  border-color: var(--line);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--title);
+}
+
+.icon-button svg,
+.back-button svg {
+  width: 17px;
+  height: 17px;
+}
+
+/* ================= RESUMEN ================= */
+
+.notification-summary {
+  flex: 0 0 auto;
+  min-height: 44px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  padding: 8px 16px;
+
+  border-bottom: 1px solid var(--line);
+}
+
+.summary-status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 0.65rem;
+  font-weight: 550;
+}
+
+.summary-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.mark-all-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+
+  padding: 5px 7px;
+
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--accent);
+  font-size: 0.62rem;
+  font-weight: 650;
+  cursor: pointer;
+
+  transition: background 0.15s ease;
+}
+
+.mark-all-button:hover {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.mark-all-button svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ================= FILTROS ================= */
+
+.filter-tabs {
+  flex: 0 0 auto;
+
+  display: flex;
+  align-items: center;
+  gap: 2px;
+
+  padding: 7px 12px;
+
+  border-bottom: 1px solid var(--line);
+}
+
+.filter-tabs button {
+  min-height: 31px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  padding: 0 10px;
+
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.64rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.filter-tabs button:hover {
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--title);
+}
+
+.filter-tabs button.active {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: color-mix(in srgb, var(--accent) 72%, white);
+}
+
+.filter-tabs button span {
+  min-width: 17px;
+  height: 17px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0 4px;
+
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.055);
+  font-size: 0.52rem;
+}
+
+/* ================= SELECCIÓN ================= */
+
+.selection-toolbar {
+  flex: 0 0 auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  padding: 9px 14px;
+
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
+}
+
+.selection-toolbar label {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.btn-pill-action {
-  background: var(--color-highlight, #3b82f6);
-  color: #fff;
-  border: none;
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 600;
+  color: var(--text);
+  font-size: 0.63rem;
   cursor: pointer;
-  transition: opacity 0.2s;
 }
 
-.btn-pill-action:hover {
-  opacity: 0.9;
+.selection-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px 10px;
 }
 
-.btn-icon {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
+.selection-actions button {
+  padding: 2px 0;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font-size: 0.6rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.selection-actions .danger-action {
+  color: #f87171;
+}
+
+/* ================= CHECKBOX ================= */
+
+.selection-toolbar input,
+.notification-checkbox input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.check-box {
+  position: relative;
+
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+
+  display: block;
+
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 5px;
+  background: transparent;
+
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.check-box::after {
+  content: "";
+
+  position: absolute;
+  top: 2px;
+  left: 5px;
+
+  width: 4px;
+  height: 8px;
+
+  border: solid #ffffff;
+  border-width: 0 2px 2px 0;
+
+  opacity: 0;
+  transform: rotate(45deg);
+}
+
+input:checked + .check-box {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+input:checked + .check-box::after {
+  opacity: 1;
+}
+
+input:focus-visible + .check-box {
+  outline: 2px solid color-mix(in srgb, var(--accent) 60%, transparent);
+  outline-offset: 2px;
+}
+
+/* ================= SCROLL ================= */
+
+.notifications-scroll,
+.settings-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+
+.notifications-scroll {
+  padding: 5px 10px 12px;
+}
+
+.notifications-scroll::-webkit-scrollbar,
+.settings-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+
+.notifications-scroll::-webkit-scrollbar-thumb,
+.settings-scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* ================= GRUPOS ================= */
+
+.notification-group {
+  padding-top: 9px;
+}
+
+.group-heading {
   display: flex;
   align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: var(--app-text-primary, #d1d5db);
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: background 0.2s, color 0.2s;
+  gap: 10px;
+  padding: 7px 6px;
 }
 
-.btn-icon:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff;
+.group-heading > span:first-child {
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-size: 0.57rem;
+  font-weight: 750;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
 }
 
-/* Selector de Sonido */
-.sound-selector {
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: var(--app-text-primary, #fff);
-  padding: 6px 10px;
-  border-radius: 8px;
-  font-size: 0.75rem;
-  outline: none;
-  cursor: pointer;
+.group-line {
+  flex: 1;
+  height: 1px;
+  background: var(--line);
 }
 
-.sound-selector option {
-  background: #17171c;
-  color: #fff;
-}
+/* ================= NOTIFICACIÓN ================= */
 
-.toggle-switch {
-  appearance: none;
-  width: 40px;
-  height: 22px;
-  background: var(--app-bg-switch, #3f3f46);
-  border-radius: 12px;
+.notification-item {
   position: relative;
+
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
+  margin-bottom: 3px;
+  padding: 11px 7px;
+
+  border: 1px solid transparent;
+  border-radius: 10px;
   cursor: pointer;
-  transition: background 0.3s;
-  outline: none;
-  flex-shrink: 0;
+
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
-.toggle-switch:checked {
-  background: var(--color-highlight, #3b82f6);
+.notification-item:hover,
+.notification-item.menu-open {
+  background: rgba(255, 255, 255, 0.025);
 }
 
-.toggle-switch::before {
-  content: '';
-  position: absolute;
-  width: 18px;
-  height: 18px;
-  background: white;
+.notification-item.unread {
+  background: color-mix(in srgb, var(--accent) 4%, transparent);
+}
+
+.notification-item.unread:hover,
+.notification-item.unread.menu-open {
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+
+.notification-checkbox {
+  flex: 0 0 auto;
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 36px;
+  cursor: pointer;
+}
+
+.notification-icon {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 9px;
+  background: rgba(148, 163, 184, 0.08);
+  color: #94a3b8;
+}
+
+.notification-icon svg {
+  width: 17px;
+  height: 17px;
+}
+
+.notification-icon.payment {
+  background: rgba(52, 211, 153, 0.09);
+  color: #34d399;
+}
+
+.notification-icon.membership {
+  background: rgba(251, 146, 60, 0.09);
+  color: #fb923c;
+}
+
+.notification-icon.client {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--accent);
+}
+
+.notification-icon.schedule {
+  background: rgba(167, 139, 250, 0.09);
+  color: #a78bfa;
+}
+
+.notification-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding-top: 1px;
+}
+
+.notification-title-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding-right: 3px;
+}
+
+.notification-title-row h4 {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  color: var(--title);
+  font-size: 0.7rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.notification-item:not(.unread) .notification-title-row h4 {
+  color: color-mix(in srgb, var(--title) 80%, transparent);
+  font-weight: 550;
+}
+
+.unread-dot {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 6px;
   border-radius: 50%;
-  top: 2px;
-  left: 2px;
-  transition: transform 0.3s;
+  background: var(--accent);
 }
 
-.toggle-switch:checked::before {
-  transform: translateX(18px);
+.notification-body p {
+  display: -webkit-box;
+
+  margin: 4px 0 0;
+  overflow: hidden;
+
+  color: var(--muted);
+  font-size: 0.63rem;
+  line-height: 1.42;
+
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
-.panel-footer-action {
-  padding: 12px 16px;
-  background: inherit;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  flex-shrink: 0;
-}
+.notification-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 
-.btn-close-large {
-  width: 100%;
-  background: var(--app-bg-card-secondary, #212128);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: var(--app-text-primary, #fff);
-  padding: 11px;
-  border-radius: var(--app-border-radius, 14px);
-  font-size: 0.85rem;
+  margin-top: 6px;
+
+  color: color-mix(in srgb, var(--muted) 78%, transparent);
+  font-size: 0.54rem;
   font-weight: 500;
+}
+
+.meta-divider {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--muted) 55%, transparent);
+}
+
+.more-button {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+
+  display: grid;
+  place-items: center;
+
+  padding: 0;
+
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--muted);
   cursor: pointer;
-  transition: background 0.2s;
+
+  opacity: 0;
+
+  transition: opacity 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.notification-item:hover .more-button,
+.notification-item.menu-open .more-button,
+.more-button:focus-visible {
+  opacity: 1;
+}
+
+.more-button:hover,
+.notification-item.menu-open .more-button {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--title);
+}
+
+.more-button svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* ================= MENÚ ================= */
+
+.item-menu {
+  position: fixed;
+  z-index: 3000;
+
+  width: 176px;
+
+  padding: 5px;
+
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--card) 94%, #ffffff);
+
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.5);
+}
+
+.item-menu button {
+  width: 100%;
+  min-height: 34px;
+
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  padding: 0 9px;
+
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text);
+  font-size: 0.64rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.item-menu button:hover {
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.item-menu svg {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+}
+
+.item-menu .delete-menu-item {
+  color: #f87171;
+}
+
+.item-menu .delete-menu-item:hover {
+  background: rgba(248, 113, 113, 0.1);
+}
+
+/* ================= VACÍO ================= */
+
+.empty-state {
+  min-height: 310px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding: 35px 25px;
+
   text-align: center;
 }
 
-.btn-close-large:hover {
-  background: rgba(255, 255, 255, 0.06);
+.empty-icon {
+  width: 48px;
+  height: 48px;
+
+  display: grid;
+  place-items: center;
+
+  margin-bottom: 13px;
+
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.025);
+  color: var(--muted);
 }
 
-.slide-fade-enter-active,
-.slide-fade-leave-active {
-  transition: all 0.3s ease-out;
+.empty-icon svg {
+  width: 21px;
+  height: 21px;
 }
 
-.slide-fade-enter-from,
-.slide-fade-leave-to {
+.empty-state h4 {
+  margin: 0;
+  color: var(--title);
+  font-size: 0.76rem;
+}
+
+.empty-state p {
+  max-width: 250px;
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 0.64rem;
+  line-height: 1.45;
+}
+
+/* ================= FOOTER ================= */
+
+.panel-footer {
+  flex: 0 0 auto;
+  min-height: 45px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  padding: 7px 14px;
+
+  border-top: 1px solid var(--line);
+  background: var(--card);
+}
+
+.panel-footer button {
+  padding: 4px 6px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.59rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.panel-footer button:hover {
+  color: var(--accent);
+}
+
+.panel-footer > span {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+
+/* =========================================================
+   CONFIGURACIÓN
+========================================================= */
+
+.settings-header .header-main {
+  gap: 7px;
+}
+
+.settings-scroll {
+  padding: 8px 13px 20px;
+}
+
+.settings-section {
+  margin-top: 17px;
+}
+
+.settings-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  margin-bottom: 7px;
+  padding: 0 4px;
+}
+
+.settings-heading > span {
+  color: var(--muted);
+  font-size: 0.55rem;
+  font-weight: 750;
+  letter-spacing: 0.065em;
+}
+
+.settings-heading small {
+  color: color-mix(in srgb, var(--muted) 70%, transparent);
+  font-size: 0.53rem;
+  text-align: right;
+}
+
+.settings-card {
+  overflow: hidden;
+
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.setting-row {
+  min-height: 63px;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 10px 11px;
+
+  border-bottom: 1px solid var(--line);
+}
+
+.setting-row:last-child {
+  border-bottom: 0;
+}
+
+.setting-icon {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 9px;
+}
+
+.setting-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.setting-icon.blue {
+  background: rgba(59, 130, 246, 0.09);
+  color: #60a5fa;
+}
+
+.setting-icon.green {
+  background: rgba(52, 211, 153, 0.09);
+  color: #34d399;
+}
+
+.setting-icon.orange {
+  background: rgba(251, 146, 60, 0.09);
+  color: #fb923c;
+}
+
+.setting-icon.purple {
+  background: rgba(167, 139, 250, 0.09);
+  color: #a78bfa;
+}
+
+.setting-icon.neutral {
+  background: rgba(148, 163, 184, 0.08);
+  color: #94a3b8;
+}
+
+.setting-copy {
+  min-width: 0;
+
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.setting-copy strong {
+  color: var(--title);
+  font-size: 0.67rem;
+  font-weight: 650;
+}
+
+.setting-copy span {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.57rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ================= SWITCH ================= */
+
+.switch {
+  position: relative;
+
+  width: 34px;
+  height: 19px;
+  flex: 0 0 34px;
+}
+
+.switch input {
+  position: absolute;
   opacity: 0;
-  transform: translateY(-10px);
 }
 
-@media (max-width: 480px) {
-  .notifications-panel {
-    top: 55px;
-    right: 8px;
-    left: 8px;
-    width: auto;
-    max-height: 88vh;
-    border-radius: 16px;
+.switch span {
+  position: absolute;
+  inset: 0;
+
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.22);
+  cursor: pointer;
+
+  transition: background 0.18s ease;
+}
+
+.switch span::before {
+  content: "";
+
+  position: absolute;
+  top: 3px;
+  left: 3px;
+
+  width: 13px;
+  height: 13px;
+
+  border-radius: 50%;
+  background: #ffffff;
+
+  transition: transform 0.18s ease;
+}
+
+.switch input:checked + span {
+  background: var(--accent);
+}
+
+.switch input:checked + span::before {
+  transform: translateX(15px);
+}
+
+.switch input:focus-visible + span {
+  outline: 2px solid color-mix(in srgb, var(--accent) 60%, transparent);
+  outline-offset: 2px;
+}
+
+/* ================= GUARDAR ================= */
+
+.settings-footer {
+  flex: 0 0 auto;
+  padding: 11px 14px;
+  border-top: 1px solid var(--line);
+}
+
+.save-settings-button {
+  width: 100%;
+  height: 39px;
+
+  border: 0;
+  border-radius: 9px;
+
+  background: var(--color-botones, var(--accent));
+  color: var(--color-texto-botones, #ffffff);
+
+  font-size: 0.67rem;
+  font-weight: 700;
+  cursor: pointer;
+
+  transition: filter 0.15s ease, transform 0.15s ease;
+}
+
+.save-settings-button:hover {
+  filter: brightness(1.08);
+}
+
+.save-settings-button:active {
+  transform: scale(0.99);
+}
+
+/* ================= TRANSICIÓN ================= */
+
+.notification-panel-enter-active,
+.notification-panel-leave-active {
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.notification-panel-enter-from,
+.notification-panel-leave-to {
+  opacity: 0;
+  transform: translateY(-7px) scale(0.985);
+}
+
+/* ================= TÁCTIL: botón ⋮ siempre visible ================= */
+
+@media (hover: none) {
+  .more-button {
+    opacity: 1;
   }
-  
-  .notif-card {
-    padding: 12px;
-    gap: 10px;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 600px) {
+  .notifications-panel {
+    top: 58px;
+    right: 7px;
+    left: 7px;
+
+    width: auto;
+    max-height: calc(100dvh - 66px);
+
+    border-radius: 12px;
   }
 
   .panel-header {
-    padding: 14px 16px;
+    min-height: 65px;
+    padding: 11px 12px;
+  }
+
+  .header-icon {
+    width: 34px;
+    height: 34px;
+    flex-basis: 34px;
+  }
+
+  .header-copy p {
+    max-width: 200px;
+  }
+
+  .notification-summary {
+    padding: 7px 12px;
+  }
+
+  .filter-tabs {
+    overflow-x: auto;
+    padding: 6px 9px;
+  }
+
+  .filter-tabs button {
+    flex: 1;
+    min-width: max-content;
+  }
+
+  .notifications-scroll {
+    padding: 4px 7px 10px;
+  }
+
+  .notification-item {
+    gap: 9px;
+    padding: 10px 7px;
+  }
+
+  .notification-icon {
+    width: 34px;
+    height: 34px;
+    flex-basis: 34px;
+  }
+
+  .notification-title-row h4 {
+    font-size: 0.68rem;
+  }
+
+  .notification-body p {
+    font-size: 0.61rem;
+  }
+
+  .selection-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .selection-actions {
+    justify-content: flex-start;
+  }
+
+  .settings-scroll {
+    padding: 7px 9px 16px;
+  }
+
+  .setting-row {
+    padding: 10px 9px;
+  }
+
+  .setting-copy span {
+    white-space: normal;
   }
 }
 </style>

@@ -70,7 +70,7 @@ export const recepcionRoutes = [
         path: 'promos',
         name: 'promos',
         component: () => import('@/components/Recepcion/Payments/Promos.vue'),
-        meta: { allowedRole: 'Owner' }
+        meta: { allowedRole: 'recepcion' }
       },
     ]
   }
