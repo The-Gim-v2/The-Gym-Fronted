@@ -1068,10 +1068,12 @@ onUnmounted(() => {
 }
 
 /* =========================================================
-   DESKTOP >= 1024
+   DESKTOP >= 900
+   (900 y no 1024, porque el "modo escritorio" de los
+   navegadores móviles simula una pantalla de ~980px)
 ========================================================= */
 
-@media (min-width: 1024px) {
+@media (min-width: 900px) {
 
   .app-wrapper {
     --nav-height: 72px;
@@ -1129,10 +1131,14 @@ onUnmounted(() => {
     border-radius: 12px;
     background: transparent;
     color: var(--text);
+    cursor: pointer;
+    transition: background 0.16s ease, border-color 0.16s ease;
   }
 
-  .brand-button.static {
-    cursor: default;
+  .brand-button:hover,
+  .brand-button.active {
+    border-color: var(--nav-line);
+    background: var(--hover-bg);
   }
 
   .brand-mark {
@@ -1178,6 +1184,16 @@ onUnmounted(() => {
     font-size: 0.75rem;
     font-weight: 500;
   }
+
+  .brand-chevron {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    fill: var(--muted);
+    transition: transform 0.17s ease;
+  }
+
+  .brand-chevron.rotated { transform: rotate(180deg); }
 
   /* ---------- MENÚ CENTRAL ---------- */
 
@@ -1251,7 +1267,9 @@ onUnmounted(() => {
   .desktop-nav-item:focus-visible,
   .desktop-action:focus-visible,
   .desktop-profile:focus-visible,
-  .dropdown-link:focus-visible {
+  .brand-button:focus-visible,
+  .dropdown-link:focus-visible,
+  .branch-option:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
   }
@@ -1274,6 +1292,7 @@ onUnmounted(() => {
   }
 
   .reports-dropdown { width: 310px; }
+  .branch-menu { width: 280px; }
 
   .dropdown-title {
     padding: 8px 10px 11px;
@@ -1284,7 +1303,8 @@ onUnmounted(() => {
     font-weight: 600;
   }
 
-  .dropdown-link {
+  .dropdown-link,
+  .branch-option {
     width: 100%;
     min-height: 54px;
     display: flex;
@@ -1302,14 +1322,16 @@ onUnmounted(() => {
     transition: background 0.14s ease, color 0.14s ease;
   }
 
-  .dropdown-link:hover { background: var(--hover-bg); }
+  .dropdown-link:hover,
+  .branch-option:hover { background: var(--hover-bg); }
 
   .dropdown-link.router-link-active {
     background: color-mix(in srgb, var(--accent) 14%, transparent);
     color: color-mix(in srgb, var(--accent) 70%, white);
   }
 
-  .dropdown-icon {
+  .dropdown-icon,
+  .branch-option-icon {
     width: 38px;
     height: 38px;
     flex-shrink: 0;
@@ -1319,7 +1341,8 @@ onUnmounted(() => {
     border-radius: 10px;
   }
 
-  .dropdown-icon svg {
+  .dropdown-icon svg,
+  .branch-option-icon svg {
     width: 18px;
     height: 18px;
     fill: currentColor;
@@ -1332,7 +1355,13 @@ onUnmounted(() => {
   .dropdown-icon.red { color: #f87171; background: rgba(239, 68, 68, 0.14); }
   .dropdown-icon.neutral { color: var(--muted); background: rgba(255, 255, 255, 0.06); }
 
-  .dropdown-copy {
+  .branch-option-icon {
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
+  }
+
+  .dropdown-copy,
+  .branch-option-copy {
     min-width: 0;
     flex: 1;
     display: flex;
@@ -1340,7 +1369,8 @@ onUnmounted(() => {
     align-items: flex-start;
   }
 
-  .dropdown-copy strong {
+  .dropdown-copy strong,
+  .branch-option-copy strong {
     max-width: 100%;
     overflow: hidden;
     color: inherit;
@@ -1350,7 +1380,8 @@ onUnmounted(() => {
     white-space: nowrap;
   }
 
-  .dropdown-copy small {
+  .dropdown-copy small,
+  .branch-option-copy small {
     max-width: 100%;
     margin-top: 2px;
     overflow: hidden;
@@ -1359,6 +1390,21 @@ onUnmounted(() => {
     font-weight: 500;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .branch-option.selected {
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+  }
+
+  .branch-option.selected .branch-option-copy strong {
+    color: color-mix(in srgb, var(--accent) 70%, white);
+  }
+
+  .option-check {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    color: var(--accent);
   }
 
   .dropdown-divider {
@@ -1598,10 +1644,10 @@ onUnmounted(() => {
 }
 
 /* =========================================================
-   LAPTOPS (1024 - 1439)
+   LAPTOPS (900 - 1439)
 ========================================================= */
 
-@media (min-width: 1024px) and (max-width: 1439px) {
+@media (min-width: 900px) and (max-width: 1439px) {
 
   .desktop-navbar-inner {
     gap: 10px;
@@ -1624,10 +1670,10 @@ onUnmounted(() => {
 }
 
 /* =========================================================
-   1024 - 1279: se oculta el nombre del perfil
+   900 - 1279: se oculta el nombre del perfil
 ========================================================= */
 
-@media (min-width: 1024px) and (max-width: 1279px) {
+@media (min-width: 900px) and (max-width: 1279px) {
 
   .desktop-navbar-inner {
     gap: 6px;
@@ -1654,14 +1700,15 @@ onUnmounted(() => {
 }
 
 /* =========================================================
-   1024 - 1160: sucursal compacta
+   900 - 1160: sucursal compacta y menú sin iconos
 ========================================================= */
 
-@media (min-width: 1024px) and (max-width: 1160px) {
+@media (min-width: 900px) and (max-width: 1160px) {
 
   .desktop-brand { max-width: 56px; }
 
-  .brand-copy { display: none; }
+  .brand-copy,
+  .brand-chevron { display: none; }
 
   .brand-button { padding: 0 8px; }
 
@@ -1670,14 +1717,16 @@ onUnmounted(() => {
     font-size: 0.78rem;
   }
 
+  .desktop-nav-item > svg:first-child { display: none; }
+
   .nav-chevron { display: none; }
 }
 
 /* =========================================================
-   MÓVIL / TABLET
+   MÓVIL / TABLET (< 900)
 ========================================================= */
 
-@media (max-width: 1023px) {
+@media (max-width: 899px) {
 
   .desktop-navbar {
     display: none;

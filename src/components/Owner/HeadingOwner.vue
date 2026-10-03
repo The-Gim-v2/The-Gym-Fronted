@@ -1260,10 +1260,12 @@ onUnmounted(() => {
 }
 
 /* =========================================================
-   DESKTOP >= 1024
+   DESKTOP >= 900
+   (900 y no 1024, porque el "modo escritorio" de los
+   navegadores móviles simula una pantalla de ~980px)
 ========================================================= */
 
-@media (min-width: 1024px) {
+@media (min-width: 900px) {
 
   .app-wrapper {
     --nav-height: 72px;
@@ -1834,10 +1836,10 @@ onUnmounted(() => {
 }
 
 /* =========================================================
-   LAPTOPS (1024 - 1439)
+   LAPTOPS (900 - 1439)
 ========================================================= */
 
-@media (min-width: 1024px) and (max-width: 1439px) {
+@media (min-width: 900px) and (max-width: 1439px) {
 
   .desktop-navbar-inner {
     gap: 10px;
@@ -1860,10 +1862,10 @@ onUnmounted(() => {
 }
 
 /* =========================================================
-   1024 - 1279: se oculta el nombre del perfil
+   900 - 1279: se oculta el nombre del perfil
 ========================================================= */
 
-@media (min-width: 1024px) and (max-width: 1279px) {
+@media (min-width: 900px) and (max-width: 1279px) {
 
   .desktop-navbar-inner {
     gap: 6px;
@@ -1890,10 +1892,10 @@ onUnmounted(() => {
 }
 
 /* =========================================================
-   1024 - 1160: sucursal compacta y menú sin iconos
+   900 - 1160: sucursal compacta y menú sin iconos
 ========================================================= */
 
-@media (min-width: 1024px) and (max-width: 1160px) {
+@media (min-width: 900px) and (max-width: 1160px) {
 
   .desktop-brand { max-width: 56px; }
 
@@ -1913,10 +1915,10 @@ onUnmounted(() => {
 }
 
 /* =========================================================
-   MÓVIL / TABLET
+   MÓVIL / TABLET (< 900)
 ========================================================= */
 
-@media (max-width: 1023px) {
+@media (max-width: 899px) {
 
   .desktop-navbar {
     display: none;
