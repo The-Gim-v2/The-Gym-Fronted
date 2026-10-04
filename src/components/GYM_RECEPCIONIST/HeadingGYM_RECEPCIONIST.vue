@@ -1,33 +1,17 @@
 <template>
-  <div
-    ref="layoutRef"
-    class="app-wrapper"
-    :class="{ 'sidebar-open': isSidebarOpen }"
-  >
-    <!-- SIDEBAR MÓVIL / TABLET -->
-    <transition name="fade">
-      <div
-        v-if="isSidebarOpen"
-        class="sidebar-overlay"
-        @click="closeSidebar"
-      ></div>
-    </transition>
+  <div class="app-wrapper">
 
-    <aside class="sidebar-container">
-      <Sidebar />
-    </aside>
-
-    <!-- NAVEGACIÓN ESCRITORIO -->
+    <!-- =====================================================
+         NAVEGACIÓN ESCRITORIO
+    ====================================================== -->
     <header class="desktop-navbar">
       <div class="desktop-navbar-inner">
 
-        <!-- SUCURSAL (fija) -->
+        <!-- SUCURSAL (fija, esquina izquierda) -->
         <div class="desktop-brand">
           <div class="brand-button static">
             <div class="brand-mark">
-              <svg viewBox="0 0 24 24">
-                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z" />
-              </svg>
+              <svg viewBox="0 0 24 24"><path :d="ICON.pin" /></svg>
             </div>
 
             <div class="brand-copy">
@@ -37,14 +21,12 @@
           </div>
         </div>
 
-        <!-- MENÚ CENTRAL -->
+        <!-- MENÚ -->
         <nav class="desktop-menu">
 
           <!-- INICIO -->
           <router-link to="/GYM_RECEPCIONIST/dashboard" class="desktop-nav-item" @click="closeDesktopDropdown">
-            <svg viewBox="0 0 24 24">
-              <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
-            </svg>
+            <svg viewBox="0 0 24 24"><path :d="ICON.home" /></svg>
             <span>{{ label('home', 'Inicio', 'Home') }}</span>
           </router-link>
 
@@ -56,12 +38,8 @@
               :class="{ active: desktopDropdown === 'clients', current: isGroupActive('clients') }"
               @click.stop="toggleDesktopDropdown('clients')"
             >
-              <svg viewBox="0 0 24 24">
-                <path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13z" />
-              </svg>
-
+              <svg viewBox="0 0 24 24"><path :d="ICON.users" /></svg>
               <span>{{ label('viewClients', 'Clientes', 'Clients') }}</span>
-
               <svg class="nav-chevron" :class="{ rotated: desktopDropdown === 'clients' }" viewBox="0 0 24 24">
                 <path d="M7 10l5 5 5-5z" />
               </svg>
@@ -73,44 +51,27 @@
                   {{ label('', 'Gestión de clientes', 'Client management') }}
                 </div>
 
-                <router-link to="/GYM_RECEPCIONIST/view-clients" class="dropdown-link" @click="closeDesktopDropdown">
-                  <span class="dropdown-icon blue">
-                    <svg viewBox="0 0 24 24">
-                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                    </svg>
-                  </span>
-                  <span class="dropdown-copy">
-                    <strong>{{ label('viewClients', 'Clientes', 'Clients') }}</strong>
-                    <small>{{ label('', 'Consultar y administrar clientes', 'Manage clients') }}</small>
-                  </span>
-                </router-link>
-
-                <div class="dropdown-divider"></div>
-
-                <router-link to="/GYM_RECEPCIONIST/register-clients" class="dropdown-link" @click="closeDesktopDropdown">
-                  <span class="dropdown-icon green">
-                    <svg viewBox="0 0 24 24">
-                      <path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                    </svg>
-                  </span>
-                  <span class="dropdown-copy">
-                    <strong>{{ label('registerClients', 'Registrar cliente', 'Register client') }}</strong>
-                    <small>{{ label('', 'Agregar un nuevo cliente', 'Add a new client') }}</small>
-                  </span>
-                </router-link>
+                <template v-for="l in navClients" :key="l.to">
+                  <div v-if="l.divider" class="dropdown-divider"></div>
+                  <router-link :to="l.to" class="dropdown-link" @click="closeDesktopDropdown">
+                    <span class="dropdown-icon" :class="l.color">
+                      <svg viewBox="0 0 24 24"><path :d="l.icon" /></svg>
+                    </span>
+                    <span class="dropdown-copy">
+                      <strong>{{ label(l.key, l.es, l.en) }}</strong>
+                      <small>{{ label('', l.dEs, l.dEn) }}</small>
+                    </span>
+                  </router-link>
+                </template>
               </div>
             </transition>
           </div>
 
           <!-- PAGOS -->
           <router-link to="/GYM_RECEPCIONIST/payments" class="desktop-nav-item" @click="closeDesktopDropdown">
-            <svg viewBox="0 0 24 24">
-              <path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V7H12v9z" />
-            </svg>
+            <svg viewBox="0 0 24 24"><path :d="ICON.pay" /></svg>
             <span>{{ label('payments', 'Pagos', 'Payments') }}</span>
           </router-link>
-
-          
         </nav>
 
         <!-- ACCIONES DERECHA -->
@@ -157,7 +118,6 @@
             <span v-if="unreadNotifications > 0" class="notification-count">
               {{ unreadNotifications > 9 ? '9+' : unreadNotifications }}
             </span>
-
             <svg viewBox="0 0 24 24">
               <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path>
               <path d="M10 21h4"></path>
@@ -167,136 +127,94 @@
           <div class="desktop-separator"></div>
 
           <!-- PERFIL -->
-          <div class="profile-menu-root nav-dropdown-root">
-            <button
-              type="button"
-              class="desktop-profile"
-              :class="{ active: desktopDropdown === 'profile' }"
-              @click.stop="toggleDesktopDropdown('profile')"
+        <div class="profile-menu-root nav-dropdown-root">
+          <button
+            type="button"
+            class="desktop-profile"
+            :class="{ active: desktopDropdown === 'profile' }"
+            :aria-label="label('profile', 'Mi perfil', 'My profile')"
+            @click.stop="toggleDesktopDropdown('profile')"
+          >
+            <span class="profile-avatar">{{ userInitials }}</span>
+            <span class="profile-user-name">{{ userName }}</span>
+
+            <svg
+              class="profile-chevron"
+              :class="{ rotated: desktopDropdown === 'profile' }"
+              viewBox="0 0 24 24"
             >
-              <span class="profile-avatar">{{ userInitials }}</span>
+              <path d="M7 10l5 5 5-5z"></path>
+            </svg>
+          </button>
 
-              <span class="profile-copy">
-                <span class="profile-name-row">
-                  <img
-                    v-if="logoOk"
-                    :src="gymLogo"
-                    alt=""
-                    class="gym-logo"
-                    @error="logoOk = false"
-                  />
-                  <strong>{{ userName }}</strong>
-                </span>
-                <small>{{ roleLabel }}</small>
-              </span>
-
-              <svg class="profile-chevron" :class="{ rotated: desktopDropdown === 'profile' }" viewBox="0 0 24 24">
-                <path d="M7 10l5 5 5-5z"></path>
-              </svg>
-            </button>
-
-            <transition name="desktop-dropdown">
-              <div
-                v-if="desktopDropdown === 'profile'"
-                class="desktop-dropdown profile-dropdown"
-                @click.stop
+          <transition name="desktop-dropdown">
+            <div
+              v-if="desktopDropdown === 'profile'"
+              class="desktop-dropdown dropdown-end profile-dropdown"
+              @click.stop
+            >
+              <router-link
+                to="/GYM_RECEPCIONIST/profile"
+                class="dropdown-link compact"
+                @click="closeDesktopDropdown"
               >
-                <div class="profile-dropdown-header">
-                  <span class="profile-avatar large">{{ userInitials }}</span>
+                <span class="dropdown-icon neutral">
+                  <svg viewBox="0 0 24 24"><path :d="ICON.user" /></svg>
+                </span>
+                <span class="dropdown-copy">
+                  <strong>{{ label('profile', 'Mi perfil', 'My profile') }}</strong>
+                </span>
+              </router-link>
 
-                  <div>
-                    <span class="profile-name-row">
-                      <img
-                        v-if="logoOk"
-                        :src="gymLogo"
-                        alt=""
-                        class="gym-logo"
-                        @error="logoOk = false"
-                      />
-                      <strong>{{ userName }}</strong>
-                    </span>
-                    <span>{{ roleLabel }}</span>
-                  </div>
-                </div>
+              <router-link
+                to="/GYM_RECEPCIONIST/settings"
+                class="dropdown-link compact"
+                @click="closeDesktopDropdown"
+              >
+                <span class="dropdown-icon neutral">
+                  <svg viewBox="0 0 24 24"><path :d="ICON.gear" /></svg>
+                </span>
+                <span class="dropdown-copy">
+                  <strong>{{ label('settings', 'Configuración', 'Settings') }}</strong>
+                </span>
+              </router-link>
 
-                <div class="dropdown-divider"></div>
+              <div class="dropdown-divider"></div>
 
-                <router-link to="/GYM_RECEPCIONIST/profile" class="dropdown-link compact" @click="closeDesktopDropdown">
-                  <span class="dropdown-icon neutral">
-                    <svg viewBox="0 0 24 24">
-                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                    </svg>
-                  </span>
-                  <span class="dropdown-copy">
-                    <strong>{{ label('profile', 'Mi perfil', 'My profile') }}</strong>
-                  </span>
-                </router-link>
-
-                <router-link to="/GYM_RECEPCIONIST/settings" class="dropdown-link compact" @click="closeDesktopDropdown">
-                  <span class="dropdown-icon neutral">
-                    <svg viewBox="0 0 24 24">
-                      <path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5z" />
-                    </svg>
-                  </span>
-                  <span class="dropdown-copy">
-                    <strong>{{ label('settings', 'Configuración', 'Settings') }}</strong>
-                  </span>
-                </router-link>
-
-                <div class="dropdown-divider"></div>
-
-                <button type="button" class="dropdown-link compact logout-link" @click="handleLogout">
-                  <span class="dropdown-icon red">
-                    <svg viewBox="0 0 24 24">
-                      <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z" />
-                    </svg>
-                  </span>
-                  <span class="dropdown-copy">
-                    <strong>{{ label('logout', 'Cerrar sesión', 'Log out') }}</strong>
-                  </span>
-                </button>
-              </div>
-            </transition>
-          </div>
+              <button
+                type="button"
+                class="dropdown-link compact logout-link"
+                @click="handleLogout"
+              >
+                <span class="dropdown-icon red">
+                  <svg viewBox="0 0 24 24"><path :d="ICON.logout" /></svg>
+                </span>
+                <span class="dropdown-copy">
+                  <strong>{{ label('logout', 'Cerrar sesión', 'Log out') }}</strong>
+                </span>
+              </button>
+            </div>
+          </transition>
+        </div>
         </div>
       </div>
     </header>
 
-    <!-- CONTENIDO GENERAL -->
+    <!-- =====================================================
+         CONTENIDO GENERAL
+    ====================================================== -->
     <div class="main-layout-container">
 
-      <!-- TOP NAV MÓVIL -->
+      <!-- TOP NAV MÓVIL: sucursal + QR + notificaciones -->
       <nav class="mobile-top-nav">
-        <div class="nav-left">
-          <button
-            type="button"
-            class="nav-action-btn"
-            @click="toggleSidebar"
-            :aria-label="t.abrirMenu || 'Abrir menú'"
-          >
-            <svg viewBox="0 0 24 24" class="mobile-svg-icon">
-              <path d="M4 5h16M4 12h16M4 19h16"></path>
-            </svg>
-          </button>
-
-          <button
-            type="button"
-            class="nav-action-btn"
-            @click="activeModal = 'website'"
-            :title="t.irSitioWeb"
-          >
-            <svg viewBox="0 0 24 24" class="mobile-svg-icon">
-              <circle cx="12" cy="12" r="9"></circle>
-              <path d="M3 12h18"></path>
-              <path d="M12 3c2.3 2.5 3.5 5.5 3.5 9S14.3 18.5 12 21"></path>
-              <path d="M12 3c-2.3 2.5-3.5 5.5-3.5 9S9.7 18.5 12 21"></path>
-            </svg>
-          </button>
-        </div>
-
-        <div class="mobile-nav-brand">
-          <span class="mobile-brand-dot"></span>
-          <span>{{ selectedGym }}</span>
+        <div class="mobile-branch">
+          <span class="mobile-branch-icon">
+            <svg viewBox="0 0 24 24"><path :d="ICON.pin" /></svg>
+          </span>
+          <span class="mobile-branch-copy">
+            <strong>{{ selectedGym }}</strong>
+            <small>{{ label('currentBranch', 'Sucursal actual', 'Current branch') }}</small>
+          </span>
         </div>
 
         <div class="nav-right">
@@ -305,6 +223,7 @@
             class="nav-action-btn"
             @click="activeModal = 'qr'"
             :title="t.qrGimnasio"
+            :aria-label="t.qrGimnasio || 'QR'"
           >
             <svg viewBox="0 0 24 24" class="mobile-svg-icon">
               <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4z"></path>
@@ -317,9 +236,9 @@
             class="nav-action-btn notification"
             @click="isNotificationsOpen = true"
             :title="t.notificaciones"
+            :aria-label="t.notificaciones || 'Notificaciones'"
           >
             <span v-if="unreadNotifications > 0" class="mobile-notification-dot"></span>
-
             <svg viewBox="0 0 24 24" class="mobile-svg-icon">
               <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path>
               <path d="M10 21h4"></path>
@@ -333,7 +252,131 @@
       </main>
     </div>
 
-    <!-- MODALES -->
+    <!-- =====================================================
+         BARRA INFERIOR MÓVIL (estilo Mercado Pago)
+    ====================================================== -->
+    <button type="button" class="bottom-nav-toggle" :class="{ collapsed: !mobileNavOpen }" @click="mobileNavOpen = !mobileNavOpen" :aria-label="mobileNavOpen ? label('', 'Ocultar menú', 'Hide menu') : label('', 'Mostrar menú', 'Show menu')" :title="mobileNavOpen ? label('', 'Ocultar menú', 'Hide menu') : label('', 'Mostrar menú', 'Show menu')"><svg viewBox="0 0 24 24" :class="{ rotated: !mobileNavOpen }"><path d="M7 14l5-5 5 5" /></svg></button>
+    <nav class="bottom-nav" :class="{ 'bottom-nav-hidden': !mobileNavOpen }" :aria-label="label('', 'Navegación principal', 'Main navigation')">
+
+      <router-link
+        to="/GYM_RECEPCIONIST/dashboard"
+        class="tab"
+        :class="{ on: isTabOn('home') }"
+        @click="closeMobileNavAfterNavigation"
+      >
+        <svg viewBox="0 0 24 24"><path :d="ICON.home" /></svg>
+        <span>{{ label('home', 'Inicio', 'Home') }}</span>
+      </router-link>
+
+      <button
+        type="button"
+        class="tab"
+        :class="{ on: isTabOn('clients') }"
+        @click="toggleSheet('clients')"
+      >
+        <svg viewBox="0 0 24 24"><path :d="ICON.users" /></svg>
+        <span>{{ label('viewClients', 'Clientes', 'Clients') }}</span>
+      </button>
+
+      <!-- BOTÓN CENTRAL: PAGOS -->
+      <router-link
+        to="/GYM_RECEPCIONIST/payments"
+        class="tab tab-center"
+        :class="{ on: isTabOn('payments') }"
+        @click="closeMobileNavAfterNavigation"
+      >
+        <span class="fab">
+          <svg viewBox="0 0 24 24"><path :d="ICON.pay" /></svg>
+        </span>
+        <span>{{ label('payments', 'Pagos', 'Payments') }}</span>
+      </router-link>
+
+      <router-link
+        to="/GYM_RECEPCIONIST/profile"
+        class="tab"
+        :class="{ on: isTabOn('profile') }"
+        @click="closeMobileNavAfterNavigation"
+      >
+        <svg viewBox="0 0 24 24"><path :d="ICON.user" /></svg>
+        <span>{{ label('profile', 'Mi perfil', 'My profile') }}</span>
+      </router-link>
+
+      <button
+        type="button"
+        class="tab"
+        :class="{ on: isTabOn('more') }"
+        @click="toggleSheet('more')"
+      >
+        <svg viewBox="0 0 24 24" class="stroke"><path d="M4 7h16M4 12h9M4 17h9M17 14v6M14 17h6" /></svg>
+        <span>{{ label('', 'Más', 'More') }}</span>
+      </button>
+    </nav>
+
+    <!-- =====================================================
+         HOJAS INFERIORES (móvil)
+    ====================================================== -->
+    <transition name="sheet">
+      <div v-if="mobileSheet" class="sheet-overlay" @click.self="closeSheet">
+        <div class="sheet" role="dialog" aria-modal="true">
+          <div class="sheet-handle"></div>
+
+          <!-- CLIENTES -->
+          <template v-if="mobileSheet === 'clients'">
+            <h3 class="sheet-title">{{ label('', 'Gestión de clientes', 'Client management') }}</h3>
+
+            <template v-for="l in navClients" :key="l.to">
+              <div v-if="l.divider" class="sheet-divider"></div>
+              <router-link :to="l.to" class="sheet-link" @click="closeSheet">
+                <span class="dropdown-icon" :class="l.color">
+                  <svg viewBox="0 0 24 24"><path :d="l.icon" /></svg>
+                </span>
+                <span class="dropdown-copy">
+                  <strong>{{ label(l.key, l.es, l.en) }}</strong>
+                  <small>{{ label('', l.dEs, l.dEn) }}</small>
+                </span>
+              </router-link>
+            </template>
+          </template>
+
+          <!-- MÁS -->
+          <template v-else-if="mobileSheet === 'more'">
+            <h3 class="sheet-title">{{ label('', 'Más opciones', 'More options') }}</h3>
+
+            <div class="sheet-grid">
+              <router-link to="/GYM_RECEPCIONIST/settings" class="sheet-tile" @click="closeSheet">
+                <span class="dropdown-icon neutral">
+                  <svg viewBox="0 0 24 24"><path :d="ICON.gear" /></svg>
+                </span>
+                <strong>{{ label('settings', 'Configuración', 'Settings') }}</strong>
+              </router-link>
+
+              <button type="button" class="sheet-tile" @click="openModal('website')">
+                <span class="dropdown-icon neutral">
+                  <svg viewBox="0 0 24 24" class="stroke">
+                    <circle cx="12" cy="12" r="9"></circle>
+                    <path d="M3 12h18"></path>
+                    <path d="M12 3c2.3 2.5 3.5 5.5 3.5 9S14.3 18.5 12 21"></path>
+                    <path d="M12 3c-2.3 2.5-3.5 5.5-3.5 9S9.7 18.5 12 21"></path>
+                  </svg>
+                </span>
+                <strong>{{ t.irSitioWeb || label('', 'Sitio web', 'Website') }}</strong>
+              </button>
+
+              <button type="button" class="sheet-tile danger wide" @click="handleLogout">
+                <span class="dropdown-icon red">
+                  <svg viewBox="0 0 24 24"><path :d="ICON.logout" /></svg>
+                </span>
+                <strong>{{ label('logout', 'Cerrar sesión', 'Log out') }}</strong>
+              </button>
+            </div>
+          </template>
+        </div>
+      </div>
+    </transition>
+
+    <!-- =====================================================
+         MODALES
+    ====================================================== -->
     <transition name="pop">
       <div
         v-if="activeModal"
@@ -418,9 +461,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import Sidebar from './Sidebar.vue';
 import NotificationsPanel from './Notifications/NotificationsPanel.vue';
 import { traducciones } from './i18n.js';
 import { useLang } from './useLang.js';
@@ -430,16 +472,51 @@ const route = useRoute();
 const { lang } = useLang();
 
 /* =========================================================
+   ICONOS
+========================================================= */
+
+const ICON = {
+  home: 'M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z',
+  users: 'M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13z',
+  user: 'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z',
+  userAdd: 'M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z',
+  pay: 'M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V7H12v9z',
+  pin: 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z',
+  gear: 'M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5z',
+  logout: 'M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z'
+};
+
+/* =========================================================
+   ENLACES DEL MENÚ (se usan en escritorio y en móvil)
+========================================================= */
+
+const navClients = [
+  {
+    to: '/GYM_RECEPCIONIST/view-clients', key: 'viewClients', es: 'Clientes', en: 'Clients',
+    dEs: 'Consultar y administrar clientes', dEn: 'Manage clients',
+    icon: ICON.user, color: 'blue'
+  },
+  {
+    to: '/GYM_RECEPCIONIST/register-clients', key: 'registerClients', es: 'Registrar cliente', en: 'Register client',
+    dEs: 'Agregar un nuevo cliente', dEn: 'Add a new client',
+    icon: ICON.userAdd, color: 'green', divider: true
+  }
+];
+
+/* =========================================================
    ESTADOS GENERALES
 ========================================================= */
 
-const layoutRef = ref(null);
-
-const isSidebarOpen = ref(false);
 const isNotificationsOpen = ref(false);
 
 const activeModal = ref(null);
 const desktopDropdown = ref(null);
+
+/* Hoja inferior móvil: null | 'clients' | 'more' */
+const mobileSheet = ref(null);
+
+/* Barra inferior móvil retráctil */
+const mobileNavOpen = ref(true);
 
 const selectedGym = ref(
   localStorage.getItem('GYM_RECEPCIONIST-selected-gym') || 'Gimnasio Principal'
@@ -459,19 +536,14 @@ const notifications = ref([
    PERFIL (datos de prueba)
 ========================================================= */
 
-const userName = 'GYM_RECEPCIONISTista';
-
-/* Logo temporal generado en línea; reemplázalo por el real */
-const gymLogo =
-  'https://ui-avatars.com/api/?name=Ultra+Fitness&size=128&background=2563eb&color=ffffff&bold=true';
-
-const logoOk = ref(true);
+const userName = 'José Luis';
 
 const userInitials = computed(() =>
   userName
-    .split(' ')
+    .trim()
+    .split(/\s+/)
     .slice(0, 2)
-    .map((p) => p[0])
+    .map((p) => p.charAt(0))
     .join('')
     .toUpperCase()
 );
@@ -497,10 +569,6 @@ const label = (key, es, en) => {
 
   return idiomaActual.value === 'en' ? en : es;
 };
-
-const roleLabel = computed(() =>
-  label('roleReception', 'Recepción', 'Reception')
-);
 
 const handleIdiomaChanged = (event) => {
   if (event.detail && event.detail.idioma) {
@@ -537,18 +605,6 @@ const deleteNotifications = (ids) => {
 };
 
 /* =========================================================
-   SIDEBAR MÓVIL
-========================================================= */
-
-const toggleSidebar = () => {
-  isSidebarOpen.value = !isSidebarOpen.value;
-};
-
-const closeSidebar = () => {
-  isSidebarOpen.value = false;
-};
-
-/* =========================================================
    GRUPO ACTIVO (resalta el menú cuando estás en una de sus páginas)
 ========================================================= */
 
@@ -563,6 +619,53 @@ const grupos = {
 
 const isGroupActive = (name) =>
   (grupos[name] || []).some((ruta) => route.path.startsWith(ruta));
+
+/* =========================================================
+   BARRA INFERIOR MÓVIL
+========================================================= */
+
+/* Pestaña que corresponde a la página actual */
+const activeTab = computed(() => {
+  const path = route.path;
+
+  if (path.startsWith('/GYM_RECEPCIONIST/dashboard')) return 'home';
+  if (path.startsWith('/GYM_RECEPCIONIST/payments')) return 'payments';
+  if (isGroupActive('clients')) return 'clients';
+  if (path.startsWith('/GYM_RECEPCIONIST/profile')) return 'profile';
+  if (path.startsWith('/GYM_RECEPCIONIST/settings')) return 'more';
+
+  return '';
+});
+
+/* Si hay una hoja abierta, se resalta esa pestaña; si no, la de la página */
+const isTabOn = (name) =>
+  mobileSheet.value ? mobileSheet.value === name : activeTab.value === name;
+
+const toggleSheet = (name) => {
+  desktopDropdown.value = null;
+  mobileSheet.value = mobileSheet.value === name ? null : name;
+};
+
+const closeSheet = () => {
+  mobileSheet.value = null;
+};
+
+const closeMobileNavAfterNavigation = () => {
+  closeSheet();
+  if (window.innerWidth < 900) {
+    mobileNavOpen.value = false;
+  }
+};
+
+const openModal = (name) => {
+  closeSheet();
+  activeModal.value = name;
+};
+
+/* Bloquea el scroll del fondo mientras la hoja está abierta */
+watch(mobileSheet, (value) => {
+  document.body.style.overflow = value ? 'hidden' : '';
+});
 
 /* =========================================================
    DROPDOWNS DESKTOP
@@ -602,12 +705,9 @@ const handleKeydown = (event) => {
   }
 
   closeDesktopDropdown();
+  closeSheet();
   activeModal.value = null;
   isNotificationsOpen.value = false;
-
-  if (isSidebarOpen.value) {
-    closeSidebar();
-  }
 };
 
 /* =========================================================
@@ -615,8 +715,9 @@ const handleKeydown = (event) => {
 ========================================================= */
 
 const handleResize = () => {
-  if (window.innerWidth >= 1024) {
-    closeSidebar();
+  if (window.innerWidth >= 900) {
+    closeSheet();
+    mobileNavOpen.value = true;
   } else {
     closeDesktopDropdown();
   }
@@ -632,6 +733,7 @@ const handleLogout = () => {
   localStorage.removeItem('user');
 
   closeDesktopDropdown();
+  closeSheet();
 
   router.replace({ name: 'login' });
 };
@@ -737,6 +839,8 @@ onUnmounted(() => {
   window.removeEventListener('resize', handleResize);
   window.removeEventListener('app-settings-updated', aplicarEstilosGlobales);
   window.removeEventListener('idioma-changed', handleIdiomaChanged);
+
+  document.body.style.overflow = '';
 });
 </script>
 
@@ -746,1085 +850,1405 @@ onUnmounted(() => {
 /* =========================================================
    BASE
 ========================================================= */
+*{box-sizing:border-box}
 
-* {
-  box-sizing: border-box;
+.app-wrapper{
+  --nav-height:72px;
+  --bottom-nav-h:70px;
+  --nav-line:rgba(255,255,255,.09);
+  --hover-bg:rgba(255,255,255,.07);
+  --accent:var(--color-highlight,#3b82f6);
+  --button:var(--color-botones,#2563eb);
+  --card:var(--bg-cards,#101317);
+  --text:var(--color-texto-general,#f8fafc);
+  --title:var(--color-titulos,#fff);
+  --muted:var(--color-etiquetas,#8b98aa);
+  --line:rgba(255,255,255,.08);
+  width:100%;
+  min-height:100vh;
+  position:relative;
+  overflow-x:hidden;
+  background:var(--bg-custom,#090b0e);
+  color:var(--text);
+  font-family:'Inter',sans-serif;
+  transition:background-color .25s ease;
 }
 
-.app-wrapper {
-  --nav-height: 68px;
-  --accent: var(--color-highlight, #3b82f6);
-  --button: var(--color-botones, #2563eb);
-  --card: var(--bg-cards, #101317);
-  --text: var(--color-texto-general, #f8fafc);
-  --title: var(--color-titulos, #ffffff);
-  --muted: var(--color-etiquetas, #8b98aa);
-  --line: rgba(255, 255, 255, 0.08);
-
-  min-height: 100vh;
-  width: 100%;
-  position: relative;
-  overflow-x: hidden;
-  background: var(--bg-custom, #090b0e);
-  color: var(--text);
-  font-family: 'Inter', sans-serif;
-  transition: background-color .25s ease;
-}
-
-/* =========================================================
-   DESKTOP NAVBAR (oculto por defecto)
-========================================================= */
-
-.desktop-navbar {
-  display: none;
-}
-
-/* =========================================================
-   SIDEBAR MÓVIL
-========================================================= */
-
-.sidebar-container {
-  width: 280px;
-  height: 100dvh;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 3000;
-  background: var(--bg-cards, #101317);
-  transform: translateX(-100%);
-  transition: transform .3s cubic-bezier(.4, 0, .2, 1);
-  box-shadow: 16px 0 40px rgba(0, 0, 0, .45);
-}
-
-.sidebar-open .sidebar-container {
-  transform: translateX(0);
-}
-
-.sidebar-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 2999;
-  background: rgba(0, 0, 0, .66);
-  cursor: pointer;
-}
+.desktop-navbar,.bottom-nav{display:none}
 
 /* =========================================================
    LAYOUT
 ========================================================= */
-
-.main-layout-container {
-  width: 100%;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+.main-layout-container{
+  width:100%;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
 }
 
-.main-content-wrapper {
-  width: 100%;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+.main-content-wrapper{
+  width:100%;
+  flex:1;
+  display:flex;
+  flex-direction:column;
 }
+
+/* =========================================================
+   ICONOS / DROPDOWNS COMPARTIDOS
+========================================================= */
+.dropdown-icon{
+  width:38px;
+  height:38px;
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:10px;
+}
+
+.dropdown-icon svg{
+  width:18px;
+  height:18px;
+  fill:currentColor;
+}
+
+.dropdown-icon svg.stroke{
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+.dropdown-icon.blue{color:#60a5fa;background:rgba(59,130,246,.14)}
+.dropdown-icon.purple{color:#c084fc;background:rgba(168,85,247,.14)}
+.dropdown-icon.green{color:#34d399;background:rgba(16,185,129,.14)}
+.dropdown-icon.orange{color:#fb923c;background:rgba(249,115,22,.14)}
+.dropdown-icon.red{color:#f87171;background:rgba(239,68,68,.14)}
+.dropdown-icon.neutral{color:var(--muted);background:rgba(255,255,255,.06)}
+
+.dropdown-copy{
+  min-width:0;
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+}
+
+.dropdown-copy strong{
+  max-width:100%;
+  overflow:hidden;
+  color:inherit;
+  font-size:.9rem;
+  font-weight:650;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.dropdown-copy small{
+  max-width:100%;
+  margin-top:2px;
+  overflow:hidden;
+  color:var(--muted);
+  font-size:.78rem;
+  font-weight:500;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.dropdown-divider{
+  height:1px;
+  margin:6px 8px;
+  background:var(--nav-line);
+}
+
+.logout-link{color:#f87171}
 
 /* =========================================================
    TOP NAV MÓVIL
 ========================================================= */
-
-.mobile-top-nav {
-  min-height: 64px;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 10px 14px;
-  border-bottom: 1px solid var(--line);
-  background: var(--color-heading-bg, #0c1118);
+.mobile-top-nav{
+  min-height:64px;
+  position:sticky;
+  top:0;
+  z-index:1000;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px 14px;
+  border-bottom:1px solid var(--line);
+  background:var(--color-heading-bg,#0c1118);
 }
 
-.nav-left,
-.nav-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.nav-right{
+  display:flex;
+  align-items:center;
+  gap:8px;
 }
 
-.nav-action-btn {
-  width: 42px;
-  height: 42px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  padding: 0;
-  border: 1px solid rgba(255, 255, 255, .09);
-  border-radius: 11px;
-  background: rgba(255, 255, 255, .035);
-  color: var(--color-svg, #f8fafc);
-  cursor: pointer;
-  transition: background .18s ease, border-color .18s ease, color .18s ease;
+.mobile-branch{
+  min-width:0;
+  max-width:calc(100% - 100px);
+  height:46px;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:0 10px 0 6px;
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:12px;
+  background:rgba(255,255,255,.035);
+  color:var(--title);
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
 }
 
-.nav-action-btn:hover {
-  background: rgba(255, 255, 255, .075);
-  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
-  color: var(--accent);
+.mobile-branch-icon{
+  width:30px;
+  height:30px;
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:9px;
+  background:color-mix(in srgb,var(--accent) 18%,transparent);
+  color:var(--accent);
 }
 
-.mobile-svg-icon {
-  width: 20px;
-  height: 20px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.9;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+.mobile-branch-icon svg{
+  width:16px;
+  height:16px;
+  fill:currentColor;
 }
 
-.notification {
-  position: relative;
+.mobile-branch-copy{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  line-height:1.2;
 }
 
-.mobile-notification-dot {
-  width: 7px;
-  height: 7px;
-  position: absolute;
-  top: 7px;
-  right: 7px;
-  border: 2px solid var(--color-heading-bg, #0c1118);
-  border-radius: 50%;
-  background: var(--accent);
+.mobile-branch-copy strong{
+  max-width:100%;
+  overflow:hidden;
+  font-size:.82rem;
+  font-weight:700;
+  text-overflow:ellipsis;
+  white-space:nowrap;
 }
 
-.mobile-nav-brand {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  color: var(--title);
-  font-size: .76rem;
-  font-weight: 700;
-  overflow: hidden;
+.mobile-branch-copy small{
+  color:var(--muted);
+  font-size:.68rem;
+  font-weight:500;
 }
 
-.mobile-nav-brand span:last-child {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.mobile-branch-chevron{
+  width:16px;
+  height:16px;
+  flex-shrink:0;
+  fill:var(--muted);
 }
 
-.mobile-brand-dot {
-  width: 7px;
-  height: 7px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 13%, transparent);
+.nav-action-btn{
+  width:42px;
+  height:42px;
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  padding:0;
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:11px;
+  background:rgba(255,255,255,.035);
+  color:var(--color-svg,#f8fafc);
+  cursor:pointer;
+  transition:background .18s ease,border-color .18s ease,color .18s ease;
 }
+
+.nav-action-btn:hover{
+  background:rgba(255,255,255,.075);
+  border-color:color-mix(in srgb,var(--accent) 45%,transparent);
+  color:var(--accent);
+}
+
+.mobile-svg-icon{
+  width:20px;
+  height:20px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.9;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+.mobile-notification-dot{
+  width:7px;
+  height:7px;
+  position:absolute;
+  top:7px;
+  right:7px;
+  border:2px solid var(--color-heading-bg,#0c1118);
+  border-radius:50%;
+  background:var(--accent);
+}
+
+/* =========================================================
+   BARRA INFERIOR MÓVIL
+========================================================= */
+.bottom-nav{
+  height:calc(var(--bottom-nav-h) + env(safe-area-inset-bottom));
+  position:fixed;
+  right:0;
+  bottom:0;
+  left:0;
+  z-index:2600;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  padding:0 8px env(safe-area-inset-bottom);
+  border-top:1px solid var(--nav-line);
+  border-radius:26px 26px 0 0;
+  background:var(--card);
+  box-shadow:0 -12px 34px rgba(0,0,0,.4);
+  transform:translateY(0);
+  transition:transform .28s cubic-bezier(.22,.61,.36,1);
+}
+
+.bottom-nav.bottom-nav-hidden{
+  transform:translateY(calc(100% + 16px));
+}
+
+.bottom-nav-toggle{
+  display:none;
+}
+
+.tab{
+  height:var(--bottom-nav-h);
+  min-width:0;
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:var(--muted);
+  font-family:'Inter',sans-serif;
+  font-size:.7rem;
+  font-weight:600;
+  letter-spacing:.1px;
+  text-decoration:none;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  transition:color .18s ease;
+}
+
+.tab>span{
+  max-width:100%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.tab>svg{
+  width:25px;
+  height:25px;
+  fill:currentColor;
+  transition:transform .18s ease,filter .18s ease;
+}
+
+.tab>svg.stroke{
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.9;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+.tab:active>svg{transform:scale(.88)}
+
+.tab::before{
+  content:'';
+  width:36px;
+  height:4px;
+  position:absolute;
+  top:-1px;
+  left:50%;
+  border-radius:0 0 5px 5px;
+  background:var(--accent);
+  box-shadow:0 4px 14px color-mix(in srgb,var(--accent) 70%,transparent);
+  transform:translateX(-50%) scaleX(0);
+  transition:transform .22s ease;
+}
+
+.tab.on{color:var(--accent)}
+.tab.on::before{transform:translateX(-50%) scaleX(1)}
+.tab.on>svg{filter:drop-shadow(0 0 7px color-mix(in srgb,var(--accent) 60%,transparent))}
+
+.tab-center{
+  height:var(--bottom-nav-h);
+  min-width:0;
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  padding:0;
+  color:var(--muted);
+}
+
+.tab-center.on{color:var(--accent)}
+
+/* Pagos deja de ser un FAB flotante y se integra al resto del menú */
+.fab{
+  width:auto;
+  height:auto;
+  position:static;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:0;
+  background:transparent;
+  color:currentColor;
+  box-shadow:none;
+  transform:none;
+  transition:color .18s ease,transform .18s ease;
+}
+
+.fab svg{
+  width:25px;
+  height:25px;
+  fill:currentColor;
+}
+
+.tab-center:active .fab{transform:scale(.88)}
+
+.tab-center.on .fab{
+  background:transparent;
+  color:var(--accent);
+  box-shadow:none;
+  transform:none;
+}
+
+/* =========================================================
+   HOJAS INFERIORES MÓVIL
+========================================================= */
+.sheet-overlay{
+  position:fixed;
+  inset:0;
+  z-index:2800;
+  display:flex;
+  align-items:flex-end;
+  background:rgba(0,0,0,.62);
+}
+
+.sheet{
+  width:100%;
+  max-height:82dvh;
+  overflow-y:auto;
+  padding:10px 14px calc(18px + env(safe-area-inset-bottom));
+  border-top:1px solid var(--line);
+  border-radius:24px 24px 0 0;
+  background:var(--card);
+  box-shadow:0 -20px 50px rgba(0,0,0,.45);
+  overscroll-behavior:contain;
+}
+
+.sheet-handle{
+  width:38px;
+  height:4px;
+  margin:0 auto 14px;
+  border-radius:999px;
+  background:rgba(255,255,255,.16);
+}
+
+.sheet-title{
+  margin:0 0 8px;
+  padding:0 6px 10px;
+  border-bottom:1px solid var(--nav-line);
+  color:var(--muted);
+  font-size:.82rem;
+  font-weight:600;
+}
+
+.sheet-link{
+  width:100%;
+  min-height:58px;
+  display:flex;
+  align-items:center;
+  gap:13px;
+  padding:8px;
+  border:0;
+  border-radius:12px;
+  background:transparent;
+  color:var(--text);
+  font-family:'Inter',sans-serif;
+  text-align:left;
+  text-decoration:none;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  transition:background .14s ease;
+}
+
+.sheet-link:active,.sheet-link:hover{background:var(--hover-bg)}
+
+.sheet-link.router-link-active,.sheet-link.selected{
+  background:color-mix(in srgb,var(--accent) 12%,transparent);
+  color:color-mix(in srgb,var(--accent) 70%,white);
+}
+
+.sheet-link.logout-link{color:#f87171}
+
+.sheet-link:not(.branch):not(.logout-link)::after{
+  content:'›';
+  margin-left:auto;
+  color:var(--muted);
+  font-size:1.5rem;
+  line-height:1;
+}
+
+.sheet-link .dropdown-icon{
+  width:42px;
+  height:42px;
+  border-radius:12px;
+}
+
+.sheet-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  padding:4px 2px 0;
+}
+
+.sheet-tile{
+  min-height:92px;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:rgba(255,255,255,.03);
+  color:var(--text);
+  font-family:'Inter',sans-serif;
+  text-align:left;
+  text-decoration:none;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  transition:background .14s ease,border-color .14s ease;
+}
+
+.sheet-tile strong{
+  font-size:.84rem;
+  font-weight:650;
+}
+
+.sheet-tile:active,.sheet-tile:hover{background:var(--hover-bg)}
+
+.sheet-tile.router-link-active{
+  border-color:color-mix(in srgb,var(--accent) 40%,transparent);
+  background:color-mix(in srgb,var(--accent) 12%,transparent);
+}
+
+.sheet-tile.wide{
+  grid-column:1/-1;
+  min-height:64px;
+  flex-direction:row;
+  align-items:center;
+  justify-content:flex-start;
+}
+
+.sheet-tile.danger{
+  border-color:rgba(239,68,68,.22);
+  background:rgba(239,68,68,.07);
+  color:#f87171;
+}
+
+.sheet-check{
+  width:20px;
+  height:20px;
+  flex-shrink:0;
+  color:var(--accent);
+}
+
+.sheet-divider{
+  height:1px;
+  margin:6px 8px;
+  background:var(--nav-line);
+}
+
+.sheet-enter-active,.sheet-leave-active{transition:opacity .22s ease}
+.sheet-enter-active .sheet,.sheet-leave-active .sheet{transition:transform .26s cubic-bezier(.32,.72,0,1)}
+.sheet-enter-from,.sheet-leave-to{opacity:0}
+.sheet-enter-from .sheet,.sheet-leave-to .sheet{transform:translateY(100%)}
 
 /* =========================================================
    MODALES
 ========================================================= */
-
-.modal-wrapper {
-  position: fixed;
-  inset: 0;
-  z-index: 5000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  background: rgba(0, 0, 0, .82);
+.modal-wrapper{
+  position:fixed;
+  inset:0;
+  z-index:5000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(0,0,0,.82);
 }
 
-.custom-panel {
-  width: min(440px, 100%);
-  padding: 25px;
-  border: 1px solid rgba(255, 255, 255, .09);
-  border-radius: 18px;
-  background: var(--bg-cards, #111419);
-  color: var(--text);
-  box-shadow: 0 30px 70px rgba(0, 0, 0, .55);
+.custom-panel{
+  width:min(440px,100%);
+  padding:25px;
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:18px;
+  background:var(--bg-cards,#111419);
+  color:var(--text);
+  box-shadow:0 30px 70px rgba(0,0,0,.55);
 }
 
-.panel-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 24px;
+.panel-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:20px;
+  margin-bottom:24px;
 }
 
-.modal-kicker {
-  display: block;
-  margin-bottom: 4px;
-  color: var(--accent);
-  font-size: .58rem;
-  font-weight: 800;
-  letter-spacing: 1.5px;
+.modal-kicker{
+  display:block;
+  margin-bottom:4px;
+  color:var(--accent);
+  font-size:.58rem;
+  font-weight:800;
+  letter-spacing:1.5px;
 }
 
-.panel-header h3 {
-  margin: 0;
-  color: var(--title);
-  font-family: 'Oswald', sans-serif;
-  font-size: 1.25rem;
-  font-weight: 600;
+.panel-header h3{
+  margin:0;
+  color:var(--title);
+  font-family:'Oswald',sans-serif;
+  font-size:1.25rem;
+  font-weight:600;
 }
 
-.close-panel {
-  width: 34px;
-  height: 34px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  border: 0;
-  border-radius: 9px;
-  background: rgba(255, 255, 255, .04);
-  color: var(--text);
-  font-size: 1.45rem;
-  cursor: pointer;
-  transition: background .17s ease, color .17s ease;
+.close-panel{
+  width:34px;
+  height:34px;
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0;
+  border:0;
+  border-radius:9px;
+  background:rgba(255,255,255,.04);
+  color:var(--text);
+  font-size:1.45rem;
+  cursor:pointer;
+  transition:background .17s ease,color .17s ease;
 }
 
-.close-panel:hover {
-  background: rgba(239, 68, 68, .12);
-  color: #f87171;
+.close-panel:hover{
+  background:rgba(239,68,68,.12);
+  color:#f87171;
 }
 
-.panel-body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 18px;
-  text-align: center;
+.panel-body{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:18px;
+  text-align:center;
 }
 
-.panel-body p {
-  margin: 0;
-  color: var(--muted);
-  font-size: .83rem;
-  line-height: 1.6;
+.panel-body p{
+  margin:0;
+  color:var(--muted);
+  font-size:.83rem;
+  line-height:1.6;
 }
 
-.qr-container,
-.qr-preview-container {
-  padding: 13px;
-  border-radius: 13px;
-  background: #fff;
-  box-shadow: 0 14px 30px rgba(0, 0, 0, .3);
+.qr-container,.qr-preview-container{
+  padding:13px;
+  border-radius:13px;
+  background:#fff;
+  box-shadow:0 14px 30px rgba(0,0,0,.3);
 }
 
-.qr-container img {
-  width: 180px;
-  height: 180px;
-  display: block;
+.qr-container img{
+  width:180px;
+  height:180px;
+  display:block;
 }
 
-.qr-preview-container {
-  width: 170px;
-  height: 170px;
+.qr-preview-container{
+  width:170px;
+  height:170px;
 }
 
-.preview-qr-img {
-  width: 100%;
-  height: 100%;
-  display: block;
+.preview-qr-img{
+  width:100%;
+  height:100%;
+  display:block;
 }
 
-.action-btn-full {
-  width: 100%;
-  min-height: 43px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 16px;
-  border: 0;
-  border-radius: 10px;
-  background: var(--button);
-  color: var(--color-texto-botones, #fff);
-  font-family: 'Inter', sans-serif;
-  font-size: .78rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: transform .17s ease, filter .17s ease;
+.action-btn-full{
+  width:100%;
+  min-height:43px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 16px;
+  border:0;
+  border-radius:10px;
+  background:var(--button);
+  color:var(--color-texto-botones,#fff);
+  font-family:'Inter',sans-serif;
+  font-size:.78rem;
+  font-weight:700;
+  cursor:pointer;
+  transition:transform .17s ease,filter .17s ease;
 }
 
-.action-btn-full:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.08);
+.action-btn-full:hover{
+  transform:translateY(-1px);
+  filter:brightness(1.08);
 }
 
-.action-btn-full.outline {
-  margin-top: 3px;
-  border: 1px solid rgba(255, 255, 255, .11);
-  background: rgba(255, 255, 255, .035);
-  color: var(--text);
+.action-btn-full.outline{
+  margin-top:3px;
+  border:1px solid rgba(255,255,255,.11);
+  background:rgba(255,255,255,.035);
+  color:var(--text);
 }
 
 /* =========================================================
-   DESKTOP >= 900
-   (900 y no 1024, porque el "modo escritorio" de los
-   navegadores móviles simula una pantalla de ~980px)
+   DESKTOP >= 900px
 ========================================================= */
+@media (min-width:900px){
+  .mobile-top-nav,.bottom-nav,.bottom-nav-toggle,.sheet-overlay{display:none!important}
 
-@media (min-width: 900px) {
-
-  .app-wrapper {
-    --nav-height: 72px;
-    --nav-line: rgba(255, 255, 255, 0.09);
-    --hover-bg: rgba(255, 255, 255, 0.07);
+  /* NAVBAR */
+  .desktop-navbar{
+    width:100%;
+    height:var(--nav-height);
+    position:sticky;
+    top:0;
+    z-index:2500;
+    display:flex;
+    align-items:center;
+    border-bottom:1px solid var(--nav-line);
+    background:var(--color-heading-bg,#08192e);
   }
 
-  .sidebar-container,
-  .sidebar-overlay,
-  .mobile-top-nav {
-    display: none !important;
+  .desktop-navbar-inner{
+    width:100%;
+    height:100%;
+    display:grid;
+    grid-template-columns:auto minmax(0,1fr) auto;
+    align-items:center;
+    gap:16px;
+    padding:0 clamp(18px,2.3vw,40px);
   }
 
-  /* ---------- NAVBAR (grid: sucursal | menú centrado | acciones) ---------- */
-
-  .desktop-navbar {
-    width: 100%;
-    height: var(--nav-height);
-    position: sticky;
-    top: 0;
-    z-index: 2500;
-    display: flex;
-    align-items: center;
-    border-bottom: 1px solid var(--nav-line);
-    background: var(--color-heading-bg, #08192e);
+  /* SUCURSAL */
+  .desktop-brand{
+    min-width:0;
+    max-width:250px;
+    position:relative;
+    justify-self:start;
   }
 
-  .desktop-navbar-inner {
-    width: 100%;
-    height: 100%;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-    align-items: center;
-    gap: 16px;
-    padding: 0 clamp(18px, 2.3vw, 40px);
+  .brand-button{
+    width:100%;
+    height:52px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:0 10px;
+    border:1px solid transparent;
+    border-radius:12px;
+    background:transparent;
+    color:var(--text);
+    cursor:pointer;
+    transition:background .16s ease,border-color .16s ease;
   }
 
-  /* ---------- SUCURSAL ---------- */
-
-  .desktop-brand {
-    min-width: 0;
-    max-width: 240px;
-    position: relative;
-    justify-self: start;
+  .brand-button:hover,.brand-button.active{
+    border-color:var(--nav-line);
+    background:var(--hover-bg);
   }
 
-  .brand-button {
-    width: 100%;
-    height: 52px;
-    display: flex;
-    align-items: center;
-    gap: 11px;
-    padding: 0 10px;
-    border: 1px solid transparent;
-    border-radius: 12px;
-    background: transparent;
-    color: var(--text);
-    cursor: pointer;
-    transition: background 0.16s ease, border-color 0.16s ease;
+  .brand-mark{
+    width:36px;
+    height:36px;
+    flex-shrink:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:10px;
+    background:color-mix(in srgb,var(--accent) 18%,transparent);
+    color:var(--accent);
   }
 
-  .brand-button:hover,
-  .brand-button.active {
-    border-color: var(--nav-line);
-    background: var(--hover-bg);
+  .brand-mark svg{
+    width:18px;
+    height:18px;
+    fill:currentColor;
   }
 
-  .brand-mark {
-    width: 38px;
-    height: 38px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 10px;
-    background: color-mix(in srgb, var(--accent) 18%, transparent);
-    color: var(--accent);
+  .brand-copy{
+    min-width:0;
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
   }
 
-  .brand-mark svg {
-    width: 19px;
-    height: 19px;
-    fill: currentColor;
+  .brand-copy strong{
+    width:100%;
+    overflow:hidden;
+    color:var(--title);
+    font-size:.88rem;
+    font-weight:700;
+    text-align:left;
+    text-overflow:ellipsis;
+    white-space:nowrap;
   }
 
-  .brand-copy {
-    min-width: 0;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+  .brand-copy span{
+    margin-top:2px;
+    color:var(--muted);
+    font-size:.74rem;
+    font-weight:500;
   }
 
-  .brand-copy strong {
-    width: 100%;
-    overflow: hidden;
-    color: var(--title);
-    font-size: 0.92rem;
-    font-weight: 700;
-    text-align: left;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  .brand-chevron{
+    width:16px;
+    height:16px;
+    flex-shrink:0;
+    fill:var(--muted);
+    transition:transform .17s ease;
   }
 
-  .brand-copy span {
-    margin-top: 2px;
-    color: var(--muted);
-    font-size: 0.75rem;
-    font-weight: 500;
+  .brand-chevron.rotated{transform:rotate(180deg)}
+
+  .brand-button.static,.brand-button.static:hover{
+    cursor:default;
+    border-color:transparent;
+    background:transparent;
   }
 
-  .brand-chevron {
-    width: 16px;
-    height: 16px;
-    flex-shrink: 0;
-    fill: var(--muted);
-    transition: transform 0.17s ease;
+  /* MENÚ */
+  .desktop-menu{
+    min-width:0;
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    gap:4px;
   }
 
-  .brand-chevron.rotated { transform: rotate(180deg); }
-
-  /* ---------- MENÚ CENTRAL ---------- */
-
-  .desktop-menu {
-    min-width: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
+  .desktop-menu::after{
+    content:'';
+    width:1px;
+    height:28px;
+    flex-shrink:0;
+    margin:0 4px 0 10px;
+    background:var(--nav-line);
   }
 
-  .desktop-nav-group {
-    position: relative;
-    flex-shrink: 0;
+  .desktop-nav-group{
+    position:relative;
+    flex-shrink:0;
   }
 
-  .desktop-nav-item {
-    min-width: 0;
-    flex-shrink: 0;
-    height: 44px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 0 14px;
-    border: 1px solid transparent;
-    border-radius: 10px;
-    background: transparent;
-    color: color-mix(in srgb, var(--text) 78%, transparent);
-    font-family: 'Inter', sans-serif;
-    font-size: 0.88rem;
-    font-weight: 600;
-    line-height: 1;
-    text-decoration: none;
-    white-space: nowrap;
-    cursor: pointer;
-    transition: color 0.15s ease, background 0.15s ease;
+  .desktop-nav-item{
+    min-width:0;
+    height:44px;
+    flex-shrink:0;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    padding:0 14px;
+    border:1px solid transparent;
+    border-radius:10px;
+    background:transparent;
+    color:color-mix(in srgb,var(--text) 78%,transparent);
+    font-family:'Inter',sans-serif;
+    font-size:.88rem;
+    font-weight:600;
+    line-height:1;
+    text-decoration:none;
+    white-space:nowrap;
+    cursor:pointer;
+    transition:color .15s ease,background .15s ease,border-color .15s ease;
   }
 
-  .desktop-nav-item > svg:first-child {
-    width: 18px;
-    height: 18px;
-    flex-shrink: 0;
-    fill: currentColor;
+  .desktop-nav-item>svg:first-child{
+    width:18px;
+    height:18px;
+    flex-shrink:0;
+    fill:currentColor;
   }
 
-  .desktop-nav-item:hover,
-  .desktop-nav-item.active {
-    color: #fff;
-    background: var(--hover-bg);
+  .desktop-nav-item:hover,.desktop-nav-item.active{
+    color:#fff;
+    background:var(--hover-bg);
   }
 
-  .desktop-nav-item.router-link-active,
-  .desktop-nav-item.current {
-    border-color: color-mix(in srgb, var(--accent) 35%, transparent);
-    background: color-mix(in srgb, var(--accent) 14%, transparent);
-    color: color-mix(in srgb, var(--accent) 65%, white);
+  .desktop-nav-item.router-link-active,.desktop-nav-item.current{
+    border-color:color-mix(in srgb,var(--accent) 35%,transparent);
+    background:color-mix(in srgb,var(--accent) 14%,transparent);
+    color:color-mix(in srgb,var(--accent) 65%,white);
   }
 
-  .nav-chevron {
-    width: 14px;
-    height: 14px;
-    flex-shrink: 0;
-    fill: currentColor;
-    opacity: 0.6;
-    transition: transform 0.17s ease;
+  .nav-chevron{
+    width:14px;
+    height:14px;
+    flex-shrink:0;
+    fill:currentColor;
+    opacity:.6;
+    transition:transform .17s ease;
   }
 
-  .nav-chevron.rotated { transform: rotate(180deg); }
+  .nav-chevron.rotated{transform:rotate(180deg)}
 
   .desktop-nav-item:focus-visible,
   .desktop-action:focus-visible,
   .desktop-profile:focus-visible,
   .brand-button:focus-visible,
   .dropdown-link:focus-visible,
-  .branch-option:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
+  .branch-option:focus-visible{
+    outline:2px solid var(--accent);
+    outline-offset:2px;
   }
 
-  /* ---------- DROPDOWNS ---------- */
+  /* DROPDOWNS */
+  .nav-dropdown-root{position:relative}
 
-  .nav-dropdown-root { position: relative; }
-
-  .desktop-dropdown {
-    width: 300px;
-    position: absolute;
-    top: calc(100% + 10px);
-    left: 0;
-    z-index: 2700;
-    padding: 8px;
-    border: 1px solid var(--nav-line);
-    border-radius: 14px;
-    background: var(--bg-cards, #101419);
-    box-shadow: 0 22px 55px rgba(0, 0, 0, 0.5);
+  .desktop-dropdown{
+    width:300px;
+    position:absolute;
+    top:calc(100% + 10px);
+    left:0;
+    z-index:2700;
+    padding:8px;
+    border:1px solid var(--nav-line);
+    border-radius:14px;
+    background:var(--bg-cards,#101419);
+    box-shadow:0 22px 55px rgba(0,0,0,.5);
   }
 
-  .reports-dropdown { width: 310px; }
-  .branch-menu { width: 280px; }
-
-  .dropdown-title {
-    padding: 8px 10px 11px;
-    margin-bottom: 6px;
-    border-bottom: 1px solid var(--nav-line);
-    color: var(--muted);
-    font-size: 0.8rem;
-    font-weight: 600;
+  .desktop-dropdown.dropdown-end{
+    right:0;
+    left:auto;
   }
 
-  .dropdown-link,
-  .branch-option {
-    width: 100%;
-    min-height: 54px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 8px 10px;
-    border: 0;
-    border-radius: 10px;
-    background: transparent;
-    color: var(--text);
-    font-family: 'Inter', sans-serif;
-    text-align: left;
-    text-decoration: none;
-    cursor: pointer;
-    transition: background 0.14s ease, color 0.14s ease;
+  .reports-dropdown{width:310px}
+  .branch-menu{width:280px}
+  .profile-dropdown{width:250px}
+
+  .dropdown-title{
+    padding:8px 10px 11px;
+    margin-bottom:6px;
+    border-bottom:1px solid var(--nav-line);
+    color:var(--muted);
+    font-size:.8rem;
+    font-weight:600;
   }
 
-  .dropdown-link:hover,
-  .branch-option:hover { background: var(--hover-bg); }
-
-  .dropdown-link.router-link-active {
-    background: color-mix(in srgb, var(--accent) 14%, transparent);
-    color: color-mix(in srgb, var(--accent) 70%, white);
+  .dropdown-link,.branch-option{
+    width:100%;
+    min-height:54px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:8px 10px;
+    border:0;
+    border-radius:10px;
+    background:transparent;
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    text-align:left;
+    text-decoration:none;
+    cursor:pointer;
+    transition:background .14s ease,color .14s ease;
   }
 
-  .dropdown-icon,
-  .branch-option-icon {
-    width: 38px;
-    height: 38px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 10px;
+  .dropdown-link:hover,.branch-option:hover{background:var(--hover-bg)}
+
+  .dropdown-link.router-link-active{
+    background:color-mix(in srgb,var(--accent) 14%,transparent);
+    color:color-mix(in srgb,var(--accent) 70%,white);
   }
 
-  .dropdown-icon svg,
-  .branch-option-icon svg {
-    width: 18px;
-    height: 18px;
-    fill: currentColor;
+  .branch-option-icon{
+    width:38px;
+    height:38px;
+    flex-shrink:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:10px;
+    color:var(--accent);
+    background:color-mix(in srgb,var(--accent) 14%,transparent);
   }
 
-  .dropdown-icon.blue { color: #60a5fa; background: rgba(59, 130, 246, 0.14); }
-  .dropdown-icon.purple { color: #c084fc; background: rgba(168, 85, 247, 0.14); }
-  .dropdown-icon.green { color: #34d399; background: rgba(16, 185, 129, 0.14); }
-  .dropdown-icon.orange { color: #fb923c; background: rgba(249, 115, 22, 0.14); }
-  .dropdown-icon.red { color: #f87171; background: rgba(239, 68, 68, 0.14); }
-  .dropdown-icon.neutral { color: var(--muted); background: rgba(255, 255, 255, 0.06); }
-
-  .branch-option-icon {
-    color: var(--accent);
-    background: color-mix(in srgb, var(--accent) 14%, transparent);
+  .branch-option-icon svg{
+    width:18px;
+    height:18px;
+    fill:currentColor;
   }
 
-  .dropdown-copy,
-  .branch-option-copy {
-    min-width: 0;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+  .branch-option-copy{
+    min-width:0;
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
   }
 
-  .dropdown-copy strong,
-  .branch-option-copy strong {
-    max-width: 100%;
-    overflow: hidden;
-    color: inherit;
-    font-size: 0.9rem;
-    font-weight: 650;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  .branch-option-copy strong{
+    max-width:100%;
+    overflow:hidden;
+    color:inherit;
+    font-size:.9rem;
+    font-weight:650;
+    text-overflow:ellipsis;
+    white-space:nowrap;
   }
 
-  .dropdown-copy small,
-  .branch-option-copy small {
-    max-width: 100%;
-    margin-top: 2px;
-    overflow: hidden;
-    color: var(--muted);
-    font-size: 0.78rem;
-    font-weight: 500;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  .branch-option-copy small{
+    max-width:100%;
+    margin-top:2px;
+    overflow:hidden;
+    color:var(--muted);
+    font-size:.78rem;
+    font-weight:500;
+    text-overflow:ellipsis;
+    white-space:nowrap;
   }
 
-  .branch-option.selected {
-    background: color-mix(in srgb, var(--accent) 12%, transparent);
+  .branch-option.selected{
+    background:color-mix(in srgb,var(--accent) 12%,transparent);
   }
 
-  .branch-option.selected .branch-option-copy strong {
-    color: color-mix(in srgb, var(--accent) 70%, white);
+  .branch-option.selected .branch-option-copy strong{
+    color:color-mix(in srgb,var(--accent) 70%,white);
   }
 
-  .option-check {
-    width: 18px;
-    height: 18px;
-    flex-shrink: 0;
-    color: var(--accent);
+  .option-check{
+    width:18px;
+    height:18px;
+    flex-shrink:0;
+    color:var(--accent);
   }
 
-  .dropdown-divider {
-    height: 1px;
-    margin: 6px 8px;
-    background: var(--nav-line);
+  /* ACCIONES DERECHA */
+  .desktop-actions{
+    min-width:0;
+    display:flex;
+    align-items:center;
+    flex-shrink:0;
+    justify-content:flex-end;
+    justify-self:end;
+    gap:4px;
   }
 
-  /* ---------- ACCIONES DERECHA ---------- */
-
-  .desktop-actions {
-    min-width: 0;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    justify-self: end;
-    gap: 4px;
+  .desktop-action{
+    width:42px;
+    height:42px;
+    position:relative;
+    flex-shrink:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:0;
+    border:0;
+    border-radius:10px;
+    background:transparent;
+    color:color-mix(in srgb,var(--text) 85%,transparent);
+    cursor:pointer;
+    transition:color .15s ease,background .15s ease;
   }
 
-  .desktop-action {
-    width: 42px;
-    height: 42px;
-    position: relative;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    border: 0;
-    border-radius: 10px;
-    background: transparent;
-    color: color-mix(in srgb, var(--text) 85%, transparent);
-    cursor: pointer;
-    transition: color 0.15s ease, background 0.15s ease;
+  .desktop-action:hover{
+    color:#fff;
+    background:var(--hover-bg);
   }
 
-  .desktop-action:hover {
-    color: #fff;
-    background: var(--hover-bg);
+  .desktop-action svg{
+    width:20px;
+    height:20px;
+    fill:none;
+    stroke:currentColor;
+    stroke-width:1.8;
+    stroke-linecap:round;
+    stroke-linejoin:round;
   }
 
-  .desktop-action svg {
-    width: 20px;
-    height: 20px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.8;
-    stroke-linecap: round;
-    stroke-linejoin: round;
+  .notification-count{
+    min-width:18px;
+    height:18px;
+    position:absolute;
+    top:2px;
+    right:1px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:0 4px;
+    border:2px solid var(--color-heading-bg,#08192e);
+    border-radius:999px;
+    background:var(--accent);
+    color:#fff;
+    font-size:.66rem;
+    font-weight:800;
+    line-height:1;
   }
 
-  .notification-count {
-    min-width: 18px;
-    height: 18px;
-    position: absolute;
-    top: 2px;
-    right: 1px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 4px;
-    border: 2px solid var(--color-heading-bg, #08192e);
-    border-radius: 999px;
-    background: var(--accent);
-    color: #fff;
-    font-size: 0.66rem;
-    font-weight: 800;
-    line-height: 1;
+  .desktop-separator{
+    width:1px;
+    height:28px;
+    margin:0 10px;
+    background:var(--nav-line);
   }
 
-  .desktop-separator {
-    width: 1px;
-    height: 28px;
-    margin: 0 10px;
-    background: var(--nav-line);
+  /* =====================================================
+     PERFIL: INICIALES + NOMBRE + FLECHA
+  ===================================================== */
+  .profile-menu-root{
+    position:relative;
   }
 
-  /* ---------- PERFIL ---------- */
-
-  .profile-menu-root { position: relative; }
-
-  .desktop-profile {
-    height: 52px;
-    display: flex;
-    align-items: center;
-    gap: 11px;
-    padding: 0 10px;
-    border: 1px solid transparent;
-    border-radius: 12px;
-    background: transparent;
-    color: var(--text);
-    cursor: pointer;
-    transition: background 0.15s ease, border-color 0.15s ease;
+  .desktop-profile{
+    min-width:0;
+    height:52px;
+    display:flex;
+    align-items:center;
+    gap:9px;
+    padding:0 10px 0 6px;
+    border:1px solid transparent;
+    border-radius:12px;
+    background:transparent;
+    color:var(--text);
+    cursor:pointer;
+    transition:background .15s ease,border-color .15s ease;
   }
 
-  .desktop-profile:hover,
-  .desktop-profile.active {
-    border-color: var(--nav-line);
-    background: var(--hover-bg);
+  .desktop-profile:hover,.desktop-profile.active{
+    border-color:var(--nav-line);
+    background:var(--hover-bg);
   }
 
-  .profile-avatar {
-    width: 38px;
-    height: 38px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
-    border-radius: 10px;
-    background: color-mix(in srgb, var(--accent) 18%, transparent);
-    color: color-mix(in srgb, var(--accent) 55%, white);
-    font-size: 0.8rem;
-    font-weight: 800;
+  .profile-avatar{
+    width:38px;
+    height:38px;
+    flex:0 0 38px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border:1px solid color-mix(in srgb,var(--accent) 42%,transparent);
+    border-radius:10px;
+    background:color-mix(in srgb,var(--accent) 17%,transparent);
+    color:color-mix(in srgb,var(--accent) 58%,white);
+    font-size:.72rem;
+    font-weight:800;
+    line-height:1;
+    letter-spacing:.02em;
+    text-transform:uppercase;
   }
 
-  .profile-avatar.large {
-    width: 46px;
-    height: 46px;
-    border-radius: 12px;
-    font-size: 0.92rem;
+  .profile-user-name{
+    min-width:0;
+    max-width:155px;
+    overflow:hidden;
+    color:var(--title);
+    font-size:.82rem;
+    font-weight:700;
+    line-height:1.2;
+    text-align:left;
+    text-overflow:ellipsis;
+    white-space:nowrap;
   }
 
-  .profile-copy {
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+  .profile-chevron{
+    width:15px;
+    height:15px;
+    flex:0 0 15px;
+    margin-left:2px;
+    fill:var(--muted);
+    transition:transform .17s ease;
   }
 
-  .profile-name-row {
-    max-width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 7px;
+  .profile-chevron.rotated{
+    transform:rotate(180deg);
   }
 
-  .gym-logo {
-    width: 20px;
-    height: 20px;
-    flex-shrink: 0;
-    display: block;
-    border-radius: 6px;
-    object-fit: cover;
+  .dropdown-link.compact{
+    min-height:46px;
   }
 
-  .profile-copy strong {
-    max-width: 170px;
-    overflow: hidden;
-    color: var(--title);
-    font-size: 0.88rem;
-    font-weight: 700;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  .logout-link:hover{
+    background:rgba(239,68,68,.1);
   }
 
-  .profile-copy small {
-    margin-top: 2px;
-    color: var(--muted);
-    font-size: 0.75rem;
+  /* MAIN */
+  .main-layout-container{
+    width:100%;
+    min-height:calc(100vh - var(--nav-height));
+    margin-left:0!important;
   }
 
-  .profile-chevron {
-    width: 16px;
-    height: 16px;
-    flex-shrink: 0;
-    fill: var(--muted);
-    transition: transform 0.17s ease;
+  /* TRANSICIONES */
+  .desktop-dropdown-enter-active,.desktop-dropdown-leave-active{
+    transition:opacity .14s ease,transform .14s ease;
   }
 
-  .profile-chevron.rotated { transform: rotate(180deg); }
-
-  .profile-dropdown {
-    width: 330px;
-    right: 0;
-    left: auto;
-  }
-
-  .profile-dropdown-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 8px 10px 12px;
-  }
-
-  .profile-dropdown-header > div {
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .profile-dropdown-header .profile-name-row strong {
-    max-width: 245px;
-    overflow: hidden;
-    color: var(--title);
-    font-size: 0.95rem;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .profile-dropdown-header .gym-logo {
-    width: 22px;
-    height: 22px;
-  }
-
-  .profile-dropdown-header > div > span:not(.profile-name-row) {
-    margin-top: 3px;
-    color: var(--muted);
-    font-size: 0.8rem;
-  }
-
-  .dropdown-link.compact { min-height: 46px; }
-
-  .logout-link { color: #f87171; }
-  .logout-link:hover { background: rgba(239, 68, 68, 0.1); }
-
-  /* ---------- MAIN ---------- */
-
-  .main-layout-container {
-    width: 100%;
-    min-height: calc(100vh - var(--nav-height));
-    margin-left: 0 !important;
-  }
-
-  /* ---------- TRANSICIONES ---------- */
-
-  .desktop-dropdown-enter-active,
-  .desktop-dropdown-leave-active {
-    transition: opacity 0.14s ease, transform 0.14s ease;
-  }
-
-  .desktop-dropdown-enter-from,
-  .desktop-dropdown-leave-to {
-    opacity: 0;
-    transform: translateY(-5px);
+  .desktop-dropdown-enter-from,.desktop-dropdown-leave-to{
+    opacity:0;
+    transform:translateY(-5px);
   }
 }
 
 /* =========================================================
-   LAPTOPS (900 - 1439)
+   LAPTOP 900 - 1439
 ========================================================= */
-
-@media (min-width: 900px) and (max-width: 1439px) {
-
-  .desktop-navbar-inner {
-    gap: 10px;
-    padding: 0 20px;
+@media (min-width:900px) and (max-width:1439px){
+  .desktop-navbar-inner{
+    gap:10px;
+    padding:0 20px;
   }
 
-  .brand-copy strong { font-size: 0.86rem; }
-  .brand-copy span { font-size: 0.72rem; }
+  .desktop-brand{max-width:230px}
+  .desktop-menu{gap:2px}
 
-  .desktop-menu { gap: 2px; }
-
-  .desktop-nav-item {
-    padding: 0 11px;
-    font-size: 0.84rem;
+  .desktop-nav-item{
+    padding:0 11px;
+    font-size:.84rem;
   }
 
-  .profile-copy strong { max-width: 150px; }
+  .desktop-separator{margin:0 6px}
 
-  .desktop-separator { margin: 0 6px; }
+  .profile-user-name{
+    max-width:130px;
+  }
 }
 
 /* =========================================================
-   900 - 1279: se oculta el nombre del perfil
+   900 - 1279
 ========================================================= */
-
-@media (min-width: 900px) and (max-width: 1279px) {
-
-  .desktop-navbar-inner {
-    gap: 6px;
-    padding: 0 14px;
+@media (min-width:900px) and (max-width:1279px){
+  .desktop-navbar-inner{
+    gap:6px;
+    padding:0 14px;
   }
 
-  .desktop-brand { max-width: 170px; }
+  .brand-copy{display:none}
+  .desktop-brand{max-width:84px}
 
-  .brand-copy span { display: none; }
-
-  .desktop-nav-item {
-    padding: 0 8px;
-    font-size: 0.8rem;
+  .desktop-nav-item{
+    padding:0 8px;
+    font-size:.8rem;
   }
 
-  .desktop-action {
-    width: 38px;
-    height: 38px;
+  .desktop-action{
+    width:38px;
+    height:38px;
   }
 
-  .profile-copy { display: none; }
+  .profile-user-name{
+    max-width:105px;
+  }
 
-  .desktop-profile { padding: 0 6px; }
+  .desktop-profile{
+    gap:7px;
+    padding-right:8px;
+  }
 }
 
 /* =========================================================
-   900 - 1160: sucursal compacta y menú sin iconos
+   900 - 1160
 ========================================================= */
-
-@media (min-width: 900px) and (max-width: 1160px) {
-
-  .desktop-brand { max-width: 56px; }
-
-  .brand-copy,
-  .brand-chevron { display: none; }
-
-  .brand-button { padding: 0 8px; }
-
-  .desktop-nav-item {
-    padding: 0 7px;
-    font-size: 0.78rem;
+@media (min-width:900px) and (max-width:1160px){
+  .desktop-nav-item{
+    padding:0 7px;
+    font-size:.78rem;
   }
 
-  .desktop-nav-item > svg:first-child { display: none; }
+  .desktop-nav-item>svg:first-child{display:none}
+  .nav-chevron{display:none}
+  .brand-chevron{display:none}
+  .desktop-brand{max-width:56px}
+  .brand-button{padding:0 8px}
 
-  .nav-chevron { display: none; }
+  .profile-user-name{
+    max-width:90px;
+    font-size:.76rem;
+  }
+
+  .desktop-profile>.profile-chevron{
+    display:block;
+  }
 }
 
 /* =========================================================
-   MÓVIL / TABLET (< 900)
+   900 - 1020
+   Conserva el nombre pero lo hace más corto.
 ========================================================= */
-
-@media (max-width: 899px) {
-
-  .desktop-navbar {
-    display: none;
+@media (min-width:900px) and (max-width:1020px){
+  .desktop-navbar-inner{
+    padding:0 9px;
   }
 
-  .sidebar-container {
-    display: block;
+  .desktop-separator{
+    margin:0 4px;
   }
 
-  .mobile-top-nav {
-    display: flex;
+  .profile-user-name{
+    max-width:72px;
+  }
+
+  .desktop-profile{
+    gap:6px;
+    padding-right:6px;
+  }
+}
+
+/* =========================================================
+   MÓVIL / TABLET
+========================================================= */
+@media (max-width:899px){
+  .desktop-navbar{display:none}
+  .mobile-top-nav{display:flex}
+  .bottom-nav{display:grid}
+
+  .bottom-nav-toggle{
+    width:38px;
+    height:20px;
+    position:fixed;
+    right:18px;
+    left:auto;
+    bottom:calc(var(--bottom-nav-h) + env(safe-area-inset-bottom) - 1px);
+    z-index:2701;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:0;
+    border:1px solid var(--nav-line);
+    border-bottom:0;
+    border-radius:9px 9px 0 0;
+    background:var(--card);
+    color:var(--muted);
+    box-shadow:0 -4px 12px rgba(0,0,0,.18);
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+    transition:bottom .28s cubic-bezier(.22,.61,.36,1),color .18s ease,background .18s ease,border-color .18s ease;
+  }
+
+  .bottom-nav-toggle:hover{
+    color:var(--accent);
+    border-color:color-mix(in srgb,var(--accent) 35%,transparent);
+    background:var(--card);
+  }
+
+  .bottom-nav-toggle.collapsed{
+    bottom:0;
+    height:25px;
+    border-bottom:1px solid var(--nav-line);
+    border-radius:9px 9px 0 0;
+  }
+
+  .bottom-nav-toggle svg{
+    width:14px;
+    height:14px;
+    fill:none;
+    stroke:currentColor;
+    stroke-width:2.2;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+    transition:transform .25s ease;
+  }
+
+  .bottom-nav-toggle svg.rotated{
+    transform:rotate(180deg);
+  }
+
+  .main-content-wrapper{
+    padding-bottom:calc(var(--bottom-nav-h) + env(safe-area-inset-bottom) + 14px);
   }
 }
 
 /* =========================================================
    TELÉFONO
 ========================================================= */
-
-@media (max-width: 560px) {
-
-  .mobile-top-nav {
-    min-height: 60px;
-    padding: 9px 10px;
+@media (max-width:560px){
+  .mobile-top-nav{
+    min-height:60px;
+    padding:9px 10px;
   }
 
-  .nav-left,
-  .nav-right {
-    gap: 5px;
+  .nav-right{gap:5px}
+
+  .nav-action-btn{
+    width:39px;
+    height:39px;
+    border-radius:10px;
   }
 
-  .nav-action-btn {
-    width: 39px;
-    height: 39px;
-    border-radius: 10px;
+  .mobile-branch{
+    height:44px;
+    max-width:calc(100% - 92px);
   }
 
-  .mobile-nav-brand {
-    max-width: 120px;
-    font-size: .67rem;
+  .custom-panel{
+    padding:20px;
+    border-radius:15px;
   }
 
-  .custom-panel {
-    padding: 20px;
-    border-radius: 15px;
+  .qr-container img{
+    width:160px;
+    height:160px;
   }
 
-  .qr-container img {
-    width: 160px;
-    height: 160px;
-  }
-
-  .qr-preview-container {
-    width: 155px;
-    height: 155px;
+  .qr-preview-container{
+    width:155px;
+    height:155px;
   }
 }
 
 /* =========================================================
    TELÉFONO PEQUEÑO
 ========================================================= */
-
-@media (max-width: 380px) {
-
-  .mobile-nav-brand {
-    display: none;
-  }
-
-  .mobile-top-nav {
-    justify-content: space-between;
-  }
+@media (max-width:380px){
+  .tab{font-size:.62rem}
 }
 
 /* =========================================================
    TRANSICIONES GENERALES
 ========================================================= */
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity .2s ease;
+.pop-enter-active,.pop-leave-active{
+  transition:opacity .2s ease,transform .2s ease;
 }
 
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
+.pop-enter-from,.pop-leave-to{
+  opacity:0;
 }
 
-.pop-enter-active,
-.pop-leave-active {
-  transition: opacity .2s ease, transform .2s ease;
+.pop-enter-from .custom-panel,.pop-leave-to .custom-panel{
+  transform:scale(.97);
 }
 
-.pop-enter-from,
-.pop-leave-to {
-  opacity: 0;
-}
-
-.pop-enter-from .custom-panel,
-.pop-leave-to .custom-panel {
-  transform: scale(.97);
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    transition:none!important;
+    animation-duration:.01ms!important;
+  }
 }
 </style>

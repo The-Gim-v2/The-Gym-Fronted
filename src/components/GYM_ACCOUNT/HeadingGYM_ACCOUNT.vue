@@ -1,38 +1,23 @@
 <template>
-  <div
-    ref="layoutRef"
-    class="app-wrapper"
-    :class="{ 'sidebar-open': isSidebarOpen }"
-  >
-    <!-- SIDEBAR MÓVIL / TABLET -->
-    <transition name="fade">
-      <div
-        v-if="isSidebarOpen"
-        class="sidebar-overlay"
-        @click="closeSidebar"
-      ></div>
-    </transition>
+  <div class="app-wrapper">
 
-    <aside class="sidebar-container">
-      <Sidebar />
-    </aside>
-
-    <!-- NAVEGACIÓN ESCRITORIO -->
+    <!-- =====================================================
+         NAVEGACIÓN ESCRITORIO
+    ====================================================== -->
     <header class="desktop-navbar">
       <div class="desktop-navbar-inner">
 
-        <!-- SUCURSAL -->
+        <!-- SUCURSAL (esquina izquierda) -->
         <div class="desktop-brand nav-dropdown-root">
           <button
             type="button"
             class="brand-button"
             :class="{ active: desktopDropdown === 'branch' }"
+            :title="selectedGym"
             @click.stop="toggleDesktopDropdown('branch')"
           >
             <div class="brand-mark">
-              <svg viewBox="0 0 24 24">
-                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z" />
-              </svg>
+              <svg viewBox="0 0 24 24"><path :d="ICON.pin" /></svg>
             </div>
 
             <div class="brand-copy">
@@ -52,7 +37,7 @@
               @click.stop
             >
               <div class="dropdown-title">
-                {{ label('currentBranch', 'Seleccionar sucursal', 'Select branch') }}
+                {{ label('', 'Seleccionar sucursal', 'Select branch') }}
               </div>
 
               <button
@@ -64,9 +49,7 @@
                 @click="selectGym(gym)"
               >
                 <span class="branch-option-icon">
-                  <svg viewBox="0 0 24 24">
-                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z" />
-                  </svg>
+                  <svg viewBox="0 0 24 24"><path :d="ICON.pin" /></svg>
                 </span>
 
                 <span class="branch-option-copy">
@@ -93,9 +76,7 @@
 
           <!-- INICIO -->
           <router-link to="/GYM_ACCOUNT/dashboard" class="desktop-nav-item" @click="closeDesktopDropdown">
-            <svg viewBox="0 0 24 24">
-              <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
-            </svg>
+            <svg viewBox="0 0 24 24"><path :d="ICON.home" /></svg>
             <span>{{ label('home', 'Inicio', 'Home') }}</span>
           </router-link>
 
@@ -107,12 +88,8 @@
               :class="{ active: desktopDropdown === 'users', current: isGroupActive('users') }"
               @click.stop="toggleDesktopDropdown('users')"
             >
-              <svg viewBox="0 0 24 24">
-                <path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13z" />
-              </svg>
-
+              <svg viewBox="0 0 24 24"><path :d="ICON.users" /></svg>
               <span>{{ label('users', 'Usuarios', 'Users') }}</span>
-
               <svg class="nav-chevron" :class="{ rotated: desktopDropdown === 'users' }" viewBox="0 0 24 24">
                 <path d="M7 10l5 5 5-5z" />
               </svg>
@@ -124,64 +101,25 @@
                   {{ label('users', 'Gestión de usuarios', 'User management') }}
                 </div>
 
-                <router-link to="/GYM_ACCOUNT/view-clients" class="dropdown-link" @click="closeDesktopDropdown">
-                  <span class="dropdown-icon blue">
-                    <svg viewBox="0 0 24 24">
-                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                    </svg>
-                  </span>
-                  <span class="dropdown-copy">
-                    <strong>{{ label('viewClients', 'Clientes', 'Clients') }}</strong>
-                    <small>{{ label('', 'Consultar y administrar clientes', 'Manage clients') }}</small>
-                  </span>
-                </router-link>
-
-                <router-link to="/GYM_ACCOUNT/view-staff" class="dropdown-link" @click="closeDesktopDropdown">
-                  <span class="dropdown-icon purple">
-                    <svg viewBox="0 0 24 24">
-                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                    </svg>
-                  </span>
-                  <span class="dropdown-copy">
-                    <strong>{{ label('viewStaff', 'Personal', 'Staff') }}</strong>
-                    <small>{{ label('', 'Consultar y administrar personal', 'Manage staff') }}</small>
-                  </span>
-                </router-link>
-
-                <div class="dropdown-divider"></div>
-
-                <router-link to="/GYM_ACCOUNT/register-clients" class="dropdown-link" @click="closeDesktopDropdown">
-                  <span class="dropdown-icon green">
-                    <svg viewBox="0 0 24 24">
-                      <path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                    </svg>
-                  </span>
-                  <span class="dropdown-copy">
-                    <strong>{{ label('registerClients', 'Registrar cliente', 'Register client') }}</strong>
-                    <small>{{ label('', 'Agregar un nuevo cliente', 'Add a new client') }}</small>
-                  </span>
-                </router-link>
-
-                <router-link to="/GYM_ACCOUNT/register-staff" class="dropdown-link" @click="closeDesktopDropdown">
-                  <span class="dropdown-icon orange">
-                    <svg viewBox="0 0 24 24">
-                      <path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                    </svg>
-                  </span>
-                  <span class="dropdown-copy">
-                    <strong>{{ label('registerStaff', 'Registrar personal', 'Register staff') }}</strong>
-                    <small>{{ label('', 'Agregar nuevo personal', 'Add new staff') }}</small>
-                  </span>
-                </router-link>
+                <template v-for="l in navUsers" :key="l.to">
+                  <div v-if="l.divider" class="dropdown-divider"></div>
+                  <router-link :to="l.to" class="dropdown-link" @click="closeDesktopDropdown">
+                    <span class="dropdown-icon" :class="l.color">
+                      <svg viewBox="0 0 24 24"><path :d="l.icon" /></svg>
+                    </span>
+                    <span class="dropdown-copy">
+                      <strong>{{ label(l.key, l.es, l.en) }}</strong>
+                      <small>{{ label('', l.dEs, l.dEn) }}</small>
+                    </span>
+                  </router-link>
+                </template>
               </div>
             </transition>
           </div>
 
           <!-- PAGOS -->
           <router-link to="/GYM_ACCOUNT/payments" class="desktop-nav-item" @click="closeDesktopDropdown">
-            <svg viewBox="0 0 24 24">
-              <path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V7H12v9z" />
-            </svg>
+            <svg viewBox="0 0 24 24"><path :d="ICON.pay" /></svg>
             <span>{{ label('payments', 'Pagos', 'Payments') }}</span>
           </router-link>
 
@@ -193,12 +131,8 @@
               :class="{ active: desktopDropdown === 'administration', current: isGroupActive('administration') }"
               @click.stop="toggleDesktopDropdown('administration')"
             >
-              <svg viewBox="0 0 24 24">
-                <path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z" />
-              </svg>
-
+              <svg viewBox="0 0 24 24"><path :d="ICON.admin" /></svg>
               <span>{{ label('administration', 'Administración', 'Administration') }}</span>
-
               <svg class="nav-chevron" :class="{ rotated: desktopDropdown === 'administration' }" viewBox="0 0 24 24">
                 <path d="M7 10l5 5 5-5z" />
               </svg>
@@ -210,27 +144,19 @@
                   {{ label('administration', 'Administración', 'Administration') }}
                 </div>
 
-                <router-link to="/GYM_ACCOUNT/pricing" class="dropdown-link" @click="closeDesktopDropdown">
-                  <span class="dropdown-icon blue">
-                    <svg viewBox="0 0 24 24">
-                      <path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z" />
-                    </svg>
+                <router-link
+                  v-for="l in navAdmin"
+                  :key="l.to"
+                  :to="l.to"
+                  class="dropdown-link"
+                  @click="closeDesktopDropdown"
+                >
+                  <span class="dropdown-icon" :class="l.color">
+                    <svg viewBox="0 0 24 24"><path :d="l.icon" /></svg>
                   </span>
                   <span class="dropdown-copy">
-                    <strong>{{ label('pricingAndPromos', 'Precios y promociones', 'Pricing & promos') }}</strong>
-                    <small>{{ label('', 'Tarifas, planes y promociones', 'Rates, plans and promotions') }}</small>
-                  </span>
-                </router-link>
-
-                <router-link to="/GYM_ACCOUNT/fees" class="dropdown-link" @click="closeDesktopDropdown">
-                  <span class="dropdown-icon purple">
-                    <svg viewBox="0 0 24 24">
-                      <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 1.9 1.55 3.28 3.5 3.71V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z" />
-                    </svg>
-                  </span>
-                  <span class="dropdown-copy">
-                    <strong>{{ label('feesAndSurcharges', 'Multas y recargos', 'Fees & surcharges') }}</strong>
-                    <small>{{ label('', 'Reglas de morosidad y recargos', 'Late fees and surcharge rules') }}</small>
+                    <strong>{{ label(l.key, l.es, l.en) }}</strong>
+                    <small>{{ label('', l.dEs, l.dEn) }}</small>
                   </span>
                 </router-link>
               </div>
@@ -245,12 +171,8 @@
               :class="{ active: desktopDropdown === 'reports', current: isGroupActive('reports') }"
               @click.stop="toggleDesktopDropdown('reports')"
             >
-              <svg viewBox="0 0 24 24">
-                <path d="M5 9.2h3V19H5zM10.6 5h2.8v14h-2.8zm5.6 8H19v6h-2.8z" />
-              </svg>
-
+              <svg viewBox="0 0 24 24"><path :d="ICON.chart" /></svg>
               <span>{{ label('logbook', 'Reportes', 'Reports') }}</span>
-
               <svg class="nav-chevron" :class="{ rotated: desktopDropdown === 'reports' }" viewBox="0 0 24 24">
                 <path d="M7 10l5 5 5-5z" />
               </svg>
@@ -262,51 +184,19 @@
                   {{ label('logbook', 'Reportes y bitácora', 'Reports & logbook') }}
                 </div>
 
-                <router-link to="/GYM_ACCOUNT/revenue" class="dropdown-link" @click="closeDesktopDropdown">
-                  <span class="dropdown-icon green">
-                    <svg viewBox="0 0 24 24">
-                      <path d="M5 9.2h3V19H5zM10.6 5h2.8v14h-2.8zm5.6 8H19v6h-2.8z" />
-                    </svg>
+                <router-link
+                  v-for="l in navReports"
+                  :key="l.to"
+                  :to="l.to"
+                  class="dropdown-link"
+                  @click="closeDesktopDropdown"
+                >
+                  <span class="dropdown-icon" :class="l.color">
+                    <svg viewBox="0 0 24 24"><path :d="l.icon" /></svg>
                   </span>
                   <span class="dropdown-copy">
-                    <strong>{{ label('revenue', 'Ingresos', 'Revenue') }}</strong>
-                    <small>{{ label('', 'Historial de ingresos', 'Revenue history') }}</small>
-                  </span>
-                </router-link>
-
-                <router-link to="/GYM_ACCOUNT/debtors" class="dropdown-link" @click="closeDesktopDropdown">
-                  <span class="dropdown-icon red">
-                    <svg viewBox="0 0 24 24">
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-                    </svg>
-                  </span>
-                  <span class="dropdown-copy">
-                    <strong>{{ label('debtors', 'Deudores', 'Debtors') }}</strong>
-                    <small>{{ label('', 'Clientes con adeudos', 'Clients with outstanding balances') }}</small>
-                  </span>
-                </router-link>
-
-                <router-link to="/GYM_ACCOUNT/attendance" class="dropdown-link" @click="closeDesktopDropdown">
-                  <span class="dropdown-icon blue">
-                    <svg viewBox="0 0 24 24">
-                      <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z" />
-                    </svg>
-                  </span>
-                  <span class="dropdown-copy">
-                    <strong>{{ label('attendance', 'Asistencias', 'Attendance') }}</strong>
-                    <small>{{ label('', 'Registro de asistencias', 'Attendance records') }}</small>
-                  </span>
-                </router-link>
-
-                <router-link to="/GYM_ACCOUNT/renewals" class="dropdown-link" @click="closeDesktopDropdown">
-                  <span class="dropdown-icon purple">
-                    <svg viewBox="0 0 24 24">
-                      <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z" />
-                    </svg>
-                  </span>
-                  <span class="dropdown-copy">
-                    <strong>{{ label('renewals', 'Renovaciones', 'Renewals') }}</strong>
-                    <small>{{ label('', 'Seguimiento de membresías', 'Membership renewals') }}</small>
+                    <strong>{{ label(l.key, l.es, l.en) }}</strong>
+                    <small>{{ label('', l.dEs, l.dEn) }}</small>
                   </span>
                 </router-link>
               </div>
@@ -358,7 +248,6 @@
             <span v-if="unreadNotifications > 0" class="notification-count">
               {{ unreadNotifications > 9 ? '9+' : unreadNotifications }}
             </span>
-
             <svg viewBox="0 0 24 24">
               <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path>
               <path d="M10 21h4"></path>
@@ -367,29 +256,16 @@
 
           <div class="desktop-separator"></div>
 
-          <!-- PERFIL -->
+          <!-- PERFIL (solo avatar, sin nombre) -->
           <div class="profile-menu-root nav-dropdown-root">
             <button
               type="button"
               class="desktop-profile"
               :class="{ active: desktopDropdown === 'profile' }"
+              :aria-label="label('profile', 'Mi perfil', 'My profile')"
               @click.stop="toggleDesktopDropdown('profile')"
             >
               <span class="profile-avatar">{{ GYM_ACCOUNTInitials }}</span>
-
-              <span class="profile-copy">
-                <span class="profile-name-row">
-                  <img
-                    v-if="logoOk"
-                    :src="gymLogo"
-                    alt=""
-                    class="gym-logo"
-                    @error="logoOk = false"
-                  />
-                  <strong>{{ GYM_ACCOUNTName }}</strong>
-                </span>
-                <small>GYM_ACCOUNT</small>
-              </span>
 
               <svg class="profile-chevron" :class="{ rotated: desktopDropdown === 'profile' }" viewBox="0 0 24 24">
                 <path d="M7 10l5 5 5-5z"></path>
@@ -399,34 +275,12 @@
             <transition name="desktop-dropdown">
               <div
                 v-if="desktopDropdown === 'profile'"
-                class="desktop-dropdown profile-dropdown"
+                class="desktop-dropdown dropdown-end profile-dropdown"
                 @click.stop
               >
-                <div class="profile-dropdown-header">
-                  <span class="profile-avatar large">{{ GYM_ACCOUNTInitials }}</span>
-
-                  <div>
-                    <span class="profile-name-row">
-                      <img
-                        v-if="logoOk"
-                        :src="gymLogo"
-                        alt=""
-                        class="gym-logo"
-                        @error="logoOk = false"
-                      />
-                      <strong>{{ GYM_ACCOUNTName }}</strong>
-                    </span>
-                    <span>GYM_ACCOUNT</span>
-                  </div>
-                </div>
-
-                <div class="dropdown-divider"></div>
-
                 <router-link to="/GYM_ACCOUNT/profile" class="dropdown-link compact" @click="closeDesktopDropdown">
                   <span class="dropdown-icon neutral">
-                    <svg viewBox="0 0 24 24">
-                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                    </svg>
+                    <svg viewBox="0 0 24 24"><path :d="ICON.user" /></svg>
                   </span>
                   <span class="dropdown-copy">
                     <strong>{{ label('profile', 'Mi perfil', 'My profile') }}</strong>
@@ -435,9 +289,7 @@
 
                 <router-link to="/GYM_ACCOUNT/settings" class="dropdown-link compact" @click="closeDesktopDropdown">
                   <span class="dropdown-icon neutral">
-                    <svg viewBox="0 0 24 24">
-                      <path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5z" />
-                    </svg>
+                    <svg viewBox="0 0 24 24"><path :d="ICON.gear" /></svg>
                   </span>
                   <span class="dropdown-copy">
                     <strong>{{ label('settings', 'Configuración', 'Settings') }}</strong>
@@ -448,9 +300,7 @@
 
                 <button type="button" class="dropdown-link compact logout-link" @click="handleLogout">
                   <span class="dropdown-icon red">
-                    <svg viewBox="0 0 24 24">
-                      <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z" />
-                    </svg>
+                    <svg viewBox="0 0 24 24"><path :d="ICON.logout" /></svg>
                   </span>
                   <span class="dropdown-copy">
                     <strong>{{ label('logout', 'Cerrar sesión', 'Log out') }}</strong>
@@ -463,42 +313,23 @@
       </div>
     </header>
 
-    <!-- CONTENIDO GENERAL -->
+    <!-- =====================================================
+         CONTENIDO GENERAL
+    ====================================================== -->
     <div class="main-layout-container">
 
-      <!-- TOP NAV MÓVIL -->
+      <!-- TOP NAV MÓVIL: sucursal + QR + notificaciones -->
       <nav class="mobile-top-nav">
-        <div class="nav-left">
-          <button
-            type="button"
-            class="nav-action-btn"
-            @click="toggleSidebar"
-            :aria-label="t.abrirMenu || 'Abrir menú'"
-          >
-            <svg viewBox="0 0 24 24" class="mobile-svg-icon">
-              <path d="M4 5h16M4 12h16M4 19h16"></path>
-            </svg>
-          </button>
-
-          <button
-            type="button"
-            class="nav-action-btn"
-            @click="activeModal = 'website'"
-            :title="t.irSitioWeb"
-          >
-            <svg viewBox="0 0 24 24" class="mobile-svg-icon">
-              <circle cx="12" cy="12" r="9"></circle>
-              <path d="M3 12h18"></path>
-              <path d="M12 3c2.3 2.5 3.5 5.5 3.5 9S14.3 18.5 12 21"></path>
-              <path d="M12 3c-2.3 2.5-3.5 5.5-3.5 9S9.7 18.5 12 21"></path>
-            </svg>
-          </button>
-        </div>
-
-        <div class="mobile-nav-brand">
-          <span class="mobile-brand-dot"></span>
-          <span>{{ selectedGym }}</span>
-        </div>
+        <button type="button" class="mobile-branch" @click="toggleSheet('branch')">
+          <span class="mobile-branch-icon">
+            <svg viewBox="0 0 24 24"><path :d="ICON.pin" /></svg>
+          </span>
+          <span class="mobile-branch-copy">
+            <strong>{{ selectedGym }}</strong>
+            <small>{{ label('currentBranch', 'Sucursal actual', 'Current branch') }}</small>
+          </span>
+          <svg class="mobile-branch-chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z" /></svg>
+        </button>
 
         <div class="nav-right">
           <button
@@ -506,6 +337,7 @@
             class="nav-action-btn"
             @click="activeModal = 'qr'"
             :title="t.qrGimnasio"
+            :aria-label="t.qrGimnasio || 'QR'"
           >
             <svg viewBox="0 0 24 24" class="mobile-svg-icon">
               <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4z"></path>
@@ -518,9 +350,9 @@
             class="nav-action-btn notification"
             @click="isNotificationsOpen = true"
             :title="t.notificaciones"
+            :aria-label="t.notificaciones || 'Notificaciones'"
           >
             <span v-if="unreadNotifications > 0" class="mobile-notification-dot"></span>
-
             <svg viewBox="0 0 24 24" class="mobile-svg-icon">
               <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path>
               <path d="M10 21h4"></path>
@@ -534,7 +366,207 @@
       </main>
     </div>
 
-    <!-- MODALES -->
+    <!-- =====================================================
+         BARRA INFERIOR MÓVIL (estilo Mercado Pago)
+    ====================================================== -->
+    <nav class="bottom-nav" :aria-label="label('', 'Navegación principal', 'Main navigation')">
+
+      <router-link
+        to="/GYM_ACCOUNT/dashboard"
+        class="tab"
+        :class="{ on: isTabOn('home') }"
+        @click="closeSheet"
+      >
+        <svg viewBox="0 0 24 24"><path :d="ICON.home" /></svg>
+        <span>{{ label('home', 'Inicio', 'Home') }}</span>
+      </router-link>
+
+      <button
+        type="button"
+        class="tab"
+        :class="{ on: isTabOn('users') }"
+        @click="toggleSheet('users')"
+      >
+        <svg viewBox="0 0 24 24"><path :d="ICON.users" /></svg>
+        <span>{{ label('users', 'Usuarios', 'Users') }}</span>
+      </button>
+
+      <!-- BOTÓN CENTRAL: PAGOS -->
+      <router-link
+        to="/GYM_ACCOUNT/payments"
+        class="tab tab-center"
+        :class="{ on: isTabOn('payments') }"
+        @click="closeSheet"
+      >
+        <span class="fab">
+          <svg viewBox="0 0 24 24"><path :d="ICON.pay" /></svg>
+        </span>
+        <span>{{ label('payments', 'Pagos', 'Payments') }}</span>
+      </router-link>
+
+      <button
+        type="button"
+        class="tab"
+        :class="{ on: isTabOn('reports') }"
+        @click="toggleSheet('reports')"
+      >
+        <svg viewBox="0 0 24 24"><path :d="ICON.chart" /></svg>
+        <span>{{ label('logbook', 'Reportes', 'Reports') }}</span>
+      </button>
+
+      <button
+        type="button"
+        class="tab"
+        :class="{ on: isTabOn('more') }"
+        @click="toggleSheet('more')"
+      >
+        <svg viewBox="0 0 24 24" class="stroke"><path d="M4 7h16M4 12h9M4 17h9M17 14v6M14 17h6" /></svg>
+        <span>{{ label('', 'Más', 'More') }}</span>
+      </button>
+    </nav>
+
+    <!-- =====================================================
+         HOJAS INFERIORES (móvil)
+    ====================================================== -->
+    <transition name="sheet">
+      <div v-if="mobileSheet" class="sheet-overlay" @click.self="closeSheet">
+        <div class="sheet" role="dialog" aria-modal="true">
+          <div class="sheet-handle"></div>
+
+          <!-- USUARIOS -->
+          <template v-if="mobileSheet === 'users'">
+            <h3 class="sheet-title">{{ label('users', 'Gestión de usuarios', 'User management') }}</h3>
+
+            <template v-for="l in navUsers" :key="l.to">
+              <div v-if="l.divider" class="sheet-divider"></div>
+              <router-link :to="l.to" class="sheet-link" @click="closeSheet">
+                <span class="dropdown-icon" :class="l.color">
+                  <svg viewBox="0 0 24 24"><path :d="l.icon" /></svg>
+                </span>
+                <span class="dropdown-copy">
+                  <strong>{{ label(l.key, l.es, l.en) }}</strong>
+                  <small>{{ label('', l.dEs, l.dEn) }}</small>
+                </span>
+              </router-link>
+            </template>
+          </template>
+
+          <!-- REPORTES -->
+          <template v-else-if="mobileSheet === 'reports'">
+            <h3 class="sheet-title">{{ label('logbook', 'Reportes y bitácora', 'Reports & logbook') }}</h3>
+
+            <router-link
+              v-for="l in navReports"
+              :key="l.to"
+              :to="l.to"
+              class="sheet-link"
+              @click="closeSheet"
+            >
+              <span class="dropdown-icon" :class="l.color">
+                <svg viewBox="0 0 24 24"><path :d="l.icon" /></svg>
+              </span>
+              <span class="dropdown-copy">
+                <strong>{{ label(l.key, l.es, l.en) }}</strong>
+                <small>{{ label('', l.dEs, l.dEn) }}</small>
+              </span>
+            </router-link>
+          </template>
+
+          <!-- SUCURSAL -->
+          <template v-else-if="mobileSheet === 'branch'">
+            <h3 class="sheet-title">{{ label('', 'Seleccionar sucursal', 'Select branch') }}</h3>
+
+            <button
+              v-for="gym in gyms"
+              :key="gym"
+              type="button"
+              class="sheet-link branch"
+              :class="{ selected: selectedGym === gym }"
+              @click="selectGym(gym)"
+            >
+              <span class="dropdown-icon blue">
+                <svg viewBox="0 0 24 24"><path :d="ICON.pin" /></svg>
+              </span>
+              <span class="dropdown-copy">
+                <strong>{{ gym }}</strong>
+                <small>
+                  {{
+                    selectedGym === gym
+                      ? label('', 'Sucursal seleccionada', 'Selected branch')
+                      : label('', 'Cambiar a esta sucursal', 'Switch to this branch')
+                  }}
+                </small>
+              </span>
+              <svg v-if="selectedGym === gym" class="sheet-check" viewBox="0 0 24 24">
+                <path d="M20 6 9 17l-5-5" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+          </template>
+
+          <!-- MÁS -->
+          <template v-else-if="mobileSheet === 'more'">
+            <h3 class="sheet-title">{{ label('administration', 'Administración', 'Administration') }}</h3>
+
+            <router-link
+              v-for="l in navAdmin"
+              :key="l.to"
+              :to="l.to"
+              class="sheet-link"
+              @click="closeSheet"
+            >
+              <span class="dropdown-icon" :class="l.color">
+                <svg viewBox="0 0 24 24"><path :d="l.icon" /></svg>
+              </span>
+              <span class="dropdown-copy">
+                <strong>{{ label(l.key, l.es, l.en) }}</strong>
+                <small>{{ label('', l.dEs, l.dEn) }}</small>
+              </span>
+            </router-link>
+
+            <div class="sheet-divider"></div>
+
+            <div class="sheet-grid">
+              <router-link to="/GYM_ACCOUNT/profile" class="sheet-tile" @click="closeSheet">
+                <span class="dropdown-icon neutral">
+                  <svg viewBox="0 0 24 24"><path :d="ICON.user" /></svg>
+                </span>
+                <strong>{{ label('profile', 'Mi perfil', 'My profile') }}</strong>
+              </router-link>
+
+              <router-link to="/GYM_ACCOUNT/settings" class="sheet-tile" @click="closeSheet">
+                <span class="dropdown-icon neutral">
+                  <svg viewBox="0 0 24 24"><path :d="ICON.gear" /></svg>
+                </span>
+                <strong>{{ label('settings', 'Configuración', 'Settings') }}</strong>
+              </router-link>
+
+              <button type="button" class="sheet-tile" @click="openModal('website')">
+                <span class="dropdown-icon neutral">
+                  <svg viewBox="0 0 24 24" class="stroke">
+                    <circle cx="12" cy="12" r="9"></circle>
+                    <path d="M3 12h18"></path>
+                    <path d="M12 3c2.3 2.5 3.5 5.5 3.5 9S14.3 18.5 12 21"></path>
+                    <path d="M12 3c-2.3 2.5-3.5 5.5-3.5 9S9.7 18.5 12 21"></path>
+                  </svg>
+                </span>
+                <strong>{{ t.irSitioWeb || label('', 'Sitio web', 'Website') }}</strong>
+              </button>
+
+              <button type="button" class="sheet-tile danger" @click="handleLogout">
+                <span class="dropdown-icon red">
+                  <svg viewBox="0 0 24 24"><path :d="ICON.logout" /></svg>
+                </span>
+                <strong>{{ label('logout', 'Cerrar sesión', 'Log out') }}</strong>
+              </button>
+            </div>
+          </template>
+        </div>
+      </div>
+    </transition>
+
+    <!-- =====================================================
+         MODALES
+    ====================================================== -->
     <transition name="pop">
       <div
         v-if="activeModal"
@@ -616,9 +648,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import Sidebar from './Sidebar.vue';
 import NotificationsPanel from './Notifications/NotificationsPanel.vue';
 import { traducciones } from './i18n.js';
 import { useLang } from './useLang.js';
@@ -628,16 +659,101 @@ const route = useRoute();
 const { lang } = useLang();
 
 /* =========================================================
+   ICONOS
+========================================================= */
+
+const ICON = {
+  home: 'M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z',
+  users: 'M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13z',
+  user: 'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z',
+  userAdd: 'M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z',
+  pay: 'M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V7H12v9z',
+  admin: 'M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z',
+  tag: 'M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z',
+  fee: 'M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 1.9 1.55 3.28 3.5 3.71V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z',
+  chart: 'M5 9.2h3V19H5zM10.6 5h2.8v14h-2.8zm5.6 8H19v6h-2.8z',
+  alert: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z',
+  calendar: 'M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z',
+  renew: 'M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z',
+  pin: 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z',
+  gear: 'M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5z',
+  logout: 'M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z'
+};
+
+/* =========================================================
+   ENLACES DEL MENÚ (se usan en escritorio y en móvil)
+========================================================= */
+
+const navUsers = [
+  {
+    to: '/GYM_ACCOUNT/view-clients', key: 'viewClients', es: 'Clientes', en: 'Clients',
+    dEs: 'Consultar y administrar clientes', dEn: 'Manage clients',
+    icon: ICON.user, color: 'blue'
+  },
+  {
+    to: '/GYM_ACCOUNT/view-staff', key: 'viewStaff', es: 'Personal', en: 'Staff',
+    dEs: 'Consultar y administrar personal', dEn: 'Manage staff',
+    icon: ICON.user, color: 'purple'
+  },
+  {
+    to: '/GYM_ACCOUNT/register-clients', key: 'registerClients', es: 'Registrar cliente', en: 'Register client',
+    dEs: 'Agregar un nuevo cliente', dEn: 'Add a new client',
+    icon: ICON.userAdd, color: 'green', divider: true
+  },
+  {
+    to: '/GYM_ACCOUNT/register-staff', key: 'registerStaff', es: 'Registrar personal', en: 'Register staff',
+    dEs: 'Agregar nuevo personal', dEn: 'Add new staff',
+    icon: ICON.userAdd, color: 'orange'
+  }
+];
+
+const navAdmin = [
+  {
+    to: '/GYM_ACCOUNT/pricing', key: 'pricingAndPromos', es: 'Precios y promociones', en: 'Pricing & promos',
+    dEs: 'Tarifas, planes y promociones', dEn: 'Rates, plans and promotions',
+    icon: ICON.tag, color: 'blue'
+  },
+  {
+    to: '/GYM_ACCOUNT/fees', key: 'feesAndSurcharges', es: 'Multas y recargos', en: 'Fees & surcharges',
+    dEs: 'Reglas de morosidad y recargos', dEn: 'Late fees and surcharge rules',
+    icon: ICON.fee, color: 'purple'
+  }
+];
+
+const navReports = [
+  {
+    to: '/GYM_ACCOUNT/revenue', key: 'revenue', es: 'Ingresos', en: 'Revenue',
+    dEs: 'Historial de ingresos', dEn: 'Revenue history',
+    icon: ICON.chart, color: 'green'
+  },
+  {
+    to: '/GYM_ACCOUNT/debtors', key: 'debtors', es: 'Deudores', en: 'Debtors',
+    dEs: 'Clientes con adeudos', dEn: 'Clients with outstanding balances',
+    icon: ICON.alert, color: 'red'
+  },
+  {
+    to: '/GYM_ACCOUNT/attendance', key: 'attendance', es: 'Asistencias', en: 'Attendance',
+    dEs: 'Registro de asistencias', dEn: 'Attendance records',
+    icon: ICON.calendar, color: 'blue'
+  },
+  {
+    to: '/GYM_ACCOUNT/renewals', key: 'renewals', es: 'Renovaciones', en: 'Renewals',
+    dEs: 'Seguimiento de membresías', dEn: 'Membership renewals',
+    icon: ICON.renew, color: 'purple'
+  }
+];
+
+/* =========================================================
    ESTADOS GENERALES
 ========================================================= */
 
-const layoutRef = ref(null);
-
-const isSidebarOpen = ref(false);
 const isNotificationsOpen = ref(false);
 
 const activeModal = ref(null);
 const desktopDropdown = ref(null);
+
+/* Hoja inferior móvil: null | 'users' | 'reports' | 'more' | 'branch' */
+const mobileSheet = ref(null);
 
 const selectedGym = ref(
   localStorage.getItem('GYM_ACCOUNT-selected-gym') || 'Gimnasio Principal'
@@ -713,18 +829,6 @@ const unreadNotifications = computed(() => {
 });
 
 /* =========================================================
-   SIDEBAR MÓVIL
-========================================================= */
-
-const toggleSidebar = () => {
-  isSidebarOpen.value = !isSidebarOpen.value;
-};
-
-const closeSidebar = () => {
-  isSidebarOpen.value = false;
-};
-
-/* =========================================================
    GRUPO ACTIVO (resalta el menú cuando estás en una de sus páginas)
 ========================================================= */
 
@@ -748,6 +852,53 @@ const isGroupActive = (name) =>
   (grupos[name] || []).some((ruta) => route.path.startsWith(ruta));
 
 /* =========================================================
+   BARRA INFERIOR MÓVIL
+========================================================= */
+
+/* Pestaña que corresponde a la página actual */
+const activeTab = computed(() => {
+  const path = route.path;
+
+  if (path.startsWith('/GYM_ACCOUNT/dashboard')) return 'home';
+  if (path.startsWith('/GYM_ACCOUNT/payments')) return 'payments';
+  if (isGroupActive('users')) return 'users';
+  if (isGroupActive('reports')) return 'reports';
+
+  if (
+    isGroupActive('administration') ||
+    path.startsWith('/GYM_ACCOUNT/profile') ||
+    path.startsWith('/GYM_ACCOUNT/settings')
+  ) {
+    return 'more';
+  }
+
+  return '';
+});
+
+/* Si hay una hoja abierta, se resalta esa pestaña; si no, la de la página */
+const isTabOn = (name) =>
+  mobileSheet.value ? mobileSheet.value === name : activeTab.value === name;
+
+const toggleSheet = (name) => {
+  desktopDropdown.value = null;
+  mobileSheet.value = mobileSheet.value === name ? null : name;
+};
+
+const closeSheet = () => {
+  mobileSheet.value = null;
+};
+
+const openModal = (name) => {
+  closeSheet();
+  activeModal.value = name;
+};
+
+/* Bloquea el scroll del fondo mientras la hoja está abierta */
+watch(mobileSheet, (value) => {
+  document.body.style.overflow = value ? 'hidden' : '';
+});
+
+/* =========================================================
    DROPDOWNS DESKTOP
 ========================================================= */
 
@@ -767,6 +918,7 @@ const selectGym = (gym) => {
   selectedGym.value = gym;
   localStorage.setItem('GYM_ACCOUNT-selected-gym', gym);
   closeDesktopDropdown();
+  closeSheet();
 };
 
 /* =========================================================
@@ -795,11 +947,8 @@ const handleKeydown = (event) => {
   }
 
   closeDesktopDropdown();
+  closeSheet();
   activeModal.value = null;
-
-  if (isSidebarOpen.value) {
-    closeSidebar();
-  }
 };
 
 /* =========================================================
@@ -807,8 +956,8 @@ const handleKeydown = (event) => {
 ========================================================= */
 
 const handleResize = () => {
-  if (window.innerWidth >= 1024) {
-    closeSidebar();
+  if (window.innerWidth >= 900) {
+    closeSheet();
   } else {
     closeDesktopDropdown();
   }
@@ -824,6 +973,7 @@ const handleLogout = () => {
   localStorage.removeItem('user');
 
   closeDesktopDropdown();
+  closeSheet();
 
   router.replace({ name: 'login' });
 };
@@ -929,6 +1079,8 @@ onUnmounted(() => {
   window.removeEventListener('resize', handleResize);
   window.removeEventListener('app-settings-updated', aplicarEstilosGlobales);
   window.removeEventListener('idioma-changed', handleIdiomaChanged);
+
+  document.body.style.overflow = '';
 });
 </script>
 
@@ -944,7 +1096,10 @@ onUnmounted(() => {
 }
 
 .app-wrapper {
-  --nav-height: 68px;
+  --nav-height: 72px;
+  --bottom-nav-h: 70px;
+  --nav-line: rgba(255, 255, 255, 0.09);
+  --hover-bg: rgba(255, 255, 255, 0.07);
   --accent: var(--color-highlight, #3b82f6);
   --button: var(--color-botones, #2563eb);
   --card: var(--bg-cards, #101317);
@@ -963,41 +1118,10 @@ onUnmounted(() => {
   transition: background-color .25s ease;
 }
 
-/* =========================================================
-   DESKTOP NAVBAR (oculto por defecto)
-========================================================= */
-
-.desktop-navbar {
+/* Ocultos por defecto; cada breakpoint activa los suyos */
+.desktop-navbar,
+.bottom-nav {
   display: none;
-}
-
-/* =========================================================
-   SIDEBAR MÓVIL
-========================================================= */
-
-.sidebar-container {
-  width: 280px;
-  height: 100dvh;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 3000;
-  background: var(--bg-cards, #101317);
-  transform: translateX(-100%);
-  transition: transform .3s cubic-bezier(.4, 0, .2, 1);
-  box-shadow: 16px 0 40px rgba(0, 0, 0, .45);
-}
-
-.sidebar-open .sidebar-container {
-  transform: translateX(0);
-}
-
-.sidebar-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 2999;
-  background: rgba(0, 0, 0, .66);
-  cursor: pointer;
 }
 
 /* =========================================================
@@ -1019,6 +1143,78 @@ onUnmounted(() => {
 }
 
 /* =========================================================
+   ICONOS Y TEXTOS COMPARTIDOS (dropdowns de escritorio y hojas móviles)
+========================================================= */
+
+.dropdown-icon {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+}
+
+.dropdown-icon svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+.dropdown-icon svg.stroke {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.dropdown-icon.blue { color: #60a5fa; background: rgba(59, 130, 246, 0.14); }
+.dropdown-icon.purple { color: #c084fc; background: rgba(168, 85, 247, 0.14); }
+.dropdown-icon.green { color: #34d399; background: rgba(16, 185, 129, 0.14); }
+.dropdown-icon.orange { color: #fb923c; background: rgba(249, 115, 22, 0.14); }
+.dropdown-icon.red { color: #f87171; background: rgba(239, 68, 68, 0.14); }
+.dropdown-icon.neutral { color: var(--muted); background: rgba(255, 255, 255, 0.06); }
+
+.dropdown-copy {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.dropdown-copy strong {
+  max-width: 100%;
+  overflow: hidden;
+  color: inherit;
+  font-size: 0.9rem;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dropdown-copy small {
+  max-width: 100%;
+  margin-top: 2px;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dropdown-divider {
+  height: 1px;
+  margin: 6px 8px;
+  background: var(--nav-line);
+}
+
+.logout-link { color: #f87171; }
+
+/* =========================================================
    TOP NAV MÓVIL
 ========================================================= */
 
@@ -1036,11 +1232,74 @@ onUnmounted(() => {
   background: var(--color-heading-bg, #0c1118);
 }
 
-.nav-left,
 .nav-right {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.mobile-branch {
+  min-width: 0;
+  max-width: calc(100% - 100px);
+  height: 46px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 10px 0 6px;
+  border: 1px solid rgba(255, 255, 255, .09);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .035);
+  color: var(--title);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-branch-icon {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  color: var(--accent);
+}
+
+.mobile-branch-icon svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.mobile-branch-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.2;
+}
+
+.mobile-branch-copy strong {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: .82rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mobile-branch-copy small {
+  color: var(--muted);
+  font-size: .68rem;
+  font-weight: 500;
+}
+
+.mobile-branch-chevron {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  fill: var(--muted);
 }
 
 .nav-action-btn {
@@ -1076,10 +1335,6 @@ onUnmounted(() => {
   stroke-linejoin: round;
 }
 
-.notification {
-  position: relative;
-}
-
 .mobile-notification-dot {
   width: 7px;
   height: 7px;
@@ -1091,30 +1346,325 @@ onUnmounted(() => {
   background: var(--accent);
 }
 
-.mobile-nav-brand {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  color: var(--title);
-  font-size: .76rem;
-  font-weight: 700;
-  overflow: hidden;
+/* =========================================================
+   BARRA INFERIOR MÓVIL
+========================================================= */
+
+.bottom-nav {
+  height: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom));
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2600;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  padding: 0 8px env(safe-area-inset-bottom);
+  border-top: 1px solid var(--nav-line);
+  border-radius: 26px 26px 0 0;
+  background: color-mix(in srgb, var(--card) 94%, transparent);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 -12px 34px rgba(0, 0, 0, .4);
 }
 
-.mobile-nav-brand span:last-child {
+.tab {
+  height: var(--bottom-nav-h);
+  min-width: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-family: 'Inter', sans-serif;
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .1px;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color .18s ease;
+}
+
+.tab > span {
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.mobile-brand-dot {
-  width: 7px;
-  height: 7px;
-  flex-shrink: 0;
-  border-radius: 50%;
+.tab > svg {
+  width: 25px;
+  height: 25px;
+  fill: currentColor;
+  transition: transform .18s ease, filter .18s ease;
+}
+
+.tab > svg.stroke {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.tab:active > svg {
+  transform: scale(.88);
+}
+
+/* Barrita superior de la pestaña activa */
+.tab::before {
+  content: '';
+  width: 36px;
+  height: 4px;
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  border-radius: 0 0 5px 5px;
   background: var(--accent);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 13%, transparent);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--accent) 70%, transparent);
+  transform: translateX(-50%) scaleX(0);
+  transition: transform .22s ease;
+}
+
+.tab.on {
+  color: var(--accent);
+}
+
+.tab.on::before {
+  transform: translateX(-50%) scaleX(1);
+}
+
+.tab.on > svg {
+  filter: drop-shadow(0 0 7px color-mix(in srgb, var(--accent) 60%, transparent));
+}
+
+/* Botón central flotante */
+.tab-center {
+  justify-content: flex-end;
+  padding-bottom: 15px;
+  color: var(--text);
+}
+
+.tab-center.on {
+  color: var(--accent);
+}
+
+.fab {
+  width: 64px;
+  height: 64px;
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--button) 78%, white),
+    var(--button) 65%
+  );
+  color: var(--color-texto-botones, #fff);
+  box-shadow:
+    0 10px 26px color-mix(in srgb, var(--button) 60%, transparent),
+    0 0 0 6px var(--card);
+  transform: translateX(-50%);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.fab svg {
+  width: 28px;
+  height: 28px;
+  fill: currentColor;
+}
+
+.tab-center:active .fab {
+  transform: translateX(-50%) scale(.93);
+}
+
+.tab-center.on .fab {
+  box-shadow:
+    0 12px 30px color-mix(in srgb, var(--button) 75%, transparent),
+    0 0 0 6px var(--card),
+    0 0 0 8px color-mix(in srgb, var(--button) 45%, transparent);
+}
+
+/* =========================================================
+   HOJAS INFERIORES (móvil)
+========================================================= */
+
+.sheet-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2800;
+  display: flex;
+  align-items: flex-end;
+  background: rgba(0, 0, 0, .62);
+}
+
+.sheet {
+  width: 100%;
+  max-height: 82dvh;
+  overflow-y: auto;
+  padding: 10px 14px calc(18px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--line);
+  border-radius: 24px 24px 0 0;
+  background: var(--card);
+  box-shadow: 0 -20px 50px rgba(0, 0, 0, .45);
+  overscroll-behavior: contain;
+}
+
+.sheet-handle {
+  width: 38px;
+  height: 4px;
+  margin: 0 auto 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .16);
+}
+
+.sheet-title {
+  margin: 0 0 8px;
+  padding: 0 6px 10px;
+  border-bottom: 1px solid var(--nav-line);
+  color: var(--muted);
+  font-size: .82rem;
+  font-weight: 600;
+}
+
+.sheet-link {
+  width: 100%;
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 8px 8px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background .14s ease;
+}
+
+.sheet-link:active,
+.sheet-link:hover {
+  background: var(--hover-bg);
+}
+
+.sheet-link.router-link-active,
+.sheet-link.selected {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: color-mix(in srgb, var(--accent) 70%, white);
+}
+
+.sheet-link.logout-link {
+  color: #f87171;
+}
+
+/* Flecha que indica que la fila abre una página */
+.sheet-link:not(.branch):not(.logout-link)::after {
+  content: '›';
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.sheet-link .dropdown-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+}
+
+/* Cuadrícula de accesos rápidos en "Más" */
+.sheet-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding: 4px 2px 0;
+}
+
+.sheet-tile {
+  min-height: 92px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, .03);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background .14s ease, border-color .14s ease;
+}
+
+.sheet-tile strong {
+  font-size: .84rem;
+  font-weight: 650;
+}
+
+.sheet-tile:active,
+.sheet-tile:hover {
+  background: var(--hover-bg);
+}
+
+.sheet-tile.router-link-active {
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.sheet-tile.danger {
+  border-color: rgba(239, 68, 68, .22);
+  background: rgba(239, 68, 68, .07);
+  color: #f87171;
+}
+
+.sheet-check {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: var(--accent);
+}
+
+.sheet-divider {
+  height: 1px;
+  margin: 6px 8px;
+  background: var(--nav-line);
+}
+
+.sheet-enter-active,
+.sheet-leave-active {
+  transition: opacity .22s ease;
+}
+
+.sheet-enter-active .sheet,
+.sheet-leave-active .sheet {
+  transition: transform .26s cubic-bezier(.32, .72, 0, 1);
+}
+
+.sheet-enter-from,
+.sheet-leave-to {
+  opacity: 0;
+}
+
+.sheet-enter-from .sheet,
+.sheet-leave-to .sheet {
+  transform: translateY(100%);
 }
 
 /* =========================================================
@@ -1267,19 +1817,13 @@ onUnmounted(() => {
 
 @media (min-width: 900px) {
 
-  .app-wrapper {
-    --nav-height: 72px;
-    --nav-line: rgba(255, 255, 255, 0.09);
-    --hover-bg: rgba(255, 255, 255, 0.07);
-  }
-
-  .sidebar-container,
-  .sidebar-overlay,
-  .mobile-top-nav {
+  .mobile-top-nav,
+  .bottom-nav,
+  .sheet-overlay {
     display: none !important;
   }
 
-  /* ---------- NAVBAR (grid: sucursal | menú centrado | acciones) ---------- */
+  /* ---------- NAVBAR (grid: sucursal | menú | acciones) ---------- */
 
   .desktop-navbar {
     width: 100%;
@@ -1297,17 +1841,17 @@ onUnmounted(() => {
     width: 100%;
     height: 100%;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
     gap: 16px;
     padding: 0 clamp(18px, 2.3vw, 40px);
   }
 
-  /* ---------- SUCURSAL ---------- */
+  /* ---------- SUCURSAL (derecha) ---------- */
 
   .desktop-brand {
     min-width: 0;
-    max-width: 240px;
+    max-width: 250px;
     position: relative;
     justify-self: start;
   }
@@ -1317,7 +1861,7 @@ onUnmounted(() => {
     height: 52px;
     display: flex;
     align-items: center;
-    gap: 11px;
+    gap: 10px;
     padding: 0 10px;
     border: 1px solid transparent;
     border-radius: 12px;
@@ -1334,8 +1878,8 @@ onUnmounted(() => {
   }
 
   .brand-mark {
-    width: 38px;
-    height: 38px;
+    width: 36px;
+    height: 36px;
     flex-shrink: 0;
     display: flex;
     align-items: center;
@@ -1346,8 +1890,8 @@ onUnmounted(() => {
   }
 
   .brand-mark svg {
-    width: 19px;
-    height: 19px;
+    width: 18px;
+    height: 18px;
     fill: currentColor;
   }
 
@@ -1363,7 +1907,7 @@ onUnmounted(() => {
     width: 100%;
     overflow: hidden;
     color: var(--title);
-    font-size: 0.92rem;
+    font-size: 0.88rem;
     font-weight: 700;
     text-align: left;
     text-overflow: ellipsis;
@@ -1373,7 +1917,7 @@ onUnmounted(() => {
   .brand-copy span {
     margin-top: 2px;
     color: var(--muted);
-    font-size: 0.75rem;
+    font-size: 0.74rem;
     font-weight: 500;
   }
 
@@ -1393,8 +1937,18 @@ onUnmounted(() => {
     min-width: 0;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-end;
     gap: 4px;
+  }
+
+  /* Divisor fino entre el menú y los botones de la derecha */
+  .desktop-menu::after {
+    content: '';
+    width: 1px;
+    height: 28px;
+    flex-shrink: 0;
+    margin: 0 4px 0 10px;
+    background: var(--nav-line);
   }
 
   .desktop-nav-group {
@@ -1483,8 +2037,15 @@ onUnmounted(() => {
     box-shadow: 0 22px 55px rgba(0, 0, 0, 0.5);
   }
 
+  /* Los menús de la derecha se abren hacia la izquierda */
+  .desktop-dropdown.dropdown-end {
+    right: 0;
+    left: auto;
+  }
+
   .reports-dropdown { width: 310px; }
   .branch-menu { width: 280px; }
+  .profile-dropdown { width: 240px; }
 
   .dropdown-title {
     padding: 8px 10px 11px;
@@ -1522,7 +2083,6 @@ onUnmounted(() => {
     color: color-mix(in srgb, var(--accent) 70%, white);
   }
 
-  .dropdown-icon,
   .branch-option-icon {
     width: 38px;
     height: 38px;
@@ -1531,28 +2091,16 @@ onUnmounted(() => {
     align-items: center;
     justify-content: center;
     border-radius: 10px;
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
   }
 
-  .dropdown-icon svg,
   .branch-option-icon svg {
     width: 18px;
     height: 18px;
     fill: currentColor;
   }
 
-  .dropdown-icon.blue { color: #60a5fa; background: rgba(59, 130, 246, 0.14); }
-  .dropdown-icon.purple { color: #c084fc; background: rgba(168, 85, 247, 0.14); }
-  .dropdown-icon.green { color: #34d399; background: rgba(16, 185, 129, 0.14); }
-  .dropdown-icon.orange { color: #fb923c; background: rgba(249, 115, 22, 0.14); }
-  .dropdown-icon.red { color: #f87171; background: rgba(239, 68, 68, 0.14); }
-  .dropdown-icon.neutral { color: var(--muted); background: rgba(255, 255, 255, 0.06); }
-
-  .branch-option-icon {
-    color: var(--accent);
-    background: color-mix(in srgb, var(--accent) 14%, transparent);
-  }
-
-  .dropdown-copy,
   .branch-option-copy {
     min-width: 0;
     flex: 1;
@@ -1561,7 +2109,6 @@ onUnmounted(() => {
     align-items: flex-start;
   }
 
-  .dropdown-copy strong,
   .branch-option-copy strong {
     max-width: 100%;
     overflow: hidden;
@@ -1572,7 +2119,6 @@ onUnmounted(() => {
     white-space: nowrap;
   }
 
-  .dropdown-copy small,
   .branch-option-copy small {
     max-width: 100%;
     margin-top: 2px;
@@ -1599,18 +2145,13 @@ onUnmounted(() => {
     color: var(--accent);
   }
 
-  .dropdown-divider {
-    height: 1px;
-    margin: 6px 8px;
-    background: var(--nav-line);
-  }
-
   /* ---------- ACCIONES DERECHA ---------- */
 
   .desktop-actions {
     min-width: 0;
     display: flex;
     align-items: center;
+    flex-shrink: 0;
     justify-content: flex-end;
     justify-self: end;
     gap: 4px;
@@ -1674,7 +2215,7 @@ onUnmounted(() => {
     background: var(--nav-line);
   }
 
-  /* ---------- PERFIL ---------- */
+  /* ---------- PERFIL (solo avatar) ---------- */
 
   .profile-menu-root { position: relative; }
 
@@ -1682,8 +2223,8 @@ onUnmounted(() => {
     height: 52px;
     display: flex;
     align-items: center;
-    gap: 11px;
-    padding: 0 10px;
+    gap: 6px;
+    padding: 0 8px 0 6px;
     border: 1px solid transparent;
     border-radius: 12px;
     background: transparent;
@@ -1713,52 +2254,6 @@ onUnmounted(() => {
     font-weight: 800;
   }
 
-  .profile-avatar.large {
-    width: 46px;
-    height: 46px;
-    border-radius: 12px;
-    font-size: 0.92rem;
-  }
-
-  .profile-copy {
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .profile-name-row {
-    max-width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 7px;
-  }
-
-  .gym-logo {
-    width: 20px;
-    height: 20px;
-    flex-shrink: 0;
-    display: block;
-    border-radius: 6px;
-    object-fit: cover;
-  }
-
-  .profile-copy strong {
-    max-width: 170px;
-    overflow: hidden;
-    color: var(--title);
-    font-size: 0.88rem;
-    font-weight: 700;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .profile-copy small {
-    margin-top: 2px;
-    color: var(--muted);
-    font-size: 0.75rem;
-  }
-
   .profile-chevron {
     width: 16px;
     height: 16px;
@@ -1769,48 +2264,8 @@ onUnmounted(() => {
 
   .profile-chevron.rotated { transform: rotate(180deg); }
 
-  .profile-dropdown {
-    width: 330px;
-    right: 0;
-    left: auto;
-  }
-
-  .profile-dropdown-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 8px 10px 12px;
-  }
-
-  .profile-dropdown-header > div {
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .profile-dropdown-header .profile-name-row strong {
-    max-width: 245px;
-    overflow: hidden;
-    color: var(--title);
-    font-size: 0.95rem;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .profile-dropdown-header .gym-logo {
-    width: 22px;
-    height: 22px;
-  }
-
-  .profile-dropdown-header > div > span:not(.profile-name-row) {
-    margin-top: 3px;
-    color: var(--muted);
-    font-size: 0.8rem;
-  }
-
   .dropdown-link.compact { min-height: 46px; }
 
-  .logout-link { color: #f87171; }
   .logout-link:hover { background: rgba(239, 68, 68, 0.1); }
 
   /* ---------- MAIN ---------- */
@@ -1846,8 +2301,7 @@ onUnmounted(() => {
     padding: 0 20px;
   }
 
-  .brand-copy strong { font-size: 0.86rem; }
-  .brand-copy span { font-size: 0.72rem; }
+  .desktop-brand { max-width: 230px; }
 
   .desktop-menu { gap: 2px; }
 
@@ -1856,13 +2310,11 @@ onUnmounted(() => {
     font-size: 0.84rem;
   }
 
-  .profile-copy strong { max-width: 150px; }
-
   .desktop-separator { margin: 0 6px; }
 }
 
 /* =========================================================
-   900 - 1279: se oculta el nombre del perfil
+   900 - 1279: logo solo icono, sucursal solo icono
 ========================================================= */
 
 @media (min-width: 900px) and (max-width: 1279px) {
@@ -1872,9 +2324,9 @@ onUnmounted(() => {
     padding: 0 14px;
   }
 
-  .desktop-brand { max-width: 170px; }
+  .brand-copy { display: none; }
 
-  .brand-copy span { display: none; }
+  .desktop-brand { max-width: 84px; }
 
   .desktop-nav-item {
     padding: 0 8px;
@@ -1885,24 +2337,13 @@ onUnmounted(() => {
     width: 38px;
     height: 38px;
   }
-
-  .profile-copy { display: none; }
-
-  .desktop-profile { padding: 0 6px; }
 }
 
 /* =========================================================
-   900 - 1160: sucursal compacta y menú sin iconos
+   900 - 1160: menú sin iconos
 ========================================================= */
 
 @media (min-width: 900px) and (max-width: 1160px) {
-
-  .desktop-brand { max-width: 56px; }
-
-  .brand-copy,
-  .brand-chevron { display: none; }
-
-  .brand-button { padding: 0 8px; }
 
   .desktop-nav-item {
     padding: 0 7px;
@@ -1912,6 +2353,12 @@ onUnmounted(() => {
   .desktop-nav-item > svg:first-child { display: none; }
 
   .nav-chevron { display: none; }
+
+  .brand-chevron { display: none; }
+
+  .desktop-brand { max-width: 56px; }
+
+  .brand-button { padding: 0 8px; }
 }
 
 /* =========================================================
@@ -1924,12 +2371,17 @@ onUnmounted(() => {
     display: none;
   }
 
-  .sidebar-container {
-    display: block;
-  }
-
   .mobile-top-nav {
     display: flex;
+  }
+
+  .bottom-nav {
+    display: grid;
+  }
+
+  /* Deja espacio para que la barra inferior no tape el contenido */
+  .main-content-wrapper {
+    padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom) + 14px);
   }
 }
 
@@ -1944,7 +2396,6 @@ onUnmounted(() => {
     padding: 9px 10px;
   }
 
-  .nav-left,
   .nav-right {
     gap: 5px;
   }
@@ -1955,9 +2406,9 @@ onUnmounted(() => {
     border-radius: 10px;
   }
 
-  .mobile-nav-brand {
-    max-width: 120px;
-    font-size: .67rem;
+  .mobile-branch {
+    height: 44px;
+    max-width: calc(100% - 92px);
   }
 
   .custom-panel {
@@ -1982,28 +2433,20 @@ onUnmounted(() => {
 
 @media (max-width: 380px) {
 
-  .mobile-nav-brand {
-    display: none;
+  .tab {
+    font-size: .62rem;
   }
 
-  .mobile-top-nav {
-    justify-content: space-between;
+  .fab {
+    width: 58px;
+    height: 58px;
+    top: -27px;
   }
 }
 
 /* =========================================================
    TRANSICIONES GENERALES
 ========================================================= */
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity .2s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
 
 .pop-enter-active,
 .pop-leave-active {
@@ -2018,5 +2461,12 @@ onUnmounted(() => {
 .pop-enter-from .custom-panel,
 .pop-leave-to .custom-panel {
   transform: scale(.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition: none !important;
+    animation-duration: 0.01ms !important;
+  }
 }
 </style>
