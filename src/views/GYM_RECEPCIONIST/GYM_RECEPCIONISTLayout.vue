@@ -2,7 +2,7 @@
 import { computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 //import Heading from '../../components/Admin/HeadingAdmin.vue';
-import Sidebar from '../../components/Recepcion/Sidebar.vue';
+import Sidebar from '../../components/GYM_RECEPCIONIST/Sidebar.vue';
 
 const route = useRoute();
 const router = useRouter();
