@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { OwnerRoutes } from './owner.routes.ts'
-import { recepcionRoutes } from './recepcionista.route.ts'
+import { GYM_ACCOUNTRoutes } from './GYM_ACCOUNT.routes.ts'
+import { GYM_RECEPCIONISTRoutes } from './GYM_RECEPCIONIST.route.ts'
+import { GYM_ADMINRoutes } from './GYM_ADMIN.routes.ts'
 import { AdminRoutes } from './admin.routes.ts'
 import { MemberRoutes } from './members.routes.ts' 
 
@@ -58,9 +59,10 @@ const router = createRouter({
     },
 
     // --- MÓDULOS DEL SISTEMA (Spread de rutas por roles) ---
-    ...OwnerRoutes,
-    ...recepcionRoutes,
+    ...GYM_ACCOUNTRoutes,
+    ...GYM_RECEPCIONISTRoutes,
     ...AdminRoutes,
+    ...GYM_ADMINRoutes,
     ...MemberRoutes, 
 
     // --- RUTA 404 (Not Found) ---
@@ -88,8 +90,11 @@ router.beforeEach((to, from, next) => {
 
   // Si ya está logueado e intenta ir al login por la URL de forma forzada, lo regresamos a su panel
   if (to.name === 'login' && userRole) {
-    if (userRole === 'Owner') return next({ name: 'Owner-dashboard' }); // Ajusta el nombre de tu ruta de owner
-    if (userRole === 'recepcion') return next({ name: 'recepcion-dashboard' }); // Ajusta según tus rutas
+    if (userRole === 'GYM_ACCOUNT') return next({ name: 'GYM_ACCOUNT-dashboard' }); // Ajusta el nombre de tu ruta de GYM_ACCOUNT
+    if (userRole === 'GYM_RECEPCIONIST') return next({ name: 'GYM_RECEPCIONIST-dashboard' }); // Ajusta según tus rutas
+    if (userRole === 'Admin') return next({ name: 'Admin-dashboard' }); // Ajusta según tus rutas
+    if (userRole === 'GYM_ADMIN') return next({ name: 'GYM_ADMIN-dashboard' });
+    if (userRole === 'Member') return next({ name: 'Member-dashboard' }); // Ajusta según tus rutas
   }
 
   next();

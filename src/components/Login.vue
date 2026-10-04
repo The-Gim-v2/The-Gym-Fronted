@@ -5,8 +5,8 @@ import Logo from '@/landing/logo.vue';
 
 const VALID_USERS: Record<string, string> = {
   'admin@gmail.com': 'Admin',
-  'propietario@gmail.com': 'Owner',
-  'recepcionista@gmail.com': 'Recepcionista',
+  'propietario@gmail.com': 'GYM_ACCOUNT',
+  'recepcionista@gmail.com': 'GYM_RECEPCIONIST',
   'cliente@gmail.com': 'Cliente',
 };
 
@@ -43,8 +43,8 @@ const handleSubmit = () => {
       localStorage.setItem('user_role', 'Admin'); 
       router.push({ name: 'Admin-dashboard' });
     } else if (userEmail === 'propietario@gmail.com') {
-      localStorage.setItem('user_role', 'Owner');
-      router.push({ name: 'Owner-dashboard' });
+      localStorage.setItem('user_role', 'GYM_ACCOUNT');
+      router.push({ name: 'GYM_ACCOUNT-dashboard' });
     }  else if (userEmail === 'recepcionista@gmail.com') {
       localStorage.setItem('user_role', 'recepcion'); 
       router.push({ name: 'recepcion-dashboard' });

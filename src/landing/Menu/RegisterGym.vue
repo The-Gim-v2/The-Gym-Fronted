@@ -18,8 +18,7 @@ const planQuery = ((route.query.plan as string) || '').toLowerCase();
 
 const form = reactive({
   nombreGimnasio: '',
-  curp: '', nombres: '', apellidoP: '', apellidoM: '',
-  fechaNac: '', celular: '',
+  nombrePropietario: '',
   email: '', password: '', confirmPassword: '',
   entidad: '', municipio: '',
   lat: null as number | null, lng: null as number | null,
@@ -246,41 +245,12 @@ const handlePaymentSuccess = (msg: string) => {
                  COLUMNA 2
             ======================== -->
             <div class="form-column">
-              <h3 class="section-title first">Datos personales</h3>
+              <h3 class="section-title first">Propietario</h3>
 
               <div class="fields">
                 <div class="field">
-                  <label for="curp">CURP</label>
-                  <input id="curp" v-model="form.curp" type="text" maxlength="18" placeholder="ABCD123456HDFR01" required />
-                </div>
-
-                <div class="field">
-                  <label for="nombres">Nombre(s)</label>
-                  <input id="nombres" v-model="form.nombres" type="text" placeholder="Ingresa tus nombres" required />
-                </div>
-
-                <div class="field-row">
-                  <div class="field">
-                    <label for="apellidoP">Apellido paterno</label>
-                    <input id="apellidoP" v-model="form.apellidoP" type="text" placeholder="Paterno" required />
-                  </div>
-
-                  <div class="field">
-                    <label for="apellidoM">Apellido materno</label>
-                    <input id="apellidoM" v-model="form.apellidoM" type="text" placeholder="Materno" required />
-                  </div>
-                </div>
-
-                <div class="field-row">
-                  <div class="field">
-                    <label for="fechaNac">Fecha de nacimiento</label>
-                    <input id="fechaNac" v-model="form.fechaNac" type="date" required />
-                  </div>
-
-                  <div class="field">
-                    <label for="celular">Teléfono celular</label>
-                    <input id="celular" v-model="form.celular" type="tel" placeholder="Ej. 4811234567" required />
-                  </div>
+                  <label for="nombrePropietario">Nombre del propietario</label>
+                  <input id="nombrePropietario" v-model="form.nombrePropietario" type="text" placeholder="Ej. Juan Pérez López" required />
                 </div>
               </div>
 
@@ -403,7 +373,6 @@ input { width: 100%; min-width: 0; min-height: 46px; padding: 11px 13px; box-siz
 input::placeholder { color: rgba(245,245,244,.27); font-weight: 400; }
 input:hover { border-color: rgba(255,255,255,.17); }
 input:focus { border-color: #3c69d5; background: rgba(255,255,255,.035); box-shadow: 0 0 0 3px rgba(28,79,214,.11); }
-input[type="date"] { color-scheme: dark; }
 
 .upload-container { display: flex; align-items: center; gap: 14px; padding: 13px; background: rgba(255,255,255,.018); border: 1px dashed rgba(255,255,255,.13); border-radius: 12px; transition: .2s ease; }
 .upload-container:hover { border-color: rgba(91,139,240,.36); background: rgba(91,139,240,.02); }

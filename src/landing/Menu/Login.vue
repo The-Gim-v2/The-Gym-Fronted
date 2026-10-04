@@ -5,9 +5,10 @@ import Logo from '@/landing/logo.vue';
 
 const VALID_USERS:Record<string,{role:string;nameRoute:string}>={
   'admin@gmail.com':{role:'Admin',nameRoute:'Admin-dashboard'},
-  'propietario@gmail.com':{role:'Owner',nameRoute:'Owner-dashboard'},
-  'recepcionista@gmail.com':{role:'recepcion',nameRoute:'recepcion-dashboard'},
-  'miembro@gmail.com':{role:'Member',nameRoute:'Member-dashboard'}
+  'gym@gmail.com':{role:'GYM_ACCOUNT',nameRoute:'GYM_ACCOUNT-dashboard'},
+  'recepcionista@gmail.com':{role:'GYM_RECEPCIONIST',nameRoute:'GYM_RECEPCIONIST-dashboard'},
+  'miembro@gmail.com':{role:'Member',nameRoute:'Member-dashboard'},
+  'propietario@gmail.com':{role:'GYM_ADMIN',nameRoute:'GYM_ADMIN-dashboard'}
 };
 
 const router=useRouter();

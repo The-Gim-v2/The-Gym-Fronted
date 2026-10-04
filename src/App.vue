@@ -1,12 +1,13 @@
 <template>
   <RouterView />
-  <!--<HelpButton v-if="userRole === 'Owner'" />
-  <HelpButton2 v-if="userRole === 'recepcion'" />
+  <!--<HelpButton v-if="userRole === 'GYM_ACCOUNT'" />
+  <HelpButton2 v-if="userRole === 'GYM_RECEPCIONIST'" />
   <HelpButton3 v-if="userRole === 'member'" />-->
 
   <HelpButton/>
   <HelpButton2/>
   <HelpButton3/>
+  <HelpButton4/>
   
   <transition name="fade">
     <div v-if="mostrarAvisoInactividad" class="inactivity-overlay">
@@ -56,8 +57,9 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { RouterView } from 'vue-router';
-import HelpButton from './components/Owner/HelpButton.vue';
-import HelpButton2 from './components/Recepcion/HelpButton.vue';
+import HelpButton from './components/GYM_ACCOUNT/HelpButton.vue';
+import HelpButton4 from './components/GYM_ADMIN/HelpButton.vue';
+import HelpButton2 from './components/GYM_RECEPCIONIST/HelpButton.vue';
 import HelpButton3 from './components/Member/HelpButton.vue';
 
 const router = useRouter();
@@ -169,9 +171,10 @@ const manejarCambioStorage = (evento: StorageEvent) => {
 const ROLE_STYLE_LINK_ID = 'role-stylesheet';
 
 const RUTAS_CSS_POR_ROL: Record<string, string> = {
-  owner: '/src/assets/styles-owner.css',
+  GYM_ACCOUNT: '/src/assets/styles-GYM_ACCOUNT.css',
+  GYM_ADMIN: '/src/assets/styles-GYM_ADMIN.css',
   member: '/src/assets/styles-member.css',
-  recepcion: '/src/assets/styles-recepcion.css',
+  GYM_RECEPCIONIST: '/src/assets/styles-GYM_RECEPCIONIST.css',
 };
 
 const cargarEstiloDelRol = () => {
@@ -264,7 +267,7 @@ onMounted(() => {
   // App.vue se monta UNA sola vez por sesión de SPA. Antes,
   // aplicarEstilosGlobales() solo corría en este onMounted, es decir,
   // solo la PRIMERA vez que se cargaba la página completa. Cualquier
-  // navegación posterior dentro del SPA (Owner -> Dashboard Member,
+  // navegación posterior dentro del SPA (GYM_ACCOUNT -> Dashboard Member,
   // por ejemplo) NO volvía a leer el rol ni a reaplicar sus colores;
   // las variables CSS en document.documentElement (que son globales
   // para TODO el documento, no por componente) se quedaban con los
@@ -278,7 +281,7 @@ onMounted(() => {
   // sobrescribiendo cualquier valor que haya dejado el rol anterior.
   //
   // Esto es lo que hace que Member SIEMPRE vea sus propios colores al
-  // entrar a su panel, sin importar qué tema tenía aplicado Owner
+  // entrar a su panel, sin importar qué tema tenía aplicado GYM_ACCOUNT
   // segundos antes en la misma pestaña.
   // ============================================================
   router.afterEach(() => {
