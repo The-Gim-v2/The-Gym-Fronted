@@ -1,407 +1,77 @@
 <template>
   <HeadingMember :isGymOpen="isGymOpen" :billingStatus="billingStatus">
-    <div class="saas-dashboard-wrapper">
-     
-      <main class="dashboard-main-container">
-        
-        <!-- HERO / BIENVENIDA -->
-        <section class="hero-metrics-grid">
-          
-          <div class="glass-card gym-identity-box" id="turtor1">
-            <div class="gym-header-top">
-              <span class="gym-badge-tag">{{ t.branchTitle }}</span>
-              
-              <div class="header-status-controls">
-                <div class="gym-status-toggle" :class="isGymOpen ? 'status-open' : 'status-closed'">
-                  <span class="toggle-dot" :class="isGymOpen ? 'dot-open' : 'dot-closed'"></span>
-                  {{ isGymOpen ? t.gymOpen : t.gymClosed }}
-                </div>
-
-                <div class="billing-status-badge" :class="billingStatus">
-                  <span class="billing-dot" :class="billingStatus"></span>
-                  {{ billingStatusText }}
-                </div>
-              </div>
-            </div>
-
-            <div class="gym-titles-container">
-              <h1 class="main-heading">
-                {{ t.hello }} <span class="highlight-color">{{ t.athlete }}</span>!
-              </h1>
-              <p class="hero-desc">{{ t.heroDesc }}</p>
-            </div>
+    <div class="dashboard">
+      <main class="dashboard-container">
+        <section class="hero" :class="{ 'has-cover': !!gym.coverUrl }" :style="heroStyle">
+          <div class="hero-overlay"></div>
+          <div class="hero-content">
+            <div class="gym-logo" v-if="gym.logoUrl"><img :src="gym.logoUrl" :alt="gym.name" /></div>
+            <div class="hero-copy"><span class="eyebrow">{{ ui.registeredAt }}</span><h1>{{ gym.name }}</h1><p>{{ gym.branchName }} · {{ ui.memberPanel }}</p></div>
           </div>
-
-          <!-- MÉTRICAS PERSONALES DEL MIEMBRO -->
-          <div class="metrics-card-group" id="turtor2">
-            <div class="metric-mini-card">
-              <span class="metric-number">12</span>
-              <span class="metric-label">{{ t.daysRemaining }}</span>
-            </div>
-            <div class="metric-mini-card">
-              <span class="metric-number text-highlight">18</span>
-              <span class="metric-label">{{ t.attendanceMonth }}</span>
-            </div>
-            <div class="metric-mini-card">
-              <span class="metric-number">2</span>
-              <span class="metric-label">{{ t.classesReserved }}</span>
-            </div>
+          <div class="member-card">
+            <img class="member-photo" :src="member.photoUrl" :alt="member.name" />
+            <div class="member-info"><small>{{ ui.welcome }}</small><strong>{{ member.name }}</strong><span>{{ member.membership }}</span></div>
+            <button class="profile-btn" type="button" @click="go('/Member/profile')">{{ ui.viewProfile }}</button>
           </div>
-
         </section>
-
-        <!-- MÓDULOS DE ACCESO RÁPIDO PARA MIEMBROS -->
-        <div class="modules-grid-container">
-          
-          <div class="module-column" id="turtor3">
-            <h3 class="column-category-title">{{ t.accessCategory }}</h3>
-            <div class="cards-stack">
-              
-              <button class="action-card-modern" id="turtor4" @click="activeModal = 'my-qr'">
-                <div class="card-icon-box qr-tint">
-                  <svg class="svg-btn" viewBox="0 0 24 24"><path d="M4 4h7V11H4V4M13 4h7V11h-7V4M4 13h7v7H4v-7M13 13h3v2h-3v-2M18 13h2v2h-2v-2M13 15h2v2h-2v-2M15 18h2v2h-2v-2M18 18h2v2h-2v-2M13 18h2v2h-2v-2M18 15h2v2h-2v-2z"/></svg>
-                </div>
-                <div class="card-text-content">
-                  <span class="card-title">{{ t.qrTitle }}</span>
-                  <span class="card-desc">{{ t.qrDesc }}</span>
-                </div>
-              </button>
-
-              <button class="action-card-modern" id="turtor5" @click="activeModal = 'my-routine'">
-                <div class="card-icon-box routine-tint">
-                  <svg class="svg-btn" viewBox="0 0 24 24"><path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14 4.14 5.57 2 7.71 3.43 9.14 2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22 14.86 20.57 16.29 22 18.43 19.86 19.86 21.29 21.29 19.86 19.86 18.43 22 16.29z"/></svg>
-                </div>
-                <div class="card-text-content">
-                  <span class="card-title">{{ t.routineTitle }}</span>
-                  <span class="card-desc">{{ t.routineDesc }}</span>
-                </div>
-              </button>
-
-            </div>
-          </div>
-
-          <div class="module-column" id="turtor6">
-            <h3 class="column-category-title">{{ t.classesCategory }}</h3>
-            <div class="cards-stack">
-              
-              <button class="action-card-modern" id="turtor7" @click="activeModal = 'book-classes'">
-                <div class="card-icon-box classes-tint">
-                  <svg class="svg-btn" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
-                </div>
-                <div class="card-text-content">
-                  <span class="card-title">{{ t.classesTitle }}</span>
-                  <span class="card-desc">{{ t.classesDesc }}</span>
-                </div>
-              </button>
-
-              <button class="action-card-modern" id="turtor8" @click="activeModal = 'nutrition-plan'">
-                <div class="card-icon-box nutrition-tint">
-                  <svg class="svg-btn" viewBox="0 0 24 24"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg>
-                </div>
-                <div class="card-text-content">
-                  <span class="card-title">{{ t.nutritionTitle }}</span>
-                  <span class="card-desc">{{ t.nutritionDesc }}</span>
-                </div>
-              </button>
-
-            </div>
-          </div>
-
-        </div>
-
+        <section class="status-row">
+          <div class="status-pill" :class="isGymOpen ? 'open' : 'closed'"><i></i>{{ isGymOpen ? ui.gymOpen : ui.gymClosed }}</div>
+          <div class="status-pill membership" :class="membershipState"><i></i>{{ membershipStatusText }}</div>
+          <div class="status-pill"><i></i>{{ ui.nextCut }}: {{ member.nextCut }}</div>
+        </section>
+        <section class="kpi-grid">
+          <article class="kpi-card"><div class="kpi-icon"><svg viewBox="0 0 24 24"><path d="M8 7V3m8 4V3M4 11h16M5 5h14a1 1 0 0 1 1 1v14H4V6a1 1 0 0 1 1-1z"/></svg></div><div><strong>{{ member.daysRemaining }}</strong><span>{{ ui.daysRemaining }}</span></div></article>
+          <article class="kpi-card"><div class="kpi-icon accent"><svg viewBox="0 0 24 24"><path d="M12 2v20M5 9h14M5 15h14"/></svg></div><div><strong>{{ member.attendanceMonth }}</strong><span>{{ ui.attendanceMonth }}</span></div></article>
+          <article class="kpi-card"><div class="kpi-icon success"><svg viewBox="0 0 24 24"><path d="M5 3v4M19 3v4M3 9h18M5 5h14v16H5zM9 13h6M9 17h4"/></svg></div><div><strong>{{ member.classesReserved }}</strong><span>{{ ui.classesReserved }}</span></div></article>
+          <article class="kpi-card"><div class="kpi-icon warning"><svg viewBox="0 0 24 24"><path d="M4 12h4l2-5 4 10 2-5h4"/></svg></div><div><strong>{{ member.weekStreak }}</strong><span>{{ ui.weekStreak }}</span></div></article>
+        </section>
+        <section class="two-col">
+          <article class="panel membership-panel">
+            <div class="panel-header"><div><span class="section-eyebrow">{{ ui.membership }}</span><h2>{{ ui.membershipStatus }}</h2></div><span class="plan-badge">{{ member.membership }}</span></div>
+            <div class="membership-main"><div class="membership-ring"><strong>{{ member.daysRemaining }}</strong><span>{{ ui.days }}</span></div><div class="membership-copy"><small>{{ ui.validUntil }}</small><strong>{{ member.membershipEnd }}</strong><span>{{ ui.membershipMessage }}</span></div></div>
+            <button class="panel-link" @click="go('/Member/membership')">{{ ui.viewMembership }} →</button>
+          </article>
+          <article class="panel progress-panel">
+            <div class="panel-header"><div><span class="section-eyebrow">{{ ui.progress }}</span><h2>{{ ui.monthlyGoal }}</h2></div><span class="progress-badge">{{ attendancePercent }}%</span></div>
+            <div class="goal-main"><strong>{{ member.attendanceMonth }} <small>/ {{ member.monthGoal }}</small></strong><div class="progress-track"><i :style="{ width: attendancePercent + '%' }"></i></div><span>{{ ui.visitsCompleted }}</span></div>
+            <div class="mini-stats"><div><span>{{ ui.currentStreak }}</span><strong>{{ member.weekStreak }} {{ ui.days }}</strong></div><div><span>{{ ui.bestWeek }}</span><strong>{{ member.bestWeek }} {{ ui.visits }}</strong></div></div>
+          </article>
+        </section>
+        <section class="two-col">
+          <article class="panel quick-panel"><div class="panel-header"><div><span class="section-eyebrow">{{ ui.access }}</span><h2>{{ ui.quickAccess }}</h2></div></div><div class="quick-grid"><button v-for="action in quickActions" :key="action.label" class="quick-action" @click="go(action.route)"><span class="quick-icon"><svg viewBox="0 0 24 24"><path :d="action.icon"/></svg></span><span><strong>{{ action.label }}</strong><small>{{ action.description }}</small></span></button></div></article>
+          <article class="panel next-panel"><div class="panel-header"><div><span class="section-eyebrow">{{ ui.schedule }}</span><h2>{{ ui.nextActivities }}</h2></div><button class="text-btn" @click="go('/Member/classes')">{{ ui.viewAll }}</button></div><div class="activity-list"><div v-for="item in nextActivities" :key="item.title" class="activity-row"><div class="activity-date"><strong>{{ item.day }}</strong><span>{{ item.month }}</span></div><div class="activity-info"><strong>{{ item.title }}</strong><span>{{ item.time }} · {{ item.trainer }}</span></div><span class="activity-status">{{ item.status }}</span></div></div></article>
+        </section>
+        <section class="panel chart-panel"><div class="panel-header"><div><span class="section-eyebrow">{{ ui.last7 }}</span><h2>{{ ui.weeklyActivity }}</h2></div><div class="chart-summary"><strong>{{ weeklyTotal }}</strong><span>{{ ui.minutesWeek }}</span></div></div><div class="bar-chart"><div v-for="day in weeklyData" :key="day.day" class="bar-column" :class="{ peak: day.peak }"><span>{{ day.value }}</span><div class="bar-track"><div class="bar-fill" :style="{ height: day.height + '%' }"></div></div><small>{{ day.day }}</small></div></div></section>
+        <section class="panel gym-panel"><div class="panel-header"><div><span class="section-eyebrow">{{ ui.myGym }}</span><h2>{{ gym.branchName }}</h2></div><button class="text-btn" @click="go('/Member/gyms')">{{ ui.exploreGyms }}</button></div><div class="gym-details"><div class="gym-mini-logo"><img :src="gym.logoUrl" :alt="gym.name" /></div><div class="gym-address"><small>{{ gym.name }}</small><strong>{{ gym.address }}</strong><span>{{ gym.city }}</span></div><div class="gym-hours"><small>{{ ui.todayHours }}</small><strong>{{ gym.todayHours }}</strong><span :class="isGymOpen ? 'open-text' : 'closed-text'">{{ isGymOpen ? ui.openNow : ui.closedNow }}</span></div></div></section>
       </main>
-      
-      <!-- CONTENEDOR DE MODALES EXTERNOS -->
-      <transition name="pop">
-        <div v-if="activeModal" class="modal-wrapper" @click.self="closeModal">
-          <MyAccessQrModal v-if="activeModal === 'my-qr'" @close="closeModal" />
-          <MyRoutineModal v-if="activeModal === 'my-routine'" @close="closeModal" />
-          <BookClassesModal v-if="activeModal === 'book-classes'" @close="closeModal" />
-          <NutritionPlanModal v-if="activeModal === 'nutrition-plan'" @close="closeModal" />
-        </div>
-      </transition>
-
     </div>
   </HeadingMember>
 </template>
-
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { traducciones } from './i18n.js'; 
+import { useRouter } from 'vue-router';
 import HeadingMember from './HeadingMember.vue';
-
-import MyAccessQrModal from './Modals/MyAccessQrModal.vue';
-import MyRoutineModal from './Modals/MyRoutineModal.vue';
-import BookClassesModal from './Modals/BookClassesModal.vue';
-import NutritionPlanModal from './Modals/NutritionPlanModal.vue';
-
+const router = useRouter();
 const currentLang = ref(localStorage.getItem('member-idioma') || 'es');
-
-const t = computed(() => {
-  const langTable = traducciones[currentLang.value] || traducciones.es;
-  const fallbackTable = traducciones.es;
-  
-  return new Proxy({}, {
-    get(_, key) {
-      return langTable[key] !== undefined ? langTable[key] : fallbackTable[key];
-    }
-  });
-});
-
-const activeModal = ref(null);
 const isGymOpen = ref(true);
-const billingStatus = ref('active'); 
-
-const closeModal = () => {
-  activeModal.value = null;
-};
-
-const billingStatusText = computed(() => {
-  if (billingStatus.value === 'active') return t.value.accountActive;
-  if (billingStatus.value === 'pending') return t.value.accountPending;
-  return t.value.accountBlocked;
-});
-
-const handleLangChange = (e) => {
-  if (e.detail && e.detail.idioma) {
-    currentLang.value = e.detail.idioma;
-  }
-};
-
-onMounted(() => {
-  const savedGymStatus = localStorage.getItem('isGymOpen');
-  if (savedGymStatus !== null) {
-    isGymOpen.value = JSON.parse(savedGymStatus);
-  }
-  window.addEventListener('idioma-changed', handleLangChange);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('idioma-changed', handleLangChange);
-});
+const billingStatus = ref('active');
+const gym = ref({name:'Ultra Fitness Center',branchName:'Sede Principal',logoUrl:'https://marketplace.canva.com/EAFxdcos7WU/1/0/1600w/canva-dark-blue-and-brown-illustrative-fitness-gym-logo-oqe3ybeEcQQ.jpg',coverUrl:'https://static.vecteezy.com/system/resources/thumbnails/037/228/850/small_2x/ai-generated-exercise-machines-in-a-gym-free-photo.jpg',address:'Av. Universitaria #420, Zona Centro',city:'Ciudad Valles, San Luis Potosí',todayHours:'05:00 - 23:00'});
+const member = ref({name:'Carlos Alberto Martínez',photoUrl:'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=300&q=80',membership:'Plan Mensual',membershipEnd:'15/octubre/2026',nextCut:'15/octubre/2026',daysRemaining:12,attendanceMonth:18,classesReserved:2,weekStreak:4,bestWeek:5,monthGoal:24});
+const heroStyle = computed(() => gym.value.coverUrl ? {'--cover':`url('${gym.value.coverUrl}')`} : {});
+const attendancePercent = computed(() => Math.min(100,Math.round((member.value.attendanceMonth/member.value.monthGoal)*100)));
+const membershipState = computed(() => member.value.daysRemaining <= 0 ? 'expired' : member.value.daysRemaining <= 7 ? 'warning' : 'active');
+const translations={es:{registeredAt:'INSCRITO EN',memberPanel:'Panel del miembro',welcome:'Bienvenido',viewProfile:'Ver perfil',gymOpen:'Gimnasio abierto',gymClosed:'Gimnasio cerrado',membershipActive:'Membresía activa',membershipWarning:'Membresía próxima a vencer',membershipExpired:'Membresía vencida',nextCut:'Próximo corte',daysRemaining:'DÍAS RESTANTES',attendanceMonth:'ASISTENCIAS ESTE MES',classesReserved:'CLASES RESERVADAS',weekStreak:'RACHA ACTUAL',membership:'MEMBRESÍA',membershipStatus:'Estado de tu membresía',days:'días',validUntil:'VIGENTE HASTA',membershipMessage:'Tu acceso al gimnasio se encuentra activo.',viewMembership:'Ver membresía',progress:'PROGRESO',monthlyGoal:'Meta mensual',visitsCompleted:'de tu meta mensual completada',currentStreak:'RACHA ACTUAL',bestWeek:'MEJOR SEMANA',visits:'visitas',access:'ACCESOS',quickAccess:'Accesos rápidos',schedule:'AGENDA',nextActivities:'Próximas actividades',viewAll:'Ver todas',last7:'ÚLTIMOS 7 DÍAS',weeklyActivity:'Actividad semanal',minutesWeek:'minutos esta semana',myGym:'MI GIMNASIO',exploreGyms:'Explorar gimnasios',todayHours:'HORARIO DE HOY',openNow:'Abierto ahora',closedNow:'Cerrado ahora'},en:{registeredAt:'ENROLLED AT',memberPanel:'Member dashboard',welcome:'Welcome',viewProfile:'View profile',gymOpen:'Gym open',gymClosed:'Gym closed',membershipActive:'Active membership',membershipWarning:'Membership expiring soon',membershipExpired:'Membership expired',nextCut:'Next billing',daysRemaining:'DAYS REMAINING',attendanceMonth:'ATTENDANCE THIS MONTH',classesReserved:'BOOKED CLASSES',weekStreak:'CURRENT STREAK',membership:'MEMBERSHIP',membershipStatus:'Membership status',days:'days',validUntil:'VALID UNTIL',membershipMessage:'Your gym access is currently active.',viewMembership:'View membership',progress:'PROGRESS',monthlyGoal:'Monthly goal',visitsCompleted:'of your monthly goal completed',currentStreak:'CURRENT STREAK',bestWeek:'BEST WEEK',visits:'visits',access:'ACCESS',quickAccess:'Quick access',schedule:'SCHEDULE',nextActivities:'Upcoming activities',viewAll:'View all',last7:'LAST 7 DAYS',weeklyActivity:'Weekly activity',minutesWeek:'minutes this week',myGym:'MY GYM',exploreGyms:'Explore gyms',todayHours:'TODAY HOURS',openNow:'Open now',closedNow:'Closed now'}};
+const ui=computed(()=>translations[currentLang.value]||translations.es);
+const membershipStatusText=computed(()=>membershipState.value==='expired'?ui.value.membershipExpired:membershipState.value==='warning'?ui.value.membershipWarning:ui.value.membershipActive);
+const quickActions=computed(()=>[{label:currentLang.value==='es'?'Mi código QR':'My QR code',description:currentLang.value==='es'?'Acceso al gimnasio':'Gym access',route:'/Member/profile',icon:'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h3v3h-3zM18 13h2v2h-2zM13 18h2v2h-2zM17 17h3v3h-3z'},{label:currentLang.value==='es'?'Mis rutinas':'My routines',description:currentLang.value==='es'?'Consulta tu entrenamiento':'View your training',route:'/Member/my-routines',icon:'M20.57 14.86 22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 7 5.57 2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22 14.86 20.57z'},{label:currentLang.value==='es'?'Reservar clase':'Book a class',description:currentLang.value==='es'?'Consulta horarios disponibles':'View available times',route:'/Member/classes',icon:'M19 3h-1V1h-2v2H8V1H6v2H5a2 2 0 0 0-2 2v16h18V5a2 2 0 0 0-2-2M5 8h14v11H5z'},{label:currentLang.value==='es'?'Mis estadísticas':'My statistics',description:currentLang.value==='es'?'Revisa tu progreso':'Review your progress',route:'/Member/statistics',icon:'M4 19V9m5 10V5m5 14v-7m5 7V3'}]);
+const nextActivities=computed(()=>currentLang.value==='es'?[{day:'07',month:'OCT',title:'Funcional',time:'18:00',trainer:'Laura Méndez',status:'Reservada'},{day:'09',month:'OCT',title:'Spinning',time:'19:30',trainer:'Daniel Ruiz',status:'Reservada'},{day:'11',month:'OCT',title:'Yoga',time:'08:00',trainer:'Ana Torres',status:'Disponible'}]:[{day:'07',month:'OCT',title:'Functional',time:'18:00',trainer:'Laura Méndez',status:'Booked'},{day:'09',month:'OCT',title:'Spinning',time:'19:30',trainer:'Daniel Ruiz',status:'Booked'},{day:'11',month:'OCT',title:'Yoga',time:'08:00',trainer:'Ana Torres',status:'Available'}]);
+const weeklyData=computed(()=>{const days=currentLang.value==='es'?['Lun','Mar','Mié','Jue','Vie','Sáb','Dom']:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];const vals=[45,70,0,55,82,95,40];const max=Math.max(...vals);return days.map((day,i)=>({day,value:vals[i],height:vals[i],peak:vals[i]===max}));});
+const weeklyTotal=computed(()=>weeklyData.value.reduce((sum,d)=>sum+d.value,0));
+const go=(path)=>router.push(path);
+const handleLangChange=(e)=>{if(e.detail?.idioma)currentLang.value=e.detail.idioma;};
+onMounted(()=>{const saved=localStorage.getItem('isGymOpen');if(saved!==null)isGymOpen.value=JSON.parse(saved);window.addEventListener('idioma-changed',handleLangChange);});
+onUnmounted(()=>window.removeEventListener('idioma-changed',handleLangChange));
 </script>
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;700&display=swap');
-
-.saas-dashboard-wrapper {
-  background: var(--bg-custom, var(--color-interfaz, #0a0a0a));
-  min-height: calc(100vh - 65px);
-  color: var(--color-texto-general, #f5f5f4);
-  font-family: 'Inter', sans-serif;
-  display: flex;
-  flex-direction: column;
-}
-
-.dashboard-main-container {
-  flex: 1;
-  max-width: 1280px;
-  margin: 0 auto;
-  width: 100%;
-  padding: 36px 32px;
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
-}
-
-.hero-metrics-grid {
-  display: grid;
-  grid-template-columns: 1fr 340px;
-  gap: 20px;
-  align-items: stretch;
-}
-
-.glass-card {
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  background: var(--bg-cards, #121212);
-  border-radius: var(--app-border-radius, 20px);
-  padding: 28px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.gym-header-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.gym-badge-tag {
-  font-size: 0.7rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: var(--color-texto-general, rgba(245, 245, 244, 0.7));
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.header-status-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-
-.gym-status-toggle {
-  display: flex; align-items: center; gap: 8px; padding: 6px 14px;
-  border-radius: 20px; font-size: 0.75rem; font-weight: 600;
-  border: 1px solid;
-}
-.gym-status-toggle.status-open { background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); color: #34d399; }
-.gym-status-toggle.status-closed { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: #f87171; }
-.toggle-dot { width: 6px; height: 6px; border-radius: 50%; }
-.dot-open { background: #10b981; box-shadow: 0 0 8px #10b981; }
-.dot-closed { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
-
-.billing-status-badge {
-  display: flex; align-items: center; gap: 8px; padding: 6px 14px;
-  border-radius: 20px; font-size: 0.75rem; font-weight: 600;
-  border: 1px solid; cursor: default;
-}
-.billing-status-badge.active { background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); color: #34d399; }
-.billing-status-badge.pending { background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.3); color: #fbbf24; }
-.billing-status-badge.blocked { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: #f87171; }
-
-.billing-dot { width: 6px; height: 6px; border-radius: 50%; }
-.billing-dot.active { background: #10b981; box-shadow: 0 0 8px #10b981; }
-.billing-dot.pending { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
-.billing-dot.blocked { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
-
-.main-heading {
-  font-family: 'Archivo Black', sans-serif;
-  font-size: 2.2rem;
-  font-weight: 800;
-  margin: 0;
-  color: var(--color-titulos, #ffffff);
-  letter-spacing: -1px;
-}
-
-.highlight-color { color: var(--color-highlight, #3b82f6); }
-.text-highlight { color: var(--color-highlight, #3b82f6); }
-
-.hero-desc {
-  font-size: 0.95rem;
-  color: var(--color-texto-general, rgba(245, 245, 244, 0.55));
-  opacity: 0.8;
-  margin: 8px 0 0 0;
-  font-weight: 500;
-}
-
-.metrics-card-group {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
-}
-
-.metric-mini-card {
-  background: var(--bg-cards, #121212);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: var(--app-border-radius, 20px);
-  padding: 16px 8px;
-  display: flex; flex-direction: column; align-items: center;
-  justify-content: center; text-align: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-}
-
-.metric-number {
-  font-family: 'Oswald', sans-serif;
-  font-size: 1.5rem; font-weight: 700;
-  color: var(--color-titulos, #ffffff);
-}
-
-.metric-label {
-  font-size: 0.65rem;
-  color: var(--color-texto-general, rgba(245, 245, 244, 0.55));
-  opacity: 0.8;
-  margin-top: 4px; font-weight: 600;
-  text-transform: uppercase; letter-spacing: 0.5px;
-}
-
-.modules-grid-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
-.module-column { display: flex; flex-direction: column; gap: 12px; }
-
-.column-category-title {
-  font-family: 'Oswald', sans-serif; font-size: 1.05rem; font-weight: 600;
-  color: var(--color-titulos, rgba(245, 245, 244, 0.7)); margin: 0; letter-spacing: 0.5px;
-}
-
-.cards-stack { display: flex; flex-direction: column; gap: 12px; }
-
-.action-card-modern {
-  background: var(--bg-cards, #121212);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: var(--app-border-radius, 16px);
-  padding: 22px; display: flex; align-items: center; gap: 16px;
-  cursor: pointer; text-align: left; transition: all 0.2s ease;
-  width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-}
-
-.action-card-modern:hover {
-  filter: brightness(1.1);
-  border-color: var(--color-highlight, #3b82f6);
-  transform: translateY(-2px);
-}
-
-.card-icon-box {
-  width: 48px; height: 48px;
-  background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: var(--app-border-radius, 12px);
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
-
-/* TINTES DE COLOR PERSONALIZADOS PARA CADA ICONO */
-.card-icon-box.qr-tint {
-  background: rgba(59, 130, 246, 0.12);
-  border-color: rgba(59, 130, 246, 0.35);
-  color: #3b82f6;
-}
-.card-icon-box.routine-tint {
-  background: rgba(168, 85, 247, 0.12);
-  border-color: rgba(168, 85, 247, 0.35);
-  color: #a855f7;
-}
-.card-icon-box.classes-tint {
-  background: rgba(16, 185, 129, 0.12);
-  border-color: rgba(16, 185, 129, 0.35);
-  color: #10b981;
-}
-.card-icon-box.nutrition-tint {
-  background: rgba(245, 158, 11, 0.12);
-  border-color: rgba(245, 158, 11, 0.35);
-  color: #f59e0b;
-}
-
-.svg-btn { width: 24px; height: 24px; fill: currentColor; }
-
-.card-text-content { display: flex; flex-direction: column; }
-.card-title { font-family: 'Oswald', sans-serif; font-size: 1.15rem; font-weight: 600; color: var(--color-titulos, #f5f5f4); }
-.card-desc { font-size: 0.85rem; color: var(--color-texto-general, rgba(245, 245, 244, 0.55)); opacity: 0.8; margin-top: 3px; font-weight: 400; }
-
-.modal-wrapper {
-  position: fixed; inset: 0; z-index: 4000;
-  display: flex; align-items: center; justify-content: center;
-  background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px);
-}
-
-.pop-enter-active, .pop-leave-active { transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-.pop-enter-from, .pop-leave-to { opacity: 0; transform: scale(0.95); }
-
-@media (max-width: 1024px) {
-  .hero-metrics-grid { grid-template-columns: 1fr; }
-  .modules-grid-container { grid-template-columns: 1fr; }
-}
-
-@media (max-width: 680px) {
-  .metrics-card-group { grid-template-columns: 1fr; }
-  .dashboard-main-container { padding: 14px; }
-  .gym-badge-tag { display: none; }
-  .glass-card { display: flex; flex-direction: column; text-align: center; padding: 50px 14px; }
-  .gym-header-top { order: 2; justify-content: center; margin-bottom: 0; margin-top: 38px; width: 100%; }
-  .gym-titles-container { order: 1; width: 100%; }
-  .main-heading { font-size: 1.7rem; line-height: 1.5; }
-  .hero-desc { font-size: 0.95rem; margin-top: 18px; }
-  .header-status-controls { width: 100%; flex-direction: row; justify-content: space-between; gap: 12px; }
-  .gym-status-toggle, .billing-status-badge { flex: 1; justify-content: center; padding: 6px 6px; font-size: 0.75rem; text-align: center; }
-}
+.dashboard{min-height:calc(100vh - 65px);background:var(--bg-custom,var(--color-interfaz,#080808));color:var(--color-texto-general,#f5f5f4);font-family:Inter,system-ui,sans-serif}.dashboard-container{max-width:1280px;margin:auto;padding:28px 32px 50px;display:flex;flex-direction:column;gap:22px}.hero{position:relative;min-height:240px;border:1px solid rgba(255,255,255,.1);border-radius:24px;overflow:hidden;background:#111;display:flex;align-items:flex-end;justify-content:space-between;padding:28px;gap:24px;box-shadow:0 18px 45px rgba(0,0,0,.35)}.hero.has-cover{background-image:var(--cover);background-size:cover;background-position:center}.hero-overlay{position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.88),rgba(0,0,0,.56) 52%,rgba(0,0,0,.72))}.hero-content,.member-card{position:relative;z-index:1}.hero-content{display:flex;align-items:center;gap:18px}.gym-logo{width:92px;height:92px;border-radius:20px;overflow:hidden;border:1px solid rgba(255,255,255,.2);background:#0b0b0b;box-shadow:0 12px 30px rgba(0,0,0,.4)}.gym-logo img,.gym-mini-logo img,.member-photo{width:100%;height:100%;object-fit:cover}.hero-copy .eyebrow,.section-eyebrow{font-size:.68rem;font-weight:800;letter-spacing:1.4px;color:var(--color-highlight,#3b82f6)}.hero-copy h1{font-size:2rem;margin:5px 0 4px;font-weight:900;color:#fff}.hero-copy p{margin:0;color:rgba(255,255,255,.68);font-weight:600}.member-card{display:grid;grid-template-columns:64px 1fr;grid-template-areas:'photo info' 'button button';gap:10px 12px;min-width:310px;padding:16px;background:rgba(12,12,12,.82);border:1px solid rgba(255,255,255,.12);border-radius:18px;backdrop-filter:blur(12px)}.member-photo{grid-area:photo;width:64px;height:64px;border-radius:16px;border:2px solid rgba(255,255,255,.15)}.member-info{grid-area:info;display:flex;flex-direction:column;justify-content:center}.member-info small{color:#8b8b8b;font-size:.7rem;text-transform:uppercase}.member-info strong{font-size:1rem;color:#fff;margin:2px 0}.member-info span{font-size:.76rem;color:#60a5fa}.profile-btn{grid-area:button;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#fff;border-radius:10px;padding:9px;cursor:pointer;font-weight:700}.status-row{display:flex;gap:10px;flex-wrap:wrap}.status-pill{display:flex;align-items:center;gap:8px;padding:8px 13px;background:#121212;border:1px solid rgba(255,255,255,.09);border-radius:999px;font-size:.75rem;font-weight:700}.status-pill i{width:7px;height:7px;border-radius:50%;background:#3b82f6}.status-pill.open i,.status-pill.membership.active i{background:#10b981}.status-pill.closed i,.status-pill.membership.expired i{background:#ef4444}.status-pill.membership.warning i{background:#f59e0b}.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.kpi-card{min-height:96px;background:var(--bg-cards,#121212);border:1px solid rgba(255,255,255,.09);border-radius:18px;padding:18px 20px;display:flex;align-items:center;gap:16px}.kpi-icon{width:50px;height:50px;border-radius:14px;display:grid;place-items:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)}.kpi-icon.accent{color:#3b82f6;background:rgba(59,130,246,.1);border-color:rgba(59,130,246,.35)}.kpi-icon.success{color:#10b981;background:rgba(16,185,129,.1)}.kpi-icon.warning{color:#f59e0b;background:rgba(245,158,11,.1)}.kpi-icon svg,.quick-icon svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.kpi-card strong{display:block;font-size:1.75rem;color:#fff}.kpi-card span{font-size:.66rem;color:#858585;font-weight:800;letter-spacing:.4px}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}.panel{background:var(--bg-cards,#121212);border:1px solid rgba(255,255,255,.09);border-radius:20px;padding:24px}.panel-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding-bottom:18px;border-bottom:1px solid rgba(255,255,255,.08)}.panel-header h2{font-size:1.18rem;margin:5px 0 0;color:#fff}.plan-badge,.progress-badge{padding:7px 11px;border-radius:9px;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.35);color:#60a5fa;font-size:.72rem;font-weight:800}.membership-main{display:flex;align-items:center;gap:22px;padding:22px 0}.membership-ring{width:92px;height:92px;border-radius:50%;border:8px solid rgba(59,130,246,.18);border-top-color:#3b82f6;display:flex;flex-direction:column;align-items:center;justify-content:center}.membership-ring strong{font-size:1.6rem;color:#fff}.membership-ring span{font-size:.65rem;color:#888}.membership-copy{display:flex;flex-direction:column;gap:4px}.membership-copy small,.goal-main span,.mini-stats span,.gym-address small,.gym-hours small{font-size:.67rem;color:#777;font-weight:800}.membership-copy strong{color:#fff;font-size:1.15rem}.membership-copy span{color:#999;font-size:.8rem}.panel-link,.text-btn{border:0;background:transparent;color:#60a5fa;font-weight:800;cursor:pointer;padding:0}.goal-main{padding:24px 0 18px}.goal-main>strong{font-size:2rem;color:#fff}.goal-main>strong small{font-size:1rem;color:#777}.progress-track{height:9px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden;margin:15px 0 9px}.progress-track i{display:block;height:100%;background:#3b82f6;border-radius:99px}.mini-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mini-stats div{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:13px}.mini-stats strong{display:block;color:#fff;margin-top:5px}.quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding-top:18px}.quick-action{border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.025);border-radius:14px;padding:15px;display:flex;align-items:center;gap:12px;text-align:left;color:inherit;cursor:pointer}.quick-action:hover{border-color:rgba(59,130,246,.5);transform:translateY(-1px)}.quick-icon{width:42px;height:42px;border-radius:12px;background:rgba(59,130,246,.1);color:#60a5fa;display:grid;place-items:center;flex:none}.quick-action strong{display:block;color:#fff;font-size:.86rem}.quick-action small{display:block;color:#777;margin-top:3px}.activity-list{padding-top:10px}.activity-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.06)}.activity-row:last-child{border-bottom:0}.activity-date{width:48px;height:48px;border-radius:11px;background:rgba(255,255,255,.05);display:flex;flex-direction:column;align-items:center;justify-content:center}.activity-date strong{color:#fff}.activity-date span{font-size:.58rem;color:#777}.activity-info{flex:1}.activity-info strong{display:block;color:#fff;font-size:.85rem}.activity-info span{font-size:.72rem;color:#777}.activity-status{font-size:.66rem;color:#60a5fa;background:rgba(59,130,246,.1);padding:5px 8px;border-radius:7px}.chart-summary{text-align:right}.chart-summary strong{display:block;color:#fff;font-size:1.4rem}.chart-summary span{font-size:.65rem;color:#777}.bar-chart{height:210px;display:grid;grid-template-columns:repeat(7,1fr);gap:16px;align-items:end;padding-top:25px}.bar-column{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:7px}.bar-column>span,.bar-column small{font-size:.66rem;color:#777}.bar-track{height:145px;width:100%;max-width:44px;background:rgba(255,255,255,.045);border-radius:8px;display:flex;align-items:flex-end;overflow:hidden}.bar-fill{width:100%;background:rgba(59,130,246,.5);border-radius:8px}.bar-column.peak .bar-fill{background:#3b82f6}.gym-details{display:grid;grid-template-columns:70px 1fr auto;gap:16px;align-items:center;padding-top:20px}.gym-mini-logo{width:70px;height:70px;border-radius:14px;overflow:hidden}.gym-address,.gym-hours{display:flex;flex-direction:column;gap:4px}.gym-address strong,.gym-hours strong{color:#fff}.gym-address span,.gym-hours span{font-size:.75rem;color:#888}.open-text{color:#10b981!important}.closed-text{color:#ef4444!important}@media(max-width:900px){.kpi-grid{grid-template-columns:1fr 1fr}.two-col{grid-template-columns:1fr}.hero{align-items:flex-start;flex-direction:column}.member-card{width:100%;min-width:0}.gym-details{grid-template-columns:60px 1fr}.gym-hours{grid-column:1/-1}}@media(max-width:600px){.dashboard-container{padding:14px}.hero{padding:18px;min-height:330px}.hero-content{align-items:flex-start}.gym-logo{width:70px;height:70px}.hero-copy h1{font-size:1.45rem}.kpi-grid{grid-template-columns:1fr}.quick-grid{grid-template-columns:1fr}.panel{padding:18px}.bar-chart{gap:7px}.status-row{display:grid;grid-template-columns:1fr}.membership-main{align-items:flex-start}.gym-details{grid-template-columns:1fr}.gym-mini-logo{width:60px;height:60px}}
 </style>

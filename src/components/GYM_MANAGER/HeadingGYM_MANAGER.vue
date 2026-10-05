@@ -7,68 +7,17 @@
     <header class="desktop-navbar">
       <div class="desktop-navbar-inner">
 
-        <!-- SUCURSAL (esquina izquierda) -->
-        <div class="desktop-brand nav-dropdown-root">
-          <button
-            type="button"
-            class="brand-button"
-            :class="{ active: desktopDropdown === 'branch' }"
-            :title="selectedGym"
-            @click.stop="toggleDesktopDropdown('branch')"
-          >
+        <!-- SUCURSAL ASIGNADA (sin selector para gerente) -->
+        <div class="desktop-brand">
+          <div class="brand-button static" :title="selectedGym">
             <div class="brand-mark">
               <svg viewBox="0 0 24 24"><path :d="ICON.pin" /></svg>
             </div>
-
             <div class="brand-copy">
               <strong>{{ selectedGym }}</strong>
-              <span>{{ label('currentBranch', 'Sucursal actual', 'Current branch') }}</span>
+              <span>{{ label('currentBranch', 'Sucursal asignada', 'Assigned branch') }}</span>
             </div>
-
-            <svg class="brand-chevron" :class="{ rotated: desktopDropdown === 'branch' }" viewBox="0 0 24 24">
-              <path d="M7 10l5 5 5-5z" />
-            </svg>
-          </button>
-
-          <transition name="desktop-dropdown">
-            <div
-              v-if="desktopDropdown === 'branch'"
-              class="desktop-dropdown branch-menu"
-              @click.stop
-            >
-              <div class="dropdown-title">
-                {{ label('', 'Seleccionar sucursal', 'Select branch') }}
-              </div>
-
-              <button
-                v-for="gym in gyms"
-                :key="gym"
-                type="button"
-                class="branch-option"
-                :class="{ selected: selectedGym === gym }"
-                @click="selectGym(gym)"
-              >
-                <span class="branch-option-icon">
-                  <svg viewBox="0 0 24 24"><path :d="ICON.pin" /></svg>
-                </span>
-
-                <span class="branch-option-copy">
-                  <strong>{{ gym }}</strong>
-                  <small>
-                    {{
-                      selectedGym === gym
-                        ? label('', 'Sucursal seleccionada', 'Selected branch')
-                        : label('', 'Cambiar a esta sucursal', 'Switch to this branch')
-                    }}
-                  </small>
-                </span>
-
-                <svg v-if="selectedGym === gym" class="option-check" viewBox="0 0 24 24">
-                  <path d="M20 6 9 17l-5-5" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-              </button>
-            </div>
-          </transition>
+          </div>
         </div>
 
         <!-- MENÚ CENTRAL -->
@@ -123,37 +72,25 @@
             <span>{{ label('payments', 'Pagos', 'Payments') }}</span>
           </router-link>
 
-          <!-- ADMINISTRACIÓN -->
+          <!-- REPORTES -->
           <div class="desktop-nav-group nav-dropdown-root">
             <button
               type="button"
               class="desktop-nav-item"
-              :class="{ active: desktopDropdown === 'administration', current: isGroupActive('administration') }"
-              @click.stop="toggleDesktopDropdown('administration')"
+              :class="{ active: desktopDropdown === 'reports', current: isGroupActive('reports') }"
+              @click.stop="toggleDesktopDropdown('reports')"
             >
-              <svg viewBox="0 0 24 24"><path :d="ICON.admin" /></svg>
-              <span>{{ label('administration', 'Administración', 'Administration') }}</span>
-              <svg class="nav-chevron" :class="{ rotated: desktopDropdown === 'administration' }" viewBox="0 0 24 24">
+              <svg viewBox="0 0 24 24"><path :d="ICON.chart" /></svg>
+              <span>{{ label('logbook', 'Reportes', 'Reports') }}</span>
+              <svg class="nav-chevron" :class="{ rotated: desktopDropdown === 'reports' }" viewBox="0 0 24 24">
                 <path d="M7 10l5 5 5-5z" />
               </svg>
             </button>
-
             <transition name="desktop-dropdown">
-              <div v-if="desktopDropdown === 'administration'" class="desktop-dropdown" @click.stop>
-                <div class="dropdown-title">
-                  {{ label('administration', 'Administración', 'Administration') }}
-                </div>
-
-                <router-link
-                  v-for="l in navAdmin"
-                  :key="l.to"
-                  :to="l.to"
-                  class="dropdown-link"
-                  @click="closeDesktopDropdown"
-                >
-                  <span class="dropdown-icon" :class="l.color">
-                    <svg viewBox="0 0 24 24"><path :d="l.icon" /></svg>
-                  </span>
+              <div v-if="desktopDropdown === 'reports'" class="desktop-dropdown reports-dropdown" @click.stop>
+                <div class="dropdown-title">{{ label('logbook', 'Reportes y bitácora', 'Reports & logbook') }}</div>
+                <router-link v-for="l in navReports" :key="l.to" :to="l.to" class="dropdown-link" @click="closeDesktopDropdown">
+                  <span class="dropdown-icon" :class="l.color"><svg viewBox="0 0 24 24"><path :d="l.icon" /></svg></span>
                   <span class="dropdown-copy">
                     <strong>{{ label(l.key, l.es, l.en) }}</strong>
                     <small>{{ label('', l.dEs, l.dEn) }}</small>
@@ -163,7 +100,6 @@
             </transition>
           </div>
 
-          
         </nav>
 
         <!-- ACCIONES DERECHA -->
@@ -283,16 +219,15 @@
 
       <!-- TOP NAV MÓVIL: sucursal + QR + notificaciones -->
       <nav class="mobile-top-nav">
-        <button type="button" class="mobile-branch" @click="toggleSheet('branch')">
+        <div class="mobile-branch static">
           <span class="mobile-branch-icon">
             <svg viewBox="0 0 24 24"><path :d="ICON.pin" /></svg>
           </span>
           <span class="mobile-branch-copy">
             <strong>{{ selectedGym }}</strong>
-            <small>{{ label('currentBranch', 'Sucursal actual', 'Current branch') }}</small>
+            <small>{{ label('currentBranch', 'Sucursal asignada', 'Assigned branch') }}</small>
           </span>
-          <svg class="mobile-branch-chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z" /></svg>
-        </button>
+        </div>
 
         <div class="nav-right">
           <button
@@ -456,58 +391,9 @@
             </router-link>
           </template>
 
-          <!-- SUCURSAL -->
-          <template v-else-if="mobileSheet === 'branch'">
-            <h3 class="sheet-title">{{ label('', 'Seleccionar sucursal', 'Select branch') }}</h3>
-
-            <button
-              v-for="gym in gyms"
-              :key="gym"
-              type="button"
-              class="sheet-link branch"
-              :class="{ selected: selectedGym === gym }"
-              @click="selectGym(gym)"
-            >
-              <span class="dropdown-icon blue">
-                <svg viewBox="0 0 24 24"><path :d="ICON.pin" /></svg>
-              </span>
-              <span class="dropdown-copy">
-                <strong>{{ gym }}</strong>
-                <small>
-                  {{
-                    selectedGym === gym
-                      ? label('', 'Sucursal seleccionada', 'Selected branch')
-                      : label('', 'Cambiar a esta sucursal', 'Switch to this branch')
-                  }}
-                </small>
-              </span>
-              <svg v-if="selectedGym === gym" class="sheet-check" viewBox="0 0 24 24">
-                <path d="M20 6 9 17l-5-5" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-            </button>
-          </template>
-
           <!-- MÁS -->
           <template v-else-if="mobileSheet === 'more'">
-            <h3 class="sheet-title">{{ label('administration', 'Administración', 'Administration') }}</h3>
-
-            <router-link
-              v-for="l in navAdmin"
-              :key="l.to"
-              :to="l.to"
-              class="sheet-link"
-              @click="closeSheet"
-            >
-              <span class="dropdown-icon" :class="l.color">
-                <svg viewBox="0 0 24 24"><path :d="l.icon" /></svg>
-              </span>
-              <span class="dropdown-copy">
-                <strong>{{ label(l.key, l.es, l.en) }}</strong>
-                <small>{{ label('', l.dEs, l.dEn) }}</small>
-              </span>
-            </router-link>
-
-            <div class="sheet-divider"></div>
+            <h3 class="sheet-title">{{ label('', 'Más opciones', 'More options') }}</h3>
 
             <div class="sheet-grid">
               <router-link to="/GYM_MANAGER/profile" class="sheet-tile" @click="closeSheet">
@@ -652,9 +538,6 @@ const ICON = {
   user: 'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z',
   userAdd: 'M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z',
   pay: 'M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V7H12v9z',
-  admin: 'M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z',
-  tag: 'M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z',
-  fee: 'M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 1.9 1.55 3.28 3.5 3.71V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z',
   chart: 'M5 9.2h3V19H5zM10.6 5h2.8v14h-2.8zm5.6 8H19v6h-2.8z',
   alert: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z',
   calendar: 'M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z',
@@ -675,41 +558,13 @@ const navUsers = [
     icon: ICON.user, color: 'blue'
   },
   {
-    to: '/GYM_MANAGER/view-staff', key: 'viewStaff', es: 'Personal', en: 'Staff',
-    dEs: 'Consultar y administrar personal', dEn: 'Manage staff',
-    icon: ICON.user, color: 'purple'
-  },
-  {
     to: '/GYM_MANAGER/register-clients', key: 'registerClients', es: 'Registrar cliente', en: 'Register client',
     dEs: 'Agregar un nuevo cliente', dEn: 'Add a new client',
     icon: ICON.userAdd, color: 'green', divider: true
-  },
-  {
-    to: '/GYM_MANAGER/register-staff', key: 'registerStaff', es: 'Registrar personal', en: 'Register staff',
-    dEs: 'Agregar nuevo personal', dEn: 'Add new staff',
-    icon: ICON.userAdd, color: 'orange'
-  }
-];
-
-const navAdmin = [
-  {
-    to: '/GYM_MANAGER/pricing', key: 'pricingAndPromos', es: 'Precios y promociones', en: 'Pricing & promos',
-    dEs: 'Tarifas, planes y promociones', dEn: 'Rates, plans and promotions',
-    icon: ICON.tag, color: 'blue'
-  },
-  {
-    to: '/GYM_MANAGER/fees', key: 'feesAndSurcharges', es: 'Multas y recargos', en: 'Fees & surcharges',
-    dEs: 'Reglas de morosidad y recargos', dEn: 'Late fees and surcharge rules',
-    icon: ICON.fee, color: 'purple'
   }
 ];
 
 const navReports = [
-  {
-    to: '/GYM_MANAGER/revenue', key: 'revenue', es: 'Ingresos', en: 'Revenue',
-    dEs: 'Historial de ingresos', dEn: 'Revenue history',
-    icon: ICON.chart, color: 'green'
-  },
   {
     to: '/GYM_MANAGER/debtors', key: 'debtors', es: 'Deudores', en: 'Debtors',
     dEs: 'Clientes con adeudos', dEn: 'Clients with outstanding balances',
@@ -736,14 +591,13 @@ const isNotificationsOpen = ref(false);
 const activeModal = ref(null);
 const desktopDropdown = ref(null);
 
-/* Hoja inferior móvil: null | 'users' | 'reports' | 'more' | 'branch' */
+/* Hoja inferior móvil: null | 'users' | 'reports' | 'more' */
 const mobileSheet = ref(null);
 
 const selectedGym = ref(
   localStorage.getItem('GYM_MANAGER-selected-gym') || 'Gimnasio Principal'
 );
 
-const gyms = ref(['Gimnasio Principal', 'Sucursal Secundaria']);
 
 const notifications = ref([
   {
@@ -819,13 +673,9 @@ const unreadNotifications = computed(() => {
 const grupos = {
   users: [
     '/GYM_MANAGER/view-clients',
-    '/GYM_MANAGER/view-staff',
-    '/GYM_MANAGER/register-clients',
-    '/GYM_MANAGER/register-staff'
+    '/GYM_MANAGER/register-clients'
   ],
-  administration: ['/GYM_MANAGER/pricing', '/GYM_MANAGER/fees'],
   reports: [
-    '/GYM_MANAGER/revenue',
     '/GYM_MANAGER/debtors',
     '/GYM_MANAGER/attendance',
     '/GYM_MANAGER/renewals'
@@ -849,7 +699,6 @@ const activeTab = computed(() => {
   if (isGroupActive('reports')) return 'reports';
 
   if (
-    isGroupActive('administration') ||
     path.startsWith('/GYM_MANAGER/profile') ||
     path.startsWith('/GYM_MANAGER/settings')
   ) {
@@ -925,17 +774,6 @@ const toggleDesktopDropdown = (name) => {
 
 const closeDesktopDropdown = () => {
   desktopDropdown.value = null;
-};
-
-/* =========================================================
-   SUCURSAL
-========================================================= */
-
-const selectGym = (gym) => {
-  selectedGym.value = gym;
-  localStorage.setItem('GYM_MANAGER-selected-gym', gym);
-  closeDesktopDropdown();
-  closeSheet();
 };
 
 /* =========================================================
@@ -1942,7 +1780,7 @@ onUnmounted(() => {
     transition: background 0.16s ease, border-color 0.16s ease;
   }
 
-  .brand-button:hover,
+  .brand-button:not(.static):hover,
   .brand-button.active {
     border-color: var(--nav-line);
     background: var(--hover-bg);

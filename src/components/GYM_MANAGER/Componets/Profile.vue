@@ -27,7 +27,7 @@ const FALLBACKS: Record<string, string> = {
   confirmPasswordPlaceholder: 'Repite la contraseña',
   btnSaveDataset: 'Guardar cambios',
   avatarUploadTitle: 'Cambiar fotografía',
-  avatarPreviewAlt: 'Foto del propietario',
+  avatarPreviewAlt: 'Foto del gerente',
   avatarChangeTitle: 'Cambiar fotografía',
   credentialsUpdateModalTitle: 'Actualizar credenciales',
   emailChangeWarningText: 'Cambiaste el correo de acceso. Define una nueva contraseña para continuar; se cerrará tu sesión.',
@@ -138,6 +138,7 @@ onUnmounted(() => {
    ========================================================= */
 const form = reactive({
   nombreGimnasio: 'Iron Fitness Center',
+  sucursalAsignada: 'Sucursal Centro',
   curp: 'IFC220101HSLPR01',
   nombres: 'Juan Carlos',
   apellidoP: 'Pérez',
@@ -454,7 +455,7 @@ const capturePhoto = () => {
         return;
       }
 
-      const file = new File([blob], `propietario-${Date.now()}.jpg`, { type: 'image/jpeg' });
+      const file = new File([blob], `gerente-${Date.now()}.jpg`, { type: 'image/jpeg' });
 
       setAvatarFile(file);
       closeCamera();
@@ -477,13 +478,13 @@ const capturePhoto = () => {
       <header class="settings-header">
         <div class="settings-header-copy">
           <span class="page-eyebrow">{{ tr('ownerEyebrow', 'MI CUENTA') }}</span>
-          <h1>{{ tr('ownerPageTitle', 'Perfil del propietario') }}</h1>
-          <p>{{ tr('ownerPageDescription', 'Administra tus datos personales, información de contacto y la seguridad de tu cuenta.') }}</p>
+          <h1>{{ tr('managerPageTitle', 'Perfil del gerente') }}</h1>
+          <p>{{ tr('managerPageDescription', 'Administra tus datos personales, información de contacto y la seguridad de tu cuenta de gerente.') }}</p>
         </div>
 
         <span class="status-pill activo">
           <span class="status-dot"></span>
-          {{ tr('ownerRole', 'Propietario') }}
+          {{ tr('managerRole', 'Gerente') }}
         </span>
       </header>
 
@@ -495,7 +496,7 @@ const capturePhoto = () => {
 
           <section class="profile-summary" id="tutor-3">
             <div class="profile-top-label">
-              {{ tr('ownerProfileLabel', 'PERFIL DEL PROPIETARIO') }}
+              {{ tr('managerProfileLabel', 'PERFIL DEL GERENTE') }}
             </div>
 
             <div
@@ -543,27 +544,32 @@ const capturePhoto = () => {
 
               <span class="status-pill compact-status activo">
                 <span class="status-dot"></span>
-                {{ tr('ownerRole', 'Propietario') }}
+                {{ tr('managerRole', 'Gerente') }}
               </span>
 
-              <p>{{ tr('ownerPhotoHint', 'Esta foto se muestra en tu cuenta y en las acciones que realices en el sistema.') }}</p>
+              <p>{{ tr('managerPhotoHint', 'Esta foto identifica tu cuenta de gerente dentro del sistema.') }}</p>
             </div>
 
             <div class="profile-divider"></div>
 
             <div class="profile-data-list">
               <div class="profile-data-item">
-                <span>{{ tr('ownerGymLabel', 'Gimnasio') }}</span>
+                <span>{{ tr('managerGymLabel', 'Gimnasio') }}</span>
                 <strong>{{ form.nombreGimnasio }}</strong>
               </div>
 
               <div class="profile-data-item">
-                <span>{{ tr('ownerAgeLabel', 'Edad') }}</span>
+                <span>{{ tr('managerBranchLabel', 'Sucursal asignada') }}</span>
+                <strong>{{ form.sucursalAsignada }}</strong>
+              </div>
+
+              <div class="profile-data-item">
+                <span>{{ tr('managerAgeLabel', 'Edad') }}</span>
                 <strong>{{ edad !== null && edad >= 0 ? `${edad} ${txt('años', 'years')}` : '—' }}</strong>
               </div>
 
               <div class="profile-data-item">
-                <span>{{ tr('ownerPhoneLabel', 'Celular') }}</span>
+                <span>{{ tr('managerPhoneLabel', 'Celular') }}</span>
                 <strong>{{ form.celular || '—' }}</strong>
               </div>
             </div>
@@ -574,7 +580,7 @@ const capturePhoto = () => {
                 <circle cx="12" cy="13" r="4" />
               </svg>
 
-              {{ tr('changeOwnerPhoto', 'Cambiar fotografía') }}
+              {{ tr('changeManagerPhoto', 'Cambiar fotografía') }}
             </button>
           </section>
 
@@ -610,6 +616,36 @@ const capturePhoto = () => {
         <div class="settings-content">
           <form @submit.prevent="handleSaveChanges">
 
+            <!-- INFORMACIÓN LABORAL DEL GERENTE -->
+            <section class="settings-card manager-work-card">
+              <header class="card-header">
+                <div class="card-header-icon">
+                  <svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 10h6M9 14h6"/></svg>
+                </div>
+                <div>
+                  <span class="card-eyebrow">{{ tr('managerWorkEyebrow', 'INFORMACIÓN LABORAL') }}</span>
+                  <h2>{{ tr('managerWorkTitle', 'Asignación del gerente') }}</h2>
+                  <p>{{ tr('managerWorkDescription', 'Información asignada por la cuenta del gimnasio. Estos datos son de solo lectura.') }}</p>
+                </div>
+              </header>
+              <div class="form-grid">
+                <div class="input-group">
+                  <label>{{ tr('managerRoleLabel', 'Rol del sistema') }}</label>
+                  <div class="input-with-icon disabled">
+                    <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <input type="text" :value="tr('managerRole', 'Gerente')" disabled />
+                  </div>
+                </div>
+                <div class="input-group">
+                  <label>{{ tr('managerBranchLabel', 'Sucursal asignada') }}</label>
+                  <div class="input-with-icon disabled">
+                    <svg viewBox="0 0 24 24"><path d="M12 21s6-5.33 6-11a6 6 0 1 0-12 0c0 5.67 6 11 6 11z"/><circle cx="12" cy="10" r="2"/></svg>
+                    <input type="text" :value="form.sucursalAsignada" disabled />
+                  </div>
+                </div>
+              </div>
+            </section>
+
             <!-- DATOS PERSONALES -->
             <section id="owner-personal" class="settings-card">
               <header class="card-header">
@@ -621,9 +657,9 @@ const capturePhoto = () => {
                 </div>
 
                 <div>
-                  <span class="card-eyebrow">{{ tr('ownerPersonalEyebrow', 'INFORMACIÓN PERSONAL') }}</span>
+                  <span class="card-eyebrow">{{ tr('managerPersonalEyebrow', 'INFORMACIÓN PERSONAL') }}</span>
                   <h2>{{ tr('sectionAdminData', 'Datos personales') }}</h2>
-                  <p>{{ tr('ownerPersonalDescription', 'Tu nombre completo y fecha de nacimiento tal como aparecen en tu identificación.') }}</p>
+                  <p>{{ tr('managerPersonalDescription', 'Datos personales del gerente registrados en el sistema.') }}</p>
                 </div>
               </header>
 
@@ -678,9 +714,9 @@ const capturePhoto = () => {
                 </div>
 
                 <div>
-                  <span class="card-eyebrow">{{ tr('ownerContactEyebrow', 'CONTACTO') }}</span>
-                  <h2>{{ tr('ownerContactTitle', 'Celular y correo') }}</h2>
-                  <p>{{ tr('ownerContactDescription', 'Medios con los que podemos comunicarnos contigo. El correo también es tu usuario de acceso.') }}</p>
+                  <span class="card-eyebrow">{{ tr('managerContactEyebrow', 'CONTACTO') }}</span>
+                  <h2>{{ tr('managerContactTitle', 'Celular y correo') }}</h2>
+                  <p>{{ tr('managerContactDescription', 'Datos de contacto del gerente. El correo también se utiliza para iniciar sesión.') }}</p>
                 </div>
               </header>
 
@@ -736,7 +772,7 @@ const capturePhoto = () => {
 
                 <div>
                   <span>
-                    {{ tr('ownerEmailNotice', 'Si cambias el correo de acceso deberás definir una nueva contraseña y volver a iniciar sesión.') }}
+                    {{ tr('managerEmailNotice', 'Si cambias el correo de acceso deberás definir una nueva contraseña y volver a iniciar sesión.') }}
                   </span>
                 </div>
               </div>
@@ -754,8 +790,8 @@ const capturePhoto = () => {
 
                 <div>
                   <span class="card-eyebrow warn">{{ tr('securityEyebrow', 'SEGURIDAD') }}</span>
-                  <h2>{{ tr('ownerSecurityTitle', 'Contraseña de acceso') }}</h2>
-                  <p>{{ tr('ownerSecurityDescription', 'Déjala en blanco si no quieres cambiarla.') }}</p>
+                  <h2>{{ tr('managerSecurityTitle', 'Contraseña de acceso') }}</h2>
+                  <p>{{ tr('managerSecurityDescription', 'Déjala en blanco si no quieres cambiarla.') }}</p>
                 </div>
               </header>
 
@@ -766,9 +802,9 @@ const capturePhoto = () => {
                 </svg>
 
                 <div>
-                  <strong>{{ tr('ownerSecurityNoticeTitle', 'Protege tu cuenta de propietario') }}</strong>
+                  <strong>{{ tr('managerSecurityNoticeTitle', 'Protege tu cuenta de gerente') }}</strong>
                   <span>
-                    {{ tr('ownerSecurityNoticeText', 'Usa una contraseña de al menos 8 caracteres que no utilices en otros sitios.') }}
+                    {{ tr('managerSecurityNoticeText', 'Usa una contraseña de al menos 8 caracteres que no utilices en otros sitios.') }}
                   </span>
                 </div>
               </div>
@@ -834,8 +870,8 @@ const capturePhoto = () => {
             <!-- GUARDAR -->
             <div class="save-bar">
               <div class="save-bar-copy">
-                <strong>{{ tr('ownerSaveTitle', '¿Actualizaste tus datos?') }}</strong>
-                <span>{{ tr('ownerSaveDescription', 'Revisa la información antes de guardar los cambios.') }}</span>
+                <strong>{{ tr('managerSaveTitle', '¿Actualizaste tus datos?') }}</strong>
+                <span>{{ tr('managerSaveDescription', 'Revisa la información antes de guardar los cambios.') }}</span>
               </div>
 
               <button type="submit" class="save-button">

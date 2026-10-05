@@ -74,12 +74,12 @@
           </article>
 
           <article class="kpi-card">
-            <div class="kpi-icon success">
-              <svg viewBox="0 0 24 24"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <div class="kpi-icon danger">
+              <svg viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
             </div>
             <div class="kpi-body">
-              <strong>$5,708</strong>
-              <span>{{ ui.incomeToday }}</span>
+              <strong>5</strong>
+              <span>{{ ui.clientsWithDebt }}</span>
             </div>
           </article>
 
@@ -94,7 +94,7 @@
           </article>
         </section>
 
-        <!-- 3. ALERTAS + FINANZAS -->
+        <!-- 3. ALERTAS + ESTADO DE LA SUCURSAL -->
         <section class="two-col">
           <article class="panel alerts-panel">
             <div class="panel-header">
@@ -128,22 +128,23 @@
           <article class="panel finance-panel">
             <div class="panel-header">
               <div>
-                <span class="section-eyebrow">{{ ui.finance }}</span>
-                <h2>{{ ui.financialSummary }}</h2>
+                <span class="section-eyebrow">{{ ui.operation }}</span>
+                <h2>{{ ui.occupancyStatus }}</h2>
               </div>
-              <button type="button" class="link-btn" @click="go('/GYM_MANAGER/revenue')">{{ ui.details }} →</button>
+              <span class="occupancy-badge">35%</span>
             </div>
 
-            <div class="finance-main">
-              <span>{{ ui.monthIncome }}</span>
-              <strong>$82,450</strong>
-              <small>↑ 18.4% {{ ui.vsLastMonth }}</small>
+            <div class="finance-main occupancy-main">
+              <span>{{ ui.currentOccupancy }}</span>
+              <strong>28 <small>/ 80</small></strong>
+              <div class="occupancy-progress"><i style="width: 35%"></i></div>
+              <small>{{ ui.normalOccupancy }}</small>
             </div>
 
-            <div class="finance-stats">
-              <div><span>{{ ui.todayIncome }}</span><strong>$5,708</strong></div>
-              <div><span>{{ ui.pending }}</span><strong>$3,200</strong></div>
-              <div><span>{{ ui.overdue }}</span><strong>4.2%</strong></div>
+            <div class="finance-stats operation-stats">
+              <div><span>{{ ui.peakHour }}</span><strong>18:00</strong></div>
+              <div><span>{{ ui.averageStay }}</span><strong>1 h 18 min</strong></div>
+              <div><span>{{ ui.accessStatus }}</span><strong class="status-ok">{{ ui.normal }}</strong></div>
             </div>
           </article>
         </section>
@@ -240,7 +241,6 @@
               <span class="section-eyebrow">{{ ui.location }}</span>
               <h2>{{ ui.branchLocation }}</h2>
             </div>
-            <button type="button" class="link-btn" @click="go('/GYM_MANAGER/settings')">{{ ui.editLocation }} →</button>
           </div>
 
           <div class="location-grid">
@@ -325,7 +325,7 @@
           </div>
         </section>
 
-        <!-- 7. OPERACIÓN Y CONFIGURACIÓN (menos frecuente) -->
+        <!-- 7. OPERACIÓN -->
         <section class="tools">
           <div class="tools-title">
             <span>{{ ui.moreTools }}</span>
@@ -395,36 +395,6 @@
               </div>
             </div>
 
-            <div class="module-section">
-              <div class="section-header">
-                <span class="section-eyebrow">{{ ui.expansion }}</span>
-                <h2>{{ ui.branches }}</h2>
-              </div>
-
-              <div class="action-list">
-                <button type="button" class="action-card" @click="go('/GYM_MANAGER/settings')">
-                  <div class="action-icon accent">
-                    <svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-5h6v5"/></svg>
-                  </div>
-                  <div class="action-info">
-                    <strong>{{ ui.mainBranch }}</strong>
-                    <span><i class="online-dot"></i>28 {{ ui.peopleInside }}</span>
-                  </div>
-                  <ArrowIcon />
-                </button>
-
-                <button type="button" class="action-card add-branch" @click="openBranchModal">
-                  <div class="action-icon accent">
-                    <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-                  </div>
-                  <div class="action-info">
-                    <strong>{{ ui.addBranch }}</strong>
-                    <span>{{ ui.addBranchDescription }}</span>
-                  </div>
-                  <ArrowIcon />
-                </button>
-              </div>
-            </div>
           </div>
         </section>
       </main>
@@ -460,26 +430,7 @@
         </div>
       </transition>
 
-      <transition name="pop">
-        <div v-if="showBranchModal" class="branch-modal-overlay" @click.self="closeBranchModal">
-          <div class="branch-modal">
-            <header class="branch-modal-header">
-              <div class="branch-modal-title">
-                <div class="branch-modal-icon">+</div>
-                <div>
-                  <span>{{ ui.branchManagement }}</span>
-                  <h2>{{ ui.registerBranch }}</h2>
-                </div>
-              </div>
-              <button type="button" class="branch-modal-close" @click="closeBranchModal">&times;</button>
-            </header>
 
-            <div class="branch-modal-body">
-              <RegisterGymModal @close="closeBranchModal" />
-            </div>
-          </div>
-        </div>
-      </transition>
     </div>
   </HeadingAdmin>
 </template>
@@ -492,7 +443,6 @@ import 'leaflet/dist/leaflet.css';
 import { traducciones } from './i18n.js';
 import AddScheduleModal from '../Modals/AddScheduleModal.vue';
 import ViewScheduleModal from '../Modals/ViewScheduleModal.vue';
-import RegisterGymModal from '../Record/Record-Gym.vue';
 import CorreoMasivo from './Componets/Bulk-Email.vue';
 import AddCorteComponent from './Componets/Cut.vue';
 import HeadingAdmin from './HeadingGYM_MANAGER.vue';
@@ -501,7 +451,6 @@ const router = useRouter();
 
 const currentLang = ref(localStorage.getItem('GYM_MANAGER-idioma') || 'es');
 const activeModal = ref(null);
-const showBranchModal = ref(false);
 const videoPlayer = ref(null);
 const isGymOpen = ref(true);
 const billingStatus = ref('active');
@@ -609,32 +558,25 @@ const t = computed(() => {
 
 const dashboardTranslations = {
   es: {
-    GYM_MANAGERPanel: 'Panel del propietario',
+    GYM_MANAGERPanel: 'Panel del Gerente',
     operation: 'OPERACIÓN',
+    occupancyStatus: 'Ocupación de la sucursal',
+    currentOccupancy: 'OCUPACIÓN ACTUAL',
+    normalOccupancy: 'Nivel de ocupación normal',
+    peakHour: 'HORA PICO',
+    averageStay: 'ESTANCIA PROMEDIO',
+    accessStatus: 'ESTADO DE ACCESO',
+    normal: 'Normal',
+    clientsWithDebt: 'CLIENTES CON ADEUDO',
     schedule: 'AGENDA',
-    expansion: 'EXPANSIÓN',
-    moreTools: 'Operación y configuración',
-    branches: 'Sucursales',
-    addBranch: 'Agregar sucursal',
-    addBranchDescription: 'Registra una nueva sede en tu cuenta.',
+    moreTools: 'Operación',
     accessControl: 'CONTROL DE ACCESO',
-    branchManagement: 'GESTIÓN DE SUCURSALES',
-    registerBranch: 'Registrar nueva sede',
     cameraError: 'No se pudo acceder a la cámara. Verifica los permisos.',
     membershipExpires: 'Membresía vence el',
     membershipExpired: 'Membresía venció el',
-    incomeToday: 'INGRESOS HOY',
     today: 'ACTIVIDAD',
     recentActivity: 'Actividad reciente',
     viewAll: 'Ver todo',
-    finance: 'FINANZAS',
-    financialSummary: 'Resumen financiero',
-    details: 'Detalles',
-    monthIncome: 'Ingresos del mes',
-    vsLastMonth: 'vs. mes anterior',
-    todayIncome: 'Hoy',
-    pending: 'Pendiente',
-    overdue: 'Morosidad',
     attention: 'ATENCIÓN',
     alerts: 'Alertas importantes',
     last7: 'ÚLTIMOS 7 DÍAS',
@@ -643,11 +585,9 @@ const dashboardTranslations = {
     weekAccess: 'accesos esta semana',
     management: 'GESTIÓN',
     quickActions: 'Acciones rápidas',
-    mainBranch: 'Gimnasio Principal',
     peopleInside: 'personas dentro',
     location: 'UBICACIÓN',
     branchLocation: 'Ubicación de la sucursal',
-    editLocation: 'Editar',
     branch: 'Sucursal',
     address: 'Dirección',
     neighborhood: 'Colonia',
@@ -663,32 +603,25 @@ const dashboardTranslations = {
     mapLoading: 'Cargando mapa…'
   },
   en: {
-    GYM_MANAGERPanel: 'Owner panel',
+    GYM_MANAGERPanel: 'Manager panel',
     operation: 'OPERATIONS',
+    occupancyStatus: 'Branch occupancy',
+    currentOccupancy: 'CURRENT OCCUPANCY',
+    normalOccupancy: 'Normal occupancy level',
+    peakHour: 'PEAK HOUR',
+    averageStay: 'AVERAGE STAY',
+    accessStatus: 'ACCESS STATUS',
+    normal: 'Normal',
+    clientsWithDebt: 'CLIENTS WITH DEBT',
     schedule: 'SCHEDULE',
-    expansion: 'EXPANSION',
-    moreTools: 'Operations & settings',
-    branches: 'Branches',
-    addBranch: 'Add branch',
-    addBranchDescription: 'Register a new location in your account.',
+    moreTools: 'Operations',
     accessControl: 'ACCESS CONTROL',
-    branchManagement: 'BRANCH MANAGEMENT',
-    registerBranch: 'Register new location',
     cameraError: 'Camera access failed. Check your permissions.',
     membershipExpires: 'Membership expires on',
     membershipExpired: 'Membership expired on',
-    incomeToday: 'TODAY INCOME',
     today: 'ACTIVITY',
     recentActivity: 'Recent activity',
     viewAll: 'View all',
-    finance: 'FINANCE',
-    financialSummary: 'Financial summary',
-    details: 'Details',
-    monthIncome: 'Monthly income',
-    vsLastMonth: 'vs. last month',
-    todayIncome: 'Today',
-    pending: 'Pending',
-    overdue: 'Overdue',
     attention: 'ATTENTION',
     alerts: 'Important alerts',
     last7: 'LAST 7 DAYS',
@@ -697,11 +630,9 @@ const dashboardTranslations = {
     weekAccess: 'accesses this week',
     management: 'MANAGEMENT',
     quickActions: 'Quick actions',
-    mainBranch: 'Main Gym',
     peopleInside: 'people inside',
     location: 'LOCATION',
     branchLocation: 'Branch location',
-    editLocation: 'Edit',
     branch: 'Branch',
     address: 'Address',
     neighborhood: 'Neighborhood',
@@ -799,9 +730,7 @@ const quickActions = computed(() => {
   const icons = {
     client: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M19 8v6M22 11h-6',
     payment: 'M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6',
-    staff: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8',
     mail: 'M4 4h16v16H4zM4 7l8 6 8-6',
-    promo: 'M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82zM7 7h.01',
     cash: 'M4 4h16v16H4zM8 8h8M8 12h3M8 16h3M14 12h2M14 16h2'
   };
 
@@ -809,17 +738,13 @@ const quickActions = computed(() => {
     ? [
         { label: 'Registrar cliente', description: 'Nueva membresía', route: '/GYM_MANAGER/register-clients', icon: icons.client },
         { label: 'Registrar pago', description: 'Cobrar membresía', route: '/GYM_MANAGER/payments', icon: icons.payment },
-        { label: 'Registrar personal', description: 'Nuevo colaborador', route: '/GYM_MANAGER/register-staff', icon: icons.staff },
         { label: 'Correo masivo', description: 'Comunicar a clientes', modal: 'enviomasivo', icon: icons.mail },
-        { label: 'Crear promoción', description: 'Campañas y descuentos', route: '/GYM_MANAGER/pricing', icon: icons.promo },
         { label: 'Corte de caja', description: 'Resumen de operación', modal: 'corte', icon: icons.cash }
       ]
     : [
         { label: 'Register client', description: 'New membership', route: '/GYM_MANAGER/register-clients', icon: icons.client },
         { label: 'Register payment', description: 'Charge membership', route: '/GYM_MANAGER/payments', icon: icons.payment },
-        { label: 'Register staff', description: 'New collaborator', route: '/GYM_MANAGER/register-staff', icon: icons.staff },
         { label: 'Bulk email', description: 'Message clients', modal: 'enviomasivo', icon: icons.mail },
-        { label: 'Create promotion', description: 'Campaigns and discounts', route: '/GYM_MANAGER/pricing', icon: icons.promo },
         { label: 'Cash close', description: 'Operation summary', modal: 'corte', icon: icons.cash }
       ];
 });
@@ -850,8 +775,8 @@ const toggleGymStatus = () => {
 
 /* =========================================================
    MAPA DE LA SUCURSAL (Leaflet + OpenStreetMap)
-   Solo lectura: el propietario ve dónde está su sucursal.
-   Para cambiar el punto se edita desde la configuración.
+   Solo lectura: el gerente ve la ubicación de su sucursal asignada.
+   La ubicación no se modifica desde este dashboard.
 ========================================================= */
 
 const mapContainer = ref(null);
@@ -1003,16 +928,6 @@ const handleLangChange = (event) => {
    MODALES
 ========================================================= */
 
-const openBranchModal = () => {
-  showBranchModal.value = true;
-  document.body.style.overflow = 'hidden';
-};
-
-const closeBranchModal = () => {
-  showBranchModal.value = false;
-  document.body.style.overflow = '';
-};
-
 const stopStream = () => {
   if (stream) {
     stream.getTracks().forEach((track) => track.stop());
@@ -1061,11 +976,6 @@ const closeModal = () => {
 /* Cerrar modales con Escape */
 const handleKeydown = (event) => {
   if (event.key !== 'Escape') return;
-
-  if (showBranchModal.value) {
-    closeBranchModal();
-    return;
-  }
 
   if (activeModal.value) {
     closeModal();
@@ -1554,6 +1464,7 @@ button {
 
 .kpi-icon.accent { color: var(--hl); background: var(--hl-soft); border-color: var(--hl-line); }
 .kpi-icon.success { color: #34d399; background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.28); }
+.kpi-icon.danger { color: #f87171; background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.28); }
 .kpi-icon.warning { color: #f59e0b; background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.28); }
 
 .kpi-icon svg {
@@ -1788,6 +1699,48 @@ button {
 /* =========================================================
    3. FINANZAS
 ========================================================= */
+
+.occupancy-badge {
+  min-width: 48px;
+  height: 30px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--hl);
+  background: var(--hl-soft);
+  border: 1px solid var(--hl-line);
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.occupancy-main strong small {
+  color: var(--text3);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.occupancy-progress {
+  width: 100%;
+  height: 7px;
+  margin: 12px 0 8px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+}
+
+.occupancy-progress i {
+  display: block;
+  height: 100%;
+  background: var(--hl);
+  border-radius: inherit;
+  box-shadow: 0 0 14px var(--hl-line);
+}
+
+.operation-stats .status-ok {
+  color: #34d399;
+}
 
 .finance-main {
   position: relative;
@@ -2494,7 +2447,7 @@ button {
 }
 
 /* =========================================================
-   7. OPERACIÓN Y CONFIGURACIÓN
+   7. OPERACIÓN
 ========================================================= */
 
 .tools {
@@ -2523,7 +2476,7 @@ button {
 
 .modules-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
   align-items: stretch;
 }
@@ -2588,16 +2541,6 @@ button {
   box-shadow: 0 12px 26px rgba(0, 0, 0, 0.26);
 }
 
-.action-card.add-branch {
-  border-style: dashed;
-  border-color: var(--hl-line);
-  background: var(--hl-soft);
-}
-
-.action-card.add-branch:hover {
-  background: var(--hl-mid);
-}
-
 .action-icon {
   width: 46px;
   height: 46px;
@@ -2653,17 +2596,6 @@ button {
   white-space: nowrap;
 }
 
-.online-dot {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  margin-right: 6px;
-  vertical-align: middle;
-  background: #34d399;
-  border-radius: 50%;
-  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.18), 0 0 8px #34d399;
-}
-
 .action-arrow {
   width: 30px;
   height: 30px;
@@ -2696,8 +2628,7 @@ button {
    MODALES
 ========================================================= */
 
-.modal-overlay,
-.branch-modal-overlay {
+.modal-overlay {
   position: fixed;
   inset: 0;
   z-index: 5000;
@@ -2729,16 +2660,14 @@ button {
   justify-content: space-between;
 }
 
-.camera-header span,
-.branch-modal-title span {
+.camera-header span {
   color: var(--hl);
   font-size: 9.5px;
   font-weight: 800;
   letter-spacing: 1.2px;
 }
 
-.camera-header h3,
-.branch-modal-title h2 {
+.camera-header h3 {
   margin: 4px 0 0;
   color: var(--title);
   font-family: 'Oswald', sans-serif;
@@ -2746,8 +2675,7 @@ button {
   font-weight: 600;
 }
 
-.camera-header button,
-.branch-modal-close {
+.camera-header button {
   width: 38px;
   height: 38px;
   color: rgba(255, 255, 255, 0.7);
@@ -2760,8 +2688,7 @@ button {
   transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
-.camera-header button:hover,
-.branch-modal-close:hover {
+.camera-header button:hover {
   color: #fff;
   background: rgba(255, 255, 255, 0.1);
   transform: rotate(90deg);
@@ -2836,52 +2763,6 @@ button {
 
 .camera-footer button:hover {
   background: rgba(255, 255, 255, 0.09);
-}
-
-.branch-modal {
-  width: min(1280px, 96vw);
-  max-height: 92vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  background: var(--card);
-  border: 1px solid var(--line2);
-  border-radius: 24px;
-  box-shadow: 0 40px 90px rgba(0, 0, 0, 0.6);
-}
-
-.branch-modal-header {
-  min-height: 76px;
-  padding: 14px 22px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent);
-  border-bottom: 1px solid var(--line);
-}
-
-.branch-modal-title {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.branch-modal-icon {
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--hl);
-  background: var(--hl-soft);
-  border: 1px solid var(--hl-line);
-  border-radius: 13px;
-  font-size: 24px;
-}
-
-.branch-modal-body {
-  padding: 22px;
-  overflow-y: auto;
 }
 
 .pop-enter-active,
@@ -3226,8 +3107,7 @@ button {
   }
 
   /* ---- Modales ---- */
-  .modal-overlay,
-  .branch-modal-overlay {
+  .modal-overlay {
     padding: 8px;
   }
 
@@ -3236,15 +3116,6 @@ button {
     border-radius: 20px;
   }
 
-  .branch-modal {
-    width: 100%;
-    max-height: 96vh;
-    border-radius: 17px;
-  }
-
-  .branch-modal-body {
-    padding: 16px;
-  }
 }
 
 @media (max-width: 380px) {
