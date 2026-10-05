@@ -163,45 +163,7 @@
             </transition>
           </div>
 
-          <!-- REPORTES / BITÁCORA -->
-          <div class="desktop-nav-group nav-dropdown-root">
-            <button
-              type="button"
-              class="desktop-nav-item"
-              :class="{ active: desktopDropdown === 'reports', current: isGroupActive('reports') }"
-              @click.stop="toggleDesktopDropdown('reports')"
-            >
-              <svg viewBox="0 0 24 24"><path :d="ICON.chart" /></svg>
-              <span>{{ label('logbook', 'Reportes', 'Reports') }}</span>
-              <svg class="nav-chevron" :class="{ rotated: desktopDropdown === 'reports' }" viewBox="0 0 24 24">
-                <path d="M7 10l5 5 5-5z" />
-              </svg>
-            </button>
-
-            <transition name="desktop-dropdown">
-              <div v-if="desktopDropdown === 'reports'" class="desktop-dropdown reports-dropdown" @click.stop>
-                <div class="dropdown-title">
-                  {{ label('logbook', 'Reportes y bitácora', 'Reports & logbook') }}
-                </div>
-
-                <router-link
-                  v-for="l in navReports"
-                  :key="l.to"
-                  :to="l.to"
-                  class="dropdown-link"
-                  @click="closeDesktopDropdown"
-                >
-                  <span class="dropdown-icon" :class="l.color">
-                    <svg viewBox="0 0 24 24"><path :d="l.icon" /></svg>
-                  </span>
-                  <span class="dropdown-copy">
-                    <strong>{{ label(l.key, l.es, l.en) }}</strong>
-                    <small>{{ label('', l.dEs, l.dEn) }}</small>
-                  </span>
-                </router-link>
-              </div>
-            </transition>
-          </div>
+          
         </nav>
 
         <!-- ACCIONES DERECHA -->
@@ -797,7 +759,7 @@ const notifications = ref([
    PERFIL (datos de prueba)
 ========================================================= */
 
-const GYM_MANAGERName = 'Jose Luis';
+const GYM_MANAGERName = 'Francisco Luis';
 
 /* Logo temporal generado en línea; reemplázalo por el real */
 const gymLogo =

@@ -8,7 +8,8 @@ const VALID_USERS:Record<string,{role:string;nameRoute:string}>={
   'gym@gmail.com':{role:'GYM_ACCOUNT',nameRoute:'GYM_ACCOUNT-dashboard'},
   'recepcionista@gmail.com':{role:'GYM_RECEPCIONIST',nameRoute:'GYM_RECEPCIONIST-dashboard'},
   'miembro@gmail.com':{role:'Member',nameRoute:'Member-dashboard'},
-  'propietario@gmail.com':{role:'GYM_ADMIN',nameRoute:'GYM_ADMIN-dashboard'}
+  'propietario@gmail.com':{role:'GYM_ADMIN',nameRoute:'GYM_ADMIN-dashboard'},
+  'gerente@gmail.com':{role:'GYM_MANAGER',nameRoute:'GYM_MANAGER-dashboard'}
 };
 
 const router=useRouter();
