@@ -4,12 +4,23 @@
       <main class="dashboard-container">
 
         <!-- 1. ENCABEZADO -->
-        <section class="hero">
+        <section class="hero" :class="{ 'has-cover': !!gym.coverUrl }" :style="heroStyle">
           <div class="hero-main">
-            <span class="branch-badge">{{ t.sucursal }}</span>
-            <span class="eyebrow">{{ ui.GYM_ACCOUNTPanel }}</span>
-            <h1>ULTRA <span>FITNESS</span> CENTER</h1>
-            <p>{{ t.panelControl }}</p>
+            <!-- Logo: fuera del panel, al lado, con la misma altura que el panel -->
+            <div v-if="gym.logoUrl" class="hero-logo">
+              <img :src="gym.logoUrl" :alt="gym.name" />
+            </div>
+
+            <!-- Panel de texto -->
+            <div class="hero-copy">
+              <h1>
+                <template v-for="(w, i) in nameWords" :key="i">
+                  <span v-if="i === highlightIndex">{{ w }}</span>
+                  <template v-else>{{ w }}</template>{{ ' ' }}
+                </template>
+              </h1>
+              <p>{{ ui.GYM_ACCOUNTPanel }}</p>
+            </div>
           </div>
 
           <div class="hero-status">
@@ -26,6 +37,16 @@
             <div class="billing-pill" :class="billingStatus">
               <span class="billing-dot"></span>
               {{ billingStatusText }}
+            </div>
+
+            <div v-if="gym.membershipEnd" class="membership-pill" :class="membershipState">
+              <span class="membership-icon">
+                <svg viewBox="0 0 24 24"><path d="M19 4H5a2 2 0 0 0-2 2v14h18V6a2 2 0 0 0-2-2ZM8 2v4M16 2v4M3 9h18"/></svg>
+              </span>
+              <span class="membership-copy">
+                <small>{{ membershipState === 'expired' ? ui.membershipExpired : ui.membershipExpires }}</small>
+                <strong>{{ membershipDate }}</strong>
+              </span>
             </div>
           </div>
         </section>
@@ -394,6 +415,67 @@ const billingStatus = ref('active');
 let stream = null;
 
 /* =========================================================
+   DATOS DEL GIMNASIO (encabezado)
+   Cuando vengan del backend solo hay que llenar estos campos:
+   - logoUrl:       logo del gimnasio (opcional)
+   - coverUrl:      foto de fondo del encabezado (opcional)
+   - membershipEnd: fecha de vencimiento de la membresía, formato AAAA-MM-DD
+========================================================= */
+
+const gym = ref({
+  name: 'Ultra Fitness Center',
+  logoUrl: 'https://marketplace.canva.com/EAFxdcos7WU/1/0/1600w/canva-dark-blue-and-brown-illustrative-fitness-gym-logo-oqe3ybeEcQQ.jpg',
+  coverUrl: 'https://static.vecteezy.com/system/resources/thumbnails/037/228/850/small_2x/ai-generated-exercise-machines-in-a-gym-free-photo.jpg',
+  membershipEnd: '2027-05-26'
+});
+
+const nameWords = computed(() => gym.value.name.trim().toUpperCase().split(/\s+/));
+
+/* Palabra resaltada con el color de acento: la segunda del nombre */
+const highlightIndex = computed(() => (nameWords.value.length > 1 ? 1 : 0));
+
+const heroStyle = computed(() =>
+  gym.value.coverUrl ? { '--cover': `url('${gym.value.coverUrl}')` } : {}
+);
+
+/* ---------- Vencimiento de la membresía ---------- */
+
+const MONTHS = {
+  es: ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'],
+  en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+};
+
+const parseDate = (value) => {
+  const [y, m, d] = String(value || '').split('-').map(Number);
+  return y && m && d ? { y, m, d } : null;
+};
+
+/* Ej. 26/mayo/2027 */
+const membershipDate = computed(() => {
+  const date = parseDate(gym.value.membershipEnd);
+  if (!date) return '';
+
+  const months = MONTHS[currentLang.value] || MONTHS.es;
+  return `${date.d}/${months[date.m - 1]}/${date.y}`;
+});
+
+/* ok = vigente · soon = vence en 30 días o menos · expired = ya venció */
+const membershipState = computed(() => {
+  const date = parseDate(gym.value.membershipEnd);
+  if (!date) return 'ok';
+
+  const end = new Date(date.y, date.m - 1, date.d);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const days = Math.ceil((end - today) / 86400000);
+
+  if (days < 0) return 'expired';
+  if (days <= 30) return 'soon';
+  return 'ok';
+});
+
+/* =========================================================
    UTILIDADES
 ========================================================= */
 
@@ -421,7 +503,7 @@ const t = computed(() => {
 
 const dashboardTranslations = {
   es: {
-    GYM_ACCOUNTPanel: 'PANEL DEL PROPIETARIO',
+    GYM_ACCOUNTPanel: 'Panel del gimnasio',
     operation: 'OPERACIÓN',
     schedule: 'AGENDA',
     expansion: 'EXPANSIÓN',
@@ -433,6 +515,8 @@ const dashboardTranslations = {
     branchManagement: 'GESTIÓN DE SUCURSALES',
     registerBranch: 'Registrar nueva sede',
     cameraError: 'No se pudo acceder a la cámara. Verifica los permisos.',
+    membershipExpires: 'Membresía vence el',
+    membershipExpired: 'Membresía venció el',
     incomeToday: 'INGRESOS HOY',
     today: 'ACTIVIDAD',
     recentActivity: 'Actividad reciente',
@@ -457,7 +541,7 @@ const dashboardTranslations = {
     peopleInside: 'personas dentro'
   },
   en: {
-    GYM_ACCOUNTPanel: 'GYM_ACCOUNT PANEL',
+    GYM_ACCOUNTPanel: 'Gym Account Panel',
     operation: 'OPERATIONS',
     schedule: 'SCHEDULE',
     expansion: 'EXPANSION',
@@ -469,6 +553,8 @@ const dashboardTranslations = {
     branchManagement: 'BRANCH MANAGEMENT',
     registerBranch: 'Register new location',
     cameraError: 'Camera access failed. Check your permissions.',
+    membershipExpires: 'Membership expires on',
+    membershipExpired: 'Membership expired on',
     incomeToday: 'TODAY INCOME',
     today: 'ACTIVITY',
     recentActivity: 'Recent activity',
@@ -649,6 +735,13 @@ const closeBranchModal = () => {
   document.body.style.overflow = '';
 };
 
+const stopStream = () => {
+  if (stream) {
+    stream.getTracks().forEach((track) => track.stop());
+    stream = null;
+  }
+};
+
 const openCamera = async (type) => {
   activeModal.value = type;
 
@@ -658,9 +751,18 @@ const openCamera = async (type) => {
         throw new Error('getUserMedia no disponible');
       }
 
-      stream = await navigator.mediaDevices.getUserMedia({
+      const newStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: type === 'scanner' ? 'environment' : 'user' }
       });
+
+      /* Si el usuario cerró el modal mientras se pedía el permiso,
+         se apaga la cámara para que no quede encendida en segundo plano */
+      if (activeModal.value !== type) {
+        newStream.getTracks().forEach((track) => track.stop());
+        return;
+      }
+
+      stream = newStream;
 
       if (videoPlayer.value) {
         videoPlayer.value.srcObject = stream;
@@ -674,11 +776,7 @@ const openCamera = async (type) => {
 };
 
 const closeModal = () => {
-  if (stream) {
-    stream.getTracks().forEach((track) => track.stop());
-    stream = null;
-  }
-
+  stopStream();
   activeModal.value = null;
 };
 
@@ -721,7 +819,7 @@ onUnmounted(() => {
   document.body.style.overflow = '';
 });
 
-onBeforeUnmount(closeModal);
+onBeforeUnmount(stopStream);
 </script>
 
 <style scoped>
@@ -854,6 +952,44 @@ button {
   z-index: 1;
 }
 
+/* Contenedor transparente: logo + panel de texto lado a lado */
+.hero-main {
+  min-width: 0;
+  display: flex;
+  align-items: stretch;
+  gap: 14px;
+}
+
+.hero-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Logo: su alto es el mismo que el del panel (stretch) y es cuadrado */
+.hero-logo {
+  position: relative;
+  flex: none;
+  align-self: stretch;
+  width: 120px;
+  min-height: 96px;
+  overflow: hidden;
+  background: #111;
+  border: 1px solid var(--line2);
+  border-radius: 32px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+}
+
+.hero-logo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 .branch-badge {
   display: inline-flex;
   align-items: center;
@@ -869,7 +1005,7 @@ button {
   backdrop-filter: blur(6px);
 }
 
-.hero-main h1 {
+.hero-copy h1 {
   margin: 0;
   color: var(--title);
   font-family: 'Archivo Black', sans-serif;
@@ -878,12 +1014,12 @@ button {
   letter-spacing: -0.5px;
 }
 
-.hero-main h1 span {
+.hero-copy h1 span {
   color: var(--hl);
   text-shadow: 0 0 36px var(--hl-line);
 }
 
-.hero-main p {
+.hero-copy p {
   max-width: 560px;
   margin: 12px 0 0;
   color: var(--text2);
@@ -895,7 +1031,7 @@ button {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  min-width: 220px;
+  min-width: 240px;
 }
 
 .status-pill,
@@ -907,7 +1043,7 @@ button {
   justify-content: center;
   gap: 9px;
   border: 1px solid;
-  border-radius: 999px;
+  border-radius: 12px;
   font-size: 12px;
   font-weight: 700;
   white-space: nowrap;
@@ -952,6 +1088,121 @@ button {
   border-radius: 50%;
   background: currentColor;
   box-shadow: 0 0 0 4px color-mix(in srgb, currentColor 18%, transparent), 0 0 12px currentColor;
+}
+
+/* ---------- Vencimiento de la membresía ---------- */
+
+.membership-pill {
+  min-height: 58px;
+  padding: 8px 20px 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(10, 10, 10, 0.88);
+  border: 1px solid var(--line2);
+  border-radius: 16px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+}
+
+.membership-icon {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  color: var(--hl);
+  background: var(--hl-soft);
+  border: 1px solid var(--hl-line);
+  border-radius: 12px;
+}
+
+.membership-icon svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.membership-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.membership-copy small {
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.membership-copy strong {
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+/* Vence pronto: ámbar */
+.membership-pill.soon { border-color: rgba(245, 158, 11, 0.45); }
+.membership-pill.soon .membership-icon { color: #fbbf24; background: rgba(245, 158, 11, 0.14); border-color: rgba(245, 158, 11, 0.4); }
+.membership-pill.soon .membership-copy strong { color: #fbbf24; }
+
+/* Vencida: rojo */
+.membership-pill.expired { border-color: rgba(239, 68, 68, 0.45); }
+.membership-pill.expired .membership-icon { color: #f87171; background: rgba(239, 68, 68, 0.14); border-color: rgba(239, 68, 68, 0.4); }
+.membership-pill.expired .membership-copy strong { color: #f87171; }
+
+/* ---------- Encabezado con foto de portada ---------- */
+
+.hero.has-cover {
+  background: var(--cover) center / cover no-repeat, var(--card);
+}
+
+/* Velo suave: oscurece lo justo para que la foto siga luciendo */
+.hero.has-cover::before {
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.08) 70%);
+  background-size: auto;
+  mask-image: none;
+  -webkit-mask-image: none;
+}
+
+.hero.has-cover::after {
+  display: none;
+}
+
+/* Contenedor ajustado a su contenido, sin fondo propio */
+.hero.has-cover .hero-main {
+  width: fit-content;
+  max-width: 100%;
+  justify-self: start;
+}
+
+/* El recuadro de cristal ahora es solo el panel de texto */
+.hero.has-cover .hero-copy {
+  padding: 18px 26px;
+  background: rgba(10, 10, 10, 0.66);
+  border: 1px solid var(--line2);
+  border-radius: 22px;
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+}
+
+/* Pills legibles sobre la foto, conservando su color de estado */
+.hero.has-cover .status-pill,
+.hero.has-cover .billing-pill {
+  background-color: color-mix(in srgb, currentColor 14%, rgba(10, 10, 10, 0.86));
 }
 
 /* =========================================================
@@ -2102,8 +2353,8 @@ button {
   /* ---- Encabezado compacto ---- */
   .hero {
     grid-template-columns: 1fr;
-    gap: 16px;
-    padding: 22px 18px;
+    gap: 12px;
+    padding: 14px;
     border-radius: 20px;
   }
 
@@ -2112,19 +2363,37 @@ button {
     bottom: -210px;
   }
 
-  .branch-badge {
-    margin-bottom: 13px;
-    padding: 5px 10px;
-    font-size: 9.5px;
+  /* Con portada: la foto queda visible entre el recuadro y los botones */
+  .hero.has-cover {
+    min-height: 260px;
+    align-content: space-between;
   }
 
-  .hero-main h1 {
-    font-size: 27px;
+  .hero-main {
+    gap: 10px;
   }
 
-  .hero-main p {
-    margin-top: 8px;
-    font-size: 12.5px;
+  /* El logo sigue siendo del alto del panel, solo más compacto */
+  .hero-logo {
+    width: 104px;
+    min-height: 88px;
+    border-radius: 16px;
+  }
+
+  .hero.has-cover .hero-copy {
+    padding: 12px 16px;
+    border-radius: 18px;
+  }
+
+  .hero-copy h1 {
+    font-size: 22px;
+    line-height: 1.1;
+    letter-spacing: -0.2px;
+  }
+
+  .hero-copy p {
+    margin-top: 6px;
+    font-size: 12px;
   }
 
   .hero-status {
@@ -2134,11 +2403,30 @@ button {
     gap: 8px;
   }
 
+  /* Abierto y Cuenta al corriente: mitad y mitad */
   .status-pill,
   .billing-pill {
-    height: 34px;
-    padding: 0 13px;
+    flex: 1 1 calc(50% - 4px);
+    min-width: 0;
+    height: 36px;
+    padding: 0 10px;
     font-size: 11px;
+  }
+
+  .membership-pill {
+    flex: 1 1 100%;
+    min-height: 50px;
+    padding: 6px 14px 6px 8px;
+  }
+
+  .membership-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+  }
+
+  .membership-copy strong {
+    font-size: 14px;
   }
 
   /* ---- Indicadores 2x2, en vertical ---- */
@@ -2335,6 +2623,20 @@ button {
 }
 
 @media (max-width: 380px) {
+  .hero-logo {
+    width: 88px;
+    min-height: 80px;
+  }
+
+  .hero-copy h1 {
+    font-size: 20px;
+  }
+
+  .status-pill,
+  .billing-pill {
+    font-size: 10.5px;
+  }
+
   .finance-stats {
     grid-template-columns: 1fr;
   }

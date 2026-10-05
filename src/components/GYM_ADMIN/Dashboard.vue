@@ -4,12 +4,23 @@
       <main class="dashboard-container">
 
         <!-- 1. ENCABEZADO -->
-        <section class="hero">
+        <section class="hero" :class="{ 'has-cover': !!gym.coverUrl }" :style="heroStyle">
           <div class="hero-main">
-            <span class="branch-badge">{{ t.sucursal }}</span>
-            <span class="eyebrow">{{ ui.GYM_ADMINPanel }}</span>
-            <h1>ULTRA <span>FITNESS</span> CENTER</h1>
-            <p>{{ t.panelControl }}</p>
+            <!-- Logo: fuera del panel, al lado, con la misma altura que el panel -->
+            <div v-if="gym.logoUrl" class="hero-logo">
+              <img :src="gym.logoUrl" :alt="gym.name" />
+            </div>
+
+            <!-- Panel de texto -->
+            <div class="hero-copy">
+              <h1>
+                <template v-for="(w, i) in nameWords" :key="i">
+                  <span v-if="i === highlightIndex">{{ w }}</span>
+                  <template v-else>{{ w }}</template>{{ ' ' }}
+                </template>
+              </h1>
+              <p>{{ ui.GYM_ADMINPanel }}</p>
+            </div>
           </div>
 
           <div class="hero-status">
@@ -26,6 +37,16 @@
             <div class="billing-pill" :class="billingStatus">
               <span class="billing-dot"></span>
               {{ billingStatusText }}
+            </div>
+
+            <div v-if="gym.membershipEnd" class="membership-pill" :class="membershipState">
+              <span class="membership-icon">
+                <svg viewBox="0 0 24 24"><path d="M19 4H5a2 2 0 0 0-2 2v14h18V6a2 2 0 0 0-2-2ZM8 2v4M16 2v4M3 9h18"/></svg>
+              </span>
+              <span class="membership-copy">
+                <small>{{ membershipState === 'expired' ? ui.membershipExpired : ui.membershipExpires }}</small>
+                <strong>{{ membershipDate }}</strong>
+              </span>
             </div>
           </div>
         </section>
@@ -212,7 +233,99 @@
           </div>
         </section>
 
-        <!-- 6. OPERACIÓN Y CONFIGURACIÓN (menos frecuente) -->
+        <!-- 6. UBICACIÓN DE LA SUCURSAL (MAPA) -->
+        <section v-if="hasLocation" class="panel map-panel">
+          <div class="panel-header">
+            <div>
+              <span class="section-eyebrow">{{ ui.location }}</span>
+              <h2>{{ ui.branchLocation }}</h2>
+            </div>
+            <button type="button" class="link-btn" @click="go('/GYM_ADMIN/settings')">{{ ui.editLocation }} →</button>
+          </div>
+
+          <div class="location-grid">
+            <!-- Datos de la dirección -->
+            <div class="location-info">
+              <div class="branch-chip">
+                <span class="branch-chip-icon">
+                  <svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-5h6v5"/></svg>
+                </span>
+                <span class="branch-chip-copy">
+                  <small>{{ ui.branch }}</small>
+                  <strong>{{ gym.location.branchName }}</strong>
+                </span>
+              </div>
+
+              <div class="info-list">
+                <div class="info-item">
+                  <span>{{ ui.address }}</span>
+                  <strong>{{ addressStreet }}</strong>
+                </div>
+                <div class="info-item">
+                  <span>{{ ui.neighborhood }}</span>
+                  <strong>{{ gym.location.neighborhood }}</strong>
+                </div>
+                <div class="info-item">
+                  <span>{{ ui.city }}</span>
+                  <strong>{{ gym.location.city }}, {{ gym.location.state }}</strong>
+                </div>
+                <div class="info-item">
+                  <span>{{ ui.postalCode }}</span>
+                  <strong>{{ gym.location.zip }}</strong>
+                </div>
+                <div class="info-item">
+                  <span>{{ ui.coordinates }}</span>
+                  <strong class="mono">{{ coordsText }}</strong>
+                </div>
+              </div>
+
+              <a class="directions-btn" :href="directionsUrl" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
+                {{ ui.openInMaps }}
+              </a>
+            </div>
+
+            <!-- Mapa -->
+            <div class="map-stage">
+              <div ref="mapContainer" class="leaflet-map"></div>
+
+              <div class="map-style-switch">
+                <button
+                  type="button"
+                  :class="{ active: mapStyle === 'calles' }"
+                  @click="changeMapStyle('calles')"
+                >
+                  {{ ui.mapStreets }}
+                </button>
+                <button
+                  type="button"
+                  :class="{ active: mapStyle === 'satelite' }"
+                  @click="changeMapStyle('satelite')"
+                >
+                  {{ ui.mapSatellite }}
+                </button>
+              </div>
+
+              <div class="map-tools">
+                <button type="button" :title="ui.zoomIn" @click="zoomInMap">+</button>
+                <button type="button" :title="ui.zoomOut" @click="zoomOutMap">−</button>
+                <button type="button" :title="ui.centerMap" @click="centerMap">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>
+                  </svg>
+                </button>
+              </div>
+
+              <div v-if="mapLoading" class="map-loading">
+                <span class="map-spinner"></span>
+                {{ ui.mapLoading }}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 7. OPERACIÓN Y CONFIGURACIÓN (menos frecuente) -->
         <section class="tools">
           <div class="tools-title">
             <span>{{ ui.moreTools }}</span>
@@ -374,6 +487,8 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, onBeforeUnmount, h } from 'vue';
 import { useRouter } from 'vue-router';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import { traducciones } from './i18n.js';
 import AddScheduleModal from '../Modals/AddScheduleModal.vue';
 import ViewScheduleModal from '../Modals/ViewScheduleModal.vue';
@@ -392,6 +507,79 @@ const isGymOpen = ref(true);
 const billingStatus = ref('active');
 
 let stream = null;
+
+/* =========================================================
+   DATOS DEL GIMNASIO (encabezado y ubicación)
+   Cuando vengan del backend solo hay que llenar estos campos:
+   - logoUrl:       logo del gimnasio (opcional)
+   - coverUrl:      foto de fondo del encabezado (opcional)
+   - membershipEnd: fecha de vencimiento de la membresía, formato AAAA-MM-DD
+   - location:      dirección y coordenadas de la sucursal
+========================================================= */
+
+const gym = ref({
+  name: 'Ultra Fitness Center',
+  logoUrl: 'https://marketplace.canva.com/EAFxdcos7WU/1/0/1600w/canva-dark-blue-and-brown-illustrative-fitness-gym-logo-oqe3ybeEcQQ.jpg',
+  coverUrl: 'https://static.vecteezy.com/system/resources/thumbnails/037/228/850/small_2x/ai-generated-exercise-machines-in-a-gym-free-photo.jpg',
+  membershipEnd: '2027-05-26',
+  location: {
+    branchName: 'Sede Principal',
+    street: 'Av. Universitaria',
+    number: '420',
+    neighborhood: 'Zona Centro',
+    city: 'Ciudad Valles',
+    state: 'San Luis Potosí',
+    zip: '79000',
+    lat: '21.9903',
+    lng: '-99.0152'
+  }
+});
+
+const nameWords = computed(() => gym.value.name.trim().toUpperCase().split(/\s+/));
+
+/* Palabra resaltada con el color de acento: la segunda del nombre */
+const highlightIndex = computed(() => (nameWords.value.length > 1 ? 1 : 0));
+
+const heroStyle = computed(() =>
+  gym.value.coverUrl ? { '--cover': `url('${gym.value.coverUrl}')` } : {}
+);
+
+/* ---------- Vencimiento de la membresía ---------- */
+
+const MONTHS = {
+  es: ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'],
+  en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+};
+
+const parseDate = (value) => {
+  const [y, m, d] = String(value || '').split('-').map(Number);
+  return y && m && d ? { y, m, d } : null;
+};
+
+/* Ej. 26/mayo/2027 */
+const membershipDate = computed(() => {
+  const date = parseDate(gym.value.membershipEnd);
+  if (!date) return '';
+
+  const months = MONTHS[currentLang.value] || MONTHS.es;
+  return `${date.d}/${months[date.m - 1]}/${date.y}`;
+});
+
+/* ok = vigente · soon = vence en 30 días o menos · expired = ya venció */
+const membershipState = computed(() => {
+  const date = parseDate(gym.value.membershipEnd);
+  if (!date) return 'ok';
+
+  const end = new Date(date.y, date.m - 1, date.d);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const days = Math.ceil((end - today) / 86400000);
+
+  if (days < 0) return 'expired';
+  if (days <= 30) return 'soon';
+  return 'ok';
+});
 
 /* =========================================================
    UTILIDADES
@@ -421,7 +609,7 @@ const t = computed(() => {
 
 const dashboardTranslations = {
   es: {
-    GYM_ADMINPanel: 'PANEL DEL PROPIETARIO',
+    GYM_ADMINPanel: 'Panel del propietario',
     operation: 'OPERACIÓN',
     schedule: 'AGENDA',
     expansion: 'EXPANSIÓN',
@@ -433,6 +621,8 @@ const dashboardTranslations = {
     branchManagement: 'GESTIÓN DE SUCURSALES',
     registerBranch: 'Registrar nueva sede',
     cameraError: 'No se pudo acceder a la cámara. Verifica los permisos.',
+    membershipExpires: 'Membresía vence el',
+    membershipExpired: 'Membresía venció el',
     incomeToday: 'INGRESOS HOY',
     today: 'ACTIVIDAD',
     recentActivity: 'Actividad reciente',
@@ -454,10 +644,26 @@ const dashboardTranslations = {
     management: 'GESTIÓN',
     quickActions: 'Acciones rápidas',
     mainBranch: 'Gimnasio Principal',
-    peopleInside: 'personas dentro'
+    peopleInside: 'personas dentro',
+    location: 'UBICACIÓN',
+    branchLocation: 'Ubicación de la sucursal',
+    editLocation: 'Editar',
+    branch: 'Sucursal',
+    address: 'Dirección',
+    neighborhood: 'Colonia',
+    city: 'Ciudad',
+    postalCode: 'Código postal',
+    coordinates: 'Coordenadas',
+    openInMaps: 'Cómo llegar',
+    mapStreets: 'Calles',
+    mapSatellite: 'Satélite',
+    zoomIn: 'Acercar',
+    zoomOut: 'Alejar',
+    centerMap: 'Centrar en la sede',
+    mapLoading: 'Cargando mapa…'
   },
   en: {
-    GYM_ADMINPanel: 'GYM_ADMIN PANEL',
+    GYM_ADMINPanel: 'Owner panel',
     operation: 'OPERATIONS',
     schedule: 'SCHEDULE',
     expansion: 'EXPANSION',
@@ -469,6 +675,8 @@ const dashboardTranslations = {
     branchManagement: 'BRANCH MANAGEMENT',
     registerBranch: 'Register new location',
     cameraError: 'Camera access failed. Check your permissions.',
+    membershipExpires: 'Membership expires on',
+    membershipExpired: 'Membership expired on',
     incomeToday: 'TODAY INCOME',
     today: 'ACTIVITY',
     recentActivity: 'Recent activity',
@@ -490,7 +698,23 @@ const dashboardTranslations = {
     management: 'MANAGEMENT',
     quickActions: 'Quick actions',
     mainBranch: 'Main Gym',
-    peopleInside: 'people inside'
+    peopleInside: 'people inside',
+    location: 'LOCATION',
+    branchLocation: 'Branch location',
+    editLocation: 'Edit',
+    branch: 'Branch',
+    address: 'Address',
+    neighborhood: 'Neighborhood',
+    city: 'City',
+    postalCode: 'Postal code',
+    coordinates: 'Coordinates',
+    openInMaps: 'Get directions',
+    mapStreets: 'Streets',
+    mapSatellite: 'Satellite',
+    zoomIn: 'Zoom in',
+    zoomOut: 'Zoom out',
+    centerMap: 'Center on the branch',
+    mapLoading: 'Loading map…'
   }
 };
 
@@ -625,6 +849,146 @@ const toggleGymStatus = () => {
 };
 
 /* =========================================================
+   MAPA DE LA SUCURSAL (Leaflet + OpenStreetMap)
+   Solo lectura: el propietario ve dónde está su sucursal.
+   Para cambiar el punto se edita desde la configuración.
+========================================================= */
+
+const mapContainer = ref(null);
+const mapLoading = ref(true);
+const mapStyle = ref('calles');
+
+let mapInstance = null;
+let marker = null;
+let baseLayer = null;
+let resizeObserver = null;
+
+const TILE_LAYERS = {
+  calles: {
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    attribution: '&copy; OpenStreetMap contributors',
+    subdomains: 'abc',
+    maxZoom: 19
+  },
+  satelite: {
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    attribution: 'Tiles &copy; Esri',
+    maxZoom: 19
+  }
+};
+
+const coords = computed(() => ({
+  lat: parseFloat(gym.value.location.lat),
+  lng: parseFloat(gym.value.location.lng)
+}));
+
+const hasLocation = computed(
+  () => Number.isFinite(coords.value.lat) && Number.isFinite(coords.value.lng)
+);
+
+const addressStreet = computed(() => {
+  const { street, number } = gym.value.location;
+  return [street, number && `#${number}`].filter(Boolean).join(' ');
+});
+
+const coordsText = computed(() => `${coords.value.lat.toFixed(5)}, ${coords.value.lng.toFixed(5)}`);
+
+const directionsUrl = computed(
+  () => `https://www.google.com/maps/search/?api=1&query=${coords.value.lat},${coords.value.lng}`
+);
+
+const escapeHtml = (s) =>
+  String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+const applyBaseLayer = () => {
+  if (!mapInstance) return;
+  if (baseLayer) mapInstance.removeLayer(baseLayer);
+
+  const cfg = TILE_LAYERS[mapStyle.value];
+  baseLayer = L.tileLayer(cfg.url, {
+    attribution: cfg.attribution,
+    maxZoom: cfg.maxZoom,
+    ...(cfg.subdomains ? { subdomains: cfg.subdomains } : {})
+  }).addTo(mapInstance);
+  baseLayer.bringToBack();
+};
+
+const changeMapStyle = (id) => {
+  if (mapStyle.value === id) return;
+  mapStyle.value = id;
+  applyBaseLayer();
+};
+
+const zoomInMap = () => mapInstance?.zoomIn();
+const zoomOutMap = () => mapInstance?.zoomOut();
+
+const centerMap = () => {
+  if (!mapInstance || !marker) return;
+  mapInstance.setView(marker.getLatLng(), Math.max(mapInstance.getZoom(), 16));
+  marker.openPopup();
+};
+
+const initMap = () => {
+  if (!mapContainer.value || !hasLocation.value) return;
+
+  const { lat, lng } = coords.value;
+
+  mapInstance = L.map(mapContainer.value, {
+    center: [lat, lng],
+    zoom: 16,
+    zoomControl: false,
+    attributionControl: false,
+    scrollWheelZoom: false,           /* no secuestra el scroll de la página */
+    dragging: !L.Browser.mobile       /* en móvil el dedo sigue haciendo scroll */
+  });
+
+  L.control.attribution({ position: 'bottomleft', prefix: false }).addTo(mapInstance);
+  applyBaseLayer();
+
+  const pinIcon = L.divIcon({
+    className: 'gym-pin',
+    html: '<span class="gym-pin-body"><span class="gym-pin-dot"></span></span>',
+    iconSize: [36, 42],
+    iconAnchor: [18, 40],
+    popupAnchor: [0, -38]
+  });
+
+  const loc = gym.value.location;
+  const line = [addressStreet.value, loc.neighborhood].filter(Boolean).join(', ');
+
+  marker = L.marker([lat, lng], { icon: pinIcon, draggable: false })
+    .addTo(mapInstance)
+    .bindPopup(`<strong>${escapeHtml(gym.value.name)}</strong>${line ? '<br>' + escapeHtml(line) : ''}`);
+
+  marker.openPopup();
+
+  /* Espera a que el contenedor tenga su tamaño final antes de quitar el cargando */
+  requestAnimationFrame(() =>
+    requestAnimationFrame(() =>
+      setTimeout(() => {
+        mapInstance?.invalidateSize();
+        mapLoading.value = false;
+      }, 250)
+    )
+  );
+
+  if ('ResizeObserver' in window) {
+    resizeObserver = new ResizeObserver(() => mapInstance?.invalidateSize());
+    resizeObserver.observe(mapContainer.value);
+  }
+};
+
+const destroyMap = () => {
+  resizeObserver?.disconnect();
+  resizeObserver = null;
+
+  mapInstance?.remove();
+  mapInstance = null;
+  marker = null;
+  baseLayer = null;
+};
+
+/* =========================================================
    IDIOMA
 ========================================================= */
 
@@ -649,6 +1013,13 @@ const closeBranchModal = () => {
   document.body.style.overflow = '';
 };
 
+const stopStream = () => {
+  if (stream) {
+    stream.getTracks().forEach((track) => track.stop());
+    stream = null;
+  }
+};
+
 const openCamera = async (type) => {
   activeModal.value = type;
 
@@ -658,9 +1029,18 @@ const openCamera = async (type) => {
         throw new Error('getUserMedia no disponible');
       }
 
-      stream = await navigator.mediaDevices.getUserMedia({
+      const newStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: type === 'scanner' ? 'environment' : 'user' }
       });
+
+      /* Si el usuario cerró el modal mientras se pedía el permiso,
+         se apaga la cámara para que no quede encendida en segundo plano */
+      if (activeModal.value !== type) {
+        newStream.getTracks().forEach((track) => track.stop());
+        return;
+      }
+
+      stream = newStream;
 
       if (videoPlayer.value) {
         videoPlayer.value.srcObject = stream;
@@ -674,11 +1054,7 @@ const openCamera = async (type) => {
 };
 
 const closeModal = () => {
-  if (stream) {
-    stream.getTracks().forEach((track) => track.stop());
-    stream = null;
-  }
-
+  stopStream();
   activeModal.value = null;
 };
 
@@ -713,15 +1089,18 @@ onMounted(() => {
 
   window.addEventListener('idioma-changed', handleLangChange);
   window.addEventListener('keydown', handleKeydown);
+
+  initMap();
 });
 
 onUnmounted(() => {
   window.removeEventListener('idioma-changed', handleLangChange);
   window.removeEventListener('keydown', handleKeydown);
   document.body.style.overflow = '';
+  destroyMap();
 });
 
-onBeforeUnmount(closeModal);
+onBeforeUnmount(stopStream);
 </script>
 
 <style scoped>
@@ -854,6 +1233,44 @@ button {
   z-index: 1;
 }
 
+/* Contenedor transparente: logo + panel de texto lado a lado */
+.hero-main {
+  min-width: 0;
+  display: flex;
+  align-items: stretch;
+  gap: 14px;
+}
+
+.hero-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Logo: su alto es el mismo que el del panel (stretch) */
+.hero-logo {
+  position: relative;
+  flex: none;
+  align-self: stretch;
+  width: 120px;
+  min-height: 96px;
+  overflow: hidden;
+  background: #111;
+  border: 1px solid var(--line2);
+  border-radius: 32px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+}
+
+.hero-logo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 .branch-badge {
   display: inline-flex;
   align-items: center;
@@ -869,7 +1286,7 @@ button {
   backdrop-filter: blur(6px);
 }
 
-.hero-main h1 {
+.hero-copy h1 {
   margin: 0;
   color: var(--title);
   font-family: 'Archivo Black', sans-serif;
@@ -878,12 +1295,12 @@ button {
   letter-spacing: -0.5px;
 }
 
-.hero-main h1 span {
+.hero-copy h1 span {
   color: var(--hl);
   text-shadow: 0 0 36px var(--hl-line);
 }
 
-.hero-main p {
+.hero-copy p {
   max-width: 560px;
   margin: 12px 0 0;
   color: var(--text2);
@@ -895,7 +1312,7 @@ button {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  min-width: 220px;
+  min-width: 240px;
 }
 
 .status-pill,
@@ -907,7 +1324,7 @@ button {
   justify-content: center;
   gap: 9px;
   border: 1px solid;
-  border-radius: 999px;
+  border-radius: 12px;
   font-size: 12px;
   font-weight: 700;
   white-space: nowrap;
@@ -952,6 +1369,121 @@ button {
   border-radius: 50%;
   background: currentColor;
   box-shadow: 0 0 0 4px color-mix(in srgb, currentColor 18%, transparent), 0 0 12px currentColor;
+}
+
+/* ---------- Vencimiento de la membresía ---------- */
+
+.membership-pill {
+  min-height: 58px;
+  padding: 8px 20px 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(10, 10, 10, 0.88);
+  border: 1px solid var(--line2);
+  border-radius: 16px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+}
+
+.membership-icon {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  color: var(--hl);
+  background: var(--hl-soft);
+  border: 1px solid var(--hl-line);
+  border-radius: 12px;
+}
+
+.membership-icon svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.membership-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.membership-copy small {
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.membership-copy strong {
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+/* Vence pronto: ámbar */
+.membership-pill.soon { border-color: rgba(245, 158, 11, 0.45); }
+.membership-pill.soon .membership-icon { color: #fbbf24; background: rgba(245, 158, 11, 0.14); border-color: rgba(245, 158, 11, 0.4); }
+.membership-pill.soon .membership-copy strong { color: #fbbf24; }
+
+/* Vencida: rojo */
+.membership-pill.expired { border-color: rgba(239, 68, 68, 0.45); }
+.membership-pill.expired .membership-icon { color: #f87171; background: rgba(239, 68, 68, 0.14); border-color: rgba(239, 68, 68, 0.4); }
+.membership-pill.expired .membership-copy strong { color: #f87171; }
+
+/* ---------- Encabezado con foto de portada ---------- */
+
+.hero.has-cover {
+  background: var(--cover) center / cover no-repeat, var(--card);
+}
+
+/* Velo suave: oscurece lo justo para que la foto siga luciendo */
+.hero.has-cover::before {
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.08) 70%);
+  background-size: auto;
+  mask-image: none;
+  -webkit-mask-image: none;
+}
+
+.hero.has-cover::after {
+  display: none;
+}
+
+/* Contenedor ajustado a su contenido, sin fondo propio */
+.hero.has-cover .hero-main {
+  width: fit-content;
+  max-width: 100%;
+  justify-self: start;
+}
+
+/* El recuadro de cristal es solo el panel de texto */
+.hero.has-cover .hero-copy {
+  padding: 18px 26px;
+  background: rgba(10, 10, 10, 0.66);
+  border: 1px solid var(--line2);
+  border-radius: 22px;
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+}
+
+/* Pills legibles sobre la foto, conservando su color de estado */
+.hero.has-cover .status-pill,
+.hero.has-cover .billing-pill {
+  background-color: color-mix(in srgb, currentColor 14%, rgba(10, 10, 10, 0.86));
 }
 
 /* =========================================================
@@ -1652,7 +2184,317 @@ button {
 }
 
 /* =========================================================
-   6. OPERACIÓN Y CONFIGURACIÓN
+   6. UBICACIÓN DE LA SUCURSAL (MAPA)
+========================================================= */
+
+.location-grid {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 20px;
+  align-items: stretch;
+}
+
+.location-info {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.branch-chip {
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--hl-soft);
+  border: 1px solid var(--hl-line);
+  border-radius: 15px;
+}
+
+.branch-chip-icon {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  color: var(--hl);
+  background: var(--hl-soft);
+  border: 1px solid var(--hl-line);
+  border-radius: 12px;
+}
+
+.branch-chip-icon svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.branch-chip-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.branch-chip-copy small {
+  color: var(--text3);
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.branch-chip-copy strong {
+  overflow: hidden;
+  color: var(--title);
+  font-family: 'Oswald', sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.info-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.info-item {
+  padding: 11px 2px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.info-item:last-child {
+  border-bottom: 0;
+}
+
+.info-item span {
+  flex: none;
+  color: var(--text3);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.info-item strong {
+  min-width: 0;
+  color: var(--title);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.info-item strong.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+}
+
+.directions-btn {
+  height: 44px;
+  margin-top: auto;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  color: var(--color-texto-botones, #fff);
+  text-decoration: none;
+  background: var(--color-botones, var(--hl));
+  border-radius: 12px;
+  font-size: 12.5px;
+  font-weight: 700;
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--hl) 22%, transparent);
+  transition: filter 0.2s ease, transform 0.2s var(--ease);
+}
+
+.directions-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.directions-btn svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.map-stage {
+  position: relative;
+  min-width: 0;
+  min-height: 340px;
+}
+
+.leaflet-map {
+  width: 100%;
+  height: 100%;
+  min-height: 340px;
+  overflow: hidden;
+  background: #161616;
+  border: 1px solid var(--line2);
+  border-radius: 16px;
+  z-index: 1;
+}
+
+.map-style-switch {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 5;
+  padding: 3px;
+  display: flex;
+  gap: 2px;
+  background: rgba(15, 15, 15, 0.92);
+  border: 1px solid var(--line2);
+  border-radius: 10px;
+}
+
+.map-style-switch button {
+  padding: 6px 11px;
+  color: var(--text2);
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-radius: 7px;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.map-style-switch button.active {
+  color: #fff;
+  background: var(--hl);
+}
+
+.map-tools {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: rgba(15, 15, 15, 0.92);
+  border: 1px solid var(--line2);
+  border-radius: 10px;
+}
+
+.map-tools button {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 18px;
+  line-height: 1;
+}
+
+.map-tools button:last-child {
+  border-bottom: 0;
+}
+
+.map-tools button:hover {
+  color: var(--hl);
+  background: var(--hl-soft);
+}
+
+.map-tools svg {
+  width: 16px;
+  height: 16px;
+}
+
+.map-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--text2);
+  background: #141414;
+  border-radius: 16px;
+  font-size: 12.5px;
+}
+
+.map-spinner {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  flex: none;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: map-spin 0.8s linear infinite;
+}
+
+@keyframes map-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---------- Pin y controles de Leaflet ---------- */
+:deep(.gym-pin) {
+  background: transparent;
+  border: 0;
+}
+
+:deep(.gym-pin-body) {
+  position: relative;
+  display: block;
+  width: 34px;
+  height: 34px;
+  margin: 0 1px;
+  background: var(--hl, #3b82f6);
+  border: 3px solid #fff;
+  border-radius: 50% 50% 50% 0;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
+  transform: rotate(-45deg);
+}
+
+:deep(.gym-pin-dot) {
+  position: absolute;
+  inset: 0;
+  width: 10px;
+  height: 10px;
+  margin: auto;
+  background: #fff;
+  border-radius: 50%;
+}
+
+:deep(.leaflet-control-attribution) {
+  color: #888 !important;
+  background: rgba(15, 15, 15, 0.88) !important;
+}
+
+:deep(.leaflet-control-attribution a) {
+  color: #9db8e8 !important;
+}
+
+:deep(.leaflet-popup-content-wrapper),
+:deep(.leaflet-popup-tip) {
+  color: #eee !important;
+  background: #171717 !important;
+}
+
+/* =========================================================
+   7. OPERACIÓN Y CONFIGURACIÓN
 ========================================================= */
 
 .tools {
@@ -2076,6 +2918,20 @@ button {
     padding: 18px;
     gap: 13px;
   }
+
+  /* Mapa arriba y los datos debajo */
+  .location-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .map-stage {
+    order: -1;
+    min-height: 320px;
+  }
+
+  .directions-btn {
+    margin-top: 4px;
+  }
 }
 
 @media (max-width: 760px) {
@@ -2102,8 +2958,8 @@ button {
   /* ---- Encabezado compacto ---- */
   .hero {
     grid-template-columns: 1fr;
-    gap: 16px;
-    padding: 22px 18px;
+    gap: 12px;
+    padding: 14px;
     border-radius: 20px;
   }
 
@@ -2112,19 +2968,37 @@ button {
     bottom: -210px;
   }
 
-  .branch-badge {
-    margin-bottom: 13px;
-    padding: 5px 10px;
-    font-size: 9.5px;
+  /* Con portada: la foto queda visible entre el recuadro y los botones */
+  .hero.has-cover {
+    min-height: 260px;
+    align-content: space-between;
   }
 
-  .hero-main h1 {
-    font-size: 27px;
+  .hero-main {
+    gap: 10px;
   }
 
-  .hero-main p {
-    margin-top: 8px;
-    font-size: 12.5px;
+  /* El logo sigue siendo del alto del panel, solo más compacto */
+  .hero-logo {
+    width: 104px;
+    min-height: 88px;
+    border-radius: 16px;
+  }
+
+  .hero.has-cover .hero-copy {
+    padding: 12px 16px;
+    border-radius: 18px;
+  }
+
+  .hero-copy h1 {
+    font-size: 22px;
+    line-height: 1.1;
+    letter-spacing: -0.2px;
+  }
+
+  .hero-copy p {
+    margin-top: 6px;
+    font-size: 12px;
   }
 
   .hero-status {
@@ -2134,11 +3008,30 @@ button {
     gap: 8px;
   }
 
+  /* Abierto y Cuenta al corriente: mitad y mitad */
   .status-pill,
   .billing-pill {
-    height: 34px;
-    padding: 0 13px;
+    flex: 1 1 calc(50% - 4px);
+    min-width: 0;
+    height: 36px;
+    padding: 0 10px;
     font-size: 11px;
+  }
+
+  .membership-pill {
+    flex: 1 1 100%;
+    min-height: 50px;
+    padding: 6px 14px 6px 8px;
+  }
+
+  .membership-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+  }
+
+  .membership-copy strong {
+    font-size: 14px;
   }
 
   /* ---- Indicadores 2x2, en vertical ---- */
@@ -2277,6 +3170,26 @@ button {
     gap: 7px;
   }
 
+  /* ---- Mapa ---- */
+  .map-stage,
+  .leaflet-map {
+    min-height: 280px;
+  }
+
+  .map-style-switch {
+    top: 10px;
+    left: 10px;
+  }
+
+  .map-tools {
+    top: 10px;
+    right: 10px;
+  }
+
+  .branch-chip {
+    padding: 10px 12px;
+  }
+
   /* ---- Herramientas ---- */
   .tools {
     gap: 13px;
@@ -2335,6 +3248,20 @@ button {
 }
 
 @media (max-width: 380px) {
+  .hero-logo {
+    width: 88px;
+    min-height: 80px;
+  }
+
+  .hero-copy h1 {
+    font-size: 20px;
+  }
+
+  .status-pill,
+  .billing-pill {
+    font-size: 10.5px;
+  }
+
   .finance-stats {
     grid-template-columns: 1fr;
   }
@@ -2353,6 +3280,16 @@ button {
 
   .quick-action {
     padding: 10px 4px 8px;
+  }
+
+  .info-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .info-item strong {
+    text-align: left;
   }
 }
 

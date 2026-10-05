@@ -361,15 +361,22 @@
         </div>
       </nav>
 
-      <main class="main-content-wrapper">
+      <main class="main-content-wrapper" :class="{ 'nav-collapsed': navHidden }">
         <slot />
       </main>
     </div>
 
     <!-- =====================================================
          BARRA INFERIOR MÓVIL (estilo Mercado Pago)
+         Se puede ocultar hacia abajo (botón flecha o deslizando)
     ====================================================== -->
-    <nav class="bottom-nav" :aria-label="label('', 'Navegación principal', 'Main navigation')">
+    <nav
+      class="bottom-nav"
+      :class="{ 'is-hidden': navHidden }"
+      :aria-label="label('', 'Navegación principal', 'Main navigation')"
+      @touchstart.passive="onNavTouchStart"
+      @touchend.passive="onNavTouchEnd"
+    >
 
       <router-link
         to="/GYM_ACCOUNT/dashboard"
@@ -424,6 +431,20 @@
         <span>{{ label('', 'Más', 'More') }}</span>
       </button>
     </nav>
+
+    <!-- BOTÓN PARA OCULTAR / MOSTRAR LA BARRA INFERIOR (solo móvil) -->
+    <button
+      type="button"
+      class="nav-toggle"
+      :class="{ collapsed: navHidden }"
+      :aria-expanded="!navHidden"
+      :aria-label="navHidden
+        ? label('', 'Mostrar menú', 'Show menu')
+        : label('', 'Ocultar menú', 'Hide menu')"
+      @click="toggleBottomNav"
+    >
+      <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z" /></svg>
+    </button>
 
     <!-- =====================================================
          HOJAS INFERIORES (móvil)
@@ -898,6 +919,39 @@ watch(mobileSheet, (value) => {
   document.body.style.overflow = value ? 'hidden' : '';
 });
 
+/* ---------- Ocultar / mostrar la barra inferior ---------- */
+
+const NAV_HIDDEN_KEY = 'GYM_ACCOUNT-nav-hidden';
+
+const navHidden = ref(localStorage.getItem(NAV_HIDDEN_KEY) === '1');
+
+const setNavHidden = (value) => {
+  navHidden.value = value;
+  localStorage.setItem(NAV_HIDDEN_KEY, value ? '1' : '0');
+
+  /* Al ocultar la barra se cierra cualquier hoja abierta */
+  if (value) {
+    closeSheet();
+  }
+};
+
+const toggleBottomNav = () => setNavHidden(!navHidden.value);
+
+/* Deslizar hacia abajo sobre la barra para ocultarla */
+let touchStartY = 0;
+
+const onNavTouchStart = (event) => {
+  touchStartY = event.touches[0].clientY;
+};
+
+const onNavTouchEnd = (event) => {
+  const deltaY = event.changedTouches[0].clientY - touchStartY;
+
+  if (deltaY > 40) {
+    setNavHidden(true);
+  }
+};
+
 /* =========================================================
    DROPDOWNS DESKTOP
 ========================================================= */
@@ -1120,7 +1174,8 @@ onUnmounted(() => {
 
 /* Ocultos por defecto; cada breakpoint activa los suyos */
 .desktop-navbar,
-.bottom-nav {
+.bottom-nav,
+.nav-toggle {
   display: none;
 }
 
@@ -1365,6 +1420,14 @@ onUnmounted(() => {
   -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
   box-shadow: 0 -12px 34px rgba(0, 0, 0, .4);
+  transition: transform .3s cubic-bezier(.32, .72, 0, 1);
+}
+
+/* Barra oculta: baja fuera de pantalla.
+   +40px para que también se esconda el botón central flotante */
+.bottom-nav.is-hidden {
+  transform: translateY(calc(100% + 40px));
+  pointer-events: none;
 }
 
 .tab {
@@ -1492,6 +1555,50 @@ onUnmounted(() => {
     0 12px 30px color-mix(in srgb, var(--button) 75%, transparent),
     0 0 0 6px var(--card),
     0 0 0 8px color-mix(in srgb, var(--button) 45%, transparent);
+}
+
+/* ---------- Botón para ocultar / mostrar la barra ---------- */
+
+.nav-toggle {
+  width: 38px;
+  height: 20px;
+  position: fixed;
+  left: 12px;
+  bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom) + 6px);
+  z-index: 2650;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--nav-line);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--card) 94%, transparent);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  color: var(--muted);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .4);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: bottom .3s cubic-bezier(.32, .72, 0, 1), color .18s ease;
+}
+
+.nav-toggle svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+  transition: transform .25s ease;
+}
+
+.nav-toggle:active {
+  color: var(--accent);
+}
+
+/* Barra oculta: el botón baja al borde y la flecha apunta hacia arriba */
+.nav-toggle.collapsed {
+  bottom: calc(env(safe-area-inset-bottom) + 8px);
+}
+
+.nav-toggle.collapsed svg {
+  transform: rotate(180deg);
 }
 
 /* =========================================================
@@ -1819,6 +1926,7 @@ onUnmounted(() => {
 
   .mobile-top-nav,
   .bottom-nav,
+  .nav-toggle,
   .sheet-overlay {
     display: none !important;
   }
@@ -1847,7 +1955,7 @@ onUnmounted(() => {
     padding: 0 clamp(18px, 2.3vw, 40px);
   }
 
-  /* ---------- SUCURSAL (derecha) ---------- */
+  /* ---------- SUCURSAL (izquierda) ---------- */
 
   .desktop-brand {
     min-width: 0;
@@ -2379,9 +2487,19 @@ onUnmounted(() => {
     display: grid;
   }
 
+  .nav-toggle {
+    display: flex;
+  }
+
   /* Deja espacio para que la barra inferior no tape el contenido */
   .main-content-wrapper {
     padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom) + 14px);
+    transition: padding-bottom .3s ease;
+  }
+
+  /* Barra oculta: solo queda espacio para el botón de mostrar */
+  .main-content-wrapper.nav-collapsed {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 48px);
   }
 }
 

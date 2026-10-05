@@ -5,12 +5,28 @@
 
         <!-- 1. ENCABEZADO + HOY -->
         <section class="hero-row">
-          <div class="hero" id="tutorial-step-0">
+          <div
+            class="hero"
+            :class="{ 'has-cover': !!gym.coverUrl }"
+            :style="heroStyle"
+            id="tutorial-step-0"
+          >
             <div class="hero-main">
-              <span class="branch-badge">{{ t.sucursal }}</span>
-              <span class="eyebrow">{{ ui.receptionPanel }}</span>
-              <h1>ULTRA <span>FITNESS</span> CENTER</h1>
-              <p>{{ t.panelControl }}</p>
+              <!-- Logo: fuera del panel, al lado, con la misma altura que el panel -->
+              <div v-if="gym.logoUrl" class="hero-logo">
+                <img :src="gym.logoUrl" :alt="gym.name" />
+              </div>
+
+              <!-- Panel de texto -->
+              <div class="hero-copy">
+                <h1>
+                  <template v-for="(w, i) in nameWords" :key="i">
+                    <span v-if="i === highlightIndex">{{ w }}</span>
+                    <template v-else>{{ w }}</template>{{ ' ' }}
+                  </template>
+                </h1>
+                <p>{{ ui.receptionPanel }}</p>
+              </div>
             </div>
 
             <div class="hero-status">
@@ -173,7 +189,97 @@
           </article>
         </section>
 
-        <!-- 5. HORARIOS (menos frecuente) -->
+        <!-- 5. UBICACIÓN DE LA SUCURSAL (MAPA) -->
+        <section v-if="hasLocation" class="map-panel" :class="{ expanded: mapExpanded }">
+          <!-- Mapa a pantalla completa del panel -->
+          <div class="map-canvas">
+            <div ref="mapContainer" class="leaflet-map"></div>
+
+            <div class="map-tools">
+              <button type="button" :title="ui.zoomIn" @click="zoomInMap">+</button>
+              <button type="button" :title="ui.zoomOut" @click="zoomOutMap">−</button>
+              <button type="button" :title="ui.centerMap" @click="centerMap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="3"/>
+                  <path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>
+                </svg>
+              </button>
+              <button
+                type="button"
+                :title="mapExpanded ? ui.collapseMap : ui.expandMap"
+                @click="toggleExpand"
+              >
+                <svg v-if="!mapExpanded" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+                </svg>
+                <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/>
+                </svg>
+              </button>
+            </div>
+
+            <div class="map-style-switch">
+              <button
+                type="button"
+                :class="{ active: mapStyle === 'calles' }"
+                @click="changeMapStyle('calles')"
+              >
+                {{ ui.mapStreets }}
+              </button>
+              <button
+                type="button"
+                :class="{ active: mapStyle === 'satelite' }"
+                @click="changeMapStyle('satelite')"
+              >
+                {{ ui.mapSatellite }}
+              </button>
+            </div>
+
+            <div v-if="mapLoading" class="map-loading">
+              <span class="map-spinner"></span>
+              {{ ui.mapLoading }}
+            </div>
+          </div>
+
+          <!-- Tarjeta flotante con los datos de la sucursal -->
+          <div class="map-card">
+            <div class="map-card-head">
+              <div class="map-card-icon">
+                <svg viewBox="0 0 24 24"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              </div>
+              <div class="map-card-title">
+                <span class="section-eyebrow">{{ ui.location }}</span>
+                <h2>{{ gym.location.branchName }}</h2>
+              </div>
+            </div>
+
+            <span class="open-chip" :class="isGymOpen ? 'open' : 'closed'">
+              <span class="status-dot"></span>
+              {{ isGymOpen ? t.gymAbierto : t.gymCerrado }}
+            </span>
+
+            <address class="map-address">
+              <strong>{{ addressStreet }}</strong>
+              <span>{{ gym.location.neighborhood }} · C.P. {{ gym.location.zip }}</span>
+              <span>{{ gym.location.city }}, {{ gym.location.state }}</span>
+            </address>
+
+            <div class="map-card-actions">
+              <a class="directions-btn" :href="directionsUrl" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
+                {{ ui.openInMaps }}
+              </a>
+
+              <button type="button" class="copy-btn" :class="{ done: addressCopied }" @click="copyAddress">
+                <svg v-if="!addressCopied" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+                <svg v-else viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg>
+                {{ addressCopied ? ui.copied : ui.copyAddress }}
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 6. HORARIOS (menos frecuente) -->
         <section class="tools" id="tutorial-step-3">
           <div class="tools-title">
             <span>{{ t.adminTurnos }}</span>
@@ -245,8 +351,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, onBeforeUnmount, h } from 'vue';
+import { ref, computed, nextTick, onMounted, onUnmounted, onBeforeUnmount, h } from 'vue';
 import { useRouter } from 'vue-router';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import { traducciones } from './i18n.js';
 import AddScheduleModal from '../Modals/AddScheduleModal.vue';
 import ViewScheduleModal from '../Modals/ViewScheduleModal.vue';
@@ -263,6 +371,40 @@ const isGymOpen = ref(true);
 const billingStatus = ref('active');
 
 let stream = null;
+
+/* =========================================================
+   DATOS DEL GIMNASIO (encabezado y ubicación)
+   Cuando vengan del backend solo hay que llenar estos campos:
+   - logoUrl:  logo del gimnasio (opcional)
+   - coverUrl: foto de fondo del encabezado (opcional)
+   - location: dirección y coordenadas de la sucursal
+========================================================= */
+
+const gym = ref({
+  name: 'Ultra Fitness Center',
+  logoUrl: 'https://marketplace.canva.com/EAFxdcos7WU/1/0/1600w/canva-dark-blue-and-brown-illustrative-fitness-gym-logo-oqe3ybeEcQQ.jpg',
+  coverUrl: 'https://static.vecteezy.com/system/resources/thumbnails/037/228/850/small_2x/ai-generated-exercise-machines-in-a-gym-free-photo.jpg',
+  location: {
+    branchName: 'Sede Principal',
+    street: 'Av. Universitaria',
+    number: '420',
+    neighborhood: 'Zona Centro',
+    city: 'Ciudad Valles',
+    state: 'San Luis Potosí',
+    zip: '79000',
+    lat: '21.9903',
+    lng: '-99.0152'
+  }
+});
+
+const nameWords = computed(() => gym.value.name.trim().toUpperCase().split(/\s+/));
+
+/* Palabra resaltada con el color de acento: la segunda del nombre */
+const highlightIndex = computed(() => (nameWords.value.length > 1 ? 1 : 0));
+
+const heroStyle = computed(() =>
+  gym.value.coverUrl ? { '--cover': `url('${gym.value.coverUrl}')` } : {}
+);
 
 /* =========================================================
    UTILIDADES
@@ -301,7 +443,7 @@ const t = computed(() => {
 
 const dashboardTranslations = {
   es: {
-    receptionPanel: 'PANEL DE RECEPCIÓN',
+    receptionPanel: 'Panel de recepción',
     operation: 'OPERACIÓN',
     accessControl: 'CONTROL DE ACCESO',
     today: 'HOY',
@@ -309,10 +451,23 @@ const dashboardTranslations = {
     recentAccess: 'Accesos recientes',
     expiringTitle: 'Membresías por vencer',
     viewClients: 'Ver clientes',
-    charge: 'Cobrar'
+    charge: 'Cobrar',
+    cameraError: 'No se pudo acceder a la cámara. Verifica los permisos.',
+    location: 'UBICACIÓN',
+    openInMaps: 'Cómo llegar',
+    copyAddress: 'Copiar dirección',
+    copied: 'Copiada',
+    mapStreets: 'Calles',
+    mapSatellite: 'Satélite',
+    zoomIn: 'Acercar',
+    zoomOut: 'Alejar',
+    centerMap: 'Centrar en la sede',
+    expandMap: 'Agrandar mapa',
+    collapseMap: 'Reducir mapa',
+    mapLoading: 'Cargando mapa…'
   },
   en: {
-    receptionPanel: 'RECEPTION PANEL',
+    receptionPanel: 'Reception panel',
     operation: 'OPERATIONS',
     accessControl: 'ACCESS CONTROL',
     today: 'TODAY',
@@ -320,7 +475,20 @@ const dashboardTranslations = {
     recentAccess: 'Recent check-ins',
     expiringTitle: 'Expiring memberships',
     viewClients: 'View clients',
-    charge: 'Charge'
+    charge: 'Charge',
+    cameraError: 'Camera access failed. Check your permissions.',
+    location: 'LOCATION',
+    openInMaps: 'Get directions',
+    copyAddress: 'Copy address',
+    copied: 'Copied',
+    mapStreets: 'Streets',
+    mapSatellite: 'Satellite',
+    zoomIn: 'Zoom in',
+    zoomOut: 'Zoom out',
+    centerMap: 'Center on the branch',
+    expandMap: 'Enlarge map',
+    collapseMap: 'Shrink map',
+    mapLoading: 'Loading map…'
   }
 };
 
@@ -402,6 +570,186 @@ const toggleGymStatus = () => {
 };
 
 /* =========================================================
+   MAPA DE LA SUCURSAL (Leaflet + OpenStreetMap)
+   Solo lectura: sirve para indicar cómo llegar al gimnasio.
+========================================================= */
+
+const mapContainer = ref(null);
+const mapLoading = ref(true);
+const mapStyle = ref('calles');
+const mapExpanded = ref(false);
+const addressCopied = ref(false);
+
+let mapInstance = null;
+let marker = null;
+let baseLayer = null;
+let resizeObserver = null;
+let copyTimer = null;
+
+const TILE_LAYERS = {
+  calles: {
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    attribution: '&copy; OpenStreetMap contributors',
+    subdomains: 'abc',
+    maxZoom: 19
+  },
+  satelite: {
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    attribution: 'Tiles &copy; Esri',
+    maxZoom: 19
+  }
+};
+
+const coords = computed(() => ({
+  lat: parseFloat(gym.value.location.lat),
+  lng: parseFloat(gym.value.location.lng)
+}));
+
+const hasLocation = computed(
+  () => Number.isFinite(coords.value.lat) && Number.isFinite(coords.value.lng)
+);
+
+const addressStreet = computed(() => {
+  const { street, number } = gym.value.location;
+  return [street, number && `#${number}`].filter(Boolean).join(' ');
+});
+
+const fullAddress = computed(() => {
+  const loc = gym.value.location;
+  return [
+    addressStreet.value,
+    loc.neighborhood,
+    loc.zip && `C.P. ${loc.zip}`,
+    loc.city,
+    loc.state
+  ].filter(Boolean).join(', ');
+});
+
+const directionsUrl = computed(
+  () => `https://www.google.com/maps/search/?api=1&query=${coords.value.lat},${coords.value.lng}`
+);
+
+const applyBaseLayer = () => {
+  if (!mapInstance) return;
+  if (baseLayer) mapInstance.removeLayer(baseLayer);
+
+  const cfg = TILE_LAYERS[mapStyle.value];
+  baseLayer = L.tileLayer(cfg.url, {
+    attribution: cfg.attribution,
+    maxZoom: cfg.maxZoom,
+    ...(cfg.subdomains ? { subdomains: cfg.subdomains } : {})
+  }).addTo(mapInstance);
+  baseLayer.bringToBack();
+};
+
+const changeMapStyle = (id) => {
+  if (mapStyle.value === id) return;
+  mapStyle.value = id;
+  applyBaseLayer();
+};
+
+const zoomInMap = () => mapInstance?.zoomIn();
+const zoomOutMap = () => mapInstance?.zoomOut();
+
+const centerMap = () => {
+  if (!mapInstance || !marker) return;
+  mapInstance.setView(marker.getLatLng(), Math.max(mapInstance.getZoom(), 16));
+};
+
+/* Agranda o reduce el mapa y lo vuelve a centrar en la sede */
+const toggleExpand = async () => {
+  mapExpanded.value = !mapExpanded.value;
+  await nextTick();
+
+  /* La altura se anima, así que se recalcula durante y después de la transición */
+  [0, 180, 380].forEach((ms) =>
+    setTimeout(() => {
+      mapInstance?.invalidateSize();
+      if (marker) mapInstance?.panTo(marker.getLatLng(), { animate: false });
+    }, ms)
+  );
+};
+
+const copyAddress = async () => {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(fullAddress.value);
+    } else {
+      const area = document.createElement('textarea');
+      area.value = fullAddress.value;
+      area.style.position = 'fixed';
+      area.style.opacity = '0';
+      document.body.appendChild(area);
+      area.select();
+      document.execCommand('copy');
+      document.body.removeChild(area);
+    }
+
+    addressCopied.value = true;
+    if (copyTimer) clearTimeout(copyTimer);
+    copyTimer = setTimeout(() => { addressCopied.value = false; }, 2000);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const initMap = () => {
+  if (!mapContainer.value || !hasLocation.value) return;
+
+  const { lat, lng } = coords.value;
+
+  mapInstance = L.map(mapContainer.value, {
+    center: [lat, lng],
+    zoom: 16,
+    zoomControl: false,
+    attributionControl: false,
+    scrollWheelZoom: false,           /* no secuestra el scroll de la página */
+    dragging: !L.Browser.mobile       /* en móvil el dedo sigue haciendo scroll */
+  });
+
+  L.control.attribution({ position: 'bottomleft', prefix: false }).addTo(mapInstance);
+  applyBaseLayer();
+
+  const pinIcon = L.divIcon({
+    className: 'gym-pin',
+    html:
+      '<span class="gym-pin-pulse"></span>' +
+      '<span class="gym-pin-body"><span class="gym-pin-dot"></span></span>',
+    iconSize: [36, 42],
+    iconAnchor: [18, 40]
+  });
+
+  marker = L.marker([lat, lng], { icon: pinIcon, draggable: false, keyboard: false }).addTo(mapInstance);
+
+  /* Espera a que el contenedor tenga su tamaño final antes de quitar el cargando */
+  requestAnimationFrame(() =>
+    requestAnimationFrame(() =>
+      setTimeout(() => {
+        mapInstance?.invalidateSize();
+        mapLoading.value = false;
+      }, 250)
+    )
+  );
+
+  if ('ResizeObserver' in window) {
+    resizeObserver = new ResizeObserver(() => mapInstance?.invalidateSize());
+    resizeObserver.observe(mapContainer.value);
+  }
+};
+
+const destroyMap = () => {
+  resizeObserver?.disconnect();
+  resizeObserver = null;
+
+  if (copyTimer) clearTimeout(copyTimer);
+
+  mapInstance?.remove();
+  mapInstance = null;
+  marker = null;
+  baseLayer = null;
+};
+
+/* =========================================================
    IDIOMA
 ========================================================= */
 
@@ -415,6 +763,13 @@ const handleLangChange = (event) => {
    CÁMARA / MODALES
 ========================================================= */
 
+const stopStream = () => {
+  if (stream) {
+    stream.getTracks().forEach((track) => track.stop());
+    stream = null;
+  }
+};
+
 const openCamera = async (type) => {
   activeModal.value = type;
 
@@ -424,27 +779,32 @@ const openCamera = async (type) => {
         throw new Error('getUserMedia no disponible');
       }
 
-      stream = await navigator.mediaDevices.getUserMedia({
+      const newStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: type === 'scanner' ? 'environment' : 'user' }
       });
+
+      /* Si el usuario cerró el modal mientras se pedía el permiso,
+         se apaga la cámara para que no quede encendida en segundo plano */
+      if (activeModal.value !== type) {
+        newStream.getTracks().forEach((track) => track.stop());
+        return;
+      }
+
+      stream = newStream;
 
       if (videoPlayer.value) {
         videoPlayer.value.srcObject = stream;
       }
     } catch (err) {
       console.error('Error al acceder a la cámara:', err);
-      alert('No se pudo acceder a la cámara. Verifica los permisos.');
+      alert(ui.value.cameraError);
       activeModal.value = null;
     }
   }, 100);
 };
 
 const closeModal = () => {
-  if (stream) {
-    stream.getTracks().forEach((track) => track.stop());
-    stream = null;
-  }
-
+  stopStream();
   activeModal.value = null;
 };
 
@@ -471,14 +831,17 @@ onMounted(() => {
 
   window.addEventListener('idioma-changed', handleLangChange);
   window.addEventListener('keydown', handleKeydown);
+
+  initMap();
 });
 
 onUnmounted(() => {
   window.removeEventListener('idioma-changed', handleLangChange);
   window.removeEventListener('keydown', handleKeydown);
+  destroyMap();
 });
 
-onBeforeUnmount(closeModal);
+onBeforeUnmount(stopStream);
 </script>
 
 <style scoped>
@@ -499,6 +862,7 @@ button {
 .dashboard {
   --hl: var(--color-highlight, #3b82f6);
   --hl-soft: color-mix(in srgb, var(--hl) 11%, transparent);
+  --hl-mid: color-mix(in srgb, var(--hl) 22%, transparent);
   --hl-line: color-mix(in srgb, var(--hl) 45%, transparent);
   --card: var(--bg-cards, #121212);
   --line: rgba(255, 255, 255, 0.08);
@@ -506,6 +870,7 @@ button {
   --title: var(--color-titulos, #fff);
   --text2: rgba(245, 245, 244, 0.63);
   --text3: rgba(245, 245, 244, 0.43);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
 
   min-height: calc(100vh - 65px);
   background: var(--bg-custom, var(--color-interfaz, #090909));
@@ -582,20 +947,45 @@ button {
   z-index: 1;
 }
 
-.branch-badge {
-  display: inline-block;
-  margin-bottom: 14px;
-  padding: 5px 11px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  color: var(--text2);
-  font-size: 10.5px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
+/* Contenedor transparente: logo + panel de texto lado a lado */
+.hero-main {
+  min-width: 0;
+  display: flex;
+  align-items: stretch;
+  gap: 14px;
 }
 
-.hero-main h1 {
+.hero-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Logo: su alto es el mismo que el del panel (stretch) */
+.hero-logo {
+  position: relative;
+  flex: none;
+  align-self: stretch;
+  width: 120px;
+  min-height: 96px;
+  overflow: hidden;
+  background: #111;
+  border: 1px solid var(--line2);
+  border-radius: 32px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+}
+
+.hero-logo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.hero-copy h1 {
   margin: 0;
   color: var(--title);
   font-family: 'Archivo Black', sans-serif;
@@ -603,11 +993,12 @@ button {
   line-height: 1.1;
 }
 
-.hero-main h1 span {
+.hero-copy h1 span {
   color: var(--hl);
+  text-shadow: 0 0 30px var(--hl-line);
 }
 
-.hero-main p {
+.hero-copy p {
   margin: 8px 0 0;
   color: var(--text2);
   font-size: 13.5px;
@@ -629,10 +1020,11 @@ button {
   justify-content: center;
   gap: 8px;
   border: 1px solid;
-  border-radius: 999px;
+  border-radius: 12px;
   font-size: 12px;
   font-weight: 700;
   white-space: nowrap;
+  backdrop-filter: blur(6px);
 }
 
 .status-pill {
@@ -672,6 +1064,48 @@ button {
   border-radius: 50%;
   background: currentColor;
   box-shadow: 0 0 9px currentColor;
+}
+
+/* ---------- Encabezado con foto de portada ---------- */
+
+.hero.has-cover {
+  background: var(--cover) center / cover no-repeat, var(--card);
+}
+
+/* Velo suave: oscurece lo justo para que la foto siga luciendo */
+.hero.has-cover::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.08) 70%);
+  pointer-events: none;
+}
+
+.hero.has-cover::after {
+  display: none;
+}
+
+/* Contenedor ajustado a su contenido, sin fondo propio */
+.hero.has-cover .hero-main {
+  flex: 0 1 auto;
+  max-width: 100%;
+}
+
+/* El recuadro de cristal es solo el panel de texto */
+.hero.has-cover .hero-copy {
+  padding: 16px 24px;
+  background: rgba(10, 10, 10, 0.66);
+  border: 1px solid var(--line2);
+  border-radius: 22px;
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+}
+
+/* Pills legibles sobre la foto, conservando su color de estado */
+.hero.has-cover .status-pill,
+.hero.has-cover .billing-pill {
+  background-color: color-mix(in srgb, currentColor 14%, rgba(10, 10, 10, 0.86));
 }
 
 /* ---------- Tarjeta "Hoy" ---------- */
@@ -1105,7 +1539,377 @@ button {
 }
 
 /* =========================================================
-   5. HORARIOS
+   5. UBICACIÓN DE LA SUCURSAL (MAPA)
+========================================================= */
+
+.map-panel {
+  position: relative;
+  height: 420px;
+  overflow: hidden;
+  background: var(--card);
+  border: 1px solid var(--line2);
+  border-radius: 22px;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.3);
+  transition: height 0.35s var(--ease);
+}
+
+.map-panel.expanded {
+  height: 620px;
+}
+
+/* El mapa ocupa todo el panel; la tarjeta flota encima */
+.map-canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.leaflet-map {
+  width: 100%;
+  height: 100%;
+  background: #161616;
+  z-index: 1;
+}
+
+.map-card {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 6;
+  width: 320px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: rgba(10, 10, 10, 0.84);
+  border: 1px solid var(--line2);
+  border-radius: 18px;
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+}
+
+.map-card-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.map-card-icon {
+  width: 42px;
+  height: 42px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  color: var(--hl);
+  background: var(--hl-soft);
+  border: 1px solid var(--hl-line);
+  border-radius: 13px;
+}
+
+.map-card-icon svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.map-card-title {
+  min-width: 0;
+}
+
+.map-card-title .section-eyebrow {
+  margin-bottom: 2px;
+  font-size: 9px;
+}
+
+.map-card-title h2 {
+  margin: 0;
+  overflow: hidden;
+  color: var(--title);
+  font-family: 'Oswald', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.open-chip {
+  align-self: flex-start;
+  padding: 5px 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.open-chip.open {
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.open-chip.closed {
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.map-address {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-style: normal;
+}
+
+.map-address strong {
+  color: var(--title);
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.map-address span {
+  color: var(--text2);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.map-card-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
+.directions-btn,
+.copy-btn {
+  height: 42px;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
+  cursor: pointer;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: filter 0.2s ease, transform 0.2s var(--ease), background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.directions-btn {
+  color: var(--color-texto-botones, #fff);
+  background: var(--color-botones, var(--hl));
+  border: 0;
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--hl) 24%, transparent);
+}
+
+.directions-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.copy-btn {
+  color: var(--title);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--line2);
+}
+
+.copy-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.copy-btn.done {
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.35);
+}
+
+.directions-btn svg,
+.copy-btn svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Controles sobre el mapa */
+.map-tools {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: rgba(10, 10, 10, 0.88);
+  border: 1px solid var(--line2);
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.map-tools button {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 18px;
+  line-height: 1;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.map-tools button:last-child {
+  border-bottom: 0;
+}
+
+.map-tools button:hover {
+  color: var(--hl);
+  background: var(--hl-soft);
+}
+
+.map-tools svg {
+  width: 16px;
+  height: 16px;
+}
+
+.map-style-switch {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  z-index: 5;
+  padding: 3px;
+  display: flex;
+  gap: 2px;
+  background: rgba(10, 10, 10, 0.88);
+  border: 1px solid var(--line2);
+  border-radius: 11px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.map-style-switch button {
+  padding: 7px 13px;
+  color: var(--text2);
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  font-size: 11.5px;
+  font-weight: 700;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.map-style-switch button.active {
+  color: #fff;
+  background: var(--hl);
+}
+
+.map-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--text2);
+  background: #141414;
+  font-size: 12.5px;
+}
+
+.map-spinner {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  flex: none;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: map-spin 0.8s linear infinite;
+}
+
+@keyframes map-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---------- Pin con pulso y controles de Leaflet ---------- */
+:deep(.gym-pin) {
+  background: transparent;
+  border: 0;
+}
+
+:deep(.gym-pin-body) {
+  position: relative;
+  z-index: 2;
+  display: block;
+  width: 34px;
+  height: 34px;
+  margin: 0 1px;
+  background: var(--hl, #3b82f6);
+  border: 3px solid #fff;
+  border-radius: 50% 50% 50% 0;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.45);
+  transform: rotate(-45deg);
+}
+
+:deep(.gym-pin-dot) {
+  position: absolute;
+  inset: 0;
+  width: 10px;
+  height: 10px;
+  margin: auto;
+  background: #fff;
+  border-radius: 50%;
+}
+
+/* Anillo que late bajo la punta del pin */
+:deep(.gym-pin-pulse) {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  z-index: 1;
+  width: 26px;
+  height: 26px;
+  margin-left: -13px;
+  margin-bottom: -10px;
+  background: color-mix(in srgb, var(--hl, #3b82f6) 45%, transparent);
+  border-radius: 50%;
+  transform: scale(0.4);
+  animation: pin-pulse 2.2s ease-out infinite;
+}
+
+@keyframes pin-pulse {
+  0%   { opacity: 0.9; transform: scale(0.4); }
+  100% { opacity: 0;   transform: scale(2.6); }
+}
+
+:deep(.leaflet-control-attribution) {
+  color: #888 !important;
+  background: rgba(15, 15, 15, 0.88) !important;
+}
+
+:deep(.leaflet-control-attribution a) {
+  color: #9db8e8 !important;
+}
+
+/* =========================================================
+   6. HORARIOS
 ========================================================= */
 
 .tools {
@@ -1393,6 +2197,39 @@ button {
   .two-col {
     grid-template-columns: 1fr;
   }
+
+  /* Mapa arriba y la tarjeta de datos debajo */
+  .map-panel,
+  .map-panel.expanded {
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    transition: none;
+  }
+
+  .map-canvas {
+    position: relative;
+    inset: auto;
+    height: 340px;
+    flex: none;
+    transition: height 0.35s var(--ease);
+  }
+
+  .map-panel.expanded .map-canvas {
+    height: 520px;
+  }
+
+  .map-card {
+    position: static;
+    width: auto;
+    background: var(--card);
+    border: 0;
+    border-top: 1px solid var(--line2);
+    border-radius: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
 }
 
 /* =========================================================
@@ -1412,38 +2249,59 @@ button {
 
   .hero {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 14px;
-    padding: 18px 16px;
+    align-items: stretch;
+    gap: 12px;
+    padding: 14px;
+    border-radius: 20px;
+  }
+
+  /* Con portada: la foto queda visible entre el recuadro y los botones */
+  .hero.has-cover {
+    min-height: 260px;
+    justify-content: space-between;
+  }
+
+  .hero-main {
+    gap: 10px;
+  }
+
+  /* El logo sigue siendo del alto del panel, solo más compacto */
+  .hero-logo {
+    width: 104px;
+    min-height: 88px;
+    border-radius: 16px;
+  }
+
+  .hero.has-cover .hero-copy {
+    padding: 12px 16px;
     border-radius: 18px;
   }
 
-  .branch-badge {
-    margin-bottom: 12px;
-    padding: 4px 9px;
-    font-size: 9.5px;
+  .hero-copy h1 {
+    font-size: 22px;
+    line-height: 1.1;
   }
 
-  .hero-main h1 {
-    font-size: 24px;
-  }
-
-  .hero-main p {
+  .hero-copy p {
     margin-top: 6px;
-    font-size: 12.5px;
+    font-size: 12px;
   }
 
   .hero-status {
     min-width: 0;
+    width: 100%;
     flex-direction: row;
     flex-wrap: wrap;
     gap: 8px;
   }
 
+  /* Abierto y Cuenta al corriente: mitad y mitad */
   .status-pill,
   .billing-pill {
-    height: 32px;
-    padding: 0 12px;
+    flex: 1 1 calc(50% - 4px);
+    min-width: 0;
+    height: 34px;
+    padding: 0 10px;
     font-size: 11px;
   }
 
@@ -1569,6 +2427,34 @@ button {
     display: none;
   }
 
+  /* ---- Mapa ---- */
+  .map-panel {
+    border-radius: 18px;
+  }
+
+  .map-canvas {
+    height: 280px;
+  }
+
+  .map-panel.expanded .map-canvas {
+    height: 440px;
+  }
+
+  .map-tools {
+    top: 10px;
+    right: 10px;
+  }
+
+  .map-style-switch {
+    right: 10px;
+    bottom: 10px;
+  }
+
+  .map-card {
+    padding: 16px 14px;
+    gap: 12px;
+  }
+
   /* ---- Horarios ---- */
   .tools-grid {
     grid-template-columns: 1fr;
@@ -1603,6 +2489,20 @@ button {
 }
 
 @media (max-width: 380px) {
+  .hero-logo {
+    width: 88px;
+    min-height: 80px;
+  }
+
+  .hero-copy h1 {
+    font-size: 20px;
+  }
+
+  .status-pill,
+  .billing-pill {
+    font-size: 10.5px;
+  }
+
   .access-copy strong {
     font-size: 14.5px;
   }
@@ -1613,6 +2513,149 @@ button {
 
   .shortcut {
     padding: 10px 4px 8px;
+  }
+
+  .map-card-actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* =========================================================
+   AJUSTE FINO DEL HERO EN MÓVIL
+   Mantiene portada, logo, nombre y estados sin verse apretado.
+========================================================= */
+@media (max-width: 680px) {
+  .hero {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .hero.has-cover {
+    min-height: 230px;
+    background-position: center;
+  }
+
+  .hero.has-cover::before {
+    background:
+      linear-gradient(
+        180deg,
+        rgba(0, 0, 0, .32) 0%,
+        rgba(0, 0, 0, .08) 48%,
+        rgba(0, 0, 0, .58) 100%
+      );
+  }
+
+  .hero-main {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 66px minmax(0, 1fr);
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .hero.has-cover .hero-main {
+    flex: none;
+    width: 100%;
+    max-width: none;
+  }
+
+  .hero-logo {
+    width: 66px;
+    min-height: 74px;
+    height: auto;
+    border-radius: 14px;
+  }
+
+  .hero.has-cover .hero-copy {
+    min-width: 0;
+    padding: 10px 12px;
+    justify-content: center;
+    border-radius: 14px;
+    background: rgba(8, 10, 13, .86);
+    border: 1px solid rgba(255, 255, 255, .12);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, .28);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(17px, 5.2vw, 21px);
+    line-height: 1.05;
+    letter-spacing: -.25px;
+    overflow-wrap: anywhere;
+  }
+
+  .hero-copy p {
+    margin-top: 5px;
+    font-size: 10px;
+    line-height: 1.25;
+  }
+
+  .hero-status {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .status-pill,
+  .billing-pill {
+    width: 100%;
+    min-width: 0;
+    height: 30px;
+    padding: 0 7px;
+    gap: 6px;
+    font-size: 9px;
+    line-height: 1;
+    overflow: hidden;
+  }
+
+  .status-dot,
+  .billing-dot {
+    width: 6px;
+    height: 6px;
+  }
+}
+
+@media (max-width: 380px) {
+  .hero {
+    padding: 10px;
+  }
+
+  .hero.has-cover {
+    min-height: 218px;
+  }
+
+  .hero-main {
+    grid-template-columns: 58px minmax(0, 1fr);
+    gap: 7px;
+  }
+
+  .hero-logo {
+    width: 58px;
+    min-height: 68px;
+    border-radius: 12px;
+  }
+
+  .hero.has-cover .hero-copy {
+    padding: 9px 10px;
+    border-radius: 12px;
+  }
+
+  .hero-copy h1 {
+    font-size: 16px;
+  }
+
+  .hero-copy p {
+    font-size: 9px;
+  }
+
+  .status-pill,
+  .billing-pill {
+    height: 29px;
+    padding: 0 5px;
+    font-size: 8.3px;
   }
 }
 
