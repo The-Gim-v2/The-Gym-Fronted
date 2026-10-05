@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-//import Heading from '../../components/Admin/HeadingAdmin.vue';
 
 const route = useRoute();
 const router = useRouter();
