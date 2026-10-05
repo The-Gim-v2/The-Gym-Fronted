@@ -8,6 +8,7 @@
   <HelpButton2/>
   <HelpButton3/>
   <HelpButton4/>
+  <HelpButton5/>
   
   <transition name="fade">
     <div v-if="mostrarAvisoInactividad" class="inactivity-overlay">
@@ -59,6 +60,7 @@ import { useRouter } from 'vue-router';
 import { RouterView } from 'vue-router';
 import HelpButton from './components/GYM_ACCOUNT/HelpButton.vue';
 import HelpButton4 from './components/GYM_ADMIN/HelpButton.vue';
+import HelpButton5 from './components/GYM_MANAGER/HelpButton.vue';
 import HelpButton2 from './components/GYM_RECEPCIONIST/HelpButton.vue';
 import HelpButton3 from './components/Member/HelpButton.vue';
 
@@ -173,6 +175,7 @@ const ROLE_STYLE_LINK_ID = 'role-stylesheet';
 const RUTAS_CSS_POR_ROL: Record<string, string> = {
   GYM_ACCOUNT: '/src/assets/styles-GYM_ACCOUNT.css',
   GYM_ADMIN: '/src/assets/styles-GYM_ADMIN.css',
+  GYM_MANAGER: '/src/assets/styles-GYM_MANAGER.css',
   member: '/src/assets/styles-member.css',
   GYM_RECEPCIONIST: '/src/assets/styles-GYM_RECEPCIONIST.css',
 };

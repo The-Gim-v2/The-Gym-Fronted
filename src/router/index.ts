@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { GYM_ACCOUNTRoutes } from './GYM_ACCOUNT.routes.ts'
 import { GYM_RECEPCIONISTRoutes } from './GYM_RECEPCIONIST.route.ts'
 import { GYM_ADMINRoutes } from './GYM_ADMIN.routes.ts'
+import { GYM_MANAGERRoutes } from './GYM_MANAGER.routes.ts'
 import { AdminRoutes } from './admin.routes.ts'
 import { MemberRoutes } from './members.routes.ts' 
 
@@ -63,6 +64,7 @@ const router = createRouter({
     ...GYM_RECEPCIONISTRoutes,
     ...AdminRoutes,
     ...GYM_ADMINRoutes,
+    ...GYM_MANAGERRoutes,
     ...MemberRoutes, 
 
     // --- RUTA 404 (Not Found) ---
@@ -95,6 +97,7 @@ router.beforeEach((to, from, next) => {
     if (userRole === 'Admin') return next({ name: 'Admin-dashboard' }); // Ajusta según tus rutas
     if (userRole === 'GYM_ADMIN') return next({ name: 'GYM_ADMIN-dashboard' });
     if (userRole === 'Member') return next({ name: 'Member-dashboard' }); // Ajusta según tus rutas
+    if (userRole === 'GYM_MANAGER') return next({ name: 'GYM_MANAGER-dashboard' }); // Ajusta según tus rutas
   }
 
   next();
