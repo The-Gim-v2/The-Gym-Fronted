@@ -481,10 +481,6 @@ const capturePhoto = () => {
           <p>{{ tr('ownerPageDescription', 'Administra tus datos personales, información de contacto y la seguridad de tu cuenta.') }}</p>
         </div>
 
-        <span class="status-pill activo">
-          <span class="status-dot"></span>
-          {{ tr('ownerRole', 'Propietario') }}
-        </span>
       </header>
 
       <!-- LAYOUT PRINCIPAL -->

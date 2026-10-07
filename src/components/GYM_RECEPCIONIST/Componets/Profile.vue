@@ -713,10 +713,6 @@ onUnmounted(() => {
           <p>{{ t('pageDescription') }}</p>
         </div>
 
-        <span class="status-pill activo">
-          <span class="status-dot"></span>
-          {{ t('roleValue') }}
-        </span>
       </header>
 
       <!-- LAYOUT PRINCIPAL -->

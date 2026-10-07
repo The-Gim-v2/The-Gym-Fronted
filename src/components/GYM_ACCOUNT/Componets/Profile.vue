@@ -970,10 +970,6 @@ async function buscarDireccion() {
           <p>{{ tr('profilePageDescription', 'Administra la identidad, ubicación, operación y seguridad de tu gimnasio.') }}</p>
         </div>
 
-        <span class="status-pill" :class="form.status">
-          <span class="status-dot"></span>
-          {{ form.status === 'activo' ? t('statusActive') : form.status === 'pendiente' ? t('statusPending') : t('statusSuspended') }}
-        </span>
       </header>
 
       <!-- LAYOUT PRINCIPAL -->

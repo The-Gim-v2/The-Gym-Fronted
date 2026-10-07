@@ -482,10 +482,6 @@ const capturePhoto = () => {
           <p>{{ tr('managerPageDescription', 'Administra tus datos personales, información de contacto y la seguridad de tu cuenta de gerente.') }}</p>
         </div>
 
-        <span class="status-pill activo">
-          <span class="status-dot"></span>
-          {{ tr('managerRole', 'Gerente') }}
-        </span>
       </header>
 
       <!-- LAYOUT PRINCIPAL -->

@@ -1,77 +1,1929 @@
 <template>
-  <HeadingMember :isGymOpen="isGymOpen" :billingStatus="billingStatus">
+  <HeadingMember>
     <div class="dashboard">
       <main class="dashboard-container">
-        <section class="hero" :class="{ 'has-cover': !!gym.coverUrl }" :style="heroStyle">
-          <div class="hero-overlay"></div>
-          <div class="hero-content">
-            <div class="gym-logo" v-if="gym.logoUrl"><img :src="gym.logoUrl" :alt="gym.name" /></div>
-            <div class="hero-copy"><span class="eyebrow">{{ ui.registeredAt }}</span><h1>{{ gym.name }}</h1><p>{{ gym.branchName }} · {{ ui.memberPanel }}</p></div>
+
+        <!-- 1. ENCABEZADO: miembro a la izquierda, gimnasio a la derecha -->
+        <section class="hero">
+          <div class="hero-member">
+            <div class="avatar">
+              <img :src="member.photoUrl" :alt="member.name" />
+            </div>
+
+            <div class="hero-copy">
+              <span class="welcome">{{ ui.welcome }}</span>
+              <h1>{{ member.name }}</h1>
+
+              <div class="hero-meta">
+                <span class="plan-badge">{{ member.plan || ui.plan }}</span>
+                <span class="billing-pill" :class="membershipPillClass">
+                  <span class="billing-dot"></span>
+                  {{ membershipStatusText }}
+                </span>
+              </div>
+            </div>
           </div>
-          <div class="member-card">
-            <img class="member-photo" :src="member.photoUrl" :alt="member.name" />
-            <div class="member-info"><small>{{ ui.welcome }}</small><strong>{{ member.name }}</strong><span>{{ member.membership }}</span></div>
-            <button class="profile-btn" type="button" @click="go('/Member/profile')">{{ ui.viewProfile }}</button>
-          </div>
+
+          <aside class="hero-gym" :class="{ 'has-cover': !!gym.coverUrl }" :style="heroStyle">
+            <div class="gym-head">
+              <div v-if="gym.logoUrl" class="gym-logo">
+                <img :src="gym.logoUrl" :alt="gym.name" />
+              </div>
+              <div class="gym-title">
+                <small>{{ ui.registeredAt }}</small>
+                <strong>{{ gym.name }}</strong>
+                <span>{{ gym.branchName }}</span>
+              </div>
+            </div>
+
+            <div class="status-pill" :class="isGymOpen ? 'open' : 'closed'">
+              <span class="status-dot"></span>
+              {{ isGymOpen ? ui.gymOpen : ui.gymClosed }}
+            </div>
+
+            <div class="gym-foot">
+              <div class="gym-hours">
+                <small>{{ ui.todayHours }}</small>
+                <strong>{{ gym.todayHours }}</strong>
+              </div>
+              <a class="directions-btn" :href="directionsUrl" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
+                {{ ui.getDirections }}
+              </a>
+            </div>
+          </aside>
         </section>
-        <section class="status-row">
-          <div class="status-pill" :class="isGymOpen ? 'open' : 'closed'"><i></i>{{ isGymOpen ? ui.gymOpen : ui.gymClosed }}</div>
-          <div class="status-pill membership" :class="membershipState"><i></i>{{ membershipStatusText }}</div>
-          <div class="status-pill"><i></i>{{ ui.nextCut }}: {{ member.nextCut }}</div>
-        </section>
+
+        <!-- 2. INDICADORES -->
         <section class="kpi-grid">
-          <article class="kpi-card"><div class="kpi-icon"><svg viewBox="0 0 24 24"><path d="M8 7V3m8 4V3M4 11h16M5 5h14a1 1 0 0 1 1 1v14H4V6a1 1 0 0 1 1-1z"/></svg></div><div><strong>{{ member.daysRemaining }}</strong><span>{{ ui.daysRemaining }}</span></div></article>
-          <article class="kpi-card"><div class="kpi-icon accent"><svg viewBox="0 0 24 24"><path d="M12 2v20M5 9h14M5 15h14"/></svg></div><div><strong>{{ member.attendanceMonth }}</strong><span>{{ ui.attendanceMonth }}</span></div></article>
-          <article class="kpi-card"><div class="kpi-icon success"><svg viewBox="0 0 24 24"><path d="M5 3v4M19 3v4M3 9h18M5 5h14v16H5zM9 13h6M9 17h4"/></svg></div><div><strong>{{ member.classesReserved }}</strong><span>{{ ui.classesReserved }}</span></div></article>
-          <article class="kpi-card"><div class="kpi-icon warning"><svg viewBox="0 0 24 24"><path d="M4 12h4l2-5 4 10 2-5h4"/></svg></div><div><strong>{{ member.weekStreak }}</strong><span>{{ ui.weekStreak }}</span></div></article>
-        </section>
-        <section class="two-col">
-          <article class="panel membership-panel">
-            <div class="panel-header"><div><span class="section-eyebrow">{{ ui.membership }}</span><h2>{{ ui.membershipStatus }}</h2></div><span class="plan-badge">{{ member.membership }}</span></div>
-            <div class="membership-main"><div class="membership-ring"><strong>{{ member.daysRemaining }}</strong><span>{{ ui.days }}</span></div><div class="membership-copy"><small>{{ ui.validUntil }}</small><strong>{{ member.membershipEnd }}</strong><span>{{ ui.membershipMessage }}</span></div></div>
-            <button class="panel-link" @click="go('/Member/membership')">{{ ui.viewMembership }} →</button>
+          <article class="kpi-card">
+            <div class="kpi-icon">
+              <svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6"/></svg>
+            </div>
+            <div class="kpi-body">
+              <strong>{{ attendedCount }}<em>/{{ member.monthGoal }}</em></strong>
+              <span>{{ ui.attendanceMonth }}</span>
+            </div>
           </article>
-          <article class="panel progress-panel">
-            <div class="panel-header"><div><span class="section-eyebrow">{{ ui.progress }}</span><h2>{{ ui.monthlyGoal }}</h2></div><span class="progress-badge">{{ attendancePercent }}%</span></div>
-            <div class="goal-main"><strong>{{ member.attendanceMonth }} <small>/ {{ member.monthGoal }}</small></strong><div class="progress-track"><i :style="{ width: attendancePercent + '%' }"></i></div><span>{{ ui.visitsCompleted }}</span></div>
-            <div class="mini-stats"><div><span>{{ ui.currentStreak }}</span><strong>{{ member.weekStreak }} {{ ui.days }}</strong></div><div><span>{{ ui.bestWeek }}</span><strong>{{ member.bestWeek }} {{ ui.visits }}</strong></div></div>
+
+          <article class="kpi-card" style="--tint: var(--green)">
+            <div class="kpi-icon">
+              <svg viewBox="0 0 24 24"><path d="M19 4H5a2 2 0 0 0-2 2v14h18V6a2 2 0 0 0-2-2ZM8 2v4M16 2v4M3 9h18M8 13h3v3H8z"/></svg>
+            </div>
+            <div class="kpi-body">
+              <strong>{{ member.classesReserved }}</strong>
+              <span>{{ ui.classesReserved }}</span>
+            </div>
+          </article>
+
+          <article class="kpi-card" :style="{ '--tint': cutTint }">
+            <div class="kpi-icon">
+              <svg viewBox="0 0 24 24"><path d="M19 4H5a2 2 0 0 0-2 2v14h18V6a2 2 0 0 0-2-2ZM8 2v4M16 2v4M3 9h18"/></svg>
+            </div>
+            <div class="kpi-body">
+              <strong class="sm">{{ nextCutText }}</strong>
+              <span>{{ membershipState === 'expired' ? ui.membershipExpiredOn : ui.nextCut }}</span>
+            </div>
+          </article>
+
+          <article class="kpi-card" :style="{ '--tint': balanceTint }">
+            <div class="kpi-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <div class="kpi-body">
+              <strong class="sm">{{ balanceText }}</strong>
+              <span>{{ ui.balanceDue }} · {{ member.balance > 0 ? ui.pendingPayment : ui.upToDate }}</span>
+            </div>
           </article>
         </section>
+
+        <!-- 3. CALENDARIO + RACHA -->
         <section class="two-col">
-          <article class="panel quick-panel"><div class="panel-header"><div><span class="section-eyebrow">{{ ui.access }}</span><h2>{{ ui.quickAccess }}</h2></div></div><div class="quick-grid"><button v-for="action in quickActions" :key="action.label" class="quick-action" @click="go(action.route)"><span class="quick-icon"><svg viewBox="0 0 24 24"><path :d="action.icon"/></svg></span><span><strong>{{ action.label }}</strong><small>{{ action.description }}</small></span></button></div></article>
-          <article class="panel next-panel"><div class="panel-header"><div><span class="section-eyebrow">{{ ui.schedule }}</span><h2>{{ ui.nextActivities }}</h2></div><button class="text-btn" @click="go('/Member/classes')">{{ ui.viewAll }}</button></div><div class="activity-list"><div v-for="item in nextActivities" :key="item.title" class="activity-row"><div class="activity-date"><strong>{{ item.day }}</strong><span>{{ item.month }}</span></div><div class="activity-info"><strong>{{ item.title }}</strong><span>{{ item.time }} · {{ item.trainer }}</span></div><span class="activity-status">{{ item.status }}</span></div></div></article>
+
+          <article class="panel calendar-panel">
+            <div class="panel-header">
+              <h2>{{ ui.calendarTitle }}</h2>
+              <span class="month-badge">{{ monthLabel }} {{ currentYear }}</span>
+            </div>
+
+            <div class="chip-row">
+              <div class="stat-chip streak">
+                <svg viewBox="0 0 24 24"><path d="M12 2c0 4-4 7-4 11a4 4 0 0 0 8 0c0-2-.5-3.5-1.5-5C15.5 10 16 12 16 12s2-2 2-4c0-3.5-3-6-6-6z"/></svg>
+                <span>{{ ui.currentStreakMonth }}: <b>{{ rachaActualMes }}</b></span>
+              </div>
+              <div class="stat-chip best">
+                <svg viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17h4v-2.34M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+                <span>{{ ui.bestStreakMonth }}: <b>{{ mejorRachaMes }}</b></span>
+              </div>
+            </div>
+
+            <div class="cal-progress">
+              <div class="cal-progress-label">
+                <span>{{ ui.monthlyGoal }}</span>
+                <b>{{ goalPercent }}%</b>
+              </div>
+              <div class="cal-progress-track">
+                <i :style="{ width: goalPercent + '%' }"></i>
+              </div>
+            </div>
+
+            <div class="cal-grid-col">
+              <div class="weekdays-row">
+                <span v-for="(d, i) in ui.weekdays" :key="i">{{ d }}</span>
+              </div>
+
+              <div class="days-grid">
+                <div
+                  v-for="(item, index) in celdasCalendario"
+                  :key="index"
+                  class="day-cell"
+                  :class="item ? item.estado : 'vacio'"
+                >
+                  <template v-if="item">
+                    <span class="day-number">{{ item.dia }}</span>
+                    <span v-if="item.estado === 'hoy'" class="hoy-ring"></span>
+                    <span
+                      v-if="item.estado === 'asistio' || (item.estado === 'hoy' && rachaInfo.activoHoy)"
+                      class="day-icon asistio"
+                    >
+                      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                    </span>
+                    <span v-else-if="item.estado === 'falto'" class="day-icon falto">
+                      <svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                    </span>
+                  </template>
+                </div>
+              </div>
+            </div>
+
+            <div class="legend">
+              <div class="legend-item"><i class="dot asistio"></i>{{ ui.legendAttended }} <b>{{ attendedCount }}</b></div>
+              <div class="legend-item"><i class="dot falto"></i>{{ ui.legendMissed }} <b>{{ missedCount }}</b></div>
+              <div class="legend-item"><i class="dot hoy"></i>{{ ui.legendToday }}</div>
+            </div>
+          </article>
+
+          <article class="panel streak-panel">
+            <div class="panel-header">
+              <h2>{{ ui.petTitle }}</h2>
+              <div class="streak-number">
+                <strong>{{ rachaInfo.dias }}</strong>
+                <svg viewBox="0 0 24 24"><path d="M12 2c0 4-4 7-4 11a4 4 0 0 0 8 0c0-2-.5-3.5-1.5-5C15.5 10 16 12 16 12s2-2 2-4c0-3.5-3-6-6-6z"/></svg>
+              </div>
+            </div>
+
+            <div class="streak-banner">
+              <span class="streak-dot" :class="{ active: rachaInfo.activoHoy }"></span>
+              <div>
+                <strong>{{ rachaInfo.activoHoy ? ui.trainedToday : ui.pendingToday }}</strong>
+                <small>{{ ui.streakTip }}</small>
+              </div>
+            </div>
+
+            <div class="pets-wrap">
+              <MascotasColeccion
+                :dias-totales="rachaInfo.dias"
+                :activo-hoy="rachaInfo.activoHoy"
+              />
+            </div>
+
+            <div class="mini-grid">
+              <div class="mini-card">
+                <span>{{ ui.record }}</span>
+                <strong>{{ rachaRecord }} {{ ui.days }}</strong>
+              </div>
+              <div class="mini-card">
+                <span>{{ ui.nextReward }}</span>
+                <strong class="pink">{{ ui.missing }} {{ daysToReward }} {{ ui.days }}</strong>
+              </div>
+            </div>
+
+            <div class="reward-track" :title="rewardPercent + '%'"><i :style="{ width: rewardPercent + '%' }"></i></div>
+          </article>
         </section>
-        <section class="panel chart-panel"><div class="panel-header"><div><span class="section-eyebrow">{{ ui.last7 }}</span><h2>{{ ui.weeklyActivity }}</h2></div><div class="chart-summary"><strong>{{ weeklyTotal }}</strong><span>{{ ui.minutesWeek }}</span></div></div><div class="bar-chart"><div v-for="day in weeklyData" :key="day.day" class="bar-column" :class="{ peak: day.peak }"><span>{{ day.value }}</span><div class="bar-track"><div class="bar-fill" :style="{ height: day.height + '%' }"></div></div><small>{{ day.day }}</small></div></div></section>
-        <section class="panel gym-panel"><div class="panel-header"><div><span class="section-eyebrow">{{ ui.myGym }}</span><h2>{{ gym.branchName }}</h2></div><button class="text-btn" @click="go('/Member/gyms')">{{ ui.exploreGyms }}</button></div><div class="gym-details"><div class="gym-mini-logo"><img :src="gym.logoUrl" :alt="gym.name" /></div><div class="gym-address"><small>{{ gym.name }}</small><strong>{{ gym.address }}</strong><span>{{ gym.city }}</span></div><div class="gym-hours"><small>{{ ui.todayHours }}</small><strong>{{ gym.todayHours }}</strong><span :class="isGymOpen ? 'open-text' : 'closed-text'">{{ isGymOpen ? ui.openNow : ui.closedNow }}</span></div></div></section>
+
+        <!-- 4. CUENTA + RUTINA DE HOY -->
+        <section class="two-col">
+
+          <article class="panel account-panel">
+            <div class="panel-header">
+              <h2>{{ ui.yourAccount }}</h2>
+              <button type="button" class="link-btn" @click="go('/Member/membership')">{{ ui.viewMembership }}</button>
+            </div>
+
+            <div class="account-body">
+              <div class="ring" :style="{ '--ring': cutTint }">
+                <svg viewBox="0 0 120 120" aria-hidden="true">
+                  <circle class="ring-bg" cx="60" cy="60" r="52" />
+                  <circle class="ring-fg" cx="60" cy="60" r="52" :stroke-dasharray="ringDash" />
+                </svg>
+                <div class="ring-center">
+                  <strong>{{ Math.max(daysRemaining, 0) }}</strong>
+                  <small>{{ ui.daysLeft }}</small>
+                </div>
+              </div>
+
+              <ul class="account-list">
+                <li>
+                  <span class="al-icon">
+                    <svg viewBox="0 0 24 24"><path d="M1 4h22v16H1zM1 10h22"/></svg>
+                  </span>
+                  <span class="al-copy">
+                    <small>{{ ui.planLabel }}</small>
+                    <strong>{{ member.plan || ui.plan }}</strong>
+                  </span>
+                </li>
+                <li>
+                  <span class="al-icon">
+                    <svg viewBox="0 0 24 24"><path d="M19 4H5a2 2 0 0 0-2 2v14h18V6a2 2 0 0 0-2-2ZM8 2v4M16 2v4M3 9h18"/></svg>
+                  </span>
+                  <span class="al-copy">
+                    <small>{{ ui.cycleStart }}</small>
+                    <strong>{{ cycleStartText }}</strong>
+                  </span>
+                </li>
+                <li>
+                  <span class="al-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                  </span>
+                  <span class="al-copy">
+                    <small>{{ ui.lastPayment }}</small>
+                    <strong>{{ formatMoney(member.lastPayment.amount) }} · {{ formatDate(member.lastPayment.date) }}</strong>
+                  </span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="account-actions">
+              <button type="button" class="btn-primary" @click="go('/Member/membership')">{{ ui.payNow }}</button>
+              <button type="button" class="btn-ghost" @click="go('/Member/payments-history')">{{ ui.paymentsHistory }}</button>
+            </div>
+          </article>
+
+          <article class="panel routine-panel">
+            <div class="panel-header">
+              <div>
+                <h2>{{ ui.todayRoutine }}</h2>
+                <p class="panel-sub">{{ todayRoutine.name }} · {{ todayRoutine.duration }} min</p>
+              </div>
+              <button type="button" class="link-btn" @click="go('/Member/my-routines')">{{ ui.viewRoutine }}</button>
+            </div>
+
+            <ol class="exercise-list">
+              <li v-for="(ex, i) in todayRoutine.exercises" :key="ex.name">
+                <span class="ex-index">{{ i + 1 }}</span>
+                <span class="ex-name">{{ ex.name }}</span>
+                <span class="ex-sets">{{ ex.sets }}</span>
+              </li>
+            </ol>
+          </article>
+        </section>
+
+        <!-- 5. PRÓXIMAS ACTIVIDADES + ACCESOS RÁPIDOS -->
+        <section class="two-col">
+          <article class="panel activity-panel">
+            <div class="panel-header">
+              <h2>{{ ui.nextActivities }}</h2>
+              <button type="button" class="link-btn" @click="go('/Member/classes')">{{ ui.viewAll }}</button>
+            </div>
+
+            <div class="activity-list">
+              <div v-for="item in nextActivities" :key="item.title + item.day" class="activity-row">
+                <div class="date-box">
+                  <strong>{{ item.day }}</strong>
+                  <span>{{ item.month }}</span>
+                </div>
+                <div class="activity-info">
+                  <strong>{{ item.title }}</strong>
+                  <span>{{ item.time }} · {{ item.trainer }}</span>
+                </div>
+                <span class="activity-status" :class="{ booked: item.booked }">{{ item.status }}</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel quick-panel">
+            <div class="panel-header">
+              <h2>{{ ui.quickAccess }}</h2>
+            </div>
+
+            <div class="quick-grid">
+              <button
+                v-for="action in quickActions"
+                :key="action.label"
+                type="button"
+                class="quick-action"
+                @click="go(action.route)"
+              >
+                <span class="quick-icon">
+                  <svg viewBox="0 0 24 24"><path :d="action.icon"/></svg>
+                </span>
+                <span class="quick-copy">
+                  <strong>{{ action.label }}</strong>
+                  <small>{{ action.description }}</small>
+                </span>
+              </button>
+            </div>
+          </article>
+        </section>
+
       </main>
     </div>
   </HeadingMember>
 </template>
+
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import HeadingMember from './HeadingMember.vue';
+import MascotasColeccion from '@/components/MascotasColeccion.vue';
+
 const router = useRouter();
+const go = (path) => router.push(path);
+
+/* =========================================================
+   IDIOMA
+========================================================= */
+
 const currentLang = ref(localStorage.getItem('member-idioma') || 'es');
+
+const handleLangChange = (event) => {
+  const nuevo = event?.detail?.idioma || localStorage.getItem('member-idioma');
+  if (nuevo) currentLang.value = nuevo;
+};
+
+const translations = {
+  es: {
+    registeredAt: 'Inscrito en',
+    welcome: 'Bienvenido',
+    gymOpen: 'Gimnasio abierto',
+    gymClosed: 'Gimnasio cerrado',
+    membershipActive: 'Membresía activa',
+    membershipWarning: 'Membresía próxima a vencer',
+    membershipExpired: 'Membresía vencida',
+    nextCut: 'Próximo corte',
+    membershipExpiredOn: 'Membresía venció el',
+    attendanceMonth: 'Asistencias del mes',
+    classesReserved: 'Clases reservadas',
+    calendarTitle: 'Calendario de asistencia',
+    currentStreakMonth: 'Racha del mes',
+    bestStreakMonth: 'Mejor racha',
+    monthlyGoal: 'Meta mensual',
+    legendAttended: 'Asististe',
+    legendMissed: 'Faltaste',
+    legendToday: 'Hoy',
+    weekdays: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá'],
+    petTitle: 'Tu compañero de racha',
+    trainedToday: '¡Entrenamiento registrado hoy!',
+    pendingToday: 'Pendiente de registrar hoy',
+    streakTip: 'Cada día de asistencia hace crecer a tu compañero.',
+    record: 'Récord histórico',
+    nextReward: 'Siguiente generación',
+    missing: 'Faltan',
+    days: 'días',
+    yourAccount: 'Tu cuenta',
+    viewMembership: 'Ver membresía',
+    balanceDue: 'Saldo a pagar',
+    pendingPayment: 'Pago pendiente',
+    upToDate: 'Estás al corriente',
+    daysLeft: 'días restantes',
+    planLabel: 'Plan',
+    cycleStart: 'Inicio del ciclo',
+    lastPayment: 'Último pago',
+    payNow: 'Pagar ahora',
+    paymentsHistory: 'Historial de pagos',
+    inDays: 'Faltan',
+    expiredAgo: 'Venció hace',
+    today: 'Vence hoy',
+    todayRoutine: 'Rutina de hoy',
+    viewRoutine: 'Ver rutina',
+    nextActivities: 'Próximas clases',
+    viewAll: 'Ver todas',
+    quickAccess: 'Accesos rápidos',
+    todayHours: 'Horario de hoy',
+    getDirections: 'Cómo llegar',
+    plan: 'Plan Mensual'
+  },
+  en: {
+    registeredAt: 'Enrolled at',
+    welcome: 'Welcome',
+    gymOpen: 'Gym open',
+    gymClosed: 'Gym closed',
+    membershipActive: 'Active membership',
+    membershipWarning: 'Membership expiring soon',
+    membershipExpired: 'Membership expired',
+    nextCut: 'Next billing',
+    membershipExpiredOn: 'Membership expired on',
+    attendanceMonth: 'Attendance this month',
+    classesReserved: 'Booked classes',
+    calendarTitle: 'Attendance calendar',
+    currentStreakMonth: 'Month streak',
+    bestStreakMonth: 'Best streak',
+    monthlyGoal: 'Monthly goal',
+    legendAttended: 'Attended',
+    legendMissed: 'Missed',
+    legendToday: 'Today',
+    weekdays: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+    petTitle: 'Your streak companion',
+    trainedToday: 'Workout logged today!',
+    pendingToday: 'Not logged yet today',
+    streakTip: 'Every day you show up, your companion grows.',
+    record: 'All-time record',
+    nextReward: 'Next generation',
+    missing: 'Missing',
+    days: 'days',
+    yourAccount: 'Your account',
+    viewMembership: 'View membership',
+    balanceDue: 'Balance due',
+    pendingPayment: 'Payment pending',
+    upToDate: 'You are up to date',
+    daysLeft: 'days left',
+    planLabel: 'Plan',
+    cycleStart: 'Cycle start',
+    lastPayment: 'Last payment',
+    payNow: 'Pay now',
+    paymentsHistory: 'Payments history',
+    inDays: 'In',
+    expiredAgo: 'Expired',
+    today: 'Due today',
+    todayRoutine: 'Today\'s routine',
+    viewRoutine: 'View routine',
+    nextActivities: 'Upcoming classes',
+    viewAll: 'View all',
+    quickAccess: 'Quick access',
+    todayHours: 'Today\'s hours',
+    getDirections: 'Get directions',
+    plan: 'Monthly Plan'
+  }
+};
+
+const ui = computed(() => translations[currentLang.value] || translations.es);
+const locale = computed(() => (currentLang.value === 'en' ? 'en-US' : 'es-MX'));
+
+/* =========================================================
+   DATOS (de prueba: reemplázalos por los del backend)
+========================================================= */
+
+const gym = ref({
+  name: 'Ultra Fitness Center',
+  branchName: 'Sede Principal',
+  logoUrl: 'https://marketplace.canva.com/EAFxdcos7WU/1/0/1600w/canva-dark-blue-and-brown-illustrative-fitness-gym-logo-oqe3ybeEcQQ.jpg',
+  coverUrl: 'https://static.vecteezy.com/system/resources/thumbnails/037/228/850/small_2x/ai-generated-exercise-machines-in-a-gym-free-photo.jpg',
+  address: 'Av. Universitaria #420, Zona Centro',
+  city: 'Ciudad Valles, San Luis Potosí',
+  todayHours: '05:00 - 23:00'
+});
+
+const member = ref({
+  name: 'Carlos Alberto Martínez',
+  photoUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=400&q=80',
+  plan: '',                       /* si viene vacío se usa "Plan Mensual" */
+  nextCut: '2026-10-15',          /* AAAA-MM-DD */
+  balance: 650,
+  lastPayment: { date: '2026-09-15', amount: 650 },
+  classesReserved: 2,
+  monthGoal: 24,
+  cycleDays: 30
+});
+
+const rachaInfo = ref({ dias: 460, activoHoy: true });
+const rachaRecord = 520;
+const nextRewardAt = 800;
+
 const isGymOpen = ref(true);
-const billingStatus = ref('active');
-const gym = ref({name:'Ultra Fitness Center',branchName:'Sede Principal',logoUrl:'https://marketplace.canva.com/EAFxdcos7WU/1/0/1600w/canva-dark-blue-and-brown-illustrative-fitness-gym-logo-oqe3ybeEcQQ.jpg',coverUrl:'https://static.vecteezy.com/system/resources/thumbnails/037/228/850/small_2x/ai-generated-exercise-machines-in-a-gym-free-photo.jpg',address:'Av. Universitaria #420, Zona Centro',city:'Ciudad Valles, San Luis Potosí',todayHours:'05:00 - 23:00'});
-const member = ref({name:'Carlos Alberto Martínez',photoUrl:'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=300&q=80',membership:'Plan Mensual',membershipEnd:'15/octubre/2026',nextCut:'15/octubre/2026',daysRemaining:12,attendanceMonth:18,classesReserved:2,weekStreak:4,bestWeek:5,monthGoal:24});
-const heroStyle = computed(() => gym.value.coverUrl ? {'--cover':`url('${gym.value.coverUrl}')`} : {});
-const attendancePercent = computed(() => Math.min(100,Math.round((member.value.attendanceMonth/member.value.monthGoal)*100)));
-const membershipState = computed(() => member.value.daysRemaining <= 0 ? 'expired' : member.value.daysRemaining <= 7 ? 'warning' : 'active');
-const translations={es:{registeredAt:'INSCRITO EN',memberPanel:'Panel del miembro',welcome:'Bienvenido',viewProfile:'Ver perfil',gymOpen:'Gimnasio abierto',gymClosed:'Gimnasio cerrado',membershipActive:'Membresía activa',membershipWarning:'Membresía próxima a vencer',membershipExpired:'Membresía vencida',nextCut:'Próximo corte',daysRemaining:'DÍAS RESTANTES',attendanceMonth:'ASISTENCIAS ESTE MES',classesReserved:'CLASES RESERVADAS',weekStreak:'RACHA ACTUAL',membership:'MEMBRESÍA',membershipStatus:'Estado de tu membresía',days:'días',validUntil:'VIGENTE HASTA',membershipMessage:'Tu acceso al gimnasio se encuentra activo.',viewMembership:'Ver membresía',progress:'PROGRESO',monthlyGoal:'Meta mensual',visitsCompleted:'de tu meta mensual completada',currentStreak:'RACHA ACTUAL',bestWeek:'MEJOR SEMANA',visits:'visitas',access:'ACCESOS',quickAccess:'Accesos rápidos',schedule:'AGENDA',nextActivities:'Próximas actividades',viewAll:'Ver todas',last7:'ÚLTIMOS 7 DÍAS',weeklyActivity:'Actividad semanal',minutesWeek:'minutos esta semana',myGym:'MI GIMNASIO',exploreGyms:'Explorar gimnasios',todayHours:'HORARIO DE HOY',openNow:'Abierto ahora',closedNow:'Cerrado ahora'},en:{registeredAt:'ENROLLED AT',memberPanel:'Member dashboard',welcome:'Welcome',viewProfile:'View profile',gymOpen:'Gym open',gymClosed:'Gym closed',membershipActive:'Active membership',membershipWarning:'Membership expiring soon',membershipExpired:'Membership expired',nextCut:'Next billing',daysRemaining:'DAYS REMAINING',attendanceMonth:'ATTENDANCE THIS MONTH',classesReserved:'BOOKED CLASSES',weekStreak:'CURRENT STREAK',membership:'MEMBERSHIP',membershipStatus:'Membership status',days:'days',validUntil:'VALID UNTIL',membershipMessage:'Your gym access is currently active.',viewMembership:'View membership',progress:'PROGRESS',monthlyGoal:'Monthly goal',visitsCompleted:'of your monthly goal completed',currentStreak:'CURRENT STREAK',bestWeek:'BEST WEEK',visits:'visits',access:'ACCESS',quickAccess:'Quick access',schedule:'SCHEDULE',nextActivities:'Upcoming activities',viewAll:'View all',last7:'LAST 7 DAYS',weeklyActivity:'Weekly activity',minutesWeek:'minutes this week',myGym:'MY GYM',exploreGyms:'Explore gyms',todayHours:'TODAY HOURS',openNow:'Open now',closedNow:'Closed now'}};
-const ui=computed(()=>translations[currentLang.value]||translations.es);
-const membershipStatusText=computed(()=>membershipState.value==='expired'?ui.value.membershipExpired:membershipState.value==='warning'?ui.value.membershipWarning:ui.value.membershipActive);
-const quickActions=computed(()=>[{label:currentLang.value==='es'?'Mi código QR':'My QR code',description:currentLang.value==='es'?'Acceso al gimnasio':'Gym access',route:'/Member/profile',icon:'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h3v3h-3zM18 13h2v2h-2zM13 18h2v2h-2zM17 17h3v3h-3z'},{label:currentLang.value==='es'?'Mis rutinas':'My routines',description:currentLang.value==='es'?'Consulta tu entrenamiento':'View your training',route:'/Member/my-routines',icon:'M20.57 14.86 22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 7 5.57 2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22 14.86 20.57z'},{label:currentLang.value==='es'?'Reservar clase':'Book a class',description:currentLang.value==='es'?'Consulta horarios disponibles':'View available times',route:'/Member/classes',icon:'M19 3h-1V1h-2v2H8V1H6v2H5a2 2 0 0 0-2 2v16h18V5a2 2 0 0 0-2-2M5 8h14v11H5z'},{label:currentLang.value==='es'?'Mis estadísticas':'My statistics',description:currentLang.value==='es'?'Revisa tu progreso':'Review your progress',route:'/Member/statistics',icon:'M4 19V9m5 10V5m5 14v-7m5 7V3'}]);
-const nextActivities=computed(()=>currentLang.value==='es'?[{day:'07',month:'OCT',title:'Funcional',time:'18:00',trainer:'Laura Méndez',status:'Reservada'},{day:'09',month:'OCT',title:'Spinning',time:'19:30',trainer:'Daniel Ruiz',status:'Reservada'},{day:'11',month:'OCT',title:'Yoga',time:'08:00',trainer:'Ana Torres',status:'Disponible'}]:[{day:'07',month:'OCT',title:'Functional',time:'18:00',trainer:'Laura Méndez',status:'Booked'},{day:'09',month:'OCT',title:'Spinning',time:'19:30',trainer:'Daniel Ruiz',status:'Booked'},{day:'11',month:'OCT',title:'Yoga',time:'08:00',trainer:'Ana Torres',status:'Available'}]);
-const weeklyData=computed(()=>{const days=currentLang.value==='es'?['Lun','Mar','Mié','Jue','Vie','Sáb','Dom']:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];const vals=[45,70,0,55,82,95,40];const max=Math.max(...vals);return days.map((day,i)=>({day,value:vals[i],height:vals[i],peak:vals[i]===max}));});
-const weeklyTotal=computed(()=>weeklyData.value.reduce((sum,d)=>sum+d.value,0));
-const go=(path)=>router.push(path);
-const handleLangChange=(e)=>{if(e.detail?.idioma)currentLang.value=e.detail.idioma;};
-onMounted(()=>{const saved=localStorage.getItem('isGymOpen');if(saved!==null)isGymOpen.value=JSON.parse(saved);window.addEventListener('idioma-changed',handleLangChange);});
-onUnmounted(()=>window.removeEventListener('idioma-changed',handleLangChange));
+
+const heroStyle = computed(() =>
+  gym.value.coverUrl ? { '--cover': `url('${gym.value.coverUrl}')` } : {}
+);
+
+/* =========================================================
+   FECHAS, CORTE Y SALDO
+========================================================= */
+
+const MONTHS = {
+  es: ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'],
+  en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+};
+
+const parseDate = (value) => {
+  const [y, m, d] = String(value || '').split('-').map(Number);
+  return y && m && d ? { y, m, d } : null;
+};
+
+const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+const formatDate = (iso) => {
+  const date = parseDate(iso);
+  if (!date) return '—';
+  const months = MONTHS[currentLang.value] || MONTHS.es;
+  return `${date.d}/${capitalize(months[date.m - 1])}/${date.y}`;
+};
+
+const formatMoney = (n) =>
+  `$${Number(n || 0).toLocaleString(locale.value, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+const nextCutText = computed(() => formatDate(member.value.nextCut));
+const balanceText = computed(() => formatMoney(member.value.balance));
+
+const daysRemaining = computed(() => {
+  const date = parseDate(member.value.nextCut);
+  if (!date) return 0;
+
+  const end = new Date(date.y, date.m - 1, date.d);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  return Math.ceil((end - today) / 86400000);
+});
+
+/* ok = vigente · soon = vence en 7 días o menos · expired = ya venció */
+const membershipState = computed(() => {
+  if (daysRemaining.value < 0) return 'expired';
+  if (daysRemaining.value <= 7) return 'soon';
+  return 'ok';
+});
+
+const membershipPillClass = computed(() =>
+  membershipState.value === 'expired' ? 'blocked' : membershipState.value === 'soon' ? 'pending' : 'active'
+);
+
+const membershipStatusText = computed(() =>
+  membershipState.value === 'expired'
+    ? ui.value.membershipExpired
+    : membershipState.value === 'soon'
+      ? ui.value.membershipWarning
+      : ui.value.membershipActive
+);
+
+const cutSubtitle = computed(() => {
+  const n = daysRemaining.value;
+  const days = ui.value.days;
+
+  if (n < 0) return `${ui.value.expiredAgo} ${Math.abs(n)} ${days}`;
+  if (n === 0) return ui.value.today;
+  return `${ui.value.inDays} ${n} ${days}`;
+});
+
+const balanceState = computed(() => {
+  if (member.value.balance <= 0) return 'clear';
+  return membershipState.value === 'expired' ? 'expired' : membershipState.value === 'soon' ? 'soon' : 'due';
+});
+
+const cutTint = computed(() =>
+  membershipState.value === 'expired' ? 'var(--red)' : membershipState.value === 'soon' ? 'var(--amber)' : 'var(--hl)'
+);
+
+const balanceTint = computed(() => {
+  if (balanceState.value === 'clear') return 'var(--green)';
+  if (balanceState.value === 'expired') return 'var(--red)';
+  return balanceState.value === 'soon' ? 'var(--amber)' : 'var(--hl)';
+});
+
+const cycleStartText = computed(() => {
+  const date = parseDate(member.value.nextCut);
+  if (!date) return '—';
+  const start = new Date(date.y, date.m - 1, date.d - (member.value.cycleDays || 30));
+  return formatDate(`${start.getFullYear()}-${start.getMonth() + 1}-${start.getDate()}`);
+});
+
+const cyclePercent = computed(() => {
+  const total = member.value.cycleDays || 30;
+  const used = total - Math.max(daysRemaining.value, 0);
+  return Math.min(100, Math.max(0, Math.round((used / total) * 100)));
+});
+
+/* Anillo: muestra lo que le queda al ciclo */
+const RING_LENGTH = 2 * Math.PI * 52;
+const ringDash = computed(() => {
+  const left = RING_LENGTH * ((100 - cyclePercent.value) / 100);
+  return `${left} ${RING_LENGTH}`;
+});
+
+/* =========================================================
+   CALENDARIO DE ASISTENCIA (mes actual)
+========================================================= */
+
+const now = new Date();
+const todayDay = now.getDate();
+const currentYear = now.getFullYear();
+const currentMonth = now.getMonth();
+const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+const firstWeekday = new Date(currentYear, currentMonth, 1).getDay();
+
+/* Días en que asistió (de prueba). Reemplázalo con los datos reales. */
+const attendedDays = ref(
+  Array.from({ length: Math.max(todayDay - 1, 0) }, (_, i) => i + 1).filter(
+    (d) => d % 4 !== 0 && d % 7 !== 6
+  )
+);
+
+const diasCalendario = computed(() =>
+  Array.from({ length: daysInMonth }, (_, i) => {
+    const dia = i + 1;
+    let estado = 'futuro';
+
+    if (dia === todayDay) estado = 'hoy';
+    else if (dia < todayDay) estado = attendedDays.value.includes(dia) ? 'asistio' : 'falto';
+
+    return { dia, estado };
+  })
+);
+
+const celdasCalendario = computed(() => [
+  ...Array.from({ length: firstWeekday }, () => null),
+  ...diasCalendario.value
+]);
+
+const cuenta = (d) => d.estado === 'asistio' || (d.estado === 'hoy' && rachaInfo.value.activoHoy);
+
+const attendedCount = computed(() => diasCalendario.value.filter(cuenta).length);
+const missedCount = computed(() => diasCalendario.value.filter((d) => d.estado === 'falto').length);
+
+const goalPercent = computed(() =>
+  member.value.monthGoal > 0
+    ? Math.min(100, Math.round((attendedCount.value / member.value.monthGoal) * 100))
+    : 0
+);
+
+/* Racha dentro del mes, contando hacia atrás desde hoy */
+const rachaActualMes = computed(() => {
+  let racha = rachaInfo.value.activoHoy ? 1 : 0;
+
+  for (let d = todayDay - 1; d >= 1; d--) {
+    if (attendedDays.value.includes(d)) racha++;
+    else break;
+  }
+
+  return racha;
+});
+
+const mejorRachaMes = computed(() => {
+  let max = 0;
+  let actual = 0;
+
+  diasCalendario.value.forEach((d) => {
+    if (cuenta(d)) {
+      actual++;
+      max = Math.max(max, actual);
+    } else {
+      actual = 0;
+    }
+  });
+
+  return Math.max(max, rachaActualMes.value);
+});
+
+const monthLabel = computed(() =>
+  capitalize(new Date(currentYear, currentMonth, 1).toLocaleDateString(locale.value, { month: 'long' }))
+);
+
+/* =========================================================
+   RACHA Y MASCOTAS
+========================================================= */
+
+const daysToReward = computed(() => Math.max(nextRewardAt - rachaInfo.value.dias, 0));
+const rewardPercent = computed(() =>
+  Math.min(100, Math.round((rachaInfo.value.dias / nextRewardAt) * 100))
+);
+
+/* =========================================================
+   RUTINA, ACTIVIDADES Y ACCESOS RÁPIDOS
+========================================================= */
+
+/* De prueba: reemplázala con la rutina asignada del día */
+const todayRoutine = computed(() =>
+  currentLang.value === 'es'
+    ? {
+        name: 'Pecho y tríceps',
+        duration: 60,
+        exercises: [
+          { name: 'Press de banca', sets: '4 × 10' },
+          { name: 'Press inclinado con mancuernas', sets: '3 × 12' },
+          { name: 'Aperturas en polea', sets: '3 × 15' },
+          { name: 'Fondos en paralelas', sets: '3 × 10' },
+          { name: 'Extensión de tríceps', sets: '3 × 12' }
+        ]
+      }
+    : {
+        name: 'Chest & triceps',
+        duration: 60,
+        exercises: [
+          { name: 'Bench press', sets: '4 × 10' },
+          { name: 'Incline dumbbell press', sets: '3 × 12' },
+          { name: 'Cable flyes', sets: '3 × 15' },
+          { name: 'Parallel bar dips', sets: '3 × 10' },
+          { name: 'Triceps extension', sets: '3 × 12' }
+        ]
+      }
+);
+
+const nextActivities = computed(() =>
+  currentLang.value === 'es'
+    ? [
+        { day: '07', month: 'OCT', title: 'Funcional', time: '18:00', trainer: 'Laura Méndez', status: 'Reservada', booked: true },
+        { day: '09', month: 'OCT', title: 'Spinning', time: '19:30', trainer: 'Daniel Ruiz', status: 'Reservada', booked: true },
+        { day: '11', month: 'OCT', title: 'Yoga', time: '08:00', trainer: 'Ana Torres', status: 'Disponible', booked: false }
+      ]
+    : [
+        { day: '07', month: 'OCT', title: 'Functional', time: '18:00', trainer: 'Laura Méndez', status: 'Booked', booked: true },
+        { day: '09', month: 'OCT', title: 'Spinning', time: '19:30', trainer: 'Daniel Ruiz', status: 'Booked', booked: true },
+        { day: '11', month: 'OCT', title: 'Yoga', time: '08:00', trainer: 'Ana Torres', status: 'Available', booked: false }
+      ]
+);
+
+/* Sin "Pagar membresía" ni "Reservar clase": ya tienen su botón en sus paneles */
+const quickActions = computed(() => {
+  const icons = {
+    routines: 'M6.5 6.5h11M6.5 17.5h11M3 12h18M4 6.5V4h3v2.5M17 6.5V4h3v2.5M4 17.5V20h3v-2.5M17 17.5V20h3v-2.5',
+    stats: 'M18 20V10M12 20V4M6 20v-6',
+    calculator: 'M6 2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM8 6h8M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14v4M8 18h.01M12 18h.01',
+    nutrition: 'M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8zM6 1v3M10 1v3M14 1v3',
+    profile: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8',
+    qr: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3h-3zM20 14v.01M14 20h3M20 17v4'
+  };
+
+  return currentLang.value === 'es'
+    ? [
+        { label: 'Mis rutinas', description: 'Consulta tu entrenamiento', route: '/Member/my-routines', icon: icons.routines },
+        { label: 'Mis estadísticas', description: 'Revisa tu progreso', route: '/Member/statistics', icon: icons.stats },
+        { label: 'Calculadora corporal', description: 'IMC, peso ideal y más', route: '/Member/body-calculator', icon: icons.calculator },
+        { label: 'Plan nutricional', description: 'Tu alimentación', route: '/Member/nutrition-plan', icon: icons.nutrition },
+        { label: 'Mi QR de acceso', description: 'Entra sin credencial', route: '/Member/access-qr', icon: icons.qr },
+        { label: 'Mi perfil', description: 'Tus datos y medidas', route: '/Member/profile', icon: icons.profile }
+      ]
+    : [
+        { label: 'My routines', description: 'View your training', route: '/Member/my-routines', icon: icons.routines },
+        { label: 'My statistics', description: 'Review your progress', route: '/Member/statistics', icon: icons.stats },
+        { label: 'Body calculator', description: 'BMI, ideal weight and more', route: '/Member/body-calculator', icon: icons.calculator },
+        { label: 'Nutrition plan', description: 'Your nutrition', route: '/Member/nutrition-plan', icon: icons.nutrition },
+        { label: 'Access QR', description: 'Enter without a card', route: '/Member/access-qr', icon: icons.qr },
+        { label: 'My profile', description: 'Your data and measures', route: '/Member/profile', icon: icons.profile }
+      ];
+});
+
+/* =========================================================
+   GIMNASIO
+========================================================= */
+
+const directionsUrl = computed(
+  () =>
+    `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+      `${gym.value.address}, ${gym.value.city}`
+    )}`
+);
+
+const syncGymOpen = () => {
+  const saved = localStorage.getItem('isGymOpen');
+  if (saved === null) return;
+
+  try {
+    isGymOpen.value = JSON.parse(saved);
+  } catch {
+    /* valor inválido: se queda el predeterminado */
+  }
+};
+
+onMounted(() => {
+  syncGymOpen();
+  window.addEventListener('idioma-changed', handleLangChange);
+  window.addEventListener('language-changed', handleLangChange);
+  window.addEventListener('storage', syncGymOpen);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('idioma-changed', handleLangChange);
+  window.removeEventListener('language-changed', handleLangChange);
+  window.removeEventListener('storage', syncGymOpen);
+});
 </script>
+
 <style scoped>
-.dashboard{min-height:calc(100vh - 65px);background:var(--bg-custom,var(--color-interfaz,#080808));color:var(--color-texto-general,#f5f5f4);font-family:Inter,system-ui,sans-serif}.dashboard-container{max-width:1280px;margin:auto;padding:28px 32px 50px;display:flex;flex-direction:column;gap:22px}.hero{position:relative;min-height:240px;border:1px solid rgba(255,255,255,.1);border-radius:24px;overflow:hidden;background:#111;display:flex;align-items:flex-end;justify-content:space-between;padding:28px;gap:24px;box-shadow:0 18px 45px rgba(0,0,0,.35)}.hero.has-cover{background-image:var(--cover);background-size:cover;background-position:center}.hero-overlay{position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.88),rgba(0,0,0,.56) 52%,rgba(0,0,0,.72))}.hero-content,.member-card{position:relative;z-index:1}.hero-content{display:flex;align-items:center;gap:18px}.gym-logo{width:92px;height:92px;border-radius:20px;overflow:hidden;border:1px solid rgba(255,255,255,.2);background:#0b0b0b;box-shadow:0 12px 30px rgba(0,0,0,.4)}.gym-logo img,.gym-mini-logo img,.member-photo{width:100%;height:100%;object-fit:cover}.hero-copy .eyebrow,.section-eyebrow{font-size:.68rem;font-weight:800;letter-spacing:1.4px;color:var(--color-highlight,#3b82f6)}.hero-copy h1{font-size:2rem;margin:5px 0 4px;font-weight:900;color:#fff}.hero-copy p{margin:0;color:rgba(255,255,255,.68);font-weight:600}.member-card{display:grid;grid-template-columns:64px 1fr;grid-template-areas:'photo info' 'button button';gap:10px 12px;min-width:310px;padding:16px;background:rgba(12,12,12,.82);border:1px solid rgba(255,255,255,.12);border-radius:18px;backdrop-filter:blur(12px)}.member-photo{grid-area:photo;width:64px;height:64px;border-radius:16px;border:2px solid rgba(255,255,255,.15)}.member-info{grid-area:info;display:flex;flex-direction:column;justify-content:center}.member-info small{color:#8b8b8b;font-size:.7rem;text-transform:uppercase}.member-info strong{font-size:1rem;color:#fff;margin:2px 0}.member-info span{font-size:.76rem;color:#60a5fa}.profile-btn{grid-area:button;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#fff;border-radius:10px;padding:9px;cursor:pointer;font-weight:700}.status-row{display:flex;gap:10px;flex-wrap:wrap}.status-pill{display:flex;align-items:center;gap:8px;padding:8px 13px;background:#121212;border:1px solid rgba(255,255,255,.09);border-radius:999px;font-size:.75rem;font-weight:700}.status-pill i{width:7px;height:7px;border-radius:50%;background:#3b82f6}.status-pill.open i,.status-pill.membership.active i{background:#10b981}.status-pill.closed i,.status-pill.membership.expired i{background:#ef4444}.status-pill.membership.warning i{background:#f59e0b}.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.kpi-card{min-height:96px;background:var(--bg-cards,#121212);border:1px solid rgba(255,255,255,.09);border-radius:18px;padding:18px 20px;display:flex;align-items:center;gap:16px}.kpi-icon{width:50px;height:50px;border-radius:14px;display:grid;place-items:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)}.kpi-icon.accent{color:#3b82f6;background:rgba(59,130,246,.1);border-color:rgba(59,130,246,.35)}.kpi-icon.success{color:#10b981;background:rgba(16,185,129,.1)}.kpi-icon.warning{color:#f59e0b;background:rgba(245,158,11,.1)}.kpi-icon svg,.quick-icon svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.kpi-card strong{display:block;font-size:1.75rem;color:#fff}.kpi-card span{font-size:.66rem;color:#858585;font-weight:800;letter-spacing:.4px}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}.panel{background:var(--bg-cards,#121212);border:1px solid rgba(255,255,255,.09);border-radius:20px;padding:24px}.panel-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding-bottom:18px;border-bottom:1px solid rgba(255,255,255,.08)}.panel-header h2{font-size:1.18rem;margin:5px 0 0;color:#fff}.plan-badge,.progress-badge{padding:7px 11px;border-radius:9px;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.35);color:#60a5fa;font-size:.72rem;font-weight:800}.membership-main{display:flex;align-items:center;gap:22px;padding:22px 0}.membership-ring{width:92px;height:92px;border-radius:50%;border:8px solid rgba(59,130,246,.18);border-top-color:#3b82f6;display:flex;flex-direction:column;align-items:center;justify-content:center}.membership-ring strong{font-size:1.6rem;color:#fff}.membership-ring span{font-size:.65rem;color:#888}.membership-copy{display:flex;flex-direction:column;gap:4px}.membership-copy small,.goal-main span,.mini-stats span,.gym-address small,.gym-hours small{font-size:.67rem;color:#777;font-weight:800}.membership-copy strong{color:#fff;font-size:1.15rem}.membership-copy span{color:#999;font-size:.8rem}.panel-link,.text-btn{border:0;background:transparent;color:#60a5fa;font-weight:800;cursor:pointer;padding:0}.goal-main{padding:24px 0 18px}.goal-main>strong{font-size:2rem;color:#fff}.goal-main>strong small{font-size:1rem;color:#777}.progress-track{height:9px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden;margin:15px 0 9px}.progress-track i{display:block;height:100%;background:#3b82f6;border-radius:99px}.mini-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mini-stats div{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:13px}.mini-stats strong{display:block;color:#fff;margin-top:5px}.quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding-top:18px}.quick-action{border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.025);border-radius:14px;padding:15px;display:flex;align-items:center;gap:12px;text-align:left;color:inherit;cursor:pointer}.quick-action:hover{border-color:rgba(59,130,246,.5);transform:translateY(-1px)}.quick-icon{width:42px;height:42px;border-radius:12px;background:rgba(59,130,246,.1);color:#60a5fa;display:grid;place-items:center;flex:none}.quick-action strong{display:block;color:#fff;font-size:.86rem}.quick-action small{display:block;color:#777;margin-top:3px}.activity-list{padding-top:10px}.activity-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.06)}.activity-row:last-child{border-bottom:0}.activity-date{width:48px;height:48px;border-radius:11px;background:rgba(255,255,255,.05);display:flex;flex-direction:column;align-items:center;justify-content:center}.activity-date strong{color:#fff}.activity-date span{font-size:.58rem;color:#777}.activity-info{flex:1}.activity-info strong{display:block;color:#fff;font-size:.85rem}.activity-info span{font-size:.72rem;color:#777}.activity-status{font-size:.66rem;color:#60a5fa;background:rgba(59,130,246,.1);padding:5px 8px;border-radius:7px}.chart-summary{text-align:right}.chart-summary strong{display:block;color:#fff;font-size:1.4rem}.chart-summary span{font-size:.65rem;color:#777}.bar-chart{height:210px;display:grid;grid-template-columns:repeat(7,1fr);gap:16px;align-items:end;padding-top:25px}.bar-column{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:7px}.bar-column>span,.bar-column small{font-size:.66rem;color:#777}.bar-track{height:145px;width:100%;max-width:44px;background:rgba(255,255,255,.045);border-radius:8px;display:flex;align-items:flex-end;overflow:hidden}.bar-fill{width:100%;background:rgba(59,130,246,.5);border-radius:8px}.bar-column.peak .bar-fill{background:#3b82f6}.gym-details{display:grid;grid-template-columns:70px 1fr auto;gap:16px;align-items:center;padding-top:20px}.gym-mini-logo{width:70px;height:70px;border-radius:14px;overflow:hidden}.gym-address,.gym-hours{display:flex;flex-direction:column;gap:4px}.gym-address strong,.gym-hours strong{color:#fff}.gym-address span,.gym-hours span{font-size:.75rem;color:#888}.open-text{color:#10b981!important}.closed-text{color:#ef4444!important}@media(max-width:900px){.kpi-grid{grid-template-columns:1fr 1fr}.two-col{grid-template-columns:1fr}.hero{align-items:flex-start;flex-direction:column}.member-card{width:100%;min-width:0}.gym-details{grid-template-columns:60px 1fr}.gym-hours{grid-column:1/-1}}@media(max-width:600px){.dashboard-container{padding:14px}.hero{padding:18px;min-height:330px}.hero-content{align-items:flex-start}.gym-logo{width:70px;height:70px}.hero-copy h1{font-size:1.45rem}.kpi-grid{grid-template-columns:1fr}.quick-grid{grid-template-columns:1fr}.panel{padding:18px}.bar-chart{gap:7px}.status-row{display:grid;grid-template-columns:1fr}.membership-main{align-items:flex-start}.gym-details{grid-template-columns:1fr}.gym-mini-logo{width:60px;height:60px}}
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;500;600;700&display=swap');
+
+* { box-sizing: border-box; }
+button { font: inherit; }
+
+/* =========================================================
+   BASE
+========================================================= */
+
+.dashboard {
+  --hl: var(--color-highlight, #3b82f6);
+  --hl-soft: color-mix(in srgb, var(--hl) 11%, transparent);
+  --hl-mid: color-mix(in srgb, var(--hl) 22%, transparent);
+  --hl-line: color-mix(in srgb, var(--hl) 45%, transparent);
+  --card: var(--bg-cards, #121212);
+  --line: rgba(255, 255, 255, 0.07);
+  --line2: rgba(255, 255, 255, 0.13);
+  --title: var(--color-titulos, #fff);
+  --text2: rgba(245, 245, 244, 0.66);
+  --text3: rgba(245, 245, 244, 0.48);
+  --surface: rgba(255, 255, 255, 0.03);
+  --surface-hover: rgba(255, 255, 255, 0.055);
+  --green: #34d399;
+  --amber: #fbbf24;
+  --red: #f87171;
+  --pink: #f472b6;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  min-height: calc(100vh - 72px);
+  background:
+    radial-gradient(900px 420px at 85% -80px, var(--hl-soft), transparent 70%),
+    var(--bg-custom, var(--color-interfaz, #090909));
+  color: var(--color-texto-general, #f5f5f4);
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+.dashboard-container {
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 30px 32px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* =========================================================
+   1. ENCABEZADO
+========================================================= */
+
+.hero {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 20px;
+}
+
+/* Miembro (izquierda) */
+.hero-member {
+  position: relative;
+  min-width: 0;
+  padding: 20px 32px 20px 20px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  background:
+    radial-gradient(520px 260px at 100% 0%, var(--hl-mid), transparent 70%),
+    linear-gradient(135deg, color-mix(in srgb, var(--card) 92%, white), var(--card) 60%);
+  border: 1px solid var(--line2);
+  border-radius: 28px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.avatar {
+  position: relative;
+  flex: none;
+  width: 148px;
+  height: 148px;
+  padding: 3px;
+  background: linear-gradient(145deg, var(--hl), rgba(255, 255, 255, 0.18));
+  border-radius: 26px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), 0 0 34px var(--hl-mid);
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  background: #111;
+  border: 3px solid var(--card);
+  border-radius: 23px;
+}
+
+.hero-copy { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+
+.welcome { color: var(--hl); font-size: 15px; font-weight: 700; }
+
+.hero-copy h1 {
+  margin: 0;
+  color: var(--title);
+  font-family: 'Archivo Black', sans-serif;
+  font-size: clamp(22px, 2.5vw, 36px);
+  line-height: 1.04;
+  letter-spacing: -0.8px;
+  overflow-wrap: anywhere;
+}
+
+.hero-meta { margin-top: 6px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+
+.plan-badge,
+.hero-meta .billing-pill {
+  height: 34px;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.plan-badge { color: var(--hl); background: var(--hl-soft); border-color: var(--hl-line); }
+
+.billing-pill.active { color: var(--green); background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.32); }
+.billing-pill.blocked { color: var(--red); background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.32); }
+.billing-pill.pending { color: var(--amber); background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.32); }
+
+.status-dot,
+.billing-dot {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 4px color-mix(in srgb, currentColor 18%, transparent), 0 0 12px currentColor;
+}
+
+/* Gimnasio (derecha) */
+/* Solo esta tarjeta lleva la foto de portada del gimnasio */
+.hero-gym {
+  position: relative;
+  overflow: hidden;
+  padding: 24px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "head status"
+    "foot foot";
+  align-content: center;
+  align-items: center;
+  gap: 18px 16px;
+  background: var(--card);
+  border: 1px solid var(--line2);
+  border-radius: 28px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.38);
+}
+
+.hero-gym.has-cover {
+  background:
+    linear-gradient(180deg, rgba(8, 8, 8, 0.5), rgba(8, 8, 8, 0.82)),
+    var(--cover) center / cover no-repeat,
+    var(--card);
+}
+
+.hero-gym > * { position: relative; }
+
+.gym-head { grid-area: head; min-width: 0; display: flex; align-items: center; gap: 16px; }
+
+.gym-logo {
+  width: 84px;
+  height: 84px;
+  flex: none;
+  overflow: hidden;
+  background: #111;
+  border: 1px solid var(--line2);
+  border-radius: 22px;
+}
+
+.gym-logo img { width: 100%; height: 100%; display: block; object-fit: cover; }
+
+.gym-title { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.gym-title small { color: var(--text3); font-size: 12px; font-weight: 600; }
+
+.gym-title strong {
+  color: var(--title);
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 19px;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.gym-title span { color: var(--text2); font-size: 13px; }
+
+.status-pill {
+  grid-area: status;
+  height: 38px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border: 1px solid;
+  border-radius: 12px;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.status-pill.open { color: var(--green); background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.32); }
+.status-pill.closed { color: var(--red); background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.32); }
+
+.gym-foot {
+  grid-area: foot;
+  padding-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.gym-hours { display: flex; flex-direction: column; gap: 3px; }
+.gym-hours small { color: var(--text3); font-size: 11.5px; font-weight: 600; }
+.gym-hours strong { color: var(--title); font-family: 'Oswald', sans-serif; font-size: 20px; font-weight: 600; }
+
+.directions-btn {
+  height: 42px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--color-texto-botones, #fff);
+  text-decoration: none;
+  background: var(--color-botones, var(--hl));
+  border-radius: 12px;
+  font-size: 12.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: filter 0.2s ease;
+}
+
+.directions-btn:hover { filter: brightness(1.1); }
+
+.directions-btn svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* =========================================================
+   2. INDICADORES
+========================================================= */
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.kpi-card {
+  --tint: var(--hl);
+
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  padding: 20px 22px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background:
+    radial-gradient(180px 90px at 0% 0%, color-mix(in srgb, var(--tint) 12%, transparent), transparent 75%),
+    var(--card);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.24);
+}
+
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 22px;
+  right: 22px;
+  height: 2px;
+  border-radius: 0 0 4px 4px;
+  background: linear-gradient(90deg, var(--tint), transparent);
+}
+
+
+.kpi-icon {
+  width: 50px;
+  height: 50px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--tint);
+  background: color-mix(in srgb, var(--tint) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--tint) 32%, transparent);
+  border-radius: 15px;
+}
+
+.kpi-icon.accent,
+.kpi-icon.success,
+.kpi-icon.warning { color: var(--tint); }
+
+.kpi-icon svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kpi-body { min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+
+.kpi-body strong {
+  color: var(--title);
+  font-family: 'Oswald', sans-serif;
+  font-size: 34px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.kpi-body strong.sm { font-size: 24px; white-space: nowrap; }
+
+.kpi-body strong em {
+  color: var(--text3);
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 500;
+}
+
+.kpi-body span {
+  overflow: hidden;
+  color: var(--text3);
+  font-size: 12px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   PANELES
+========================================================= */
+
+.two-col {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  align-items: stretch;
+}
+
+.panel {
+  min-width: 0;
+  padding: 24px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.032), transparent 38%), var(--card);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.24);
+}
+
+.panel-header {
+  margin-bottom: 18px;
+  padding-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.panel-header h2 {
+  margin: 0;
+  color: var(--title);
+  font-family: 'Oswald', sans-serif;
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.panel-sub { margin: 4px 0 0; color: var(--text3); font-size: 12.5px; }
+
+.link-btn {
+  padding: 7px 13px;
+  color: var(--hl);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  background: var(--hl-soft);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  white-space: nowrap;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.link-btn:hover { background: var(--hl-mid); border-color: var(--hl-line); }
+
+:is(button, a):focus-visible { outline: 2px solid var(--hl); outline-offset: 2px; }
+
+/* =========================================================
+   3. CALENDARIO
+========================================================= */
+
+.calendar-panel { display: flex; flex-direction: column; }
+
+.month-badge {
+  padding: 6px 12px;
+  color: var(--hl);
+  background: var(--hl-soft);
+  border: 1px solid var(--hl-line);
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+
+.stat-chip {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  border: 1px solid;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.stat-chip svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.stat-chip.streak { color: #facc15; border-color: rgba(250, 204, 21, 0.28); background: rgba(250, 204, 21, 0.06); }
+.stat-chip.best { color: #93c5fd; border-color: rgba(147, 197, 253, 0.28); background: rgba(147, 197, 253, 0.06); }
+.stat-chip b { font-weight: 800; }
+
+.cal-progress { margin-bottom: 18px; }
+
+.cal-progress-label {
+  margin-bottom: 7px;
+  display: flex;
+  justify-content: space-between;
+  color: var(--text2);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.cal-progress-label b { color: #4ade80; }
+
+.cal-progress-track {
+  height: 7px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 999px;
+}
+
+.cal-progress-track i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--hl), #4ade80);
+  border-radius: 999px;
+  transition: width 0.8s var(--ease);
+}
+
+.cal-grid-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+
+.weekdays-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  color: var(--text3);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.days-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+  align-content: center;
+}
+
+.day-cell {
+  position: relative;
+  aspect-ratio: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text2);
+  background: var(--surface);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+  font-size: clamp(11px, 1.4vw, 13px);
+  font-weight: 600;
+}
+
+.day-number { position: relative; z-index: 1; }
+.day-cell.vacio { background: transparent; border-color: transparent; }
+
+.day-cell.asistio {
+  color: #86efac;
+  background: linear-gradient(145deg, rgba(34, 197, 94, 0.32), rgba(34, 197, 94, 0.08));
+  border-color: rgba(34, 197, 94, 0.45);
+}
+
+.day-cell.falto {
+  color: #fca5a5;
+  background: linear-gradient(145deg, rgba(239, 68, 68, 0.28), rgba(239, 68, 68, 0.06));
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.day-cell.hoy {
+  color: #fde047;
+  background: linear-gradient(145deg, rgba(234, 179, 8, 0.34), rgba(234, 179, 8, 0.1));
+  border-color: rgba(234, 179, 8, 0.6);
+  box-shadow: 0 0 14px rgba(234, 179, 8, 0.35);
+  font-weight: 800;
+}
+
+.day-cell.futuro { color: rgba(245, 245, 244, 0.28); }
+
+.day-icon {
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.day-icon.asistio { background: #4ade80; }
+.day-icon.falto { background: #f87171; }
+
+.day-icon svg {
+  width: 8px;
+  height: 8px;
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.day-icon.asistio svg { stroke: #0a2e18; }
+.day-icon.falto svg { stroke: #3a0d0d; }
+
+.hoy-ring {
+  position: absolute;
+  inset: -2px;
+  border: 1.5px solid rgba(250, 204, 21, 0.55);
+  border-radius: 12px;
+  pointer-events: none;
+  animation: pulse-ring 1.8s ease-out infinite;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 0.9; }
+  100% { transform: scale(1.3); opacity: 0; }
+}
+
+.legend {
+  margin-top: 18px;
+  padding-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  border-top: 1px solid var(--line);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 11px;
+  color: var(--text2);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.legend-item b { color: #fff; font-weight: 800; }
+
+.dot { width: 8px; height: 8px; flex: none; border-radius: 50%; }
+.dot.asistio { background: #4ade80; }
+.dot.falto { background: #f87171; }
+.dot.hoy { background: #facc15; }
+
+/* =========================================================
+   RACHA Y MASCOTAS
+========================================================= */
+
+.streak-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.15) 0%, transparent 55%), var(--card);
+  border-color: rgba(236, 72, 153, 0.28);
+}
+
+.streak-panel .panel-header { margin-bottom: 4px; border-color: rgba(236, 72, 153, 0.18); }
+
+.streak-number { display: flex; align-items: center; gap: 6px; }
+
+.streak-number strong {
+  color: #fff;
+  font-family: 'Oswald', sans-serif;
+  font-size: 34px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.streak-number svg {
+  width: 26px;
+  height: 26px;
+  fill: #facc15;
+  stroke: #f97316;
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 8px #facc15);
+  animation: flame 1.8s ease-in-out infinite;
+}
+
+@keyframes flame { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+
+.streak-banner {
+  padding: 11px 14px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(236, 72, 153, 0.16);
+  border-radius: 14px;
+}
+
+.streak-banner div { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.streak-banner strong { color: #fff; font-size: 13px; }
+.streak-banner small { color: var(--text3); font-size: 11.5px; }
+
+.streak-dot {
+  width: 9px;
+  height: 9px;
+  flex: none;
+  background: var(--red);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--red);
+}
+
+.streak-dot.active { background: #4ade80; box-shadow: 0 0 8px #4ade80; }
+
+.pets-wrap { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; }
+
+.mini-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+
+.mini-card {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.mini-card span { color: var(--text3); font-size: 11px; font-weight: 600; }
+.mini-card strong { color: #fff; font-size: 14px; }
+.mini-card strong.pink { color: var(--pink); }
+
+.reward-track { height: 6px; overflow: hidden; background: rgba(255, 255, 255, 0.07); border-radius: 999px; }
+
+.reward-track i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #ec4899, #f43f5e);
+  border-radius: 999px;
+}
+
+/* =========================================================
+   4. CUENTA
+========================================================= */
+
+.account-panel { display: flex; flex-direction: column; }
+
+.account-body {
+  margin: 2px 0 20px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 28px;
+}
+
+.ring { position: relative; width: 156px; height: 156px; flex: none; border: 0; outline: 0; background: none; box-shadow: none; }
+.ring svg { width: 100%; height: 100%; display: block; transform: rotate(-90deg); border: 0; outline: 0; background: none; box-shadow: none; }
+
+.ring-bg,
+.ring-fg { fill: none; stroke-width: 9; }
+
+.ring-bg { stroke: rgba(255, 255, 255, 0.07); }
+
+.ring-fg {
+  stroke: var(--ring, var(--hl));
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 7px color-mix(in srgb, var(--ring, var(--hl)) 55%, transparent));
+  transition: stroke-dasharray 0.8s var(--ease);
+}
+
+.ring-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.ring-center strong {
+  color: var(--title);
+  font-family: 'Oswald', sans-serif;
+  font-size: 44px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.ring-center small { color: var(--text3); font-size: 12px; font-weight: 600; }
+
+.account-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; }
+
+.account-list li {
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.al-icon {
+  width: 38px;
+  height: 38px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  color: var(--hl);
+  background: var(--hl-soft);
+  border: 1px solid var(--hl-line);
+  border-radius: 11px;
+}
+
+.al-icon svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.al-copy { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.al-copy small { color: var(--text3); font-size: 11.5px; font-weight: 600; }
+.al-copy strong { color: var(--title); font-size: 14px; overflow-wrap: anywhere; }
+
+.account-actions {
+  margin-top: auto;
+  padding-top: 18px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.btn-primary,
+.btn-ghost {
+  height: 46px;
+  padding: 0 14px;
+  cursor: pointer;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  transition: filter 0.2s ease, background 0.2s ease;
+}
+
+.btn-primary {
+  color: var(--color-texto-botones, #fff);
+  background: var(--color-botones, var(--hl));
+  border: 0;
+}
+
+.btn-primary:hover { filter: brightness(1.1); }
+
+.btn-ghost { color: var(--title); background: var(--surface); border: 1px solid var(--line2); }
+.btn-ghost:hover { background: var(--surface-hover); }
+
+/* =========================================================
+   RUTINA DE HOY
+========================================================= */
+
+.routine-panel { display: flex; flex-direction: column; }
+
+.exercise-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; }
+
+.exercise-list li {
+  min-height: 56px;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.exercise-list li:first-child { border-top: 0; }
+
+.ex-index {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  color: var(--hl);
+  background: var(--hl-soft);
+  border: 1px solid var(--hl-line);
+  border-radius: 10px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 15px;
+}
+
+.ex-name { overflow: hidden; color: var(--title); font-size: 14px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+
+.ex-sets {
+  padding: 5px 11px;
+  color: var(--text2);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   5. ACTIVIDADES Y ACCESOS RÁPIDOS
+========================================================= */
+
+.activity-list { display: flex; flex-direction: column; }
+
+.activity-row {
+  min-height: 72px;
+  display: grid;
+  grid-template-columns: 50px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.activity-row:first-child { border-top: 0; }
+
+.date-box {
+  width: 50px;
+  height: 54px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--hl-soft);
+  border: 1px solid var(--hl-line);
+  border-radius: 13px;
+}
+
+.date-box strong { color: #fff; font-family: 'Oswald', sans-serif; font-size: 19px; line-height: 1; }
+.date-box span { margin-top: 3px; color: var(--hl); font-size: 10px; font-weight: 800; letter-spacing: 0.6px; }
+
+.activity-info { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+
+.activity-info strong { overflow: hidden; color: var(--title); font-size: 14.5px; text-overflow: ellipsis; white-space: nowrap; }
+.activity-info span { color: var(--text3); font-size: 12px; }
+
+.activity-status {
+  padding: 5px 11px;
+  color: var(--text2);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.activity-status.booked {
+  color: var(--green);
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.28);
+}
+
+.quick-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+
+.quick-action {
+  min-height: 74px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  overflow: hidden;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.quick-action:hover { border-color: var(--hl-line); background: var(--hl-soft); }
+
+.quick-icon {
+  width: 42px;
+  height: 42px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--hl);
+  background: var(--hl-soft);
+  border: 1px solid var(--hl-line);
+  border-radius: 12px;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.quick-action:hover .quick-icon { color: #fff; background: var(--hl); }
+
+.quick-icon svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.quick-copy { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+
+.quick-copy strong { overflow: hidden; color: var(--title); font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
+.quick-copy small { overflow: hidden; color: var(--text3); font-size: 11.5px; text-overflow: ellipsis; white-space: nowrap; }
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1000px) {
+  .hero { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 900px) {
+  .two-col { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 760px) {
+  .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+}
+
+@media (max-width: 680px) {
+  .dashboard-container { padding: 14px 12px 44px; gap: 14px; }
+
+  .hero { gap: 14px; }
+  /* Tarjeta del miembro: foto + nombre arriba, etiquetas en una fila abajo */
+  .hero-member {
+    padding: 16px;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      "avatar welcome"
+      "avatar name"
+      "meta meta";
+    column-gap: 14px;
+    row-gap: 2px;
+    align-items: center;
+    border-radius: 22px;
+  }
+
+  .hero-copy { display: contents; }
+
+  .avatar { grid-area: avatar; width: 88px; height: 88px; padding: 2px; border-radius: 20px; }
+  .avatar img { border-width: 2px; border-radius: 17px; }
+
+  .welcome { grid-area: welcome; align-self: end; font-size: 12px; }
+
+  .hero-copy h1 {
+    grid-area: name;
+    align-self: start;
+    font-size: 20px;
+    line-height: 1.12;
+    letter-spacing: -0.3px;
+  }
+
+  .hero-meta {
+    grid-area: meta;
+    margin-top: 14px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .plan-badge,
+  .hero-meta .billing-pill {
+    height: 34px;
+    padding: 0 8px;
+    justify-content: center;
+    gap: 6px;
+    font-size: 11.5px;
+  }
+
+  /* Tarjeta del gimnasio: nombre arriba, horario + estado en medio, botón completo */
+  .hero-gym {
+    padding: 16px;
+    gap: 14px 12px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "head head"
+      "hours status"
+      "btn btn";
+    border-radius: 22px;
+  }
+
+  .hero-gym.has-cover {
+    background:
+      linear-gradient(180deg, rgba(8, 8, 8, 0.78), rgba(8, 8, 8, 0.92)),
+      var(--cover) center / cover no-repeat,
+      var(--card);
+  }
+
+  .gym-head { gap: 14px; }
+  .gym-logo { width: 56px; height: 56px; border-radius: 15px; }
+  .gym-title { gap: 2px; }
+  .gym-title strong { font-size: 16px; }
+
+  .gym-foot { display: contents; }
+  .gym-hours { grid-area: hours; }
+  .gym-hours strong { font-size: 19px; }
+  .status-pill { height: 34px; padding: 0 12px; font-size: 11.5px; }
+  .directions-btn { grid-area: btn; height: 44px; }
+
+  .account-body { grid-template-columns: 1fr; justify-items: center; gap: 18px; }
+  .account-list { width: 100%; }
+
+  .account-body { grid-template-columns: 1fr; justify-items: center; gap: 18px; }
+  .account-list { width: 100%; }
+
+  .kpi-card { padding: 16px 14px; flex-direction: column; align-items: flex-start; gap: 12px; border-radius: 17px; }
+  .kpi-card::before { left: 14px; right: 14px; }
+  .kpi-icon { width: 40px; height: 40px; border-radius: 12px; }
+  .kpi-body { width: 100%; }
+  .kpi-body strong { font-size: 28px; }
+  .kpi-body strong.sm { font-size: 18px; line-height: 1.15; white-space: normal; }
+  .kpi-body span { white-space: normal; line-height: 1.3; }
+
+  .panel { padding: 18px 15px; border-radius: 18px; }
+  .panel-header { margin-bottom: 14px; padding-bottom: 13px; }
+  .panel-header h2 { font-size: 18px; }
+
+  .days-grid { gap: 4px; }
+  .day-cell { border-radius: 8px; }
+
+  .quick-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+
+  .quick-action {
+    min-height: 98px;
+    padding: 13px 6px 10px;
+    flex-direction: column;
+    justify-content: center;
+    gap: 9px;
+    text-align: center;
+  }
+
+  .quick-copy { width: 100%; align-items: center; }
+
+  .quick-copy strong {
+    display: -webkit-box;
+    font-size: 11px;
+    line-height: 1.25;
+    white-space: normal;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .quick-copy small { display: none; }
+
+  .activity-row { grid-template-columns: 46px minmax(0, 1fr); }
+  .activity-status { display: none; }
+
+}
+
+@media (max-width: 420px) {
+  .account-actions { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition: none !important;
+    animation-duration: 0.01ms !important;
+  }
+}
 </style>

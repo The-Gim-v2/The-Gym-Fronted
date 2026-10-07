@@ -8,8 +8,15 @@
       <div class="desktop-navbar-inner">
 
         <!-- SUCURSAL ACTUAL (esquina izquierda) -->
-        <div class="desktop-brand">
-          <div class="brand-static" :title="selectedGym">
+        <div class="desktop-brand nav-dropdown-root">
+          <button
+            type="button"
+            class="brand-button"
+            :class="{ active: desktopDropdown === 'branch' }"
+            :title="selectedGym"
+            :aria-label="nt('currentBranch')"
+            @click.stop="toggleDesktopDropdown('branch')"
+          >
             <div class="brand-mark">
               <svg class="ico" viewBox="0 0 24 24" v-html="ICON.pin"></svg>
             </div>
@@ -18,12 +25,55 @@
               <strong>{{ selectedGym }}</strong>
               <span>{{ nt('currentBranch') }}</span>
             </div>
-          </div>
+
+            <svg class="brand-chevron" :class="{ rotated: desktopDropdown === 'branch' }" viewBox="0 0 24 24">
+              <path d="M7 10l5 5 5-5z" />
+            </svg>
+          </button>
+
+          <transition name="desktop-dropdown">
+            <div
+              v-if="desktopDropdown === 'branch'"
+              class="desktop-dropdown branch-menu"
+              @click.stop
+            >
+              <div class="dropdown-title">{{ nt('myGyms') }}</div>
+
+              <button
+                v-for="gym in gyms"
+                :key="gym"
+                type="button"
+                class="dropdown-link"
+                :class="{ selected: selectedGym === gym }"
+                @click="selectGym(gym)"
+              >
+                <span class="dropdown-icon blue">
+                  <svg class="ico" viewBox="0 0 24 24" v-html="ICON.pin"></svg>
+                </span>
+                <span class="dropdown-copy">
+                  <strong>{{ gym }}</strong>
+                  <small>{{ selectedGym === gym ? nt('selectedGym') : nt('switchGym') }}</small>
+                </span>
+                <svg v-if="selectedGym === gym" class="option-check" viewBox="0 0 24 24">
+                  <path d="M20 6 9 17l-5-5" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </button>
+
+              <div class="dropdown-divider"></div>
+
+              <router-link :to="`${BASE}/gyms`" class="dropdown-link compact" @click="closeDesktopDropdown">
+                <span class="dropdown-icon neutral">
+                  <svg class="ico" viewBox="0 0 24 24" v-html="ICON.gyms"></svg>
+                </span>
+                <span class="dropdown-copy"><strong>{{ nt('gymsAndVenues') }}</strong></span>
+              </router-link>
+            </div>
+          </transition>
         </div>
 
         <!-- MENÚ CENTRAL (mismas secciones del sidebar) -->
         <nav class="desktop-menu">
-          <template v-for="m in menu" :key="m.key">
+          <template v-for="m in desktopMenu" :key="m.key">
 
             <!-- ENLACE SIMPLE -->
             <router-link
@@ -32,7 +82,7 @@
               class="desktop-nav-item"
               @click="closeDesktopDropdown"
             >
-              <svg class="ico" viewBox="0 0 24 24" v-html="m.svg"></svg>
+              <svg class="nav-ico" viewBox="0 0 24 24"><path :d="m.navIcon" /></svg>
               <span>{{ nt(m.key) }}</span>
             </router-link>
 
@@ -44,7 +94,7 @@
                 :class="{ active: desktopDropdown === m.id, current: isGroupActive(m.id) }"
                 @click.stop="toggleDesktopDropdown(m.id)"
               >
-                <svg class="ico" viewBox="0 0 24 24" v-html="m.svg"></svg>
+                <svg class="nav-ico" viewBox="0 0 24 24"><path :d="m.navIcon" /></svg>
                 <span>{{ nt(m.key) }}</span>
                 <svg class="nav-chevron" :class="{ rotated: desktopDropdown === m.id }" viewBox="0 0 24 24">
                   <path d="M7 10l5 5 5-5z" />
@@ -122,7 +172,7 @@
             <button
               type="button"
               class="desktop-profile"
-              :class="{ active: desktopDropdown === 'profile' }"
+              :class="{ active: desktopDropdown === 'profile', current: isProfileMenuActive }"
               :aria-label="nt('profile')"
               @click.stop="toggleDesktopDropdown('profile')"
             >
@@ -140,6 +190,23 @@
                 class="desktop-dropdown dropdown-end profile-dropdown"
                 @click.stop
               >
+                <div class="dropdown-title">{{ nt('more') }}</div>
+
+                <router-link
+                  v-for="l in profileLinks"
+                  :key="l.to"
+                  :to="l.to"
+                  class="dropdown-link compact"
+                  @click="closeDesktopDropdown"
+                >
+                  <span class="dropdown-icon" :class="l.color">
+                    <svg class="ico" viewBox="0 0 24 24" v-html="l.svg"></svg>
+                  </span>
+                  <span class="dropdown-copy"><strong>{{ nt(l.key) }}</strong></span>
+                </router-link>
+
+                <div class="dropdown-divider"></div>
+
                 <router-link :to="`${BASE}/profile`" class="dropdown-link compact" @click="closeDesktopDropdown">
                   <span class="dropdown-icon neutral">
                     <svg class="ico" viewBox="0 0 24 24" v-html="ICON.profile"></svg>
@@ -183,7 +250,7 @@
 
       <!-- TOP NAV MÓVIL: sucursal + QR + notificaciones -->
       <nav class="mobile-top-nav">
-        <div class="mobile-branch">
+        <button type="button" class="mobile-branch" @click="toggleSheet('branch')">
           <span class="mobile-branch-icon">
             <svg class="ico" viewBox="0 0 24 24" v-html="ICON.pin"></svg>
           </span>
@@ -191,7 +258,8 @@
             <strong>{{ selectedGym }}</strong>
             <small>{{ nt('currentBranch') }}</small>
           </span>
-        </div>
+          <svg class="mobile-branch-chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z" /></svg>
+        </button>
 
         <div class="nav-right">
           <button
@@ -330,6 +398,42 @@
               </span>
               <span class="dropdown-copy">
                 <strong>{{ nt(l.key) }}</strong>
+              </span>
+            </router-link>
+          </template>
+
+          <!-- GIMNASIO ACTUAL -->
+          <template v-else-if="mobileSheet === 'branch'">
+            <h3 class="sheet-title">{{ nt('myGyms') }}</h3>
+
+            <button
+              v-for="gym in gyms"
+              :key="gym"
+              type="button"
+              class="sheet-link branch"
+              :class="{ selected: selectedGym === gym }"
+              @click="selectGym(gym)"
+            >
+              <span class="dropdown-icon blue">
+                <svg class="ico" viewBox="0 0 24 24" v-html="ICON.pin"></svg>
+              </span>
+              <span class="dropdown-copy">
+                <strong>{{ gym }}</strong>
+                <small>{{ selectedGym === gym ? nt('selectedGym') : nt('switchGym') }}</small>
+              </span>
+              <svg v-if="selectedGym === gym" class="sheet-check" viewBox="0 0 24 24">
+                <path d="M20 6 9 17l-5-5" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+
+            <div class="sheet-divider"></div>
+
+            <router-link :to="`${BASE}/gyms`" class="sheet-link" @click="closeSheet">
+              <span class="dropdown-icon neutral">
+                <svg class="ico" viewBox="0 0 24 24" v-html="ICON.gyms"></svg>
+              </span>
+              <span class="dropdown-copy">
+                <strong>{{ nt('gymsAndVenues') }}</strong>
               </span>
             </router-link>
           </template>
@@ -478,14 +582,31 @@ const ICON = {
 };
 
 /* =========================================================
+   ICONOS DE LA BARRA SUPERIOR (rellenos, como en el menú del propietario)
+========================================================= */
+
+const NAV_ICON = {
+  /* casa */
+  home: 'M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z',
+  /* edificio: gimnasios y sedes */
+  gyms: 'M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z',
+  /* mancuerna: rutinas */
+  routines: 'M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z',
+  /* corazón: salud y nutrición */
+  health: 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z',
+  /* tarjeta de membresía: membresía y pagos */
+  payments: 'M20 2H4c-1.11 0-2 .89-2 2v11c0 1.11.89 2 2 2h4v5l4-2 4 2v-5h4c1.11 0 2-.89 2-2V4c0-1.11-.89-2-2-2zm0 13H4v-2h16v2zm0-5H4V4h16v6z'
+};
+
+/* =========================================================
    SECCIONES DEL MIEMBRO (idénticas a Sidebar.vue)
 ========================================================= */
 
 const menu = [
-  { type: 'link', key: 'home', to: `${BASE}/dashboard`, svg: ICON.home },
-  { type: 'link', key: 'gymsAndVenues', to: `${BASE}/gyms`, svg: ICON.gyms, color: 'blue' },
+  { type: 'link', key: 'home', to: `${BASE}/dashboard`, svg: ICON.home, navIcon: NAV_ICON.home },
+  { type: 'link', key: 'gymsAndVenues', to: `${BASE}/gyms`, svg: ICON.gyms, navIcon: NAV_ICON.gyms, color: 'blue' },
   {
-    type: 'group', id: 'routines', key: 'routines', svg: ICON.routines,
+    type: 'group', id: 'routines', key: 'routines', svg: ICON.routines, navIcon: NAV_ICON.routines,
     items: [
       { to: `${BASE}/routines`, key: 'exploreRoutines', svg: ICON.explore, color: 'blue' },
       { to: `${BASE}/my-routines`, key: 'myRoutines', svg: ICON.myRoutines, color: 'purple' },
@@ -493,7 +614,7 @@ const menu = [
     ]
   },
   {
-    type: 'group', id: 'health', key: 'healthAndNutrition', svg: ICON.health,
+    type: 'group', id: 'health', key: 'healthAndNutrition', svg: ICON.health, navIcon: NAV_ICON.health,
     items: [
       { to: `${BASE}/body-calculator`, key: 'bodyCalculator', svg: ICON.calculator, color: 'blue' },
       { to: `${BASE}/nutrition-plan`, key: 'nutritionPlan', svg: ICON.nutrition, color: 'purple' }
@@ -503,7 +624,7 @@ const menu = [
   { type: 'link', key: 'trainers', to: `${BASE}/trainers`, svg: ICON.profile, color: 'green' },
   { type: 'link', key: 'statistics', to: `${BASE}/statistics`, svg: ICON.statistics, color: 'orange' },
   {
-    type: 'group', id: 'payments', key: 'membershipAndPayments', svg: ICON.payments,
+    type: 'group', id: 'payments', key: 'membershipAndPayments', svg: ICON.payments, navIcon: NAV_ICON.payments,
     items: [
       { to: `${BASE}/membership`, key: 'membershipStatus', svg: ICON.star, color: 'blue' },
       { to: `${BASE}/payments-history`, key: 'paymentsHistory', svg: ICON.receipt, color: 'purple' }
@@ -518,6 +639,19 @@ const groupsById = Object.fromEntries(
 /* Enlaces que en móvil van dentro de "Más" */
 const moreLinks = menu.filter((m) => m.type === 'link' && m.key !== 'home');
 
+/*
+  Escritorio: para que el menú no se vea apretado, Clases y Reservas,
+  Entrenadores y Estadísticas van dentro del panel del perfil.
+*/
+const desktopMenu = menu.filter(
+  (m) =>
+    m.type === 'group' ||
+    m.key === 'home' ||
+    m.key === 'gymsAndVenues'
+);
+
+const profileLinks = moreLinks.filter((l) => l.key !== 'gymsAndVenues');
+
 /* =========================================================
    TEXTOS DEL MENÚ (los mismos del Sidebar + algunos de apoyo)
 ========================================================= */
@@ -525,6 +659,9 @@ const moreLinks = menu.filter((m) => m.type === 'link' && m.key !== 'home');
 const navLang = {
   es: {
     currentBranch: 'Sucursal Actual',
+    myGyms: 'Mis gimnasios',
+    selectedGym: 'Gimnasio seleccionado',
+    switchGym: 'Cambiar a este gimnasio',
     home: 'Inicio',
     gymsAndVenues: 'Gimnasios y Sedes',
     routines: 'Rutinas',
@@ -554,6 +691,9 @@ const navLang = {
   },
   en: {
     currentBranch: 'Current Branch',
+    myGyms: 'My gyms',
+    selectedGym: 'Selected gym',
+    switchGym: 'Switch to this gym',
     home: 'Home',
     gymsAndVenues: 'Gyms & Venues',
     routines: 'Routines',
@@ -594,7 +734,30 @@ const desktopDropdown = ref(null);
 /* Hoja inferior móvil: null | 'routines' | 'health' | 'payments' | 'more' */
 const mobileSheet = ref(null);
 
-const selectedGym = ref('Gimnasio Principal');
+/*
+  Gimnasios en los que el miembro está inscrito.
+  Reemplaza esta lista por la real (por ejemplo, la que regrese tu API).
+*/
+const GYM_KEY = 'member-selected-gym';
+
+const gyms = ref(['Gimnasio Principal', 'Sucursal Secundaria']);
+
+const savedGym = localStorage.getItem(GYM_KEY);
+
+const selectedGym = ref(
+  gyms.value.includes(savedGym) ? savedGym : gyms.value[0]
+);
+
+const selectGym = (gym) => {
+  selectedGym.value = gym;
+  localStorage.setItem(GYM_KEY, gym);
+
+  /* Para que las páginas puedan recargar sus datos al cambiar de gimnasio */
+  window.dispatchEvent(new CustomEvent('gym-changed', { detail: { gym } }));
+
+  closeDesktopDropdown();
+  closeSheet();
+};
 
 const notifications = ref([
   {
@@ -663,6 +826,18 @@ const unreadNotifications = computed(() => {
 
 const isGroupActive = (id) =>
   (groupsById[id]?.items || []).some((item) => route.path.startsWith(item.to));
+
+/* Resalta el avatar cuando estás en una página que vive en su panel */
+const isProfileMenuActive = computed(() => {
+  const path = route.path;
+
+  return (
+    profileLinks.some((l) => path.startsWith(l.to)) ||
+    path.startsWith(`${BASE}/profile`) ||
+    path.startsWith(`${BASE}/settings`) ||
+    path.startsWith(`${BASE}/help`)
+  );
+});
 
 /* =========================================================
    BARRA INFERIOR MÓVIL
@@ -785,12 +960,10 @@ const handleKeydown = (event) => {
 
 /* =========================================================
    RESIZE
-   (1100 px: con 8 secciones el menú de escritorio necesita
-   más ancho que el del propietario)
 ========================================================= */
 
 const handleResize = () => {
-  if (window.innerWidth >= 1100) {
+  if (window.innerWidth >= 900) {
     closeSheet();
   } else {
     closeDesktopDropdown();
@@ -1071,11 +1244,38 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 9px;
-  padding: 0 12px 0 6px;
+  padding: 0 10px 0 6px;
   border: 1px solid rgba(255, 255, 255, .09);
   border-radius: 12px;
   background: rgba(255, 255, 255, .035);
   color: var(--title);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-branch-chevron {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  fill: var(--muted);
+}
+
+.dropdown-copy small {
+  max-width: 100%;
+  margin-top: 2px;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sheet-check {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: var(--accent);
 }
 
 .mobile-branch-icon {
@@ -1420,13 +1620,14 @@ onUnmounted(() => {
   background: var(--hover-bg);
 }
 
-.sheet-link.router-link-active {
+.sheet-link.router-link-active,
+.sheet-link.selected {
   background: color-mix(in srgb, var(--accent) 12%, transparent);
   color: color-mix(in srgb, var(--accent) 70%, white);
 }
 
 /* Flecha que indica que la fila abre una página */
-.sheet-link::after {
+.sheet-link:not(.branch)::after {
   content: '›';
   margin-left: auto;
   color: var(--muted);
@@ -1639,12 +1840,12 @@ onUnmounted(() => {
 }
 
 /* =========================================================
-   DESKTOP >= 1100
-   (con 8 secciones el menú necesita más ancho que el del
-   propietario, que usa 900)
+   DESKTOP >= 900
+   (900 y no 1024, porque el "modo escritorio" de los
+   navegadores móviles simula una pantalla de ~980px)
 ========================================================= */
 
-@media (min-width: 1100px) {
+@media (min-width: 900px) {
 
   .mobile-top-nav,
   .bottom-nav,
@@ -1686,14 +1887,55 @@ onUnmounted(() => {
     justify-self: start;
   }
 
-  .brand-static {
+  .brand-button {
     width: 100%;
     height: 52px;
     display: flex;
     align-items: center;
     gap: 10px;
     padding: 0 8px;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    background: transparent;
     color: var(--text);
+    cursor: pointer;
+    transition: background 0.16s ease, border-color 0.16s ease;
+  }
+
+  .brand-button:hover,
+  .brand-button.active {
+    border-color: var(--nav-line);
+    background: var(--hover-bg);
+  }
+
+  .brand-button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .brand-chevron {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    display: none;
+    fill: var(--muted);
+    transition: transform 0.17s ease;
+  }
+
+  .brand-chevron.rotated { transform: rotate(180deg); }
+
+  .branch-menu { width: 290px; }
+
+  .dropdown-link.selected {
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    color: color-mix(in srgb, var(--accent) 70%, white);
+  }
+
+  .option-check {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    color: var(--accent);
   }
 
   .brand-mark {
@@ -1734,6 +1976,7 @@ onUnmounted(() => {
 
   .brand-copy span {
     margin-top: 2px;
+    display: none;
     color: var(--muted);
     font-size: 0.74rem;
     font-weight: 500;
@@ -1772,13 +2015,13 @@ onUnmounted(() => {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    padding: 0 7px;
+    padding: 0 9px;
     border: 1px solid transparent;
     border-radius: 10px;
     background: transparent;
     color: color-mix(in srgb, var(--text) 78%, transparent);
     font-family: 'Inter', sans-serif;
-    font-size: 0.74rem;
+    font-size: 0.78rem;
     font-weight: 600;
     line-height: 1;
     text-decoration: none;
@@ -1787,12 +2030,13 @@ onUnmounted(() => {
     transition: color 0.15s ease, background 0.15s ease;
   }
 
-  /* Iconos de las secciones: solo en pantallas muy anchas */
-  .desktop-nav-item > .ico {
+  /* Iconos de las secciones (rellenos). Se muestran desde 1280 px */
+  .desktop-nav-item > .nav-ico {
     width: 18px;
     height: 18px;
     flex-shrink: 0;
     display: none;
+    fill: currentColor;
   }
 
   .desktop-nav-item:hover,
@@ -1812,7 +2056,6 @@ onUnmounted(() => {
     width: 14px;
     height: 14px;
     flex-shrink: 0;
-    display: none;
     fill: currentColor;
     opacity: 0.6;
     transition: transform 0.17s ease;
@@ -1851,7 +2094,7 @@ onUnmounted(() => {
     left: auto;
   }
 
-  .profile-dropdown { width: 250px; }
+  .profile-dropdown { width: 270px; }
 
   .dropdown-title {
     padding: 8px 10px 11px;
@@ -1986,6 +2229,11 @@ onUnmounted(() => {
     background: var(--hover-bg);
   }
 
+  .desktop-profile.current .profile-avatar {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+  }
+
   .profile-avatar {
     width: 38px;
     height: 38px;
@@ -2053,67 +2301,80 @@ onUnmounted(() => {
 }
 
 /* =========================================================
-   1280+: letra y espacios más cómodos, flechitas visibles
+   1100+: aparece el nombre del gimnasio
+========================================================= */
+
+@media (min-width: 1100px) {
+
+  .desktop-navbar-inner { gap: 14px; }
+
+  .desktop-brand { max-width: 220px; }
+
+  .brand-copy { display: flex; }
+
+  .brand-chevron { display: block; }
+
+  .desktop-menu { gap: 4px; }
+
+  .desktop-nav-item { padding: 0 10px; }
+}
+
+/* =========================================================
+   1280+: aparecen los iconos de cada sección
 ========================================================= */
 
 @media (min-width: 1280px) {
 
-  .desktop-navbar-inner { gap: 14px; }
+  .desktop-menu { gap: 6px; }
 
   .desktop-nav-item {
-    padding: 0 10px;
+    padding: 0 12px;
     font-size: 0.8rem;
   }
 
-  .nav-chevron { display: block; }
+  .desktop-nav-item > .nav-ico { display: block; }
 }
 
 /* =========================================================
-   1440+: aparece el nombre del perfil
+   1440+: aparece el nombre del perfil y "Sucursal Actual"
 ========================================================= */
 
 @media (min-width: 1440px) {
 
-  .desktop-nav-item {
-    padding: 0 10px;
-    font-size: 0.82rem;
-  }
+  .desktop-brand { max-width: 240px; }
+
+  .brand-copy span { display: block; }
 
   .profile-user-name { display: block; }
 
   .desktop-profile { gap: 9px; padding: 0 10px 0 6px; }
+
+  .desktop-menu { gap: 8px; }
+
+  .desktop-nav-item { font-size: 0.82rem; }
 }
 
 /* =========================================================
-   1600+: aparece el nombre de la sucursal
+   1600+: más aire entre las secciones
 ========================================================= */
 
 @media (min-width: 1600px) {
 
-  .desktop-brand { max-width: 230px; }
+  .desktop-brand { max-width: 260px; }
 
-  .brand-copy { display: flex; }
+  .desktop-menu { gap: 10px; }
 
   .desktop-nav-item {
-    padding: 0 11px;
+    padding: 0 14px;
     font-size: 0.86rem;
   }
 }
 
 /* =========================================================
-   1800+: aparecen los iconos de cada sección
+   MÓVIL / TABLET (< 900)
 ========================================================= */
 
-@media (min-width: 1800px) {
-
-  .desktop-nav-item > .ico { display: block; }
-}
-
-/* =========================================================
-   MÓVIL / TABLET (< 1100)
-========================================================= */
-
-@media (max-width: 1099px) {
+@media (max-width: 899px) {
 
   .desktop-navbar {
     display: none;

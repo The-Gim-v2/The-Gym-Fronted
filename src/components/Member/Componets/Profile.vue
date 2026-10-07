@@ -876,10 +876,6 @@ onUnmounted(() => {
           <p>{{ t.pageDescription }}</p>
         </div>
 
-        <span class="status-pill" :class="form.status">
-          <span class="status-dot"></span>
-          {{ statusLabel }}
-        </span>
       </header>
 
       <!-- LAYOUT PRINCIPAL -->
