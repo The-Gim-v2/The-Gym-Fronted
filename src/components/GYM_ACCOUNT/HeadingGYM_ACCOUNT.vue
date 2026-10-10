@@ -741,28 +741,57 @@ const navAdmin = [
   }
 ];
 
+
 const navReports = [
   {
-    to: '/GYM_ACCOUNT/revenue', key: 'revenue', es: 'Ingresos', en: 'Revenue',
+    to: '/GYM_ACCOUNT/revenue', key: 'revenue',
+    es: 'Ingresos', en: 'Revenue',
     dEs: 'Historial de ingresos', dEn: 'Revenue history',
     icon: ICON.chart, color: 'green'
   },
   {
-    to: '/GYM_ACCOUNT/debtors', key: 'debtors', es: 'Deudores', en: 'Debtors',
-    dEs: 'Clientes con adeudos', dEn: 'Clients with outstanding balances',
+    to: '/GYM_ACCOUNT/debtors', key: 'debtors',
+    es: 'Deudores', en: 'Debtors',
+    dEs: 'Clientes con adeudos', dEn: 'Outstanding balances',
     icon: ICON.alert, color: 'red'
   },
   {
-    to: '/GYM_ACCOUNT/attendance', key: 'attendance', es: 'Asistencias', en: 'Attendance',
+    to: '/GYM_ACCOUNT/attendance', key: 'attendance',
+    es: 'Asistencias', en: 'Attendance',
     dEs: 'Registro de asistencias', dEn: 'Attendance records',
     icon: ICON.calendar, color: 'blue'
   },
   {
-    to: '/GYM_ACCOUNT/renewals', key: 'renewals', es: 'Renovaciones', en: 'Renewals',
+    to: '/GYM_ACCOUNT/renewals', key: 'renewals',
+    es: 'Renovaciones', en: 'Renewals',
     dEs: 'Seguimiento de membresías', dEn: 'Membership renewals',
+    icon: ICON.renew, color: 'purple'
+  },
+  {
+    to: '/GYM_ACCOUNT/audit-log', key: 'auditLog',
+    es: 'Auditoría', en: 'Audit log',
+    dEs: 'Registro de acciones del sistema',
+    dEn: 'System activity records',
+    icon: ICON.alert, color: 'blue'
+  },
+  {
+    to: '/GYM_ACCOUNT/cash-history', key: 'cashHistory',
+    es: 'Historial de caja', en: 'Cash history',
+    dEs: 'Aperturas, cierres y cortes de caja',
+    dEn: 'Cash opening and closing records',
+    icon: ICON.pay, color: 'green'
+  },
+  {
+    to: '/GYM_ACCOUNT/membership-history',
+    key: 'membershipHistory',
+    es: 'Historial de membresías',
+    en: 'Membership history',
+    dEs: 'Inscripciones, cambios y cancelaciones',
+    dEn: 'Registrations, changes and cancellations',
     icon: ICON.renew, color: 'purple'
   }
 ];
+
 
 /* =========================================================
    ESTADOS GENERALES
@@ -861,12 +890,17 @@ const grupos = {
     '/GYM_ACCOUNT/register-staff'
   ],
   administration: ['/GYM_ACCOUNT/pricing', '/GYM_ACCOUNT/fees'],
-  reports: [
-    '/GYM_ACCOUNT/revenue',
-    '/GYM_ACCOUNT/debtors',
-    '/GYM_ACCOUNT/attendance',
-    '/GYM_ACCOUNT/renewals'
-  ]
+  
+reports: [
+  '/GYM_ACCOUNT/revenue',
+  '/GYM_ACCOUNT/debtors',
+  '/GYM_ACCOUNT/attendance',
+  '/GYM_ACCOUNT/renewals',
+  '/GYM_ACCOUNT/membership-history',
+  '/GYM_ACCOUNT/cash-history',
+  '/GYM_ACCOUNT/audit-log'
+]
+
 };
 
 const isGroupActive = (name) =>

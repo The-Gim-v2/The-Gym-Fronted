@@ -40,6 +40,7 @@ export const GYM_ACCOUNTRoutes = [
         meta: { allowedRole: 'GYM_ACCOUNT' }
       },
 
+
       // --- GRUPO DE EDICIONES Y ACCIONES POR ID ---
       {
         path: 'editar-usuario/:id',
@@ -121,6 +122,25 @@ export const GYM_ACCOUNTRoutes = [
         path: 'cut',
         name: 'cut',
         component: () => import('@/components/GYM_ACCOUNT/Componets/Cut.vue'),
+        meta: { allowedRole: 'GYM_ACCOUNT' }
+      },
+      // --- BITÁCORAS Y REPORTES ADICIONALES ---
+      {
+        path: 'audit-log',
+        name: 'audit-log',
+        component: () => import('@/components/GYM_ACCOUNT/Bitacora/AuditLog.vue'),
+        meta: { allowedRole: 'GYM_ACCOUNT' }
+      },
+      {
+        path: 'cash-history',
+        name: 'cash-history',
+        component: () => import('@/components/GYM_ACCOUNT/Bitacora/CashHistory.vue'),
+        meta: { allowedRole: 'GYM_ACCOUNT' }
+      },
+      {
+        path: 'membership-history',
+        name: 'membership-history',
+        component: () => import('@/components/GYM_ACCOUNT/Bitacora/MembershipHistory.vue'),
         meta: { allowedRole: 'GYM_ACCOUNT' }
       },
 
